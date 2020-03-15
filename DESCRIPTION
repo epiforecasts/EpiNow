@@ -48,8 +48,10 @@ Imports:
     rnaturalearth
 Suggests:
     readr,
+    knitr,
     kableExtra,
     stringr,
+    patchwork,
     rnaturalearthdata
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0

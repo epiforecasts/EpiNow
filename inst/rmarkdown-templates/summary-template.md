@@ -1,0 +1,6 @@
+
+* Case counts by date, stratified by import status (local or imported), were constructed using the World Health Organization (WHO) situation reports and partial line-lists for each region [@WorldHealthOrganization:sitrep; @EricBrown2020, @kraemer2020epidemiological].
+* Case onset dates were estimated using case counts by date of report and a distribution of reporting delays fitted to partial line-lists from each region considered where available.
+* Censoring of cases was adjusted for by assuming that the number of cases is drawn from a binomial distribution.
+* Time-varying effective reproduction estimates were made with a 7-day sliding window using *EpiEstim* [@EpiEstim; @THOMPSON2019100356] adjusted for imported cases and assuming an uncertain serial interval with a mean of 4.7 days (95% CrI: 3.7, 6.0) and a standard deviation of 2.9 days (95% CrI: 1.9, 4.9) [@Nishiura2020.02.03.20019497].
+* Time-varying estimates of the doubling time were made with a 7-day sliding window by iteratively fitting an exponential regression model. 
