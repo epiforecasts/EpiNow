@@ -59,7 +59,7 @@ get_local_import_case_counts <- function(total_cases, linelist = NULL, cases_fro
   
   if (!is.null(cases_from)) {
     cases <- cases %>% 
-      dplyr::filter(data >= lubridate::ymd(cases_from))
+      dplyr::filter(date >= lubridate::ymd(cases_from))
   }
 
   return(cases)
