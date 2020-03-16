@@ -398,11 +398,12 @@ rt_pipeline <- function(cases = NULL,
   ## Plot each measure
   plot_littler <- plot_littler_data %>%
     plot_littler_fn(plot_var = "Rate of spread") +
+    ggplot2::coord_cartesian(ylim=c(0,2)) +
     ggplot2::labs(tag = "A")
 
   plot_doublingtime <- plot_littler_data %>%
     plot_littler_fn(plot_var = "Doubling time (days)") +
-    ggplot2::coord_cartesian(ylim=c(0,20)) +
+    ggplot2::coord_cartesian(ylim=c(0, 15)) +
     ggplot2::labs(tag = "B")
 
   plot_fit <- plot_littler_data %>%
