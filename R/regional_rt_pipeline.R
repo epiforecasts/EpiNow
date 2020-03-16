@@ -15,7 +15,7 @@
 #' @export
 #' @importFrom furrr future_map
 #' @importFrom tidyr complete
-#' @importFrom dplyr count filter
+#' @importFrom dplyr count filter rename
 #' @examples
 #' 
 #' ## Code
@@ -38,7 +38,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   ## National cast
   national_cases <- cases %>% 
-    dplyr::count(date, import_status)
+    dplyr::count(date, import_status, wt = cases) %>% 
+    dplyr::rename(cases = n)
   
   ## Run and save analysis pipeline
   message("Running national Rt pipeline")
