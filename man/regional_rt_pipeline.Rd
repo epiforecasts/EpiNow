@@ -15,16 +15,20 @@ regional_rt_pipeline(
 )
 }
 \arguments{
-\item{cases}{A dataframe of cases (\code{confirm}) by date of confirmation (\code{date}), import status (\code{import_status}), and region (\code{region}).}
+\item{cases}{A dataframe of cases (\code{confirm}) by date of confirmation (\code{date}), import status (\code{import_status}; ("imp)), and region (\code{region}).}
 
 \item{linelist}{A dataframe of of cases (by row) containing the following variables:
 \code{import_status} (values "local" and "imported"), \code{date_onset}, \code{date_confirm}, \code{report_delay}, and \code{region}. If a national linelist is not available a proxy linelist may be
 used but in this case \code{merge_onsets} should be set to \code{FALSE}.}
 
+\item{target_folder}{Character string, name of the folder in which to save the results.}
+
 \item{regional_delay}{Logical defaults to \code{FALSE}. Should available `}
 
 \item{merge_onsets}{Logical defaults to \code{FALSE}. Should available onset data be used. Typically if \code{regional_delay} is
 set to \code{FALSE} this should also be \code{FALSE}}
+
+\item{samples}{Numeric, the number of pseudo linelists to generate. Defaults to 1000.}
 
 \item{...}{}
 }

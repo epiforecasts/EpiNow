@@ -2,7 +2,7 @@
 #'
 #' @description Runs a national realtime pipeline followed by a pipeline for each 
 #' individual region.
-#' @param cases A dataframe of cases (`confirm`) by date of confirmation (`date`), import status (`import_status`), and region (`region`).
+#' @param cases A dataframe of cases (`confirm`) by date of confirmation (`date`), import status (`import_status`; ("imp)), and region (`region`).
 #' @param linelist A dataframe of of cases (by row) containing the following variables:
 #' `import_status` (values "local" and "imported"), `date_onset`, `date_confirm`, `report_delay`, and `region`. If a national linelist is not available a proxy linelist may be 
 #' used but in this case `merge_onsets` should be set to `FALSE`.
@@ -10,7 +10,7 @@
 #' @param merge_onsets Logical defaults to `FALSE`. Should available onset data be used. Typically if `regional_delay` is
 #' set to `FALSE` this should also be `FALSE`
 #' @param ... 
-#'
+#' @inheritParams rt_pipeline
 #' @return NULL
 #' @export
 #' @importFrom furrr future_map
@@ -32,8 +32,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   ## Make sure all dates have cases numbers
   cases <- cases %>% 
     tidyr::complete(date = seq(min(date), max(date), by = "day"),
-                    import_status = c("local", "imported"),
-                    list(cases = 0))
+                    import_status = c("imported", "local"),
+                    fill = list(cases = 0))
   
   
   ## National cast
