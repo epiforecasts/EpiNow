@@ -2,7 +2,7 @@
 ### `r update`
 
 ```{r, include = FALSE}
-out <- knitr::knit_child(paste0("../inst/man/news/", update, ".md"))
+out <- knitr::knit_child(paste0(news_dir, update, ".md"))
 ```
 
 ```{r results="asis"}
