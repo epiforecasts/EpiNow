@@ -61,16 +61,16 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     merge_onsets <- FALSE
   }
   
-  out <- furrr::future_map(regions, function(region) { 
-    message("Running Rt pipeline for ", region)
+  out <- furrr::future_map(regions, function(target_region) { 
+    message("Running Rt pipeline for ", target_region)
     
     
     regional_cases <- cases %>% 
-      dplyr::filter(region %in% region)
+      dplyr::filter(region %in% target_region)
     
     if (regional_delay) {
       regional_linelist <- linelist %>% 
-        dplyr::filter(region %in% region)
+        dplyr::filter(region %in% target_region)
     }else{
       regional_linelist <- linelist
     }
