@@ -67,7 +67,7 @@ country_map <- function(data = NULL, country = NULL,
   
   # Add map details ---------------------------------------------------------
   
-  if (is.numeric(world_with_data[[variable]])) {
+  if (is.numeric(regions_with_data[[variable]])) {
     map <- map +
       ggplot2::guides(fill = ggplot2::guide_colorbar(title = variable_label,
                                                      barwidth = 15, barheight = 0.5)) +
