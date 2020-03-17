@@ -28,7 +28,7 @@ copy_report<- function (yaml = NULL, report = NULL, lines_to_cut = NULL,
     report <- report[-c(lines_to_cut)]
   }
   
-
+ 
   # put the yaml in
   final_report <- append(yaml, report)
 
