@@ -6,7 +6,8 @@
 #' @param linelist A dataframe of of cases (by row) containing the following variables:
 #' `import_status` (values "local" and "imported"), `date_onset`, `date_confirm`, `report_delay`, and `region`. If a national linelist is not available a proxy linelist may be 
 #' used but in this case `merge_onsets` should be set to `FALSE`.
-#' @param regional_delay Logical defaults to `FALSE`. Should available `
+#' @param national Logical defaults to `FALSE`. Should a national summary nowcast be made.
+#' @param regional_delay Logical defaults to `FALSE`. Should reporting delays be estimated by region.
 #' @param merge_onsets Logical defaults to `FALSE`. Should available onset data be used. Typically if `regional_delay` is
 #' set to `FALSE` this should also be `FALSE`
 #' @param ... 
@@ -20,8 +21,8 @@
 #' 
 #' ## Code
 #' regional_rt_pipeline
-regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = "results",
-                                 regional_delay = FALSE, merge_onsets = FALSE, samples = 1000, ...) {
+regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = "results", 
+                                 national = FALSE, regional_delay = FALSE, merge_onsets = FALSE, samples = 1000, ...) {
   
   
   ## Control parameters
@@ -36,23 +37,25 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
                     fill = list(cases = 0))
   
   
-  ## National cast
-  national_cases <- cases %>% 
-    dplyr::count(date, import_status, wt = cases) %>% 
-    dplyr::rename(cases = n)
-  
-  ## Run and save analysis pipeline
-  message("Running national Rt pipeline")
-  
-  rt_pipeline(
-    cases = national_cases,
-    linelist = linelist,
-    target_folder = file.path(target_folder, "national", target_date),
-    target_date = target_date, 
-    merge_actual_onsets = merge_onsets, 
-    samples = samples, ...)
-  
-  
+  if (national) {
+    ## National cast
+    national_cases <- cases %>% 
+      dplyr::count(date, import_status, wt = cases) %>% 
+      dplyr::rename(cases = n)
+    
+    ## Run and save analysis pipeline
+    message("Running national Rt pipeline")
+    
+    rt_pipeline(
+      cases = national_cases,
+      linelist = linelist,
+      target_folder = file.path(target_folder, "national", target_date),
+      target_date = target_date, 
+      merge_actual_onsets = merge_onsets, 
+      samples = samples, ...)
+    
+  }
+
   ## regional pipelines
   regions <- unique(cases$region)
   
@@ -60,6 +63,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     message("Using a national linelist so setting merge onsets to FALSE for regional analysis")
     merge_onsets <- FALSE
   }
+  
+  message("Running pipelines by region")
   
   out <- furrr::future_map(regions, function(target_region) { 
     message("Running Rt pipeline for ", target_region)

@@ -8,6 +8,7 @@ regional_rt_pipeline(
   cases = NULL,
   linelist = NULL,
   target_folder = "results",
+  national = FALSE,
   regional_delay = FALSE,
   merge_onsets = FALSE,
   samples = 1000,
@@ -23,7 +24,9 @@ used but in this case \code{merge_onsets} should be set to \code{FALSE}.}
 
 \item{target_folder}{Character string, name of the folder in which to save the results.}
 
-\item{regional_delay}{Logical defaults to \code{FALSE}. Should available `}
+\item{national}{Logical defaults to \code{FALSE}. Should a national summary nowcast be made.}
+
+\item{regional_delay}{Logical defaults to \code{FALSE}. Should reporting delays be estimated by region.}
 
 \item{merge_onsets}{Logical defaults to \code{FALSE}. Should available onset data be used. Typically if \code{regional_delay} is
 set to \code{FALSE} this should also be \code{FALSE}}
