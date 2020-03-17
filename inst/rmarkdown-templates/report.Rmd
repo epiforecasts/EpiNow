@@ -97,72 +97,13 @@ cat(paste(out, collapse = '\n'))
 ### Map
 
 ```{r load-results}
-map_prob_change <- function(var) {
-      dplyr::case_when(var < 0.05 ~ "Increasing",
-                       var < 0.2 ~  "Likely increasing", 
-                       var < 0.8 ~ "Unsure", 
-                       var < 0.95 ~ "Likely decreasing",
-                       var <= 1 ~ "Decreasing") %>% 
-        factor(levels = c("Increasing", "Likely increasing", "Unsure", 
-                          "Likely decreasing", "Decreasing"))
-}
-
-estimates <- tibble::tibble(
-  `Country/Region` = names(regions),
-  `Cases with date of onset on the day of report generation` = regions %>% 
-     purrr::map_chr(~ load_data("current_cases.rds", .)),
-  `Expected change in daily cases` = regions %>% 
-  purrr::map_dbl(~ load_data("prob_control_latest.rds", .)) %>% 
-  map_prob_change(),
-  `Effective reproduction no.` =  regions %>% 
-  purrr::map_chr(~ load_data("bigr_eff_latest.rds", .)),
-  `Doubling time (days)` = regions %>% 
-  purrr::map_chr(~ load_data("doubling_time_latest.rds", .))) 
+results <- EpiNow::summarise_results(regions, results_dir = results_dir, target_date = target_date)
 ```
 
-
-```{r extract-numeric-results}
-## Extract a value
-extract_var <- function(var, index) {
-  var %>% 
-      str_split(" -- ") %>% 
-      purrr::map_dbl(~ as.numeric(.[[index]]))
-}
-
-## Make estimates numeric
-numeric_estimates <- estimates %>% 
-  dplyr::select(`Country/Region`, 
-                `Cases with date of onset on the day of report generation`, 
-                `Effective reproduction no.`, `Expected change in daily cases`) %>% 
-  tidyr::gather(value = "value", key = "metric", -`Country/Region`, 
-                -`Expected change in daily cases`) %>% 
-  dplyr::mutate(
-    lower = extract_var(value, 1),
-    upper = extract_var(value, 2))
-
-numeric_estimates <- numeric_estimates %>% 
-  dplyr::mutate(
-        `Country/Region` = numeric_estimates$`Country/Region` %>% 
-      factor(levels = numeric_estimates %>% 
-               arrange(desc(upper)) %>% 
-               pull(`Country/Region`) %>% 
-               unique())
-  )
-
-## Highest inc countires
-high_inc_regions <- numeric_estimates %>% 
-  dplyr::arrange(dplyr::desc(upper)) %>% 
-  pull(`Country/Region`) %>% 
-  unique() %>% 
-  as.character() 
-
-regions <- purrr::map_chr(high_inc_regions, ~ regions[names(regions) %in% .])
-names(regions) <- high_inc_regions
-```
 
 ```{r map, fig.width = 12, fig.height = 6}
-estimates %>% 
-  dplyr::rename(country = `Country/Region`) %>% 
+results$table %>% 
+  dplyr::rename(country = region) %>% 
   map_fn(variable = "Expected change in daily cases") +
   ggplot2::guides(fill = ggplot2::guide_legend(
     title = "Expected change in daily cases", ncol = 2))
@@ -174,18 +115,8 @@ estimates %>%
 ### Summary of latest reproduction number and case count estimates
 
 ```{r, fig.height = 12, fig.width = 12}
-numeric_estimates %>% 
-  ggplot2::ggplot(ggplot2::aes(x = `Country/Region`, ymin = lower, 
-                               ymax = upper, col = `Expected change in daily cases`)) +
-  ggplot2::geom_linerange(size = 6) +
-  ggplot2::geom_hline(yintercept = 1, linetype = 2) +
-  facet_wrap(~ metric, ncol = 1, scales = "free_y") +
-  cowplot::theme_cowplot() +
-  cowplot::panel_border() +
-  theme(axis.text.x = element_text(angle = 90)) +
-  ggplot2::scale_color_viridis_d(option = "cividis", end = 0.9,alpha = 0.7) +
-  theme(legend.position = "bottom") +
-  ggplot2::guides(col = ggplot2::guide_legend(nrow = 2))
+results$data %>% 
+  plot_summary()
 ```
 
 <br>
@@ -194,22 +125,9 @@ numeric_estimates %>%
 ### Reproduction numbers over time in the six countries/regions with the most cases currently
 
 ```{r summarise-bigr-plot, fig.height = 9, fig.width = 12}
-plots <- regions[names(regions) %in% high_inc_regions[1:6]] %>% 
-  purrr::map(function(region) {
-    plot <- load_data("bigr_eff_plot.rds", region) +
-      ggplot2::labs(title = region %>% 
-             stringr::str_replace("-", " ") %>% 
-    stringr::str_to_title()) +
-    ggplot2::scale_x_date(date_breaks = "1 week", date_labels = "%b %d",
-                          limits = c(as.Date("2020-03-01"), as.Date(target_date))) +
-    ggplot2::coord_cartesian(ylim = c(0, 4))
-    
-    return(plot)
-  })
-
-plots %>% 
-  patchwork::wrap_plots() +
-  patchwork::plot_layout(ncol = 2)
+regions[names(regions) %in% results$regions_by_inc[1:6]] %>% 
+  plot_grid(plot_object = "bigr_eff_plot.rds", 
+            results_dir = results_dir, target_date = target_date)
 ```
 
 <br>
@@ -221,10 +139,7 @@ plots %>%
 ```{r summary-table-1}
 caption <- paste0("Latest estimates of the number of cases by date of onset, the effective reproduction number, and the doubling time for the ", target_date, " in each region included in the analysis. Based on the last 7 days of data. The 95\\% credible interval is shown for each numeric estimate. China excludes Hubei.")
 
-estimates <- names(regions) %>% 
-  purrr::map_dfr(~ dplyr::filter(estimates, `Country/Region` %in% .))
-
-knitr::kable(estimates, booktabs = TRUE, caption = ifelse(!knitr:::is_latex_output(), "", caption))  %>% 
+knitr::kable(results$table, booktabs = TRUE, caption = ifelse(!knitr:::is_latex_output(), "", caption))  %>% 
   kableExtra::kable_styling(latex_options = c("striped", "hold_position"),
                 full_width = TRUE) %>% 
   kableExtra::landscape()

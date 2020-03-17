@@ -6,7 +6,7 @@
 #'
 #' @return A character variable.
 #' @export
-#'
+#' @importFrom dplyr case_when
 #' @examples
 #' 
 #' var <- seq(0.01, 1, 0.01)
