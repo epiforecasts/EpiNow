@@ -7,9 +7,7 @@
 ##' @param prob Numeric, probability of successful trial
 ##' @export
 rbinom_size <- function(n, x, prob) {
-  x <- x + stats::rnbinom(n, x, prob)
-
-  x <- ifelse(is.na(x), 0, x)
+  x <- ifelse(is.na(x), 0, x + stats::rnbinom(n, x + 1, prob))
 
   return(x)
 }
