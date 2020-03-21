@@ -24,7 +24,7 @@
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
 #' @param rt_prior A list defining the reproduction number prior containing the mean (`mean_prior`) and standard deviation (`std_prior`)
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
-#' @param save_plots Logical, defaults to code `FALSE`. Should plots be saved.
+#' @param save_plots Logical, defaults to code `TRUE`. Should plots be saved.
 #' @return NULL
 #' @export
 #' @importFrom dplyr rename filter mutate count group_by ungroup mutate_at pull select case_when bind_rows left_join bind_rows
@@ -55,7 +55,7 @@ rt_pipeline <- function(cases = NULL,
                               verbose = FALSE,
                               serial_intervals = NULL,
                               rt_prior = NULL,
-                              save_plots = FALSE) {
+                              save_plots = TRUE) {
 
 
 

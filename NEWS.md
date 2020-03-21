@@ -5,3 +5,4 @@
 * Parameterised the report to be generalised.
 * Added a regional pipeline and made a national summary nowcast optional.
 * Added summary and plotting functions built to work from saved results.
+* Added a function to summarise results across regions

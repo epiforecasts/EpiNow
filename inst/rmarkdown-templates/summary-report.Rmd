@@ -26,21 +26,6 @@ require(kableExtra)
 results_dir <- params$results_dir
 target_date <- params$target_date
 
-  
-## Regions to include - based on folder names
-regions <- list.files(results_dir)
-
-## Put into alphabetical order
-regions <- regions[order(regions)]
-
-names(regions) <- regions %>% 
-    stringr::str_replace_all("-", " ") %>% 
-    stringr::str_to_title()
-
-
-### Load data
-load_data <- purrr::partial(EpiNow::load_nowcast_result,
-                            results_dir = results_dir)
 
 ## Overall figures and tables
 summary_figures <- 3
@@ -50,8 +35,7 @@ summary_tables <- 1
 ### Map
 
 ```{r load-results}
-results <- EpiNow::summarise_results(regions, results_dir = results_dir, 
-                                     target_date = target_date)
+
 ```
 
 

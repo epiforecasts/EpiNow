@@ -20,11 +20,12 @@
 #' ## Code
 #' 
 #' summarise_results
-summarise_results <- function(regions = NULL, results_dir = "results",
+summarise_results <- function(regions = NULL,
+                              results_dir = "results",
                               target_date = NULL) {
   
    ## Utility functions
-   load_data <- purrr::partial(EpiNow::load_nowcast_result,
+   load_data <- purrr::partial(load_nowcast_result,
                                date = target_date, result_dir = results_dir)
    
    ## Extract a value
