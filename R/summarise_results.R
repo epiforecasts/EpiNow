@@ -25,7 +25,7 @@ summarise_results <- function(regions = NULL, results_dir = "results",
   
    ## Utility functions
    load_data <- purrr::partial(EpiNow::load_nowcast_result,
-                               date = target_date, results_dir = result_dir)
+                               date = target_date, result_dir = results_dir)
    
    ## Extract a value
    extract_var <- function(var, index) {
@@ -46,7 +46,7 @@ summarise_results <- function(regions = NULL, results_dir = "results",
       purrr::map_chr(~ load_data("bigr_eff_latest.rds", .)),
     `Doubling time (days)` = regions %>% 
       purrr::map_chr(~ load_data("doubling_time_latest.rds", .))) 
-  
+   
   
   ## Make estimates numeric
   numeric_estimates <- estimates %>% 
@@ -54,7 +54,7 @@ summarise_results <- function(regions = NULL, results_dir = "results",
                   `Cases with date of onset on the day of report generation`, 
                   `Effective reproduction no.`, 
                   `Expected change in daily cases`) %>% 
-    tidyr::gather(value = "value", key = "metric", -!!region_name, 
+    tidyr::gather(value = "value", key = "metric", -region, 
                   -`Expected change in daily cases`) %>% 
     dplyr::mutate(
       lower = extract_var(value, 1),

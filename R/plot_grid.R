@@ -22,7 +22,7 @@ plot_grid <- function(regions = NULL, plot_object = "bigr_eff_plot.rds",
 plots <- 
   purrr::map(regions, function(region) {
     plot <- EpiNow::load_nowcast_result(plot_object, region, 
-                                        date = target_date, results_dir = results_dir) +
+                                        date = target_date, results_dir) +
       ggplot2::labs(title = region %>% 
                       stringr::str_replace("-", " ") %>% 
                       stringr::str_to_title()) +

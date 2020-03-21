@@ -1,32 +1,11 @@
----
-title: "Temporal variation in transmission during the COVID-19 outbreak"
-csl: `r system.file("rmarkdown-templates/resources/bmj.csl",
-package = "EpiNow")`
-output:
-  pdf_document: default
-  html_document:
-    theme: cosmo
-bibliography: `r system.file("rmarkdown-templates/resources/library.bib",
-package = "EpiNow")`
-params: 
-  preamble: "man/preamble.md"
-  results_dir: "results"
-  target_date: !r Sys.Date() - 1
-  regional_methods_dir: "man/regional-methods"
-  news_dir: "man/news"
-  map_fn: !r EpiNow::global_map
-  summary: "man/summary.md"
-  limitations: "man/limitations.md"
-  data_statement: "man/data.md"
----
+
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE, eval = TRUE,
                       fig.width = 6, fig.height = 3,
                       message = FALSE,
                       warning = FALSE,
-                      dpi = 320,
-                      fig.path = "figures/")
+                      dpi = 320)
 ```
 
 
@@ -44,16 +23,9 @@ require(kableExtra)
 ```
 
 ```{r settings}
-## Assign parameterised values
-preamble <- params$preamble
 results_dir <- params$results_dir
 target_date <- params$target_date
-regional_methods_dir <- params$regional_methods_dir
-news_dir <- params$news_dir
-map_fn <- params$map_fn
-summary <- params$summary
-limitations <- params$limitations
-data_statement <- params$data_statement
+
   
 ## Regions to include - based on folder names
 regions <- list.files(results_dir)
@@ -65,11 +37,6 @@ names(regions) <- regions %>%
     stringr::str_replace_all("-", " ") %>% 
     stringr::str_to_title()
 
-## News updates
-updates <- list.files(news_dir) %>% 
-  stringr::str_remove(".md") %>% 
-  as.Date(.) %>% 
-  sort()
 
 ### Load data
 load_data <- purrr::partial(EpiNow::load_nowcast_result,
@@ -80,33 +47,16 @@ summary_figures <- 3
 summary_tables <- 1
 ```
 
-```{r load-preamble, include = FALSE}
-out <- knitr::knit_child(preamble)
-```
-
-```{r print-preamble, results="asis"}
-cat(paste(out, collapse = '\n'))
-```
-
-## Summary {.tabset}
-
-**Aim:** To identify changes in the reproduction number, rate of spread, and doubling time during the course of the COVID-19 outbreak whilst accounting for potential biases due to delays in case reporting.
-
-`r paste0("**Latest estimates as of the ", target_date, "**")`
-
 ### Map
 
 ```{r load-results}
-results <- EpiNow::summarise_results(regions, results_dir = results_dir, target_date = target_date)
+results <- EpiNow::summarise_results(regions, results_dir = results_dir, 
+                                     target_date = target_date)
 ```
 
 
 ```{r map, fig.width = 12, fig.height = 6}
-results$table %>% 
-  dplyr::rename(country = region) %>% 
-  map_fn(variable = "Expected change in daily cases") +
-  ggplot2::guides(fill = ggplot2::guide_legend(
-    title = "Expected change in daily cases", ncol = 2))
+
 ```
 
 <br>
@@ -148,54 +98,10 @@ knitr::kable(results$table, booktabs = TRUE, caption = ifelse(!knitr:::is_latex_
 `r if(!knitr:::is_latex_output()) paste0("*Table 1: ", caption, "*")`
 
 
-## Methods {.tabset}
 
-### Summary
+`r if(show_regions) '## Regional reports {.tabset}'`
 
-```{r load-summary, include = FALSE}
-out <- knitr::knit_child(summary)
-```
-
-```{r print-summary, results="asis"}
-cat(paste(out, collapse = '\n'))
-```
-
-
-### Limitations
-
-```{r load-limitations, include = FALSE}
-out <- knitr::knit_child(limitations)
-```
-
-```{r print-limitations, results="asis"}
-cat(paste(out, collapse = '\n'))
-```
-
-
-### Detail
-
-
-```{r load-data-details, include = FALSE}
-out <- knitr::knit_child(data_statement)
-```
-
-```{r print-data-details, results="asis"}
-cat(paste(out, collapse = '\n'))
-```
-
-
-```{r load-methods, include = FALSE}
-out <- knitr::knit_child(system.file("rmarkdown-templates/methods.md",
-                                        package = "EpiNow"))
-```
-
-```{r print-preamble, results="asis"}
-cat(paste(out, collapse = '\n'))
-```
-
-`r if(!knitr:::is_latex_output()) '## Regional reports {.tabset}'`
-
-```{r generate-region-reports, include = FALSE, eval = !knitr:::is_latex_output()}
+```{r generate-region-reports, include = FALSE, eval = show_regions}
 region_summaries <- 1:length(regions) %>% 
   purrr::map(function(region_index) {
     index <- region_index
@@ -207,27 +113,7 @@ region_summaries <- 1:length(regions) %>%
 ```
 
 
-```{r print-region-reports, results="asis", eval = !knitr:::is_latex_output()}
+```{r print-region-reports, results="asis", eval = show_regions}
 cat(paste(region_summaries, collapse = '\n'))
 ```
 
-`r if(!knitr:::is_latex_output()) '## Updates {.tabset}'`
-
-```{r generate-update-reports, include = FALSE, eval = !knitr:::is_latex_output()}
-update_reports <- rev(updates) %>% 
-  purrr::map(function(target_update) {
-    update <- target_update
-   out <- knitr::knit_child(system.file("rmarkdown-templates/report-news.Rmd",
-                                        package = "EpiNow"), envir = environment()) 
-  })
-```
-
-```{r print-updates, results="asis", eval = !knitr:::is_latex_output()}
-cat(paste(update_reports, collapse = '\n'))
-```
-
-`r if(!knitr:::is_latex_output()) 'See [EpiNow](https://github.com/epiforecasts/EpiNow/blob/master/inst/rmarkdown-templates/global-report.Rmd) for method updates.'`
-
-## References
-
-<div id = 'refs'></div>

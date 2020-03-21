@@ -1,5 +1,11 @@
-### `r stringr::str_to_title(region_name)` {.tabset}
+### `r stringr::str_to_title(region_name)`
 
+
+```{r}
+library(tibble)
+library(knitr)
+library(kableExtra)
+```
 #### Summary
 
 ```{r, fig.height = 6, fig.width = 12}
@@ -53,18 +59,4 @@ load_data("rate_spread_plot.rds", region)
 <br>
 `r paste0("*Figure ",  summary_figures + 2 + (index - 1) * 3, ": A.) Time-varying estimate of the rate of spread, B.) Time-varying estimate of the doubling time in days (note that when the rate of spread is negative the doubling time is assumed to be infinite), C.) The adjusted R-squared estimates indicating the goodness of fit of the exponential regression model (with values closer to 1 indicating a better fit). Based on data from the ", target_date, ". Light grey ribbon = 95% credible interval; dark grey ribbon = the interquartile range. Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence.*")`
 
-#### Implementation details
-
-```{r, include = FALSE}
-details <- paste0(regional_methods_dir, region, ".md")
-if (file.exists(details)) {
-  out <- knitr::knit_child(details)
-}
-```
-
-```{r, results="asis"}
-if (file.exists(details)) {
-  cat(paste(out, collapse = '\n'))
-}
-```
 

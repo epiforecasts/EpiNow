@@ -16,12 +16,12 @@ plot_summary <- function(summary_results, x_lab = "Region") {
   summary_results %>% 
   ggplot2::ggplot(ggplot2::aes(x = region, ymin = lower, 
                                ymax = upper, col = `Expected change in daily cases`)) +
-    ggplot2::geom_linerange(size = 6) +
+    ggplot2::geom_linerange(size = 6, alpha = 0.8) +
     ggplot2::geom_hline(yintercept = 1, linetype = 2) +
     ggplot2::facet_wrap(~ metric, ncol = 1, scales = "free_y") +
     cowplot::theme_cowplot() +
     cowplot::panel_border() +
-    ggplot2::theme(axis.text.x = element_text(angle = 90)) +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
     ggplot2::scale_color_viridis_d(option = "cividis", end = 0.9, alpha = 0.7) +
     ggplot2::theme(legend.position = "bottom") +
     ggplot2::guides(col = ggplot2::guide_legend(nrow = 2)) +

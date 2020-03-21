@@ -1,4 +1,0 @@
-#### Data
-
-We used partial line-lists from each region that contained the date of symptom onset, date of confirmation and import status (imported or local) for each case [@kraemer2020epidemiological] where available. The region reports give details of the steps taken where this data were not available. Daily case counts by date of report were extracted from the World Health Organization (WHO) situation reports for every location considered [@WorldHealthOrganization:sitrep; @EricBrown2020]. The case counts (and partial line-lists where available) were used to assemble the daily number of local and imported cases. Where the partial line-lists and case counts disagreed, it was assumed that the partial line-lists were correct and the WHO case counts were adjusted so that the overall number of cases occurring remained the same but the number of local cases being adjusted as needed.
-
