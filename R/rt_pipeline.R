@@ -63,7 +63,7 @@ rt_pipeline <- function(cases = NULL,
 
 latest_folder <- file.path(target_folder, "latest")
 target_folder <- file.path(target_folder, target_date)
-
+ 
 # Default input -----------------------------------------------------------
 
   if (is.null(serial_intervals)) {
@@ -478,7 +478,7 @@ target_folder <- file.path(target_folder, target_date)
         EpiNow::map_prob_change() %>% 
         as.character(),
       R_latest,
-      report_latest,
+      report_spread_latest,
       doubling_time_latest,
       adjusted_r_latest
     )
