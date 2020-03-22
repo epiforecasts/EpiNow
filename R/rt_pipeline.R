@@ -484,7 +484,7 @@ target_folder <- file.path(target_folder, target_date)
     )
   )
   
-  saveRDS(region_simmary, paste0(target_folder, '/region_summary.rds'))
+  saveRDS(region_summary, paste0(target_folder, '/region_summary.rds'))
   
   
   ## Save all results to a latest folder as well
@@ -493,7 +493,7 @@ target_folder <- file.path(target_folder, target_date)
   }
 
   dir.create(latest_folder)
-  file.copy(target_folder, latest_folder, recursive=TRUE)
+  file.copy(target_folder, latest_folder, recursive = TRUE)
   
   return(invisible(NULL))
 }
