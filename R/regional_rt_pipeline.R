@@ -49,7 +49,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     rt_pipeline(
       cases = national_cases,
       linelist = linelist,
-      target_folder = file.path(target_folder, "national", target_date),
+      target_folder = file.path(target_folder, "national"),
       target_date = target_date, 
       merge_actual_onsets = merge_onsets, 
       samples = samples, ...)
@@ -83,7 +83,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     rt_pipeline(
       cases = regional_cases,
       linelist = regional_linelist,
-      target_folder = file.path(target_folder, target_region, target_date),
+      target_folder = file.path(target_folder, target_region),
       target_date = target_date, 
       merge_actual_onsets = merge_onsets, 
       samples = samples, ...)

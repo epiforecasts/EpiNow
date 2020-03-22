@@ -59,6 +59,10 @@ rt_pipeline <- function(cases = NULL,
                               save_plots = TRUE) {
 
 
+# Set up folders ----------------------------------------------------------
+
+latest_folder <- file.path(target_folder, "latest")
+target_folder <- file.path(target_folder, target_date)
 
 # Default input -----------------------------------------------------------
 
@@ -481,6 +485,15 @@ rt_pipeline <- function(cases = NULL,
   )
   
   saveRDS(region_simmary, paste0(target_folder, '/region_summary.rds'))
+  
+  
+  ## Save all results to a latest folder as well
+  if (dir.exists(latest_folder)) {
+    unlink(latest_folder)
+  }
+
+  dir.create(latest_folder)
+  file.copy(target_folder, latest_folder, recursive=TRUE)
   
   return(invisible(NULL))
 }
