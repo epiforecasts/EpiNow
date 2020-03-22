@@ -12,9 +12,6 @@ regional_summary(
 )
 }
 \arguments{
-\item{results_dir}{A character string giving the directory in which results
-are stored (as produced by \code{regional_rt_pipeline}).}
-
 \item{summary_dir}{A character string giving the directory
 in which to store summary of results.}
 

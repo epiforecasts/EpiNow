@@ -6,6 +6,7 @@ library(tibble)
 library(knitr)
 library(kableExtra)
 ```
+
 #### Summary
 
 ```{r, fig.height = 6, fig.width = 12}

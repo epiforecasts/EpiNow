@@ -2,8 +2,6 @@
 
 #' Generate Regional Summary Output
 #'
-#' @param results_dir A character string giving the directory in which results
-#'  are stored (as produced by `regional_rt_pipeline`).
 #' @param summary_dir A character string giving the directory
 #'  in which to store summary of results.
 #' @param target_date A character string giving the target date for which to extract results
@@ -49,15 +47,7 @@ if (!dir.exists(summary_dir)) {
   dir.create(summary_dir)
 }
 
-## Regions to include - based on folder names
-regions <- list.files(results_dir)
-
-## Put into alphabetical order
-regions <- regions[order(regions)]
-
-names(regions) <- regions %>%
-  stringr::str_replace_all("-", " ") %>%
-  stringr::str_to_title()
+regions <- EpiNow::get_regions(results_dir)
 
 ### Load data
 load_data <- purrr::partial(EpiNow::load_nowcast_result,
