@@ -493,7 +493,8 @@ target_folder <- file.path(target_folder, target_date)
   }
 
   dir.create(latest_folder)
-  file.copy(target_folder, latest_folder, recursive = TRUE)
+  file.copy(file.path(target_folder, "."),
+            latest_folder, recursive = TRUE)
   
   return(invisible(NULL))
 }
