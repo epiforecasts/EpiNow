@@ -69,7 +69,7 @@ summary_plot <- results$data %>%
 
 ggplot2::ggsave(file.path(summary_dir, "summary_plot.png"),
                 dpi = 330, width = 12, height = 12)
-
+ 
 
 message("Plotting summary Rt and case plots")
 
