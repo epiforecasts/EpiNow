@@ -9,7 +9,7 @@
 #' @param national Logical defaults to `FALSE`. Should a national summary nowcast be made.
 #' @param regional_delay Logical defaults to `FALSE`. Should reporting delays be estimated by region.
 #' @param merge_onsets Logical defaults to `FALSE`. Should available onset data be used. Typically if `regional_delay` is
-#' @param case_limit Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 10.
+#' @param case_limit Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 20.
 #' set to `FALSE` this should also be `FALSE`
 #' @param ... 
 #' @inheritParams rt_pipeline
@@ -24,7 +24,7 @@
 #' regional_rt_pipeline
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = "results", 
                                  national = FALSE, regional_delay = FALSE, merge_onsets = FALSE,
-                                 case_limit = 10,
+                                 case_limit = 20,
                                  samples = 1000, ...) {
   
   
