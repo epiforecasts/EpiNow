@@ -47,7 +47,7 @@ theme_map <- function(map = NULL, continuous = FALSE,
     
   }else{
     map <- map +
-      ggplot2::guides(fill = ggplot2::guide_legend(title = variable_label)) +
+      ggplot2::guides(fill = ggplot2::guide_legend(title = variable_label, ncol = 2)) +
       ggplot2::scale_fill_viridis_d(
         begin = 0,
         end = 0.9,
