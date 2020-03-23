@@ -11,6 +11,7 @@ regional_rt_pipeline(
   national = FALSE,
   regional_delay = FALSE,
   merge_onsets = FALSE,
+  case_limit = 20,
   samples = 1000,
   ...
 )
@@ -28,7 +29,9 @@ used but in this case \code{merge_onsets} should be set to \code{FALSE}.}
 
 \item{regional_delay}{Logical defaults to \code{FALSE}. Should reporting delays be estimated by region.}
 
-\item{merge_onsets}{Logical defaults to \code{FALSE}. Should available onset data be used. Typically if \code{regional_delay} is
+\item{merge_onsets}{Logical defaults to \code{FALSE}. Should available onset data be used. Typically if \code{regional_delay} is}
+
+\item{case_limit}{Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 20.
 set to \code{FALSE} this should also be \code{FALSE}}
 
 \item{samples}{Numeric, the number of pseudo linelists to generate. Defaults to 1000.}

@@ -27,12 +27,12 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-    cowplot,
     dplyr,
     rlang,
     EpiEstim,
     furrr,
     ggplot2,
+    cowplot,
     lubridate,
     magrittr,
     methods,

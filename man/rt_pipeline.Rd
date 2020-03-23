@@ -24,7 +24,7 @@ rt_pipeline(
   verbose = FALSE,
   serial_intervals = NULL,
   rt_prior = NULL,
-  save_plots = FALSE
+  save_plots = TRUE
 )
 }
 \arguments{
@@ -65,7 +65,7 @@ that day. Defaults to \code{EpiNow::covid_serial_intervals}.}
 
 \item{rt_prior}{A list defining the reproduction number prior containing the mean (\code{mean_prior}) and standard deviation (\code{std_prior})}
 
-\item{save_plots}{Logical, defaults to code \code{FALSE}. Should plots be saved.}
+\item{save_plots}{Logical, defaults to code \code{TRUE}. Should plots be saved.}
 }
 \description{
 Combine fitting a delay distribution, constructing a set of

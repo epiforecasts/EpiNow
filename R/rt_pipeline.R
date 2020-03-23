@@ -24,13 +24,14 @@
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
 #' @param rt_prior A list defining the reproduction number prior containing the mean (`mean_prior`) and standard deviation (`std_prior`)
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
-#' @param save_plots Logical, defaults to code `FALSE`. Should plots be saved.
+#' @param save_plots Logical, defaults to code `TRUE`. Should plots be saved.
 #' @return NULL
 #' @export
 #' @importFrom dplyr rename filter mutate count group_by ungroup mutate_at pull select case_when bind_rows left_join bind_rows
 #' @importFrom tidyr drop_na unnest
+#' @importFrom tibble tibble
 #' @importFrom purrr map
-#' @importFrom ggplot2 ggsave theme labs coord_cartesian
+#' @importFrom ggplot2 ggsave theme labs coord_cartesian scale_x_date
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_layout
 #'
@@ -55,10 +56,14 @@ rt_pipeline <- function(cases = NULL,
                               verbose = FALSE,
                               serial_intervals = NULL,
                               rt_prior = NULL,
-                              save_plots = FALSE) {
+                              save_plots = TRUE) {
 
 
+# Set up folders ----------------------------------------------------------
 
+latest_folder <- file.path(target_folder, "latest")
+target_folder <- file.path(target_folder, target_date)
+ 
 # Default input -----------------------------------------------------------
 
   if (is.null(serial_intervals)) {
@@ -152,8 +157,8 @@ rt_pipeline <- function(cases = NULL,
   if (save_plots) {
     ggplot2::ggsave(paste0(target_folder, "/cases_plot.png"),
                     plot_cases,
-                    width = 8,
-                    height = 6,
+                    width = 12,
+                    height = 3,
                     dpi = 320)
 
   }
@@ -263,8 +268,8 @@ rt_pipeline <- function(cases = NULL,
     ## Save plot
     ggplot2::ggsave(paste0(target_folder, "/bigr_eff_plot.png"),
                     plot_bigr,
-                    width = 8,
-                    height = 6,
+                    width = 12,
+                    height = 3,
                     dpi = 320)
   }
 
@@ -421,7 +426,7 @@ rt_pipeline <- function(cases = NULL,
     ## Save plot
     ggplot2::ggsave(paste0(target_folder, "/rate_spread_plot.png"),
                     plot_littler_summary,
-                    width = 8,
+                    width = 12,
                     height = 6,
                     dpi = 320)
 
@@ -431,5 +436,65 @@ rt_pipeline <- function(cases = NULL,
           paste0(target_folder, "/rate_spread_plot.rds"))
 
 
+  
+  ## Summary plots
+  cases <- plot_cases +
+    ggplot2::labs("A")
+  bigr <- plot_bigr +
+    ggplot2::labs("B")
+  
+  rt_cases_plot <- cases +
+    bigr +
+    patchwork::plot_layout(ncol = 1) &
+    ggplot2::scale_x_date(date_breaks = "1 week",
+                          date_labels = "%b %d",
+                          limits = c(min(cases$data$date), max(cases$data$date)))
+  
+  if (save_plots) {
+    ## Save plot
+    ggplot2::ggsave(paste0(target_folder, "/rt_cases_plot.png"),
+                    rt_cases_plot,
+                    width = 12,
+                    height = 6,
+                    dpi = 320)
+    
+  }
+  
+  saveRDS(rt_cases_plot,
+          paste0(target_folder, "/rt_cases_plot.rds"))
+  
+  
+  ## Regional summary
+  region_summary <- tibble::tibble(
+    measure = c("Cases with date of onset on the day of report generation",
+                "Expected change in daily cases",
+                "Effective reproduction no.",
+                "Rate of spread",
+                "Doubling time (days)",
+                "Adjusted R-squared"),
+    estimate = c(
+      current_cases,
+      prob_control %>% 
+        EpiNow::map_prob_change() %>% 
+        as.character(),
+      R_latest,
+      rate_spread_latest,
+      doubling_time_latest,
+      adjusted_r_latest
+    )
+  )
+  
+  saveRDS(region_summary, paste0(target_folder, '/region_summary.rds'))
+  
+  
+  ## Save all results to a latest folder as well
+  if (dir.exists(latest_folder)) {
+    unlink(latest_folder)
+  }
+
+  dir.create(latest_folder)
+  file.copy(file.path(target_folder, "."),
+            latest_folder, recursive = TRUE)
+  
   return(invisible(NULL))
 }
