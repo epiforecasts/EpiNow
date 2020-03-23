@@ -92,43 +92,7 @@ global_map <- function(data = NULL, variable = NULL,
   map <- ggplot2::ggplot(world_with_data) +
     ggplot2::geom_sf(ggplot2::aes(fill = .data[[variable]]), col = "white", size = 0.2) +
     ggplot2::geom_sf(data = continents, col = "darkgrey", alpha = 0.6, size = 0.2) +
-    cowplot::theme_map() +
-    ggplot2::theme(legend.position = "bottom")
-
-  # Add map details ---------------------------------------------------------
-
-  if (is.numeric(world_with_data[[variable]])) {
-    map <- map +
-      ggplot2::guides(fill = ggplot2::guide_colorbar(title = variable_label,
-                                                     barwidth = 15, barheight = 0.5)) +
-      ggplot2::scale_fill_viridis_c(
-        begin = 0,
-        end = 0.9,
-        trans = trans,
-        alpha = 0.7,
-        labels = fill_labels,
-        option = viridis_palette,
-        na.value = "lightgrey"
-      )
-
-  }else{
-    map <- map +
-      ggplot2::guides(fill = ggplot2::guide_legend(title = variable_label)) +
-      ggplot2::scale_fill_viridis_d(
-        begin = 0,
-        end = 0.9,
-        alpha = 0.7,
-        labels = fill_labels,
-        option = viridis_palette,
-        na.value = "lightgrey"
-      )
-  }
-
-
-
-  # Return map --------------------------------------------------------------
-
-
+    EpiNow::theme_map(continuous = is.numeric(world_with_data[[variable]]))
 
   return(map)
 }
