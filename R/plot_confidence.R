@@ -31,7 +31,7 @@ plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2, plot_med
     ggplot2::scale_alpha(range = c(0, 0.5)) +
     cowplot::theme_cowplot() +
     ggplot2::scale_x_date(date_breaks = "1 week", date_labels = "%b %d") +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45))
 
 
   ## Confident ribbons
