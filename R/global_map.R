@@ -83,12 +83,15 @@ global_map <- function(data = NULL, variable = NULL,
 
   map <- ggplot2::ggplot(world_with_data) +
     ggplot2::geom_sf(ggplot2::aes(fill = .data[[variable]]), col = "white", size = 0.2) +
-    ggplot2::geom_sf(data = continents, col = "darkgrey", alpha = 0.6, size = 0.2) +
-    EpiNow::theme_map(continuous = is.numeric(world_with_data[[variable]]),
+    ggplot2::geom_sf(data = continents, col = "darkgrey", alpha = 0.6, size = 0.2)
+  
+  map <- 
+    EpiNow::theme_map(map, continuous = is.numeric(world_with_data[[variable]]),
                       variable_label = variable_label,
                       trans = trans,
                       fill_labels = fill_labels,
                       viridis_palette = viridis_palette)
+ 
 
   return(map)
 }

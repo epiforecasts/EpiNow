@@ -41,11 +41,11 @@ plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2, plot_med
   plot <- plot +
     ggplot2::geom_ribbon(data = conf_data,
                          ggplot2::aes(ymin = bottom, ymax = top),
-                         col = "#344b85",
+                         fill = "#344b85",
                          alpha = outer_alpha) +
     ggplot2::geom_ribbon(data = conf_data,
                          ggplot2::aes(ymin = lower, ymax = upper),
-                         col = "#344b85",
+                         fill = "#344b85",
                          alpha = inner_alpha)
 
   ## Not confident ribbons
