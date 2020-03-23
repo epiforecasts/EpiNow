@@ -6,10 +6,10 @@
 #'  in which to store summary of results.
 #' @param target_date A character string giving the target date for which to extract results
 #' (in the format "yyyy-mm-dd").
-#' @param region_scale A character string giving the label to use for regions.
 #' @return NULL
 #' @export
 #'
+#' @inheritParams summarise_results
 #' @importFrom stringr str_replace_all str_to_title
 #' @importFrom purrr partial
 #' @importFrom dplyr rename
@@ -55,7 +55,8 @@ load_data <- purrr::partial(EpiNow::load_nowcast_result,
 
 ## Summarise results as a table
 results <- EpiNow::summarise_results(regions, results_dir,
-                                     target_date = target_date)
+                                     target_date = target_date,
+                                     region_scale = region_scale)
 message("Saving results summary table")
 
 saveRDS(results$table, file.path(summary_dir, "summary_table.rds"))

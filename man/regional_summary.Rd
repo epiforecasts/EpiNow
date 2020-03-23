@@ -12,13 +12,14 @@ regional_summary(
 )
 }
 \arguments{
+\item{results_dir}{A character string indicating the location of the results directory to extract results
+from.}
+
 \item{summary_dir}{A character string giving the directory
 in which to store summary of results.}
 
 \item{target_date}{A character string giving the target date for which to extract results
 (in the format "yyyy-mm-dd").}
-
-\item{region_scale}{A character string giving the label to use for regions.}
 }
 \description{
 Generate Regional Summary Output

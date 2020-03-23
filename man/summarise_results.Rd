@@ -4,7 +4,12 @@
 \alias{summarise_results}
 \title{Summarise Realtime Results}
 \usage{
-summarise_results(regions = NULL, results_dir = "results", target_date = NULL)
+summarise_results(
+  regions = NULL,
+  results_dir = "results",
+  target_date = NULL,
+  region_scale = NULL
+)
 }
 \arguments{
 \item{regions}{A character string containing the list of regions to extract results for

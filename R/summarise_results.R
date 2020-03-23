@@ -8,7 +8,7 @@
 #' for this date.
 #' 
 #' @importFrom purrr partial map_chr map_dbl map_chr
-#' @importFrom dplyr select mutate pull arrange desc
+#' @importFrom dplyr select mutate pull arrange desc rename_at
 #' @importFrom tidyr gather
 #' @importFrom tibble tibble
 #' @importFrom stringr str_split
@@ -22,7 +22,8 @@
 #' summarise_results
 summarise_results <- function(regions = NULL,
                               results_dir = "results",
-                              target_date = NULL) {
+                              target_date = NULL,
+                              region_scale = NULL) {
   
    ## Utility functions
    load_data <- purrr::partial(load_nowcast_result,
@@ -79,6 +80,9 @@ summarise_results <- function(regions = NULL,
     unique() %>% 
     as.character() 
   
+  
+  estimates <- estimates %>% 
+    dplyr::rename_at(.vars = "Region", ~ region_scale)
   
   out <- list(estimates, numeric_estimates, high_inc_regions)
   
