@@ -5,18 +5,10 @@
 #' the data supplied must contain a \code{country} variable for linking to mapping data.
 #' @param data Dataframe containing variables to be mapped. Must contain a \code{country} variable.
 #' @param variable A character string indicating the variable to map data for. This must be supplied.
-#' @param variable_label A character string indicating the variable label to use. If not supplied then the underlying
-#' variable name is used.
-#' @param trans A character string specifying the transform to use on the specified metric. Defaults to no
-#' transform ("identity"). Other options include log scaling ("log") and log base 10 scaling
-#' ("log10"). For a complete list of options see \code{ggplot2::continous_scale}.
-#' @param fill_labels A function to use to allocate legend labels. An example (used below) is \code{scales::percent},
-#' which can be used for percentage data.
-#' @param viridis_palette Character string indicating the \code{viridis} colour palette to use. Defaults
-#' to "cividis". Options include "cividis", "magma", "inferno", "plasma", and "viridis". For additional details
 #' @return A \code{ggplot2} object containing a global map.
 #' @export
 #'
+#' @inheritParams theme_map
 #' @importFrom rnaturalearth ne_countries
 #' @importFrom dplyr left_join select filter
 #' @importFrom countrycode countrycode
@@ -92,7 +84,11 @@ global_map <- function(data = NULL, variable = NULL,
   map <- ggplot2::ggplot(world_with_data) +
     ggplot2::geom_sf(ggplot2::aes(fill = .data[[variable]]), col = "white", size = 0.2) +
     ggplot2::geom_sf(data = continents, col = "darkgrey", alpha = 0.6, size = 0.2) +
-    EpiNow::theme_map(continuous = is.numeric(world_with_data[[variable]]))
+    EpiNow::theme_map(continuous = is.numeric(world_with_data[[variable]]),
+                      variable_label = variable_label,
+                      trans = trans,
+                      fill_labels = fill_labels,
+                      viridis_palette = viridis_palette)
 
   return(map)
 }

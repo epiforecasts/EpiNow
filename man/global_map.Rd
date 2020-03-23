@@ -19,9 +19,6 @@ global_map(
 
 \item{variable}{A character string indicating the variable to map data for. This must be supplied.}
 
-\item{variable_label}{A character string indicating the variable label to use. If not supplied then the underlying
-variable name is used.}
-
 \item{trans}{A character string specifying the transform to use on the specified metric. Defaults to no
 transform ("identity"). Other options include log scaling ("log") and log base 10 scaling
 ("log10"). For a complete list of options see \code{ggplot2::continous_scale}.}

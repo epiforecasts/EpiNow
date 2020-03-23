@@ -31,7 +31,7 @@ used but in this case \code{merge_onsets} should be set to \code{FALSE}.}
 
 \item{merge_onsets}{Logical defaults to \code{FALSE}. Should available onset data be used. Typically if \code{regional_delay} is}
 
-\item{case_limit}{Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 10.
+\item{case_limit}{Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 20.
 set to \code{FALSE} this should also be \code{FALSE}}
 
 \item{samples}{Numeric, the number of pseudo linelists to generate. Defaults to 1000.}

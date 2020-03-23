@@ -4,12 +4,31 @@
 \alias{theme_map}
 \title{Custom Map Theme}
 \usage{
-theme_map(map = NULL, continuous = FALSE)
+theme_map(
+  map = NULL,
+  continuous = FALSE,
+  variable_label = NULL,
+  trans = "identity",
+  fill_labels = NULL,
+  viridis_palette = "cividis"
+)
 }
 \arguments{
 \item{map}{\code{ggplot2} map object}
 
-\item{continuous}{Logical defaults to \code{FALSE}. Is the fill variable continuous.}
+\item{continuous}{Logical defaults to \code{FALSE}. Is the fill variable continuous.
+#@param variable_label A character string indicating the variable label to use. If not supplied then the underlying
+variable name is used.}
+
+\item{trans}{A character string specifying the transform to use on the specified metric. Defaults to no
+transform ("identity"). Other options include log scaling ("log") and log base 10 scaling
+("log10"). For a complete list of options see \code{ggplot2::continous_scale}.}
+
+\item{fill_labels}{A function to use to allocate legend labels. An example (used below) is \code{scales::percent},
+which can be used for percentage data.}
+
+\item{viridis_palette}{Character string indicating the \code{viridis} colour palette to use. Defaults
+to "cividis". Options include "cividis", "magma", "inferno", "plasma", and "viridis". For additional details}
 }
 \value{
 A \code{ggplot2} object

@@ -61,7 +61,11 @@ country_map <- function(data = NULL, country = NULL,
     ggplot() + 
     ggplot2::geom_sf(aes(fill = .data[[variable]]), col = "white", alpha = 0.8, size = 0.2) +
     ggplot2::geom_sf(data = country, col = "darkgrey", fill = NA, alpha = 1, size = 0.4) +
-    EpiNow::theme_map(continuous = is.numeric(regions_with_data[[variable]]))
+    EpiNow::theme_map(continuous = is.numeric(regions_with_data[[variable]]),
+                      variable_label = variable_label,
+                      trans = trans,
+                      fill_labels = fill_labels,
+                      viridis_palette = viridis_palette)
 
   
   

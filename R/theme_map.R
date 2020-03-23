@@ -2,7 +2,15 @@
 #'
 #' @param map `ggplot2` map object 
 #' @param continuous Logical defaults to `FALSE`. Is the fill variable continuous.
-#'
+#'#@param variable_label A character string indicating the variable label to use. If not supplied then the underlying
+#' variable name is used.
+#' @param trans A character string specifying the transform to use on the specified metric. Defaults to no
+#' transform ("identity"). Other options include log scaling ("log") and log base 10 scaling
+#' ("log10"). For a complete list of options see \code{ggplot2::continous_scale}.
+#' @param fill_labels A function to use to allocate legend labels. An example (used below) is \code{scales::percent},
+#' which can be used for percentage data.
+#' @param viridis_palette Character string indicating the \code{viridis} colour palette to use. Defaults
+#' to "cividis". Options include "cividis", "magma", "inferno", "plasma", and "viridis". For additional details
 #' @return A `ggplot2` object
 #' @export
 #'
@@ -11,7 +19,11 @@
 #' 
 #' ## Code 
 #' theme_map
-theme_map <- function(map = NULL, continuous = FALSE) {
+theme_map <- function(map = NULL, continuous = FALSE,
+                      variable_label = NULL,
+                      trans = "identity",
+                      fill_labels = NULL,
+                      viridis_palette = "cividis") {
   
   map <- map +
    cowplot::theme_map() +
