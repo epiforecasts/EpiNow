@@ -106,7 +106,7 @@ rt_plot <- regions %>%
 
 suppressWarnings(
   ggplot2::ggsave(file.path(summary_dir, "rt_plot.png"), 
-                  rt_plot, dpi = 330, width = 24, height = 2 * round(length(regions) / 4, 0), limitsize = FALSE)
+                  rt_plot, dpi = 330, width = 24, height = 3 * round(length(regions) / 4, 0), limitsize = FALSE)
   
 )
 
@@ -116,7 +116,7 @@ cases_plot <- regions %>%
 
 suppressWarnings( 
   ggplot2::ggsave(file.path(summary_dir, "cases_plot.png"), 
-                  cases_plot, dpi = 330, width = 24, height =  2 * round(length(regions) / 4, 0), limitsize = FALSE)
+                  cases_plot, dpi = 330, width = 24, height =  3 * round(length(regions) / 4, 0), limitsize = FALSE)
   )
 
 
