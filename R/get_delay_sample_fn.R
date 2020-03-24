@@ -46,8 +46,8 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1) {
   rel_exp <- loo::relative_eff(exp(log_lik_exp))
   rel_gam <- loo::relative_eff(exp(log_lik_gam))
   # Estimate looic
-  loo_exp <- loo::loo(log_lik_exp, r_eff = rel_exp, cores = 2)
-  loo_gam <- loo::loo(log_lik_gam, r_eff = rel_gam, cores = 2)
+  loo_exp <- loo::loo(log_lik_exp, r_eff = rel_exp)
+  loo_gam <- loo::loo(log_lik_gam, r_eff = rel_gam)
   # Choose best model
   best_model <- ifelse(loo_exp$estimates[3,1] < loo_gam$estimates[3,1], "exp", "gamma")
 
