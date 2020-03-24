@@ -35,5 +35,16 @@ Estimate the time varying R0 - using EpiEstim
 }
 \examples{
 
+cases <- data.frame(date = seq(as.Date("2020-01-01"),
+                               as.Date("2020-01-30"),
+                               by = "days"),
+                    cases = 1:30)
+                    
+                    
+serial_intervals <- EpiNow::covid_serial_intervals[,1]
+rt_prior <- list(mean_prior = 2.6, sd_prior = 2) 
+window <- 7
 
+estimate_R0(cases, serial_intervals, 
+            rt_prior = rt_prior, window = window)
 }
