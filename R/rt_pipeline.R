@@ -448,7 +448,7 @@ target_folder <- file.path(target_folder, target_date)
     patchwork::plot_layout(ncol = 1) &
     ggplot2::scale_x_date(date_breaks = "1 week",
                           date_labels = "%b %d",
-                          limits = c(min(cases$data$date), max(cases$data$date)))
+                          limits = c(min(cases$data$date), max(cases$data$date)+1))
   
   if (save_plots) {
     ## Save plot
