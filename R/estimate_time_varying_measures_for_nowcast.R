@@ -8,7 +8,8 @@
 #' @export
 #' @importFrom tidyr gather nest unnest drop_na
 #' @importFrom dplyr filter group_by ungroup mutate select summarise n group_split bind_rows arrange
-#' @importFrom purrr safely compact
+#' @importFrom purrr safely compact map_dbl map
+#' @importFrom HDInterval hdi
 #' @importFrom furrr future_map
 #' @importFrom data.table setDT
 #' @examples

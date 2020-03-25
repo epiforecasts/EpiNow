@@ -45,7 +45,8 @@ Imports:
     patchwork,
     data.table,
     countrycode,
-    rnaturalearth
+    rnaturalearth,
+    HDInterval
 Suggests:
     readr,
     knitr,

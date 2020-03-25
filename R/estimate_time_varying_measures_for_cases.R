@@ -8,6 +8,8 @@
 #'
 #' @importFrom tidyr nest
 #' @importFrom dplyr mutate everything select filter
+#' @importFrom purrr map_dbl
+#' @importFrom HDInterval hdi
 #' @examples
 #'
 #'

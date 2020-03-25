@@ -6,6 +6,8 @@
 #' @export
 #' @importFrom tidyr gather
 #' @importFrom dplyr filter group_by summarise ungroup
+#' @importFrom purrr map_dbl
+#' @importFrom HDInterval hdi
 #' @examples
 #'
 #'

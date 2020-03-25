@@ -9,7 +9,8 @@
 #' @return A list of 3 dataframes containing estimates for little r, doubling time and
 #' model goodness of fit.
 #' @export
-#' @importFrom purrr map_dfr
+#' @importFrom purrr map_dfr map_dbl
+#' @importFrom HDInterval hdi
 #' @importFrom dplyr mutate group_by summarise ungroup mutate_if
 #' @importFrom tidyr unnest
 #' @importFrom data.table setDT
