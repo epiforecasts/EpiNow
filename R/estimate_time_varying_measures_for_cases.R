@@ -24,7 +24,6 @@ estimate_time_varying_measures_for_cases <- function(cases = NULL,
     EpiNow::estimate_R0(serial_intervals = serial_intervals,
                         si_samples = si_samples, rt_samples = rt_samples,
                         windows = rt_windows, rt_prior = rt_prior) %>%
-    tidyr::unnest(R) %>%
     dplyr::group_by(date) %>%
     dplyr::summarise(
       bottom = quantile(R, 0.025, na.rm = TRUE),
@@ -34,7 +33,9 @@ estimate_time_varying_measures_for_cases <- function(cases = NULL,
       median = median(R, na.rm = TRUE),
       mean = mean(R, na.rm = TRUE),
       std = sd(R, na.rm = TRUE),
-      prob_control = sum(R < 1) / dplyr::n()) %>%
+      prob_control = sum(R < 1) / dplyr::n(),
+      mean_window = mean(window), 
+      sd_window = sd(window)) %>%
     dplyr::ungroup()
 
   ## Estimate time-varying little r

@@ -151,7 +151,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
       est_r <- est_r %>% 
         dplyr::filter(score == min(score)) %>% 
         dplyr::filter(window == min(window)) %>% 
-        dplyr::select(-score, -score_sd, -window)
+        dplyr::select(-score, -score_sd)
     }
     
    return(est_r) 
