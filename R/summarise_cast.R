@@ -10,7 +10,21 @@
 #'
 #'
 summarise_cast <- function(cast) {
+  
+  get_conf <- function(conf, import_status) {
+    if(length(conf) == 2) {
+      out <- conf[which(import_status == "local")]
+    }else if(length(conf) == 1) {
+        out <- conf
+    }
+    return(out)
+  }
+  
   cast %>%
+    dplyr::group_by(sample, date, type) %>%
+    dplyr::summarise(cases = sum(cases),
+                     confidence = get_conf(confidence, import_status)) %>%
+    dplyr::ungroup() %>%
     dplyr::group_by(type, date) %>%
     dplyr::summarise(
       bottom = quantile(cases, 0.025, na.rm = TRUE),
