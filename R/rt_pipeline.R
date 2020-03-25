@@ -12,7 +12,6 @@
 #' to estimate the delay distribution.
 #' @param predict_lag Numeric, number of days to use as a prediction lag. Defaults to 0.
 #' @param samples Numeric, the number of pseudo linelists to generate. Defaults to 1000.
-#' @param window Numeric, the window to use to estimate time-varying parameters. Defaults to 7.
 #' @param earliest_allowed_onset A character string in the form of a date ("2020-01-01") indiciating the earliest
 #' allowed onset.
 #' @param start_rate_of_spread_est A character string in the form of a date ("2020-01-01") indicating the start time to
@@ -27,6 +26,7 @@
 #' @param save_plots Logical, defaults to code `TRUE`. Should plots be saved.
 #' @return NULL
 #' @export
+#' @inheritParams estimate_time_varying_measures_for_nowcast
 #' @importFrom dplyr rename filter mutate count group_by ungroup mutate_at pull select case_when bind_rows left_join bind_rows
 #' @importFrom tidyr drop_na unnest
 #' @importFrom tibble tibble
@@ -47,7 +47,8 @@ rt_pipeline <- function(cases = NULL,
                               samples = 1000,
                               si_samples = 1,
                               rt_samples = 100,
-                              window = 7,
+                              rt_windows = c(1, 3, 7),
+                              rate_window = 7,
                               earliest_allowed_onset = NULL,
                               start_rate_of_spread_est = NULL,
                               merge_actual_onsets = TRUE,
@@ -175,7 +176,8 @@ target_folder <- file.path(target_folder, target_date)
     EpiNow::estimate_time_varying_measures_for_nowcast(start_rate_of_spread_est = start_rate_of_spread_est,
                                                                   serial_intervals = serial_intervals,
                                                                   si_samples = si_samples, rt_samples = rt_samples,
-                                                                  window = window, rt_prior = rt_prior)
+                                                                  rate_window = rate_window, rt_windows = rt_windows,
+                                                                  rt_prior = rt_prior)
 
 
   saveRDS(time_varying_params,  paste0(target_folder, "/time_varying_params.rds"))
@@ -190,7 +192,7 @@ target_folder <- file.path(target_folder, target_date)
                                                                   start_rate_of_spread_est = start_rate_of_spread_est,
                                                                   si_samples = si_samples, rt_samples = rt_samples,
                                                                   serial_intervals = serial_intervals, rt_prior = rt_prior,
-                                                                  window = window)
+                                                                  rate_window = rate_window, rt_windows = rt_windows,)
 
 
 

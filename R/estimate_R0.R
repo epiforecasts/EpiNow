@@ -5,7 +5,10 @@
 #' @param serial_intervals A matrix with columns representing samples and rows representing the probability of the serial intervel being on
 #' that day.
 #' @param rt_prior A list defining the reproduction number prior containing the mean (`mean_prior`) and standard deviation (`std_prior`)
-#' @param window Numeric, the window over which to estimate time-varying R
+#' @param windows Numeric vector, windows over which to estimate time-varying R. The best performing window will be 
+#' selected per serial interval sample by default (based on which window best forecasts current cases). 
+#' @param return_best Logical defaults to `TRUE`. Should the estimates for the best performing window be returned or estimates 
+#' for all windows.
 #' @param si_samples Numeric, the number of samples to take from the serial intervals supplied
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
 #' @inheritParams add_dates
@@ -32,8 +35,9 @@
 #'             rt_prior = rt_prior, windows = windows,
 #'             rt_samples = 10, si_samples = 1)
 estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
-                        rt_prior = NULL, window = NULL, si_samples = 100,
-                        rt_samples = 100) {
+                        rt_prior = NULL, windows = NULL, 
+                        si_samples = 100, rt_samples = 100,
+                        return_best = TRUE) {
 
 
   ## Adjust input based on the presence of imported cases
@@ -67,15 +71,17 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
   windows <- c(1, 3, 7)
   return_best <- TRUE
   
-  ### Estimate and score R over multiple windows
-  est_r <- purrr::map(windows, 
-                      function(window) {
-                        
-                        window_start <- seq(2, nrow(incid) - (window - 1))
-                        window_end <- window_start + window - 1
+  ### Estimate R across serial interval samples
+  est_r <- purrr::map_dfr(serial_intervals_index, function(index) {
+    
+    ### Estimate and score R over multiple windows
+    est_r <- purrr::map_dfr(windows, 
+                        function(window) {
                           
-                        ### Estimate R across serial interval samples
-                        est_r <- purrr::map(serial_intervals_index, function(index) {
+                          window_start <- seq(2, nrow(incid) - (window - 1))
+                          window_end <- window_start + window - 1
+                          
+                          
                           ## estimate R
                           R <- suppressWarnings(
                             EpiEstim::estimate_R(incid,
@@ -100,127 +106,65 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                                                    })
                           
                           
+                          ## Put into data frame by date
+                          out <- tibble::tibble(
+                            date = EpiNow::add_dates(incid$date, length(R_samples)),
+                            R = purrr::map(R_samples,
+                                           ~ tibble::tibble(R = ., sample = 1:length(.)))
+                          ) %>% 
+                            tidyr::unnest(R)
+                          
+                          ## Make current case predictions from past cases and current Rt values
+                          preds <- out %>% 
+                            dplyr::rename(rt = R) %>% 
+                            dplyr::group_split(sample) %>% 
+                            purrr::map_dfr(
+                              ~ EpiSoon::predict_current_cases(
+                                rts = dplyr::select(., -sample), 
+                                cases = summed_cases,
+                                serial_interval = serial_intervals[, index]
+                              ), .id = "sample") %>% 
+                            dplyr::mutate(sample = as.numeric(sample), 
+                                          horizon = 0) %>% 
+                            dplyr::select(date, cases, sample, horizon)
+                          
+                          ## Score the forecast
+                          scores <- EpiSoon::score_case_forecast(preds, summed_cases)
+                          
+                          ## Evaluate the window using the mean CRPS across all time points and samples
+                          summarised_score <- scores %>% 
+                            dplyr::summarise(mean = mean(crps, na.rm = TRUE),
+                                             sd = sd(crps, na.rm = TRUE))
+                          
+                          out <- out %>% 
+                            dplyr::mutate(
+                              score = summarised_score$mean,
+                              score_sd = summarised_score$sd,
+                              window = window
+                            )
+                          
+                          return(out)
+                          
                         })
-                        
-                        
-                        ## Fix list structure
-                        est_r <- purrr::transpose(est_r)
-                        est_r <- purrr::map(est_r, unlist)
-                        
-                        ## Put into data frame by date
-                        out <- tibble::tibble(
-                          date = EpiNow::add_dates(incid$date, length(est_r)),
-                          R = purrr::map(est_r,
-                                         ~ tibble::tibble(R = ., sample = 1:length(.)))
-                        )
-                        
-                        
-                        ## Unnest dataframe
-                        out <- out %>% 
-                          tidyr::unnest(R)
-                        
-                        ## Forecast
-                        preds <- out %>% 
-                          dplyr::rename(rt = R) %>% 
-                          dplyr::group_split(sample) %>% 
-                          purrr::map_dfr(
-                            ~iterative_case_forecast(rts = dplyr::select(., -sample), 
-                                                     cases = summed_cases,
-                                                     serial_interval = serial_intervals[, 1], 
-                                                     horizon = 1),
-                                         .id = "sample") %>% 
-                          dplyr::mutate(sample = as.numeric(sample)) %>% 
-                          dplyr::select(date, cases, horizon, sample)
-                        
-                        
-                        ## Score the one day ahead iterative forecast
-                        ## We don't need to loop over forecast_date here as in EpiSoon::evaluate_model
-                        ## as we know we are only doing one-day lookaheads here (as not using forecast rts)
-                        scores <- score_case_forecast(preds, summed_cases)
-                        
-                        ## Evaluate the window using the mean CRPS across all time points and samples
-                        summarised_score <- scores %>% 
-                          dplyr::summarise(mean = mean(crps, na.rm = TRUE),
-                                           sd = sd(crps, na.rm = TRUE))
-                        
-                        out <- out %>% 
-                          dplyr::mutate(
-                            score = summarised_score$mean,
-                            score_sd = summarised_score$sd,
-                            window = window
-                          )
-                        
-                        return(out)
-                      })
+    
+    ## Return the best performing window
+    if (return_best) {
+      est_r <- est_r %>% 
+        dplyr::filter(score == min(score)) %>% 
+        dplyr::filter(window == min(window)) %>% 
+        dplyr::select(-score, -score_sd, -window)
+    }
+    
+    
+  }, .id = "si_sample")
   
- est_r <- dplyr::bind_rows(est_r)
- 
- 
- if (return_best) {
-   est_r <- est_r %>% 
-     dplyr::filter(score == min(score)) %>% 
-     dplyr::filter(window == min(window)) %>% 
-     dplyr::select(-score, -score_sd, -window)
- }
 
-  return(out)
+                        
+  est_r <- dplyr::mutate(est_r, sample = sample * as.numeric(si_sample)) %>% 
+    dplyr::select(-si_sample)
+
+  return(est_r)
 }
 
 
 
-# Dev functions for EpiSoon -----------------------------------------------
-
-
-iterative_case_forecast <- function(rts = NULL, cases = NULL, 
-                                    serial_interval = NULL, horizon = NULL) {
-  
-  predictions <- purrr::map_dfr(rts$date - lubridate::days(1), function(target_date) {
-    EpiSoon::predict_cases(cases, rts, serial_interval = serial_interval,
-                           horizon = horizon, forecast_date = target_date) %>% 
-      dplyr::mutate(forecast_date = target_date) %>% 
-      dplyr::select(forecast_date, date, cases) %>% 
-      dplyr::mutate(horizon = as.numeric(date - forecast_date))})
-  
-  return(predictions)
-}
-
-
-score_case_forecast <- function(pred_cases, obs_cases) {
-  pred_cases <- pred_cases %>% 
-    dplyr::rename(rt = cases)
-  
-  obs_cases <- obs_cases %>% 
-    dplyr::rename(rt = cases)
-  
-  scores <- EpiSoon::score_forecast(pred_cases, obs_cases)
-  
-  return(scores)
-}
-
-
-rts <- out %>% 
-  tidyr::unnest(R) %>% 
-  dplyr::group_by(date) %>% 
-  dplyr::mutate(sample = 1:dplyr::n()) %>% 
-  dplyr::ungroup() %>% 
-  dplyr::rename(rt = R) 
-
-preds <- rts %>% 
-  dplyr::group_split(sample) %>% 
-  purrr::map_dfr(~iterative_case_forecast(rts = dplyr::select(., -sample), 
-                                          cases = cases,
-                                          serial_interval = serial_intervals[, 1], 
-                                          horizon = 1),
-                 .id = "sample") %>% 
-  dplyr::mutate(sample = as.numeric(sample)) %>% 
-  dplyr::select(forecast_date, date, cases, horizon, sample)
-
-
-scores <- preds %>% 
-  dplyr::group_split(forecast_date) %>% 
-  setNames(unique(preds$forecast_date)) %>% 
-  purrr::map_dfr(~score_case_forecast(dplyr::select(., -forecast_date),
-                                      cases), .id = "forecast_date")
-
-summarised_score <- scores %>% 
-  dplyr::summarise(crps = mean(crps, na.rm = TRUE))

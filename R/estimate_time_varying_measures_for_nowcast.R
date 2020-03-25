@@ -1,7 +1,9 @@
 #' Estimate time varying measures for nowcast
 #'
 #' @param nowcast A nowcast as produced by `nowcast_pipeline`
-#' @param window Numeric, the time window over which to vary the parameters.
+#' @param rt_windows Numeric vector, windows over which to estimate time-varying R. The best performing window will be 
+#' selected per serial interval sample by default (based on which window best forecasts current cases).
+#' @param rate_window Numeric, the window to use to estimate the rate of spread.
 #' @param start_rate_of_spread_est A character string in the form of a date ("2020-01-01")
 #' @inheritParams estimate_R0
 #' @return
@@ -17,7 +19,8 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
                                                        serial_intervals = NULL,
                                                        start_rate_of_spread_est = NULL,
                                                        si_samples = NULL, rt_samples = NULL,
-                                                       window = 7, rt_prior = NULL) {
+                                                       rt_windows = 7, rate_window = 7,
+                                                       rt_prior = NULL) {
 
   ## Estimate time-varying R0
   safe_R0 <- purrr::safely(EpiNow::estimate_R0)
@@ -32,7 +35,7 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
             rt_prior = rt_prior,
             si_samples = si_samples,
             rt_samples = rt_samples,
-            window = window)[[1]]
+            windows = rt_windows)[[1]]
 
     if (!is.null(R0)) {
      R0 <-  dplyr::mutate(R0, type = data$type[1],
@@ -43,7 +46,6 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
     }, .progress = TRUE)
 
   R0_estimates <- purrr::compact(R0_estimates)
-  R0_estimates <- purrr::map(R0_estimates, ~ tidyr::unnest(., R))
   R0_estimates <- dplyr::bind_rows(R0_estimates)
 
 
@@ -103,7 +105,7 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
   ## Estimate time-varying
   little_r_estimates_res$time_varying_r <- furrr::future_map(little_r_estimates_list,
                                                              ~ EpiNow::estimate_time_varying_r(.$data,
-                                                                                                    window = window),
+                                                                                               window = rate_window),
                                                              .progress = TRUE)
 
 
