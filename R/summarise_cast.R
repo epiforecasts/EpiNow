@@ -11,6 +11,11 @@
 #'
 summarise_cast <- function(cast) {
   cast %>%
+    dplyr::group_by(sample, date) %>%
+    dplyr::summarise(cases = sum(cases),
+                     confidence = confidence[1],
+                     type = type[1]) %>%
+    dplyr::ungroup() %>%
     dplyr::group_by(type, date) %>%
     dplyr::summarise(
       bottom = quantile(cases, 0.025, na.rm = TRUE),
