@@ -38,19 +38,27 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1) {
 
   # Fit gamma and exponential models
   fit_exp <- EpiNow::dist_fit(confirmation_delays, samples = samples, dist = "exp")
-  fit_gam <- EpiNow::dist_fit(confirmation_delays, samples = samples, dist = "gamma")
-  # Extract log likelihoods
-  log_lik_exp <- loo::extract_log_lik(fit_exp, merge_chains = FALSE)
-  log_lik_gam <- loo::extract_log_lik(fit_gam, merge_chains = FALSE)
-  # Calculate relative efficiencies
-  rel_exp <- loo::relative_eff(exp(log_lik_exp))
-  rel_gam <- loo::relative_eff(exp(log_lik_gam))
-  # Estimate looic
-  loo_exp <- loo::loo(log_lik_exp, r_eff = rel_exp)
-  loo_gam <- loo::loo(log_lik_gam, r_eff = rel_gam)
-  # Choose best model
-  best_model <- ifelse(loo_exp$estimates[3,1] < loo_gam$estimates[3,1], "exp", "gamma")
-
+  
+  # If there is enough data, try fitting a gamma  
+  if(length(confirmation_delays >= 30)) {
+    
+    fit_gam <- EpiNow::dist_fit(confirmation_delays, samples = samples, dist = "gamma")
+    # Extract log likelihoods
+    log_lik_exp <- loo::extract_log_lik(fit_exp, merge_chains = FALSE)
+    log_lik_gam <- loo::extract_log_lik(fit_gam, merge_chains = FALSE)
+    # Calculate relative efficiencies
+    rel_exp <- loo::relative_eff(exp(log_lik_exp))
+    rel_gam <- loo::relative_eff(exp(log_lik_gam))
+    # Estimate looic
+    loo_exp <- loo::loo(log_lik_exp, r_eff = rel_exp)
+    loo_gam <- loo::loo(log_lik_gam, r_eff = rel_gam)
+    # Choose best model
+    best_model <- ifelse(loo_exp$estimates[3,1] < loo_gam$estimates[3,1], "exp", "gamma")
+    
+  }else{
+    best_model <- "exp"
+  }
+  
   if(best_model == "exp"){
     
     delay_rate <- sample(rstan::extract(fit_exp)$lambda, samples)
