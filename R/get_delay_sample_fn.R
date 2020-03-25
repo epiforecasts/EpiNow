@@ -40,7 +40,7 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1) {
   fit_exp <- EpiNow::dist_fit(confirmation_delays, samples = samples, dist = "exp")
   
   # If there is enough data, try fitting a gamma  
-  if(nrow(confirmation_delays) >= 30) {
+  if(length(confirmation_delays) >= 30) {
     
     fit_gam <- EpiNow::dist_fit(confirmation_delays, samples = samples, dist = "gamma")
     # Extract log likelihoods
