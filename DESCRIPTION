@@ -45,12 +45,14 @@ Imports:
     patchwork,
     data.table,
     countrycode,
-    rnaturalearth
+    rnaturalearth,
+    HDInterval,
+    loo,
+    stringr
 Suggests:
     readr,
     knitr,
     kableExtra,
-    stringr,
     patchwork,
     rnaturalearthdata,
     rnaturalearthhires

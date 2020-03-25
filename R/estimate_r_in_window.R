@@ -9,7 +9,8 @@
 #' @return A list of 3 dataframes containing estimates for little r, doubling time and
 #' model goodness of fit.
 #' @export
-#' @importFrom purrr map_dfr
+#' @importFrom purrr map_dfr map_dbl
+#' @importFrom HDInterval hdi
 #' @importFrom dplyr mutate group_by summarise ungroup mutate_if
 #' @importFrom tidyr unnest
 #' @importFrom data.table setDT
@@ -38,10 +39,10 @@ estimate_r_in_window <- function(onsets = NULL,
   summarise_r <- r
 
   summarise_r <- data.table::setDT(summarise_r)[,.(
-    bottom = quantile(sampled_r, 0.025, na.rm = TRUE),
-    top = quantile(sampled_r, 0.975, na.rm = TRUE),
-    lower = quantile(sampled_r, 0.25, na.rm = TRUE),
-    upper = quantile(sampled_r, 0.75, na.rm = TRUE),
+    bottom  = purrr::map_dbl(list(HDInterval::hdi(sampled_r, credMass = 0.9)), ~ .[[1]]),
+    top = purrr::map_dbl(list(HDInterval::hdi(sampled_r, credMass = 0.9)), ~ .[[2]]),
+    lower  = purrr::map_dbl(list(HDInterval::hdi(sampled_r, credMass = 0.5)), ~ .[[1]]),
+    upper = purrr::map_dbl(list(HDInterval::hdi(sampled_r, credMass = 0.5)), ~ .[[2]]),
     median = median(sampled_r, na.rm = TRUE))
     ]
 

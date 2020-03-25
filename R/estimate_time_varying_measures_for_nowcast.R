@@ -8,7 +8,8 @@
 #' @export
 #' @importFrom tidyr gather nest unnest drop_na
 #' @importFrom dplyr filter group_by ungroup mutate select summarise n group_split bind_rows arrange
-#' @importFrom purrr safely compact
+#' @importFrom purrr safely compact map_dbl map
+#' @importFrom HDInterval hdi
 #' @importFrom furrr future_map
 #' @importFrom data.table setDT
 #' @examples
@@ -50,10 +51,10 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
   message("Summarising time-varying R0")
 
   R0_estimates_sum <- data.table::setDT(R0_estimates)[, .(
-    bottom = quantile(R, 0.025, na.rm = TRUE),
-    top = quantile(R, 0.975, na.rm = TRUE),
-    lower = quantile(R, 0.25, na.rm = TRUE),
-    upper = quantile(R, 0.75, na.rm = TRUE),
+    bottom  = purrr::map_dbl(list(HDInterval::hdi(R, credMass = 0.9)), ~ .[[1]]),
+    top = purrr::map_dbl(list(HDInterval::hdi(R, credMass = 0.9)), ~ .[[2]]),
+    lower  = purrr::map_dbl(list(HDInterval::hdi(R, credMass = 0.5)), ~ .[[1]]),
+    upper = purrr::map_dbl(list(HDInterval::hdi(R, credMass = 0.5)), ~ .[[2]]),
     median = median(R, na.rm = TRUE),
     mean = mean(R, na.rm = TRUE),
     std = sd(R, na.rm = TRUE),
