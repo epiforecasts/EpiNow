@@ -27,11 +27,11 @@ summarise_cast <- function(cast) {
     dplyr::ungroup() %>%
     dplyr::group_by(type, date) %>%
     dplyr::summarise(
-      bottom = quantile(cases, 0.025, na.rm = TRUE),
-      lower = quantile(cases, 0.25, na.rm = TRUE),
+      bottom  = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.9)), ~ .[[1]]),
+      top = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.9)), ~ .[[2]]),
+      lower  = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[1]]),
+      upper = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[2]]),
       median = median(cases, na.rm = TRUE),
-      upper = quantile(cases, 0.75, na.rm = TRUE),
-      top = quantile(cases, 0.975, na.rm = TRUE),
       confidence = mean(confidence, na.rm = TRUE)) %>%
     dplyr::ungroup()
 }
