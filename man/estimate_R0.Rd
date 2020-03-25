@@ -8,9 +8,10 @@ estimate_R0(
   cases = NULL,
   serial_intervals = NULL,
   rt_prior = NULL,
-  window = NULL,
+  windows = NULL,
   si_samples = 100,
-  rt_samples = 100
+  rt_samples = 100,
+  return_best = TRUE
 )
 }
 \arguments{
@@ -21,11 +22,15 @@ that day.}
 
 \item{rt_prior}{A list defining the reproduction number prior containing the mean (\code{mean_prior}) and standard deviation (\code{std_prior})}
 
-\item{window}{Numeric, the window over which to estimate time-varying R}
+\item{windows}{Numeric vector, windows over which to estimate time-varying R. The best performing window will be
+selected per serial interval sample by default (based on which window best forecasts current cases).}
 
 \item{si_samples}{Numeric, the number of samples to take from the serial intervals supplied}
 
 \item{rt_samples}{Numeric, the number of samples to take from the estimated R distribution for each time point.}
+
+\item{return_best}{Logical defaults to \code{TRUE}. Should the estimates for the best performing window be returned or estimates
+for all windows.}
 }
 \value{
 A tibble containing the date and summarised R estimte.
@@ -41,10 +46,11 @@ cases <- data.frame(date = seq(as.Date("2020-01-01"),
                     cases = 1:30)
                     
                     
-serial_intervals <- EpiNow::covid_serial_intervals[,1]
-rt_prior <- list(mean_prior = 2.6, sd_prior = 2) 
-window <- 7
+serial_intervals <- as.matrix(EpiNow::covid_serial_intervals[,1])
+rt_prior <- list(mean_prior = 2.6, std_prior = 2) 
+windows <- c(1, 3, 7)
 
 estimate_R0(cases, serial_intervals, 
-            rt_prior = rt_prior, window = window)
+            rt_prior = rt_prior, windows = windows,
+            rt_samples = 10, si_samples = 2, return_best = FALSE)
 }

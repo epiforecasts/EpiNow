@@ -29,48 +29,48 @@
 #'                     
 #' serial_intervals <- as.matrix(EpiNow::covid_serial_intervals[,1])
 #' rt_prior <- list(mean_prior = 2.6, std_prior = 2) 
-#' window <- c(1, 3, 7)
+#' windows <- c(1, 3, 7)
 #' 
 #' estimate_R0(cases, serial_intervals, 
 #'             rt_prior = rt_prior, windows = windows,
-#'             rt_samples = 10, si_samples = 1)
+#'             rt_samples = 10, si_samples = 2, return_best = FALSE)
 estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                         rt_prior = NULL, windows = NULL, 
                         si_samples = 100, rt_samples = 100,
                         return_best = TRUE) {
 
-
+ 
   ## Adjust input based on the presence of imported cases
   if (length(unique(cases$import_status)) > 1) {
     incid <- cases %>%
+      dplyr::select(date, cases, import_status) %>% 
       tidyr::spread(key = "import_status", value = "cases") %>%
       tidyr::complete(date = seq(min(date), max(date), by = "day"),
-                      fill = list(local = 0, imported = 0)) %>%
-      dplyr::select(date, local, imported)
+                      fill = list(local = 0, imported = 0)) 
+    
+    ## Predict cases forward in time using just local cases
+    summed_cases <- incid %>% 
+      dplyr::rename(cases = local) %>% 
+      dplyr::select(-imported)
   
   }else{
     incid <- cases %>%
+      dplyr::select(date, cases) %>% 
       dplyr::rename(I = cases) %>%
       tidyr::complete(date = seq(min(date), max(date), by = "day"),
-                      fill = list(I = 0)) %>%
-      dplyr::select(date, I)
+                      fill = list(I = 0))
+    
+    summed_cases <- incid %>% 
+      dplyr::rename(cases = I)
   }
 
-  
-  ## Summarise cases
-  summed_cases <- cases %>% 
-    dplyr::group_by(date) %>% 
-    dplyr::summarise(cases = sum(cases, na.rm = TRUE)) %>% 
-    dplyr::ungroup()
   
   ## Sample serial intervals
   serial_intervals_index <- sample(1:ncol(serial_intervals),
                              si_samples,
                              replace = ncol(serial_intervals) < si_samples)
 
-  windows <- c(1, 3, 7)
-  return_best <- TRUE
-  
+   
   ### Estimate R across serial interval samples
   est_r <- purrr::map_dfr(serial_intervals_index, function(index) {
     
@@ -144,7 +144,6 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                             )
                           
                           return(out)
-                          
                         })
     
     ## Return the best performing window
@@ -155,15 +154,19 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
         dplyr::select(-score, -score_sd, -window)
     }
     
-    
+   return(est_r) 
   }, .id = "si_sample")
   
 
-                        
-  est_r <- dplyr::mutate(est_r, sample = sample * as.numeric(si_sample)) %>% 
-    dplyr::select(-si_sample)
+  if (si_samples == 1) {
+    return(est_r)
+  }else{
+    est_r <- dplyr::mutate(est_r, sample = sample * as.numeric(si_sample)) %>% 
+      dplyr::select(-si_sample)
+    
+    return(est_r)
+}
 
-  return(est_r)
 }
 
 

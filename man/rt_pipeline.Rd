@@ -15,7 +15,8 @@ rt_pipeline(
   samples = 1000,
   si_samples = 1,
   rt_samples = 100,
-  window = 7,
+  rt_windows = c(1, 3, 7),
+  rate_window = 7,
   earliest_allowed_onset = NULL,
   start_rate_of_spread_est = NULL,
   merge_actual_onsets = TRUE,
@@ -48,7 +49,10 @@ to estimate the delay distribution.}
 
 \item{rt_samples}{Numeric, the number of samples to take from the estimated R distribution for each time point.}
 
-\item{window}{Numeric, the window to use to estimate time-varying parameters. Defaults to 7.}
+\item{rt_windows}{Numeric vector, windows over which to estimate time-varying R. The best performing window will be
+selected per serial interval sample by default (based on which window best forecasts current cases).}
+
+\item{rate_window}{Numeric, the window to use to estimate the rate of spread.}
 
 \item{earliest_allowed_onset}{A character string in the form of a date ("2020-01-01") indiciating the earliest
 allowed onset.}
