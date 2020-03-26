@@ -18,6 +18,7 @@
 #' @importFrom furrr future_map
 #' @importFrom tidyr complete
 #' @importFrom dplyr count filter rename filter group_by pull
+#' @importFrom purrr safely
 #' @examples
 #' 
 #' ## Code
@@ -84,6 +85,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   message("Running pipelines by region")
   
+  safe_rt <- purrr::safely(rt_pipeline)
+  
   out <- furrr::future_map(regions, function(target_region) { 
     message("Running Rt pipeline for ", target_region)
     
@@ -98,13 +101,17 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
       regional_linelist <- linelist
     }
     
-    rt_pipeline(
+    error <- safe_rt(
       cases = regional_cases,
       linelist = regional_linelist,
       target_folder = file.path(target_folder, target_region),
       target_date = target_date, 
       merge_actual_onsets = merge_onsets, 
-      samples = samples, ...)
+      samples = samples, ...)[[2]]
+    
+    if (!is.null(error)) {
+      message("Region failed")
+    }
     
    return(invisible(NULL))
     
