@@ -11,6 +11,8 @@
 #' for all windows.
 #' @param si_samples Numeric, the number of samples to take from the serial intervals supplied
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
+#' @param wait_time Numeric, defaults to 7. The number of data points to wait for before starting to produce Rt estimates.
+#' The minimum value for this is 2. 
 #' @inheritParams add_dates
 #' @return A tibble containing the date and summarised R estimte.
 #' @export
@@ -37,7 +39,7 @@
 estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                         rt_prior = NULL, windows = NULL, 
                         si_samples = 100, rt_samples = 100,
-                        return_best = TRUE) {
+                        return_best = TRUE, wait_time = 7) {
 
  
   ## Adjust input based on the presence of imported cases
@@ -78,7 +80,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
     est_r <- purrr::map_dfr(windows, 
                         function(window) {
                           
-                          window_start <- seq(2, nrow(incid) - (window - 1))
+                          window_start <- seq(wait_time, nrow(incid) - (window - 1))
                           window_end <- window_start + window - 1
                           
                           

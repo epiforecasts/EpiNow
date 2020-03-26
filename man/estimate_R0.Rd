@@ -11,7 +11,8 @@ estimate_R0(
   windows = NULL,
   si_samples = 100,
   rt_samples = 100,
-  return_best = TRUE
+  return_best = TRUE,
+  wait_time = 7
 )
 }
 \arguments{
@@ -31,6 +32,9 @@ selected per serial interval sample by default (based on which window best forec
 
 \item{return_best}{Logical defaults to \code{TRUE}. Should the estimates for the best performing window be returned or estimates
 for all windows.}
+
+\item{wait_time}{Numeric, defaults to 7. The number of data points to wait for before starting to produce Rt estimates.
+The minimum value for this is 2.}
 }
 \value{
 A tibble containing the date and summarised R estimte.

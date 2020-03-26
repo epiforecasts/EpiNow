@@ -25,7 +25,10 @@ estimate_time_varying_measures_for_cases <- function(cases = NULL,
   R0_estimates <- cases %>%
     EpiNow::estimate_R0(serial_intervals = serial_intervals,
                         si_samples = si_samples, rt_samples = rt_samples,
-                        windows = rt_windows, rt_prior = rt_prior) %>%
+                        windows = rt_windows, rt_prior = rt_prior)
+  
+  
+  R0_estimates_sum <- R0_estimates %>% 
     dplyr::group_by(date) %>%
     dplyr::summarise(
       bottom  = purrr::map_dbl(list(HDInterval::hdi(R, credMass = 0.9)), ~ .[[1]]),
@@ -63,7 +66,8 @@ estimate_time_varying_measures_for_cases <- function(cases = NULL,
     dplyr::select(-data)
 
 
-  out <- list(R0_estimates, little_r_estimates)
+  out <- list(R0_estimates_sum, little_r_estimates_res, R0_estimates)
+  names(out) <- c("R0", "rate_of_spread", "raw_R0")
 
   return(out)
 }

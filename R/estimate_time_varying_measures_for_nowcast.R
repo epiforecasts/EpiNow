@@ -112,7 +112,8 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
                                                              .progress = TRUE)
 
 
-  out <- list(R0_estimates_sum, little_r_estimates_res)
+  out <- list(R0_estimates_sum, little_r_estimates_res, R0_estimates)
+  names(out) <- c("R0", "rate_of_spread", "raw_R0")
 
   return(out)
 }
