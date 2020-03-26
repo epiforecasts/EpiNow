@@ -81,7 +81,7 @@ target_folder <- file.path(target_folder, target_date)
       std_prior = 2)
   }
 
-
+ 
   # Format input ------------------------------------------------------------
 
   ## Reformat linelist for use in nowcast_pipeline
