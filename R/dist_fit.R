@@ -31,8 +31,8 @@ dist_fit <- function(delays = NULL, samples = NULL, dist = "exp") {
   data <- list(N = length(delays),
                low = lows,
                up = ups,
-               iter = samples + 2000,
-               warmup = 2000)
+               iter = samples + 1000,
+               warmup = 1000)
 
   if (dist %in% "exp") {
     model <- stanmodels$exp_fit
@@ -41,13 +41,20 @@ dist_fit <- function(delays = NULL, samples = NULL, dist = "exp") {
   }else if (dist %in% "gamma") {
     model <- stanmodels$gamma_fit
   }
+  
+  ## Set adapt delta based on the sample size
+  if (length(delays) <= 30) {
+    adapt_delta <- 0.999
+  } else {
+    adapt_delta <- 0.9
+  }
 
   ## Fit model
   fit <- rstan::sampling(
     model,
     data = data,
-    control = list(adapt_delta = 0.999),
-    chains = 4,
+    control = list(adapt_delta = adapt_delta),
+    chains = 2,
     refresh = 0)
 
 
