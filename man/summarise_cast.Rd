@@ -4,10 +4,16 @@
 \alias{summarise_cast}
 \title{Summarise a nowcast}
 \usage{
-summarise_cast(cast)
+summarise_cast(cast, min_conf = 0.25, incubation_period = 5)
 }
 \arguments{
 \item{cast}{A dataframe as produced by \code{nowcast_pipeline}}
+
+\item{min_conf}{Numeric defaults to 0.25. The minimum confidence required
+for results to be included in the summary.}
+
+\item{incubation_shift}{Numeric defaults to 5.
+The number of days to use to shift the incubation period}
 }
 \value{
 A summarised dataframe

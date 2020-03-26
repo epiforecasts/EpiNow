@@ -18,14 +18,15 @@ rt_pipeline(
   rt_windows = 1:7,
   rate_window = 7,
   earliest_allowed_onset = NULL,
-  start_rate_of_spread_est = NULL,
   merge_actual_onsets = TRUE,
   case_only = FALSE,
   delay_only = FALSE,
   verbose = FALSE,
   serial_intervals = NULL,
   rt_prior = NULL,
-  save_plots = TRUE
+  save_plots = TRUE,
+  min_conf = 0.25,
+  incubation_period = 5
 )
 }
 \arguments{
@@ -57,9 +58,6 @@ selected per serial interval sample by default (based on which window best forec
 \item{earliest_allowed_onset}{A character string in the form of a date ("2020-01-01") indiciating the earliest
 allowed onset.}
 
-\item{start_rate_of_spread_est}{A character string in the form of a date ("2020-01-01") indicating the start time to
-estimate the rate of sprea.}
-
 \item{case_only}{Logical, defaults to \code{FALSE}. Should estimates also be made based on reported cases.}
 
 \item{verbose}{Logical, defaults to \code{FALSE}. Should internal nowcasting progress messages be returned.}
@@ -70,6 +68,9 @@ that day. Defaults to \code{EpiNow::covid_serial_intervals}.}
 \item{rt_prior}{A list defining the reproduction number prior containing the mean (\code{mean_prior}) and standard deviation (\code{std_prior})}
 
 \item{save_plots}{Logical, defaults to \code{TRUE}. Should plots be saved.}
+
+\item{min_conf}{Numeric defaults to 0.25. The minimum confidence required
+for results to be included in the summary.}
 }
 \description{
 Combine fitting a delay distribution, constructing a set of

@@ -4,7 +4,6 @@
 #' @param rt_windows Numeric vector, windows over which to estimate time-varying R. The best performing window will be 
 #' selected per serial interval sample by default (based on which window best forecasts current cases).
 #' @param rate_window Numeric, the window to use to estimate the rate of spread.
-#' @param start_rate_of_spread_est A character string in the form of a date ("2020-01-01")
 #' @inheritParams estimate_R0
 #' @return
 #' @export
@@ -18,7 +17,7 @@
 #'
 estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
                                                        serial_intervals = NULL,
-                                                       start_rate_of_spread_est = NULL,
+                                                       min_est_date = NULL,
                                                        si_samples = NULL, rt_samples = NULL,
                                                        rt_windows = 7, rate_window = 7,
                                                        rt_prior = NULL) {
@@ -36,7 +35,8 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
             rt_prior = rt_prior,
             si_samples = si_samples,
             rt_samples = rt_samples,
-            windows = rt_windows)[[1]]
+            windows = rt_windows,
+            min_est_date = min_est_date)[[1]]
 
     if (!is.null(R0)) {
      R0 <-  dplyr::mutate(R0, type = data$type[1],
@@ -74,9 +74,9 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
   ## Estimate time-varying little r
   message("Estimate time-varying rate of growth")
 
-  if (!is.null(start_rate_of_spread_est)) {
+  if (!is.null(min_est_date)) {
     little_r_estimates <- nowcast %>%
-      dplyr::filter(date >= as.Date(start_rate_of_spread_est))
+      dplyr::filter(date >= min_est_date)
   }else{
     little_r_estimates <- nowcast
   }

@@ -14,8 +14,6 @@
 #' @param samples Numeric, the number of pseudo linelists to generate. Defaults to 1000.
 #' @param earliest_allowed_onset A character string in the form of a date ("2020-01-01") indiciating the earliest
 #' allowed onset.
-#' @param start_rate_of_spread_est A character string in the form of a date ("2020-01-01") indicating the start time to
-#' estimate the rate of sprea.
 #' @param case_only Logical, defaults to `FALSE`. Should estimates also be made based on reported cases.
 #' @param serial_intervals A matrix with columns representing samples and rows representing the probability of the serial intervel being on
 #' that day. Defaults to `EpiNow::covid_serial_intervals`.
@@ -27,6 +25,7 @@
 #' @return NULL
 #' @export
 #' @inheritParams estimate_time_varying_measures_for_nowcast
+#' @inheritParams summarise_cast
 #' @importFrom dplyr rename filter mutate count group_by ungroup mutate_at pull select case_when bind_rows left_join bind_rows
 #' @importFrom tidyr drop_na unnest
 #' @importFrom tibble tibble
@@ -34,6 +33,7 @@
 #' @importFrom ggplot2 ggsave theme labs coord_cartesian scale_x_date
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_layout
+#' @importFrom lubridate days
 #'
 #' @examples
 #'
@@ -50,14 +50,15 @@ rt_pipeline <- function(cases = NULL,
                               rt_windows = 1:7,
                               rate_window = 7,
                               earliest_allowed_onset = NULL,
-                              start_rate_of_spread_est = NULL,
                               merge_actual_onsets = TRUE,
                               case_only = FALSE,
                               delay_only = FALSE,
                               verbose = FALSE,
                               serial_intervals = NULL,
                               rt_prior = NULL,
-                              save_plots = TRUE) {
+                              save_plots = TRUE,
+                              min_conf = 0.25, 
+                              incubation_period = 5) {
 
 
 # Set up folders ----------------------------------------------------------
@@ -93,6 +94,14 @@ target_folder <- file.path(target_folder, target_date)
   cases <- cases %>%
     dplyr::rename(confirm = cases)
 
+  ## Define the min plotting (and estimate date as the first date that
+  ## at least 10 local cases were reported minus the incubation period
+  min_plot_date <- cases %>% 
+    dplyr::filter(import_status %in% "local", 
+                  confirm > 10) %>% 
+    dplyr::pull(date) %>% 
+    {min(., na.rm = TRUE) - lubridate::days(incubation_period)}
+  
   # Run a nowcast -----------------------------------------------------------
 
   nowcast <- EpiNow::nowcast_pipeline(reported_cases = cases,
@@ -118,7 +127,9 @@ target_folder <- file.path(target_folder, target_date)
 
   # Summarise nowcast -------------------------------------------------------
 
-  summarise_cast <- EpiNow::summarise_cast(nowcast)
+  summarise_cast <- EpiNow::summarise_cast(nowcast,
+                                           min_conf = min_conf, 
+                                           incubation_period = incubation_period)
 
   ## Combine nowcast with observed cases by onset and report
   reported_cases <- cases %>%
@@ -148,7 +159,8 @@ target_folder <- file.path(target_folder, target_date)
 
   ## Plot comparison of cases
   plot_cases <- all_cases %>%
-    dplyr::filter(!type %in% "from_delay") %>%
+    dplyr::filter(!type %in% "from_delay",
+                  date >= min_plot_date) %>%
     dplyr::mutate(median = ifelse(type == "nowcast", NA, median)) %>%
     EpiNow::plot_confidence() +
     ggplot2::theme(legend.position = "none") +
@@ -167,17 +179,16 @@ target_folder <- file.path(target_folder, target_date)
   saveRDS(plot_cases,  paste0(target_folder, "/plot_cases.rds"))
 
 
-
   # Estimate time-varying parameters ----------------------------------------
 
 
   time_varying_params <- nowcast %>%
     dplyr::filter(type %in% "nowcast") %>%
-    EpiNow::estimate_time_varying_measures_for_nowcast(start_rate_of_spread_est = start_rate_of_spread_est,
-                                                                  serial_intervals = serial_intervals,
-                                                                  si_samples = si_samples, rt_samples = rt_samples,
-                                                                  rate_window = rate_window, rt_windows = rt_windows,
-                                                                  rt_prior = rt_prior)
+    EpiNow::estimate_time_varying_measures_for_nowcast(min_est_date = min_plot_date + lubridate::days(incubation_period),
+                                                       serial_intervals = serial_intervals,
+                                                       si_samples = si_samples, rt_samples = rt_samples,
+                                                       rate_window = rate_window, rt_windows = rt_windows,
+                                                       rt_prior = rt_prior)
 
 
   saveRDS(time_varying_params,  paste0(target_folder, "/time_varying_params.rds"))
@@ -189,7 +200,7 @@ target_folder <- file.path(target_folder, target_date)
       EpiNow::estimate_time_varying_measures_for_cases(reported_cases %>%
                                                                     dplyr::rename(cases = median) %>%
                                                                     dplyr::mutate(import_status = "local"),
-                                                                  start_rate_of_spread_est = start_rate_of_spread_est,
+                                                                  min_est_date = min_plot_date + lubridate::days(incubation_period),
                                                                   si_samples = si_samples, rt_samples = rt_samples,
                                                                   serial_intervals = serial_intervals, rt_prior = rt_prior,
                                                                   rate_window = rate_window, rt_windows = rt_windows,)
@@ -217,10 +228,12 @@ target_folder <- file.path(target_folder, target_date)
   bigr_estimates <- bigr_estimates %>%
     dplyr::left_join(
       all_cases %>%
-        dplyr::select(type, date, confidence),
-      by = c("type", "date")
-    )
-
+        dplyr::select(type, confidence, date_onset),
+      by = c("type", "date" = "date_onset")
+    ) %>%
+    dplyr::filter(!is.na(confidence)) %>% 
+    dplyr::mutate(date_onset = date) %>%
+    dplyr::mutate(date = date - incubation_period)
 
   saveRDS(bigr_estimates,
           paste0(target_folder, "/bigr_estimates.rds"))
@@ -232,8 +245,7 @@ target_folder <- file.path(target_folder, target_date)
     sel_var <- dplyr::enquo(sel_var)
 
     out <- EpiNow::pull_max_var(bigr_estimates, !!max_var,
-                                                  !!sel_var,
-                                                  type_selected = "nowcast")
+                               !!sel_var, type_selected = "nowcast")
 
     return(out)
   }
@@ -258,7 +270,8 @@ target_folder <- file.path(target_folder, target_date)
 
   ## Plot R estimates
   plot_bigr <- bigr_estimates %>%
-    dplyr::filter(type %in% "nowcast") %>%
+    dplyr::filter(type %in% "nowcast",
+                  date >= min_plot_date) %>%
     EpiNow::plot_confidence(plot_median = FALSE) +
     ggplot2::theme(legend.position = "none") +
     ggplot2::labs(y = "Effective Reproduction no.", x = "Date") +
@@ -283,6 +296,18 @@ target_folder <- file.path(target_folder, target_date)
 
   ## Pull out little
   littler_estimates <- time_varying_params[[2]]
+  
+  littler_estimates$time_varying_r[[1]] <- littler_estimates$time_varying_r[[1]] %>%
+    dplyr::left_join(
+      all_cases %>%
+        dplyr::select(type, confidence, date_onset) %>% 
+        dplyr::filter(type %in% "nowcast"),
+      by = c("date" = "date_onset")
+    ) %>%
+    dplyr::filter(!is.na(confidence)) %>% 
+    dplyr::mutate(date_onset = date) %>%
+    dplyr::mutate(date = date - incubation_period) %>% 
+    dplyr::select(-type)
 
   if (case_only) {
     littler_estimates <- littler_estimates %>%
@@ -325,15 +350,14 @@ target_folder <- file.path(target_folder, target_date)
 
       estimate$bottom <- clean_double(estimate$bottom)
       estimate$top <- clean_double(estimate$top)
+      estimate$median <- clean_double(estimate$median)
 
       out <- tibble::tibble(
         vars = estimate$vars,
-        range = paste0(estimate$bottom, " -- ", estimate$top)
+        range = ifelse(estimate$vars %in% "doubling_time",
+                       estimate$median,
+                       paste0(estimate$bottom, " -- ", estimate$top))
       )
-
-      out$range <- ifelse(out$range %in% "Cases decreasing -- Cases decreasing",
-                          "Cases decreasing",
-                          out$range)
 
       return(out)
     })) %>%
@@ -354,7 +378,7 @@ target_folder <- file.path(target_folder, target_date)
   ## Get individual estimates
   rate_spread_latest <- report_latest %>%
     dplyr::filter(Data == "nowcast") %>%
-    pull(`Rate of spread`)
+    dplyr::pull(`Rate of spread`)
 
 
   saveRDS(rate_spread_latest,
@@ -362,14 +386,14 @@ target_folder <- file.path(target_folder, target_date)
 
   doubling_time_latest <- report_latest %>%
     dplyr::filter(Data == "nowcast") %>%
-    pull(`Doubling time (days)`)
+    dplyr::pull(`Doubling time (days)`)
 
   saveRDS(doubling_time_latest,
           paste0(target_folder, "/doubling_time_latest.rds"))
 
   adjusted_r_latest <- report_latest %>%
     dplyr::filter(Data == "nowcast") %>%
-    pull(`Adjusted R-squared`)
+    dplyr::pull(`Adjusted R-squared`)
 
   saveRDS(adjusted_r_latest,
           paste0(target_folder, "/adjusted_r_latest.rds"))
@@ -377,19 +401,14 @@ target_folder <- file.path(target_folder, target_date)
   ## Prepare data for plotting
   plot_littler_data <-  littler_estimates %>%
     tidyr::unnest("time_varying_r") %>%
+    dplyr::filter(date >= min_plot_date) %>% 
     dplyr::select(-overall_little_r) %>%
     dplyr::mutate(vars = vars %>%
                     factor(levels = c("little_r", "doubling_time", "goodness_of_fit"),
                            labels = c("Rate of spread",
                                       "Doubling time (days)",
                                       "Adjusted R-squared")
-                    )) %>%
-    dplyr::left_join(
-      all_cases %>%
-        dplyr::select(type, date, confidence),
-      by = c("type", "date")
-    ) %>%
-    dplyr::filter(type %in% "nowcast")
+                    ))
 
   ## Define generic plotting function
   plot_littler_fn <- function(littler_df, plot_var = "Rate of spread") {
@@ -450,7 +469,7 @@ target_folder <- file.path(target_folder, target_date)
     patchwork::plot_layout(ncol = 1) &
     ggplot2::scale_x_date(date_breaks = "1 week",
                           date_labels = "%b %d",
-                          limits = c(min(cases$data$date), max(cases$data$date)+1))
+                          limits = c(min_plot_date, max(cases$data$date)+1))
   
   if (save_plots) {
     ## Save plot

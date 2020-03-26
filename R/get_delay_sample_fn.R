@@ -60,7 +60,7 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1) {
   }
   
   if(best_model == "exp"){
-    
+    message("Exponential selected as the best fit for the delay distribution")
     delay_rate <- sample(rstan::extract(fit_exp)$lambda, samples)
     
     sample_functions <- delay_rate %>%
@@ -78,7 +78,7 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1) {
       })
     
   }else if(best_model == "gamma"){
-    
+    message("Gamma selected as the best fit for the delay distribution")
     delay_alpha <- sample(rstan::extract(fit_gam)$alpha, samples)
     delay_beta <- sample(rstan::extract(fit_gam)$beta, samples)
     

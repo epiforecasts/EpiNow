@@ -1,7 +1,10 @@
 #' Summarise a nowcast
 #'
 #' @param cast A dataframe as produced by `nowcast_pipeline`
-#'
+#' @param min_conf Numeric defaults to 0.25. The minimum confidence required 
+#' for results to be included in the summary.
+#' @param incubation_shift Numeric defaults to 5. 
+#' The number of days to use to shift the incubation period
 #' @return A summarised dataframe
 #' @export
 #' @importFrom tidyr gather
@@ -11,7 +14,7 @@
 #' @examples
 #'
 #'
-summarise_cast <- function(cast) {
+summarise_cast <- function(cast, min_conf = 0.25, incubation_period = 5) {
   
   get_conf <- function(conf, import_status) {
     if(length(conf) == 2) {
@@ -35,5 +38,8 @@ summarise_cast <- function(cast) {
       upper = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[2]]),
       median = median(cases, na.rm = TRUE),
       confidence = mean(confidence, na.rm = TRUE)) %>%
+    dplyr::mutate(date_onset = date) %>% ## onset date
+    dplyr::mutate(date = date - incubation_period) %>% ## date of infection ~5 days prior
+    dplyr::filter(confidence >= min_conf) %>%
     dplyr::ungroup()
 }

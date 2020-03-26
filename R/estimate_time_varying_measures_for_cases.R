@@ -1,7 +1,6 @@
 
 #' Estimate time-varying measures for cases
 #'
-#' @param start_rate_of_spread_est A character string in the form of a date ("2020-01-01")
 #' @inheritParams estimate_time_varying_measures_for_nowcast
 #' @inheritParams estimate_R0
 #' @return
@@ -17,7 +16,7 @@
 estimate_time_varying_measures_for_cases <- function(cases = NULL,
                                                      serial_intervals = NULL,
                                                      si_samples = NULL, rt_samples = NULL,
-                                                     start_rate_of_spread_est = NULL,
+                                                     min_est_date = NULL,
                                                      rt_windows = NULL, rate_window = NULL, 
                                                      rt_prior = NULL){
   ## Estimate time-varying R0
@@ -25,7 +24,8 @@ estimate_time_varying_measures_for_cases <- function(cases = NULL,
   R0_estimates <- cases %>%
     EpiNow::estimate_R0(serial_intervals = serial_intervals,
                         si_samples = si_samples, rt_samples = rt_samples,
-                        windows = rt_windows, rt_prior = rt_prior)
+                        windows = rt_windows, rt_prior = rt_prior,
+                        min_est_date = min_est_date)
   
   
   R0_estimates_sum <- R0_estimates %>% 
@@ -47,9 +47,9 @@ estimate_time_varying_measures_for_cases <- function(cases = NULL,
   message("Estimate time-varying rate of growth")
 
 
-  if (!is.null(start_rate_of_spread_est)) {
+  if (!is.null(min_est_date)) {
     little_r_estimates <- cases %>%
-      dplyr::filter(date >= as.Date(start_rate_of_spread_est))
+      dplyr::filter(date >= min_est_date)
   }else{
     little_r_estimates <- cases
   }
