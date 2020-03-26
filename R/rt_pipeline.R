@@ -217,10 +217,12 @@ target_folder <- file.path(target_folder, target_date)
   bigr_estimates <- bigr_estimates %>%
     dplyr::left_join(
       all_cases %>%
-        dplyr::select(type, date, confidence),
-      by = c("type", "date")
-    )
-
+        dplyr::select(type, confidence, date_onset),
+      by = c("type", "date" = "date_onset")
+    ) %>%
+    dplyr::filter(!is.na(confidence)) %>% # filters out upscaling results with confidence < 0.25
+    dplyr::mutate(date_onset = date) %>%
+    dplyr::mutate(date = date - 5)
 
   saveRDS(bigr_estimates,
           paste0(target_folder, "/bigr_estimates.rds"))
@@ -283,6 +285,10 @@ target_folder <- file.path(target_folder, target_date)
 
   ## Pull out little
   littler_estimates <- time_varying_params[[2]]
+  
+  littler_estimates$time_varying_r[[1]] <- littler_estimates$time_varying_r[[1]] %>%
+    dplyr::mutate(date_onset = date) %>%
+    dplyr::mutate(date = date - 5)
 
   if (case_only) {
     littler_estimates <- littler_estimates %>%
@@ -354,7 +360,7 @@ target_folder <- file.path(target_folder, target_date)
   ## Get individual estimates
   rate_spread_latest <- report_latest %>%
     dplyr::filter(Data == "nowcast") %>%
-    pull(`Rate of spread`)
+    dplyr::pull(`Rate of spread`)
 
 
   saveRDS(rate_spread_latest,
@@ -362,14 +368,14 @@ target_folder <- file.path(target_folder, target_date)
 
   doubling_time_latest <- report_latest %>%
     dplyr::filter(Data == "nowcast") %>%
-    pull(`Doubling time (days)`)
+    dplyr::pull(`Doubling time (days)`)
 
   saveRDS(doubling_time_latest,
           paste0(target_folder, "/doubling_time_latest.rds"))
 
   adjusted_r_latest <- report_latest %>%
     dplyr::filter(Data == "nowcast") %>%
-    pull(`Adjusted R-squared`)
+    dplyr::pull(`Adjusted R-squared`)
 
   saveRDS(adjusted_r_latest,
           paste0(target_folder, "/adjusted_r_latest.rds"))

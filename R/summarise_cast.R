@@ -35,5 +35,8 @@ summarise_cast <- function(cast) {
       upper = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[2]]),
       median = median(cases, na.rm = TRUE),
       confidence = mean(confidence, na.rm = TRUE)) %>%
+    dplyr::mutate(date_onset = date) %>% ## onset date
+    dplyr::mutate(date = date - 5) %>% ## date of infection ~5 days prior
+    dplyr::filter(confidence >= 0.25) %>%
     dplyr::ungroup()
 }
