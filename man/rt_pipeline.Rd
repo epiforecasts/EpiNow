@@ -25,7 +25,9 @@ rt_pipeline(
   verbose = FALSE,
   serial_intervals = NULL,
   rt_prior = NULL,
-  save_plots = TRUE
+  save_plots = TRUE,
+  min_conf = 0.25,
+  incubation_period = 5
 )
 }
 \arguments{
@@ -70,6 +72,9 @@ that day. Defaults to \code{EpiNow::covid_serial_intervals}.}
 \item{rt_prior}{A list defining the reproduction number prior containing the mean (\code{mean_prior}) and standard deviation (\code{std_prior})}
 
 \item{save_plots}{Logical, defaults to \code{TRUE}. Should plots be saved.}
+
+\item{min_conf}{Numeric defaults to 0.25. The minimum confidence required
+for results to be included in the summary.}
 }
 \description{
 Combine fitting a delay distribution, constructing a set of
