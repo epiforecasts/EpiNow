@@ -31,7 +31,7 @@ knitr::kable(col.names = c("", "Estimate"), booktabs = TRUE) %>%
 
 `r paste(c(rep("#", title_depth), " Reported and estimated cases by date of onset and time-varying reproduction number estimates"), collapse = "")`
 
-```{r, fig.height = 6, fig.width = 12}
+```{r, fig.height = 6, fig.width = 8}
 knitr::include_graphics(here::here(file.path(region_path, region, "latest/rt_cases_plot.png")))
 ```
 <br>
@@ -39,7 +39,7 @@ knitr::include_graphics(here::here(file.path(region_path, region, "latest/rt_cas
 
 `r paste(c(rep("#", title_depth), " Time-varying rate of spread and doubling time"), collapse = "")`
 
-```{r, fig.height = 6, fig.width = 12}
+```{r, fig.height = 6, fig.width = 8}
 knitr::include_graphics(here::here(file.path(region_path, region, "latest/rate_spread_plot.png")))
 ```
 
