@@ -11,7 +11,7 @@ regional_rt_pipeline(
   national = FALSE,
   regional_delay = FALSE,
   merge_onsets = FALSE,
-  case_limit = 10,
+  case_limit = 20,
   samples = 1000,
   ...
 )
