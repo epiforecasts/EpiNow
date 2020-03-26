@@ -49,7 +49,7 @@ estimate_time_varying_measures_for_cases <- function(cases = NULL,
 
   if (!is.null(min_est_date)) {
     little_r_estimates <- cases %>%
-      dplyr::filter(date >= min_est_date)
+      dplyr::filter(date >= (min_est_date - lubridate::days(rate_window)))
   }else{
     little_r_estimates <- cases
   }

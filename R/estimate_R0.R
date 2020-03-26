@@ -77,8 +77,8 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
     wait_time <- nrow(incid)
   }
   
-  if (wait_time <= window) {
-    wait_time <- window + 1
+  if (wait_time <= 2) {
+    wait_time <- 2
   }
   
 
