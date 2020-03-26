@@ -11,14 +11,13 @@
 #' for all windows.
 #' @param si_samples Numeric, the number of samples to take from the serial intervals supplied
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
-#' @param wait_time Numeric, defaults to 7. The number of data points to wait for before starting to produce Rt estimates.
-#' The minimum value for this is 2. 
+#' @param min_est_date Date to begin estimation.
 #' @inheritParams add_dates
 #' @return A tibble containing the date and summarised R estimte.
 #' @export
 #' @importFrom EpiEstim estimate_R make_config
 #' @importFrom tidyr drop_na complete spread
-#' @importFrom dplyr rename full_join
+#' @importFrom dplyr rename full_join pull
 #' @importFrom tibble tibble
 #' @importFrom purrr map2
 #' @examples
@@ -39,7 +38,7 @@
 estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                         rt_prior = NULL, windows = NULL, 
                         si_samples = 100, rt_samples = 100,
-                        return_best = TRUE, wait_time = 7) {
+                        return_best = TRUE, min_est_date = NULL) {
 
  
   ## Adjust input based on the presence of imported cases
@@ -66,7 +65,14 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
       dplyr::rename(cases = I)
   }
 
+  ## Calculate when to start the window estimation of Rt
+  min_case_date <- summed_cases %>% 
+    dplyr::filter(cases > 0) %>% 
+    dplyr::pull(date) %>% 
+    min()
   
+  wait_time <- as.numeric(min_est_date - min_case_date) + 1
+
   ## Sample serial intervals
   serial_intervals_index <- sample(1:ncol(serial_intervals),
                              si_samples,

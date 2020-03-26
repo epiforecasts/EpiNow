@@ -7,7 +7,7 @@
 estimate_time_varying_measures_for_nowcast(
   nowcast = NULL,
   serial_intervals = NULL,
-  start_rate_of_spread_est = NULL,
+  min_est_date = NULL,
   si_samples = NULL,
   rt_samples = NULL,
   rt_windows = 7,
@@ -21,7 +21,7 @@ estimate_time_varying_measures_for_nowcast(
 \item{serial_intervals}{A matrix with columns representing samples and rows representing the probability of the serial intervel being on
 that day.}
 
-\item{start_rate_of_spread_est}{A character string in the form of a date ("2020-01-01")}
+\item{min_est_date}{Date to begin estimation.}
 
 \item{si_samples}{Numeric, the number of samples to take from the serial intervals supplied}
 

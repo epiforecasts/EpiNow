@@ -9,7 +9,7 @@ estimate_time_varying_measures_for_cases(
   serial_intervals = NULL,
   si_samples = NULL,
   rt_samples = NULL,
-  start_rate_of_spread_est = NULL,
+  min_est_date = NULL,
   rt_windows = NULL,
   rate_window = NULL,
   rt_prior = NULL
@@ -25,7 +25,7 @@ that day.}
 
 \item{rt_samples}{Numeric, the number of samples to take from the estimated R distribution for each time point.}
 
-\item{start_rate_of_spread_est}{A character string in the form of a date ("2020-01-01")}
+\item{min_est_date}{Date to begin estimation.}
 
 \item{rt_windows}{Numeric vector, windows over which to estimate time-varying R. The best performing window will be
 selected per serial interval sample by default (based on which window best forecasts current cases).}

@@ -18,7 +18,6 @@ rt_pipeline(
   rt_windows = 1:7,
   rate_window = 7,
   earliest_allowed_onset = NULL,
-  start_rate_of_spread_est = NULL,
   merge_actual_onsets = TRUE,
   case_only = FALSE,
   delay_only = FALSE,
@@ -58,9 +57,6 @@ selected per serial interval sample by default (based on which window best forec
 
 \item{earliest_allowed_onset}{A character string in the form of a date ("2020-01-01") indiciating the earliest
 allowed onset.}
-
-\item{start_rate_of_spread_est}{A character string in the form of a date ("2020-01-01") indicating the start time to
-estimate the rate of sprea.}
 
 \item{case_only}{Logical, defaults to \code{FALSE}. Should estimates also be made based on reported cases.}
 

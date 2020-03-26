@@ -14,8 +14,6 @@
 #' @param samples Numeric, the number of pseudo linelists to generate. Defaults to 1000.
 #' @param earliest_allowed_onset A character string in the form of a date ("2020-01-01") indiciating the earliest
 #' allowed onset.
-#' @param start_rate_of_spread_est A character string in the form of a date ("2020-01-01") indicating the start time to
-#' estimate the rate of sprea.
 #' @param case_only Logical, defaults to `FALSE`. Should estimates also be made based on reported cases.
 #' @param serial_intervals A matrix with columns representing samples and rows representing the probability of the serial intervel being on
 #' that day. Defaults to `EpiNow::covid_serial_intervals`.
@@ -52,7 +50,6 @@ rt_pipeline <- function(cases = NULL,
                               rt_windows = 1:7,
                               rate_window = 7,
                               earliest_allowed_onset = NULL,
-                              start_rate_of_spread_est = NULL,
                               merge_actual_onsets = TRUE,
                               case_only = FALSE,
                               delay_only = FALSE,
@@ -129,7 +126,7 @@ target_folder <- file.path(target_folder, target_date)
 
   summarise_cast <- EpiNow::summarise_cast(nowcast,
                                            min_conf = min_conf, 
-                                           incubtion_period = incubation_period)
+                                           incubation_period = incubation_period)
 
   ## Combine nowcast with observed cases by onset and report
   reported_cases <- cases %>%
@@ -184,11 +181,11 @@ target_folder <- file.path(target_folder, target_date)
 
   time_varying_params <- nowcast %>%
     dplyr::filter(type %in% "nowcast") %>%
-    EpiNow::estimate_time_varying_measures_for_nowcast(start_rate_of_spread_est = start_rate_of_spread_est,
-                                                                  serial_intervals = serial_intervals,
-                                                                  si_samples = si_samples, rt_samples = rt_samples,
-                                                                  rate_window = rate_window, rt_windows = rt_windows,
-                                                                  rt_prior = rt_prior)
+    EpiNow::estimate_time_varying_measures_for_nowcast(min_est_date = min_plot_date + lubridate::days(incubation_period),
+                                                       serial_intervals = serial_intervals,
+                                                       si_samples = si_samples, rt_samples = rt_samples,
+                                                       rate_window = rate_window, rt_windows = rt_windows,
+                                                       rt_prior = rt_prior)
 
 
   saveRDS(time_varying_params,  paste0(target_folder, "/time_varying_params.rds"))
@@ -200,7 +197,7 @@ target_folder <- file.path(target_folder, target_date)
       EpiNow::estimate_time_varying_measures_for_cases(reported_cases %>%
                                                                     dplyr::rename(cases = median) %>%
                                                                     dplyr::mutate(import_status = "local"),
-                                                                  start_rate_of_spread_est = start_rate_of_spread_est,
+                                                                  min_est_date = min_plot_date + lubridate::days(incubation_period),
                                                                   si_samples = si_samples, rt_samples = rt_samples,
                                                                   serial_intervals = serial_intervals, rt_prior = rt_prior,
                                                                   rate_window = rate_window, rt_windows = rt_windows,)
