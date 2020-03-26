@@ -51,7 +51,7 @@ knitr::include_graphics(here::here(file.path(summary_path, "rt_plot.png")))
 ### Cases with date of onset on the day of report generation in all regions
 
 ```{r cases-plot, fig.height = 24, fig.width = 24, layout="l-body-outset"}
-knitr::include_graphics(here::here(file.path(summar_path, "cases_plot.png")))
+knitr::include_graphics(here::here(file.path(summary_path, "cases_plot.png")))
 ```
 
 *Figure 8:  Cases by date of report (bars) and estimated cases by date of onset (light grey ribbon = 95% credible interval; dark grey ribbon = the interquartile range) in all regions. Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence.*
