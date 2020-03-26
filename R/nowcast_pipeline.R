@@ -45,7 +45,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 
   ## Fit the delay distribution and draw posterior samples
   fitted_delay_fn <- EpiNow::get_delay_sample_fn(filtered_linelist, samples = samples)
-
+ 
   ## Group linelists by day
   linelist_by_day <- linelist %>%
     dplyr::filter(import_status == "local") %>%

@@ -17,7 +17,7 @@
 split_linelist_by_day <- function(linelist = NULL) {
 
 
-  if (!all(is.na(linelist$date_onset))) {
+  if (!all(is.na(linelist$date_onset_symptoms))) {
     linelist <- data.table::as.data.table(linelist)
     linelist_by_day <- linelist[, list(date_onset = date_onset_symptoms, date_report = date_confirmation)
                                 ][!is.na(date_onset)][, n := 1:.N, date_report]
