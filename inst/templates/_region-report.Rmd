@@ -36,7 +36,7 @@ knitr::include_graphics(here::here(file.path(region_path, region, "latest/rt_cas
 ```
 
 <br>
-`r paste0("*Figure ",  summary_figures + 1 + (index - 1) * 2, ": A.) Cases by date of report (bars) and estimated cases by date of infection. B.) Time-varying estimate of the effective reproduction number. Light grey ribbon = 90% credible interval. Dark grey ribbon = 505 credible interval. Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence.*")`
+`r paste0("*Figure ",  summary_figures + 1 + (index - 1) * 2, ": A.) Cases by date of report (bars) and estimated cases by date of infection. B.) Time-varying estimate of the effective reproduction number. Light grey ribbon = 90% credible interval. Dark grey ribbon = 50% credible interval. Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence.*")`
 
 `r paste(c(rep("#", title_depth), " Time-varying rate of spread and doubling time"), collapse = "")`
 

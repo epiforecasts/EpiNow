@@ -18,7 +18,7 @@ knitr::include_graphics(here::here(file.path(summary_path, "summary_plot.png")))
 ```
 
 <br>
-*Figure 4: Cases with date of infection on the most recent date available and the time-varying estimate of the effective reproduction number (bar = 90% credible interval). Regions are ordered by the number of expected daily cases and shaded based on the expected change in daily cases. The dotted line indicates the target value of 1 for the effective reproduction no. required for control and a single case required fror elimination.*
+*Figure 4: Cases with date of infection on the most recent date available and the time-varying estimate of the effective reproduction number (bar = 90% credible interval). Regions are ordered by the number of expected daily cases and shaded based on the expected change in daily cases. The dotted line indicates the target value of 1 for the effective reproduction no. required for control and a single case required for elimination.*
 
 ### Reproduction numbers over time in the six regions with the most cases currently
 
