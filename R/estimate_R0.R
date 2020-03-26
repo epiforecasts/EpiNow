@@ -77,6 +77,10 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
     wait_time <- nrow(incid)
   }
   
+  if (wait_time <= window) {
+    wait_time <- window + 1
+  }
+  
 
   ## Sample serial intervals
   serial_intervals_index <- sample(1:ncol(serial_intervals),
@@ -91,7 +95,8 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
     est_r <- purrr::map_dfr(windows, 
                         function(window) {
                           
-                          window_start <- seq(wait_time, nrow(incid) - (window - 1))
+                          window_start <- seq(wait_time - window,
+                                              nrow(incid) - (window - 1))
                           window_end <- window_start + window - 1
                           
                           
