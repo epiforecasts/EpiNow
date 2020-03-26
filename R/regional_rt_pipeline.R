@@ -11,6 +11,8 @@
 #' @param merge_onsets Logical defaults to `FALSE`. Should available onset data be used. Typically if `regional_delay` is
 #' @param case_limit Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 20.
 #' set to `FALSE` this should also be `FALSE`
+#' @param regions_in_parallel Logical, should regions be run in parallel or sequentially (allowing for)
+#' within pipeline parallisation. Defaults to `TRUE`.
 #' @param ... 
 #' @inheritParams rt_pipeline
 #' @return NULL
@@ -25,6 +27,7 @@
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = "results", 
                                  national = FALSE, regional_delay = FALSE, merge_onsets = FALSE,
                                  case_limit = 20,
+                                 regions_in_parallel = TRUE,
                                  samples = 1000, ...) {
   
   
@@ -84,8 +87,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   message("Running pipelines by region")
   
-  
-  out <- furrr::future_map(regions, function(target_region) { 
+  ## Function to run the pipeline in a region
+  run_region <- function(target_region) { 
     message("Running Rt pipeline for ", target_region)
     
     
@@ -108,9 +111,16 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
       samples = samples, ...)
     
     
-   return(invisible(NULL))
+    return(invisible(NULL))
     
-    }, .progress = TRUE)
+  }
+  
+  if (regions_in_parallel) {
+    out <- furrr::future_map(regions, run_region, .progress = TRUE)
+  }else{
+    out <- purrr::map(regions, run_region)
+  }
+  
     
   return(invisible(NULL))
 }

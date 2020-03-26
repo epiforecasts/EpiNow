@@ -12,6 +12,7 @@ regional_rt_pipeline(
   regional_delay = FALSE,
   merge_onsets = FALSE,
   case_limit = 20,
+  regions_in_parallel = TRUE,
   samples = 1000,
   ...
 )
@@ -33,6 +34,9 @@ used but in this case \code{merge_onsets} should be set to \code{FALSE}.}
 
 \item{case_limit}{Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 20.
 set to \code{FALSE} this should also be \code{FALSE}}
+
+\item{regions_in_parallel}{Logical, should regions be run in parallel or sequentially (allowing for)
+within pipeline parallisation. Defaults to \code{TRUE}.}
 
 \item{samples}{Numeric, the number of pseudo linelists to generate. Defaults to 1000.}
 
