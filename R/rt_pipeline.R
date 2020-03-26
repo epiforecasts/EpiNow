@@ -487,7 +487,7 @@ target_folder <- file.path(target_folder, target_date)
   
   ## Regional summary
   region_summary <- tibble::tibble(
-    measure = c("Cases with date of onset on the day of report generation",
+    measure = c("New infections on modelling cut-off date",
                 "Expected change in daily cases",
                 "Effective reproduction no.",
                 "Rate of spread",

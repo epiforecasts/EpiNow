@@ -13,7 +13,7 @@ require(here)
 
 ### Summary of latest reproduction number and case count estimates
 
-```{r, fig.height = 8, fig.width = 8}
+```{r, fig.height = 8, fig.width = 8, out.width = "90%"}
 knitr::include_graphics(here::here(file.path(summary_path, "summary_plot.png")))
 ```
 
@@ -22,7 +22,7 @@ knitr::include_graphics(here::here(file.path(summary_path, "summary_plot.png")))
 
 ### Reproduction numbers over time in the six regions with the most cases currently
 
-```{r summarise-bigr-plot, fig.height = 6, fig.width = 8, layout="l-body-outset"}
+```{r summarise-bigr-plot, fig.height = 6, fig.width = 8, layout="l-body-outset", out.width = "90%"}
 knitr::include_graphics(here::here(file.path(summary_path, "high_cases_rt_plot.png")))
 ```
 
@@ -31,7 +31,7 @@ knitr::include_graphics(here::here(file.path(summary_path, "high_cases_rt_plot.p
 
 ### Cases with date of onset on the day of report generation in the six regions with the most cases currently
 
-```{r summarise-cases-plot, fig.height = 6, fig.width = 8, layout="l-body-outset"}
+```{r summarise-cases-plot, fig.height = 6, fig.width = 8, layout="l-body-outset", out.width = "90%"}
 knitr::include_graphics(here::here(file.path(summary_path, "high_cases_plot.png")))
 ```
 
@@ -40,7 +40,7 @@ knitr::include_graphics(here::here(file.path(summary_path, "high_cases_plot.png"
 
 ### Reproduction numbers over time in all regions
 
-```{r bigr-plot, fig.height = 12, fig.width = 8, layout="l-body-outset"}
+```{r bigr-plot, fig.height = 12, fig.width = 8, layout="l-body-outset", out.width = "90%"}
 knitr::include_graphics(here::here(file.path(summary_path, "rt_plot.png")))
 ```
 
@@ -50,7 +50,7 @@ knitr::include_graphics(here::here(file.path(summary_path, "rt_plot.png")))
 
 ### Cases with date of onset on the day of report generation in all regions
 
-```{r cases-plot, fig.height = 12, fig.width = 8, layout="l-body-outset"}
+```{r cases-plot, fig.height = 12, fig.width = 8, layout="l-body-outset", out.width = "90%"}
 knitr::include_graphics(here::here(file.path(summary_path, "cases_plot.png")))
 ```
 
@@ -58,7 +58,7 @@ knitr::include_graphics(here::here(file.path(summary_path, "cases_plot.png")))
 
 ### Latest estimates summary table
 
-```{r summary-table-1, layout="l-body-outset"}
+```{r summary-table-1, layout="l-body-outset", out.width = "90%"}
 readRDS(here::here(file.path(summary_path, "summary_table.rds"))) %>% 
  knitr::kable(booktabs = TRUE, longtable = TRUE) %>% 
  kableExtra::landscape()

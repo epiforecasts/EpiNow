@@ -39,7 +39,7 @@ summarise_results <- function(regions = NULL,
    ## Make reporting table
   estimates <- tibble::tibble(
     Region = names(regions),
-    `Cases with date of onset on the day of report generation` = regions %>% 
+    `New infections on modelling cut-off date` = regions %>% 
       purrr::map_chr(~ load_data("current_cases.rds", .)),
     `Expected change in daily cases` = regions %>% 
       purrr::map_dbl(~ load_data("prob_control_latest.rds", .)) %>% 
@@ -53,7 +53,7 @@ summarise_results <- function(regions = NULL,
   ## Make estimates numeric
   numeric_estimates <- estimates %>% 
     dplyr::select(region = Region, 
-                  `Cases with date of onset on the day of report generation`, 
+                  `New infections on modelling cut-off date`, 
                   `Effective reproduction no.`, 
                   `Expected change in daily cases`) %>% 
     tidyr::gather(value = "value", key = "metric", -region, 
