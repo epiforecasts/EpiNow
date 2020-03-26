@@ -23,7 +23,7 @@
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
 #' @param rt_prior A list defining the reproduction number prior containing the mean (`mean_prior`) and standard deviation (`std_prior`)
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
-#' @param save_plots Logical, defaults to code `TRUE`. Should plots be saved.
+#' @param save_plots Logical, defaults to `TRUE`. Should plots be saved.
 #' @return NULL
 #' @export
 #' @inheritParams estimate_time_varying_measures_for_nowcast
@@ -120,7 +120,7 @@ target_folder <- file.path(target_folder, target_date)
 
   summarise_cast <- EpiNow::summarise_cast(nowcast)
 
-  ## Combine nowcast with observed cases by onset and repor
+  ## Combine nowcast with observed cases by onset and report
   reported_cases <- cases %>%
     dplyr::count(date, wt = confirm) %>%
     dplyr::select(date, median = n) %>%

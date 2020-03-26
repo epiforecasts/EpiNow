@@ -28,12 +28,12 @@ get_timeseries <- function(results_dir = NULL, date = NULL) {
   ## Get rt values and combine
   rt <- purrr::map_dfr(regions, ~ load_data("time_varying_params.rds", .,
                                         result_dir = results_dir,
-                                        date = date)[[1]][[1]],
+                                        date = date)[[3]][[1]],
                         .id = "region")
 
 
   ## Get incidence values and combine
-  incidence <- purrr::map_dfr(regions, ~ load_data("summarised_nowcast.rds", .,
+  incidence <- purrr::map_dfr(regions, ~ load_data("nowcast.rds", .,
                                                    result_dir = results_dir,
                                                    date = date)[[1]],
                               .id = "region")
