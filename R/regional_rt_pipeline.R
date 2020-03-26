@@ -24,7 +24,7 @@
 #' regional_rt_pipeline
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = "results", 
                                  national = FALSE, regional_delay = FALSE, merge_onsets = FALSE,
-                                 case_limit = 20,
+                                 case_limit = 10,
                                  samples = 1000, ...) {
   
   
@@ -36,10 +36,11 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   ## Check for regions with fewer than required cases
   zero_regions <- cases %>% 
-    dplyr::group_by(region) %>% 
+    dplyr::group_by(region, date) %>% 
     dplyr::count(wt = cases) %>% 
     dplyr::filter(n < case_limit) %>% 
-    dplyr::pull(region)
+    dplyr::pull(region) %>% 
+    unique
   
   ## Exclude zero regions
   cases <- cases %>% 

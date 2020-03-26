@@ -278,7 +278,7 @@ target_folder <- file.path(target_folder, target_date)
     ggplot2::geom_hline(yintercept = 1, linetype = 2) +
     ggplot2::expand_limits(y = 0)
 
-
+ 
   if (save_plots) {
     ## Save plot
     ggplot2::ggsave(paste0(target_folder, "/bigr_eff_plot.png"),

@@ -39,7 +39,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                         rt_prior = NULL, windows = NULL, 
                         si_samples = 100, rt_samples = 100,
                         return_best = TRUE, min_est_date = NULL) {
-
+ 
  
   ## Adjust input based on the presence of imported cases
   if (length(unique(cases$import_status)) > 1) {
