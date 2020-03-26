@@ -45,7 +45,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   ## Exclude zero regions
   cases <- cases %>% 
     dplyr::filter(region %in% eval_regions)
-  message("Running the pipeline for: ", eval_regions)
+  message("Running the pipeline for: ",
+          paste(eval_regions, collapse = ", "))
   
   ## Make sure all dates have cases numbers
   cases <- cases %>% 
