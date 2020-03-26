@@ -72,6 +72,11 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
     min()
   
   wait_time <- as.numeric(min_est_date - min_case_date) + 1
+  
+  if (wait_time > nrow(incid)){
+    wait_time <- nrow(incid)
+  }
+  
 
   ## Sample serial intervals
   serial_intervals_index <- sample(1:ncol(serial_intervals),

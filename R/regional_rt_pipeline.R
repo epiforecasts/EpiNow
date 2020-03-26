@@ -35,16 +35,17 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   
   ## Check for regions with fewer than required cases
-  zero_regions <- cases %>% 
+  eval_regions <- cases %>% 
     dplyr::group_by(region, date) %>% 
     dplyr::count(wt = cases) %>% 
-    dplyr::filter(n < case_limit) %>% 
+    dplyr::filter(n >= case_limit) %>% 
     dplyr::pull(region) %>% 
     unique
   
   ## Exclude zero regions
   cases <- cases %>% 
-    dplyr::filter(!region %in% zero_regions)
+    dplyr::filter(region %in% eval_regions)
+  message("Running the pipeline for: ", eval_regions)
   
   ## Make sure all dates have cases numbers
   cases <- cases %>% 
