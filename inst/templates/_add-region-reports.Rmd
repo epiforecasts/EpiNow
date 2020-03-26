@@ -1,7 +1,7 @@
 ### Regional reports 
 
 
-```{r generate-region-reports, include = FALSE}
+```{r, include = FALSE}
 regions <- EpiNow::get_regions(here::here(region_path))
 show_title <- TRUE
 title_depth <- 4
@@ -18,6 +18,6 @@ region_summaries <- 1:length(regions) %>%
 ```
 
 
-```{r print-region-reports, results="asis"}
+```{r, results="asis"}
 cat(paste(region_summaries, collapse = '\n'))
 ```
