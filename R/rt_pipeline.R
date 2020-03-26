@@ -226,11 +226,12 @@ target_folder <- file.path(target_folder, target_date)
   }
 
   bigr_estimates <- bigr_estimates %>%
-    dplyr::full_join(
+    dplyr::left_join(
       all_cases %>%
         dplyr::select(type, confidence, date_onset),
       by = c("type", "date" = "date_onset")
     ) %>%
+    dplyr::filter(!is.na(confidence)) %>% 
     dplyr::mutate(date_onset = date) %>%
     dplyr::mutate(date = date - incubation_period)
 
@@ -297,8 +298,16 @@ target_folder <- file.path(target_folder, target_date)
   littler_estimates <- time_varying_params[[2]]
   
   littler_estimates$time_varying_r[[1]] <- littler_estimates$time_varying_r[[1]] %>%
+    dplyr::left_join(
+      all_cases %>%
+        dplyr::select(type, confidence, date_onset) %>% 
+        dplyr::filter(type %in% "nowcast"),
+      by = c("date" = "date_onset")
+    ) %>%
+    dplyr::filter(!is.na(confidence)) %>% 
     dplyr::mutate(date_onset = date) %>%
-    dplyr::mutate(date = date - incubation_period)
+    dplyr::mutate(date = date - incubation_period) %>% 
+    dplyr::select(-type)
 
   if (case_only) {
     littler_estimates <- littler_estimates %>%
@@ -341,6 +350,7 @@ target_folder <- file.path(target_folder, target_date)
 
       estimate$bottom <- clean_double(estimate$bottom)
       estimate$top <- clean_double(estimate$top)
+      estimate$median <- clean_double(estimate$median)
 
       out <- tibble::tibble(
         vars = estimate$vars,
@@ -398,13 +408,7 @@ target_folder <- file.path(target_folder, target_date)
                            labels = c("Rate of spread",
                                       "Doubling time (days)",
                                       "Adjusted R-squared")
-                    )) %>%
-    dplyr::left_join(
-      all_cases %>%
-        dplyr::select(type, date, confidence),
-      by = c("type", "date")
-    ) %>%
-    dplyr::filter(type %in% "nowcast")
+                    ))
 
   ## Define generic plotting function
   plot_littler_fn <- function(littler_df, plot_var = "Rate of spread") {
