@@ -2,6 +2,7 @@
 #' Estimate time-varying measures for cases
 #'
 #' @param start_rate_of_spread_est A character string in the form of a date ("2020-01-01")
+#' @inheritParams estimate_time_varying_measures_for_nowcast
 #' @inheritParams estimate_R0
 #' @return
 #' @export
@@ -17,14 +18,14 @@ estimate_time_varying_measures_for_cases <- function(cases = NULL,
                                                      serial_intervals = NULL,
                                                      si_samples = NULL, rt_samples = NULL,
                                                      start_rate_of_spread_est = NULL,
-                                                     window = NULL, rt_prior = NULL){
+                                                     rt_windows = NULL, rate_window = NULL, 
+                                                     rt_prior = NULL){
   ## Estimate time-varying R0
   message("Estimate time-varying R0")
   R0_estimates <- cases %>%
     EpiNow::estimate_R0(serial_intervals = serial_intervals,
-                                   si_samples = si_samples, rt_samples = rt_samples,
-                                   window = window, rt_prior = rt_prior) %>%
-    tidyr::unnest(R) %>%
+                        si_samples = si_samples, rt_samples = rt_samples,
+                        windows = rt_windows, rt_prior = rt_prior) %>%
     dplyr::group_by(date) %>%
     dplyr::summarise(
       bottom  = purrr::map_dbl(list(HDInterval::hdi(R, credMass = 0.9)), ~ .[[1]]),
@@ -34,7 +35,9 @@ estimate_time_varying_measures_for_cases <- function(cases = NULL,
       median = median(R, na.rm = TRUE),
       mean = mean(R, na.rm = TRUE),
       std = sd(R, na.rm = TRUE),
-      prob_control = sum(R < 1) / dplyr::n()) %>%
+      prob_control = sum(R < 1) / dplyr::n(),
+      mean_window = mean(window), 
+      sd_window = sd(window)) %>%
     dplyr::ungroup()
 
   ## Estimate time-varying little r
@@ -55,7 +58,7 @@ estimate_time_varying_measures_for_cases <- function(cases = NULL,
     tidyr::nest(data = dplyr::everything()) %>%
     dplyr::mutate(overall_little_r = list(EpiNow::estimate_r_in_window(data)),
                   time_varying_r = list(EpiNow::estimate_time_varying_r(data,
-                                                                                   window = window)
+                                                                        window = rate_window)
                   )) %>%
     dplyr::select(-data)
 

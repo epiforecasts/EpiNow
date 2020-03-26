@@ -10,7 +10,8 @@ estimate_time_varying_measures_for_cases(
   si_samples = NULL,
   rt_samples = NULL,
   start_rate_of_spread_est = NULL,
-  window = NULL,
+  rt_windows = NULL,
+  rate_window = NULL,
   rt_prior = NULL
 )
 }
@@ -26,7 +27,10 @@ that day.}
 
 \item{start_rate_of_spread_est}{A character string in the form of a date ("2020-01-01")}
 
-\item{window}{Numeric, the window over which to estimate time-varying R}
+\item{rt_windows}{Numeric vector, windows over which to estimate time-varying R. The best performing window will be
+selected per serial interval sample by default (based on which window best forecasts current cases).}
+
+\item{rate_window}{Numeric, the window to use to estimate the rate of spread.}
 
 \item{rt_prior}{A list defining the reproduction number prior containing the mean (\code{mean_prior}) and standard deviation (\code{std_prior})}
 }
