@@ -94,10 +94,13 @@ target_folder <- file.path(target_folder, target_date)
   cases <- cases %>%
     dplyr::rename(confirm = cases)
 
-  ## Get 97.5% quantile of reporting delay
-  max_delay_shown <- quantile(linelist$report_delay, 0.975, na.rm = TRUE)
-  min_plot_date <- min(cases$date, na.rm = TRUE) -
-    lubridate::days(max_delay_shown + incubation_period)
+  ## Define the min plotting (and estimate date as the first date that
+  ## at least 10 local cases were reported minus the incubation period
+  min_plot_date <- cases %>% 
+    dplyr::filter(import_status %in% "local", 
+                  confirm > 10) %>% 
+    dplyr::pull(date) %>% 
+    {min(., na.rm = TRUE) - lubridate::days(incubation_period)}
   
   # Run a nowcast -----------------------------------------------------------
 
