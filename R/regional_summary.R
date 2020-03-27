@@ -57,6 +57,7 @@ load_data <- purrr::partial(EpiNow::load_nowcast_result,
 results <- EpiNow::summarise_results(regions, results_dir,
                                      target_date = target_date,
                                      region_scale = region_scale)
+
 message("Saving results summary table")
 
 results$table <- results$table %>% 

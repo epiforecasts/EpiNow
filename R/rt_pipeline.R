@@ -57,7 +57,7 @@ rt_pipeline <- function(cases = NULL,
                               serial_intervals = NULL,
                               rt_prior = NULL,
                               save_plots = TRUE,
-                              min_conf = 0.25, 
+                              nowcast_lag = 3, 
                               incubation_period = 5) {
 
 
@@ -128,7 +128,7 @@ target_folder <- file.path(target_folder, target_date)
   # Summarise nowcast -------------------------------------------------------
 
   summarise_cast <- EpiNow::summarise_cast(nowcast,
-                                           min_conf = min_conf, 
+                                           nowcast_lag = nowcast_lag, 
                                            incubation_period = incubation_period)
 
   ## Combine nowcast with observed cases by onset and report
