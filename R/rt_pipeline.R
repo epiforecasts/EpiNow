@@ -158,7 +158,15 @@ target_folder <- file.path(target_folder, target_date)
         list(point = mean,
              lower = bottom, 
              upper = top)
-      })) %>%
+      }))
+  
+  
+  latest_date <- current_cases %>% 
+    dplyr::pull(date)
+  
+  saveRDS(latest_date,  paste0(target_folder, "/latest_date.rds"))
+  
+  current_cases <- current_cases  %>% 
     dplyr::pull(range)
 
   saveRDS(current_cases,  paste0(target_folder, "/current_cases.rds"))
