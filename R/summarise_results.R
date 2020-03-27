@@ -56,7 +56,11 @@ summarise_results <- function(regions = NULL,
                   -`Expected change in daily cases`) %>% 
     dplyr::mutate(
       lower = purrr::map_dbl(value, ~ .[[1]]$lower),
-      upper = purrr::map_dbl(value, ~ .[[1]]$upper))
+      upper = purrr::map_dbl(value, ~ .[[1]]$upper)) %>% 
+    dplyr::mutate(metric = metric %>% 
+                    factor(levels = c("New infections",
+                                      "Effective reproduction no.")))
+
   
   numeric_estimates <- numeric_estimates %>% 
     dplyr::mutate(
