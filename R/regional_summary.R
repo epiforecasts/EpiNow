@@ -38,7 +38,7 @@ regional_summary <- function(results_dir = NULL,
                              summary_dir = NULL,
                              target_date = NULL,
                              region_scale = "Region") {
-  
+   
 
   message("Extracting results from: ", results_dir)
   

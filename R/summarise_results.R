@@ -55,8 +55,8 @@ summarise_results <- function(regions = NULL,
     tidyr::gather(value = "value", key = "metric", -region, 
                   -`Expected change in daily cases`) %>% 
     dplyr::mutate(
-      lower = purrr::map(value, .$lower),
-      upper = purrr::map(value, .$upper))
+      lower = purrr::map_dbl(value, ~ .[[1]]$lower),
+      upper = purrr::map_dbl(value, ~ .[[1]]$upper))
   
   numeric_estimates <- numeric_estimates %>% 
     dplyr::mutate(
@@ -70,8 +70,14 @@ summarise_results <- function(regions = NULL,
   
   estimates <- estimates %>% 
     dplyr::mutate(
-      `New infections` = EpiNow::make_conf(`New infections`, digits = 0),
-      `Effective reproduction no.` = EpiNow::make_conf(`Effective reproduction no.`, digits = 1)
+      `New infections` =
+        `New infections` %>% 
+        purrr::map(~ .[[1]]) %>% 
+        EpiNow::make_conf(digits = 0),
+      `Effective reproduction no.` = 
+        `Effective reproduction no.` %>% 
+        purrr::map(~ .[[1]]) %>% 
+        EpiNow::make_conf(digits = 1)
     )
   
   ## Rank countries by incidence countires
