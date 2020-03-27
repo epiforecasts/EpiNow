@@ -38,6 +38,7 @@ summarise_cast <- function(cast, nowcast_lag = 3, incubation_period = 5) {
       upper = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[2]]),
       median = median(cases, na.rm = TRUE),
       mode = mode(cases, na.rm = TRUE), 
+      mean = mean(cases, na.rm = TRUE),
       confidence = mean(confidence, na.rm = TRUE)) %>%
     dplyr::filter(date <= (max(date, na.rm = TRUE) - lubridate::days(nowcast_lag))) %>% 
     dplyr::mutate(date_onset = date) %>% ## onset date

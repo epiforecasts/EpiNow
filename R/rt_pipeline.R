@@ -151,9 +151,7 @@ target_folder <- file.path(target_folder, target_date)
   ## Extract latest cases
   current_cases <- all_cases %>%
     dplyr::filter(type %in% "nowcast") %>%
-    dplyr::filter(date == max(date)) %>%
-    dplyr::mutate(range = paste0(round(bottom, 0), " -- ", round(top, 0))) %>%
-    dplyr::pull(range)
+    dplyr::filter(date == max(date))
 
   saveRDS(current_cases,  paste0(target_folder, "/current_cases.rds"))
 

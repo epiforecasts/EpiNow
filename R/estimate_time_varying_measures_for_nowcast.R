@@ -64,9 +64,11 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
     mean_window = mean(window), 
     sd_window = sd(window)),
     by = .(type, date)
-    ][, R0_range := paste(round(bottom, 1),
+    ][, R0_range := paste0(
+      round(mean, 0), "(",
+      paste(round(bottom, 1),
                           round(top, 1),
-                          sep = " -- "),]
+                          sep = " -- "), ")"),]
 
 
   R0_estimates_sum <- dplyr::arrange(R0_estimates_sum, date)
