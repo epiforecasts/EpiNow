@@ -29,12 +29,8 @@ summarise_results <- function(regions = NULL,
    load_data <- purrr::partial(load_nowcast_result,
                                date = target_date, result_dir = results_dir)
    
-   ## Extract a value
-   extract_var <- function(var, index) {
-     var %>% 
-       stringr::str_split(" -- ") %>% 
-       purrr::map_dbl(~ as.numeric(.[[index]]))
-   }
+
+
    
    ## Make reporting table
   estimates <- tibble::tibble(
@@ -59,8 +55,8 @@ summarise_results <- function(regions = NULL,
     tidyr::gather(value = "value", key = "metric", -region, 
                   -`Expected change in daily cases`) %>% 
     dplyr::mutate(
-      lower = extract_var(value, 1),
-      upper = extract_var(value, 2))
+      lower = purrr::map(value, .$lower),
+      upper = purrr::map(value, .$upper))
   
   numeric_estimates <- numeric_estimates %>% 
     dplyr::mutate(

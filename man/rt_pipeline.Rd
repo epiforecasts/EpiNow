@@ -25,7 +25,7 @@ rt_pipeline(
   serial_intervals = NULL,
   rt_prior = NULL,
   save_plots = TRUE,
-  min_conf = 0.25,
+  nowcast_lag = 3,
   incubation_period = 5
 )
 }
@@ -69,8 +69,8 @@ that day. Defaults to \code{EpiNow::covid_serial_intervals}.}
 
 \item{save_plots}{Logical, defaults to \code{TRUE}. Should plots be saved.}
 
-\item{min_conf}{Numeric defaults to 0.25. The minimum confidence required
-for results to be included in the summary.}
+\item{nowcast_lag}{Numeric defaults to 3. Then number of days to lag the nowcast
+based on confidence.}
 }
 \description{
 Combine fitting a delay distribution, constructing a set of
