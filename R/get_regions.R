@@ -23,7 +23,10 @@ get_regions <- function(results_dir) {
   
   names(regions) <- regions %>%
     stringr::str_replace_all("-", " ") %>%
-    stringr::str_to_title()
+    stringr::str_to_title() %>% 
+    stringr::str_replaceall(" And ", " and ") %>% 
+    stringr::str_replaceall(" Of ", " of ") %>% 
+    stringr::str_replaceall(" The ", " the ") 
   
   
  return(regions)

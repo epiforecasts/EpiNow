@@ -49,13 +49,11 @@ if (!dir.exists(summary_dir)) {
 
 regions <- EpiNow::get_regions(results_dir)
 
-### Load data
-load_data <- purrr::partial(EpiNow::load_nowcast_result,
-                            results_dir = results_dir)
 
 
 ## Get latest date
-latest_date <- load_data("latest_date.rds", regions[[1]])
+latest_date <- EpiNow::load_nowcast_result("latest_date.rds", region = regions[1],
+                                           target_date, results_dir)
 
 saveRDs(latest_date, "latest_date.rds")
 
