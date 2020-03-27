@@ -151,7 +151,10 @@ target_folder <- file.path(target_folder, target_date)
   ## Extract latest cases
   current_cases <- all_cases %>%
     dplyr::filter(type %in% "nowcast") %>%
-    dplyr::filter(date == max(date))
+    dplyr::filter(date == max(date)) %>%
+    dplyr::mutate(range = paste0(round(mean, 0), "(", 
+                                 round(bottom, 0), " -- ", round(top, 0), ")")) %>%
+    dplyr::pull(range)
 
   saveRDS(current_cases,  paste0(target_folder, "/current_cases.rds"))
 
@@ -247,6 +250,7 @@ target_folder <- file.path(target_folder, target_date)
 
     return(out)
   }
+  
   ## Pull summary measures
   R_max_estimate <- extract_bigr_values(median, R0_range)
 
@@ -322,7 +326,10 @@ target_folder <- file.path(target_folder, target_date)
   report_overall <- littler_estimates %>%
     dplyr::mutate(report_overall = purrr::map(overall_little_r,
                                               ~ purrr::map_dfr(., function(estimate) {
-                                                paste0(signif(estimate$bottom, 2), "--", signif(estimate$top, 2))
+                                                paste0(
+                                                  signif(estimate$mean, 2), "(",
+                                                  signif(estimate$bottom, 2), "--", signif(estimate$top, 2),
+                                                  ")")
                                               }))) %>%
     tidyr::unnest("report_overall") %>%
     dplyr::select(Data = type,
@@ -348,14 +355,18 @@ target_folder <- file.path(target_folder, target_date)
 
       estimate$bottom <- clean_double(estimate$bottom)
       estimate$top <- clean_double(estimate$top)
-      estimate$median <- clean_double(estimate$median)
+      estimate$mean <- clean_double(estimate$mean)
 
       out <- tibble::tibble(
         vars = estimate$vars,
-        range = ifelse(estimate$vars %in% "doubling_time",
-                       estimate$median,
-                       paste0(estimate$bottom, " -- ", estimate$top))
-      )
+        range = paste0(estiamte$mean, "(",
+                       estimate$bottom, " -- ", estimate$top,
+                       ")")
+      ) %>% 
+        dplyr::mutate(
+          range = ifelse(range %in% "Cases decreasing (Cases decreasing -- Cases decreasing)",
+                         "Cases decreasing", range)
+        )
 
       return(out)
     })) %>%
