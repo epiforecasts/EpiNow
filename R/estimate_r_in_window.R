@@ -25,8 +25,8 @@ estimate_r_in_window <- function(onsets = NULL,
   r <- onsets %>%
     purrr::map_dfr(
       ~ EpiNow::estimate_little_r(.,
-                                             min_time = min_time,
-                                             max_time = max_time) %>%
+                                  min_time = min_time,
+                                  max_time = max_time) %>%
         dplyr::mutate(sampled_r = list(
           stats::rnorm(bootstrap_samples, r, sd))
         ),

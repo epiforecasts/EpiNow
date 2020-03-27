@@ -152,8 +152,9 @@ target_folder <- file.path(target_folder, target_date)
   current_cases <- all_cases %>%
     dplyr::filter(type %in% "nowcast") %>%
     dplyr::filter(date == max(date)) %>%
-    dplyr::mutate(range = paste0(round(mean, 0), "(", 
-                                 round(bottom, 0), " -- ", round(top, 0), ")")) %>%
+    dplyr::mutate(range = list(point = mean,
+                               lower = bottom, 
+                               upper = top)) %>%
     dplyr::pull(range)
 
   saveRDS(current_cases,  paste0(target_folder, "/current_cases.rds"))
@@ -246,7 +247,8 @@ target_folder <- file.path(target_folder, target_date)
     sel_var <- dplyr::enquo(sel_var)
 
     out <- EpiNow::pull_max_var(bigr_estimates, !!max_var,
-                               !!sel_var, type_selected = "nowcast")
+                               !!sel_var, type_selected = "nowcast") %>% 
+      EpiNow::make_conf()
 
     return(out)
   }
@@ -359,7 +361,7 @@ target_folder <- file.path(target_folder, target_date)
 
       out <- tibble::tibble(
         vars = estimate$vars,
-        range = paste0(estiamte$mean, "(",
+        range = paste0(estimate$mean, "(",
                        estimate$bottom, " -- ", estimate$top,
                        ")")
       ) %>% 
@@ -502,11 +504,13 @@ target_folder <- file.path(target_folder, target_date)
                 "Doubling time (days)",
                 "Adjusted R-squared"),
     estimate = c(
-      current_cases,
+      current_cases %>% 
+        EpiNow::make_conf(),
       prob_control %>% 
         EpiNow::map_prob_change() %>% 
         as.character(),
-      R_latest,
+      R_latest %>% 
+        EpiNow::make_conf,
       doubling_time_latest,
       adjusted_r_latest
     )

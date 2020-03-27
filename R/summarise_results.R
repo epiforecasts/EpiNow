@@ -43,7 +43,7 @@ summarise_results <- function(regions = NULL,
     `Effective reproduction no.` =  regions %>% 
       purrr::map(~ load_data("bigr_eff_latest.rds", .)),
     `Doubling time (days)` = regions %>% 
-      purrr::map(~ load_data("doubling_time_latest.rds", .))) 
+      purrr::map_chr(~ load_data("doubling_time_latest.rds", .))) 
    
   
   ## Make estimates numeric
@@ -71,9 +71,8 @@ summarise_results <- function(regions = NULL,
   estimates <- estimates %>% 
     dplyr::mutate_at(
       .vars = c("New infections",
-                "Effective reproduction no.",
-                "Doubling time (days)"),
-      make_conf
+                "Effective reproduction no."),
+      ~ EpiNow::make_conf(.)
     )
   
   ## Rank countries by incidence countires
