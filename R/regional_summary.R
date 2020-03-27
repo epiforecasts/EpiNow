@@ -53,6 +53,12 @@ regions <- EpiNow::get_regions(results_dir)
 load_data <- purrr::partial(EpiNow::load_nowcast_result,
                             results_dir = results_dir)
 
+
+## Get latest date
+latest_date <- load_data("latest_date.rds", regions[[1]])
+
+saveRDs(latest_date, "latest_date.rds")
+
 ## Summarise results as a table
 results <- EpiNow::summarise_results(regions, results_dir,
                                      target_date = target_date,

@@ -17,7 +17,7 @@ library(kableExtra)
 library(here)
 ```
 
-`r paste(c(rep("#", title_depth), " Summary"), collapse = "")`
+`r paste(c(rep("#", title_depth), " Summary (estimates as of the ", latest_date, ")", collapse = "")`
 
 ```{r}
 readRDS(here::here(file.path(region_path, region, "latest/region_summary.rds"))) %>% 
@@ -27,7 +27,7 @@ knitr::kable(col.names = c("", "Estimate"), booktabs = TRUE) %>%
 ```
 
 <br>
-`r paste0("*Table ",  summary_tables + index, ": Latest estimates of the number of cases by date of infection, the expected change in daily cases, the effective reproduction number, the rate of spread, the doubling time, and the adjusted R-squared of the exponential fit. The 90% credible interval is shown for each numeric estimate.*")`
+`r paste0("*Table ",  summary_tables + index, ": Latest estimates (as of the ", latest_date,  ") of the number of cases by date of infection, the expected change in daily cases, the effective reproduction number, the doubling time, and the adjusted R-squared of the exponential fit. The mean and 90% credible interval is shown for each numeric estimate.*")`
 
 `r paste(c(rep("#", title_depth), " Reported and estimated cases by date of onset and time-varying reproduction number estimates"), collapse = "")`
 
@@ -36,7 +36,7 @@ knitr::include_graphics(here::here(file.path(region_path, region, "latest/rt_cas
 ```
 
 <br>
-`r paste0("*Figure ",  summary_figures + 1 + (index - 1) * 2, ": A.) Cases by date of report (bars) and estimated cases by date of infection. B.) Time-varying estimate of the effective reproduction number. Light grey ribbon = 90% credible interval. Dark grey ribbon = 50% credible interval. Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence.*")`
+`r paste0("*Figure ",  summary_figures + 1 + (index - 1) * 2, ": A.) Cases by date of report (bars) and estimated cases by date of infection. B.) Time-varying estimate of the effective reproduction number. Light grey ribbon = 90% credible interval. Estimates are shown until the ", latest_date,  ".Dark grey ribbon = 50% credible interval. Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence.*")`
 
 `r paste(c(rep("#", title_depth), " Time-varying rate of spread and doubling time"), collapse = "")`
 
@@ -45,5 +45,5 @@ knitr::include_graphics(here::here(file.path(region_path, region, "latest/rate_s
 ```
 
 <br>
-`r paste0("*Figure ",  summary_figures + 2 + (index - 1) * 2, ": A.) Time-varying estimate of the rate of spread, B.) Time-varying estimate of the doubling time in days (note that when the rate of spread is negative the doubling time is assumed to be infinite), C.) The adjusted R-squared estimates indicating the goodness of fit of the exponential regression model (with values closer to 1 indicating a better fit). Light grey ribbon = 90% credible interval; dark grey ribbon = the 50% credible interval. Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence.*")`
+`r paste0("*Figure ",  summary_figures + 2 + (index - 1) * 2, ": A.) Time-varying estimate of the rate of spread, B.) Time-varying estimate of the doubling time in days (note that when the rate of spread is negative the doubling time is assumed to be infinite), C.) The adjusted R-squared estimates indicating the goodness of fit of the exponential regression model (with values closer to 1 indicating a better fit).  Estimates are shown until the ", latest_date,  ". Light grey ribbon = 90% credible interval; dark grey ribbon = the 50% credible interval. Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence.*")`
 
