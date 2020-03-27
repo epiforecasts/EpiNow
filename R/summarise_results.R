@@ -36,14 +36,14 @@ summarise_results <- function(regions = NULL,
   estimates <- tibble::tibble(
     Region = names(regions),
     `New infections` = regions %>% 
-      purrr::map_chr(~ load_data("current_cases.rds", .)),
+      purrr::map(~ load_data("current_cases.rds", .)),
     `Expected change in daily cases` = regions %>% 
       purrr::map_dbl(~ load_data("prob_control_latest.rds", .)) %>% 
       map_prob_change(),
     `Effective reproduction no.` =  regions %>% 
-      purrr::map_chr(~ load_data("bigr_eff_latest.rds", .)),
+      purrr::map(~ load_data("bigr_eff_latest.rds", .)),
     `Doubling time (days)` = regions %>% 
-      purrr::map_chr(~ load_data("doubling_time_latest.rds", .))) 
+      purrr::map(~ load_data("doubling_time_latest.rds", .))) 
    
   
   ## Make estimates numeric
@@ -68,6 +68,13 @@ summarise_results <- function(regions = NULL,
     )
   
   
+  estimates <- estimates %>% 
+    dplyr::mutate_at(
+      .vars = c("New infections",
+                "Effective reproduction no.",
+                "Doubling time (days)"),
+      make_conf
+    )
   
   ## Rank countries by incidence countires
   high_inc_regions <- numeric_estimates %>% 

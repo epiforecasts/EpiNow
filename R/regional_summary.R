@@ -67,6 +67,7 @@ results$table <- results$table %>%
                            "Likely decreasing", "Decreasing")))
 
 saveRDS(results$table, file.path(summary_dir, "summary_table.rds"))
+saveRDS(results$data, file.path(summary_dir, "summary_data.rds"))
 
 message("Plotting results summary")
 
