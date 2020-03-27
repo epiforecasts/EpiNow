@@ -69,10 +69,9 @@ summarise_results <- function(regions = NULL,
   
   
   estimates <- estimates %>% 
-    dplyr::mutate_at(
-      .vars = c("New infections",
-                "Effective reproduction no."),
-      ~ EpiNow::make_conf(.)
+    dplyr::mutate(
+      `New infections` = EpiNow::make_conf(`New infections`, digits = 0),
+      `Effective reproduction no.` = EpiNow::make_conf(`Effective reproduction no.`, digits = 1)
     )
   
   ## Rank countries by incidence countires

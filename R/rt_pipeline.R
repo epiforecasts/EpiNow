@@ -29,12 +29,12 @@
 #' @importFrom dplyr rename filter mutate count group_by ungroup mutate_at pull select case_when bind_rows left_join bind_rows
 #' @importFrom tidyr drop_na unnest
 #' @importFrom tibble tibble
-#' @importFrom purrr map
+#' @importFrom purrr map pmap
 #' @importFrom ggplot2 ggsave theme labs coord_cartesian scale_x_date
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_layout
 #' @importFrom lubridate days
-#'
+#' 
 #' @examples
 #'
 rt_pipeline <- function(cases = NULL,
@@ -59,7 +59,7 @@ rt_pipeline <- function(cases = NULL,
                               save_plots = TRUE,
                               nowcast_lag = 3, 
                               incubation_period = 5) {
-
+ 
 
 # Set up folders ----------------------------------------------------------
 
@@ -152,9 +152,13 @@ target_folder <- file.path(target_folder, target_date)
   current_cases <- all_cases %>%
     dplyr::filter(type %in% "nowcast") %>%
     dplyr::filter(date == max(date)) %>%
-    dplyr::mutate(range = list(point = mean,
-                               lower = bottom, 
-                               upper = top)) %>%
+    dplyr::mutate(range = purrr::pmap(
+      list(mean, bottom, top),
+      function(mean, bottom, top) {
+        list(point = mean,
+             lower = bottom, 
+             upper = top)
+      })) %>%
     dplyr::pull(range)
 
   saveRDS(current_cases,  paste0(target_folder, "/current_cases.rds"))
@@ -247,8 +251,7 @@ target_folder <- file.path(target_folder, target_date)
     sel_var <- dplyr::enquo(sel_var)
 
     out <- EpiNow::pull_max_var(bigr_estimates, !!max_var,
-                               !!sel_var, type_selected = "nowcast") %>% 
-      EpiNow::make_conf()
+                               !!sel_var, type_selected = "nowcast")
 
     return(out)
   }
@@ -329,8 +332,8 @@ target_folder <- file.path(target_folder, target_date)
     dplyr::mutate(report_overall = purrr::map(overall_little_r,
                                               ~ purrr::map_dfr(., function(estimate) {
                                                 paste0(
-                                                  signif(estimate$mean, 2), "(",
-                                                  signif(estimate$bottom, 2), "--", signif(estimate$top, 2),
+                                                  signif(estimate$mean, 2), " (",
+                                                  signif(estimate$bottom, 2), " -- ", signif(estimate$top, 2),
                                                   ")")
                                               }))) %>%
     tidyr::unnest("report_overall") %>%
@@ -361,7 +364,7 @@ target_folder <- file.path(target_folder, target_date)
 
       out <- tibble::tibble(
         vars = estimate$vars,
-        range = paste0(estimate$mean, "(",
+        range = paste0(estimate$mean, " (",
                        estimate$bottom, " -- ", estimate$top,
                        ")")
       ) %>% 
@@ -435,7 +438,7 @@ target_folder <- file.path(target_folder, target_date)
   ## Plot each measure
   plot_littler <- plot_littler_data %>%
     plot_littler_fn(plot_var = "Rate of spread") +
-    ggplot2::coord_cartesian(ylim=c(0,2)) +
+    ggplot2::coord_cartesian(ylim=c(0,1)) +
     ggplot2::labs(tag = "A")
 
   plot_doublingtime <- plot_littler_data %>%
@@ -510,7 +513,7 @@ target_folder <- file.path(target_folder, target_date)
         EpiNow::map_prob_change() %>% 
         as.character(),
       R_latest %>% 
-        EpiNow::make_conf,
+        EpiNow::make_conf(digits = 1),
       doubling_time_latest,
       adjusted_r_latest
     )
