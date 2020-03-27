@@ -69,7 +69,7 @@ that day. Defaults to \code{EpiNow::covid_serial_intervals}.}
 
 \item{save_plots}{Logical, defaults to \code{TRUE}. Should plots be saved.}
 
-\item{nowcast_lag}{Numeric defaults to 3. Then number of days to lag the nowcast
+\item{nowcast_lag}{Numeric defaults to 3. The number of days to lag the nowcast
 based on confidence.}
 }
 \description{

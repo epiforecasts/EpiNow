@@ -1,7 +1,7 @@
 #' Summarise a nowcast
 #'
 #' @param cast A dataframe as produced by `nowcast_pipeline`
-#' @param nowcast_lag Numeric defaults to 3. Then number of days to lag the nowcast 
+#' @param nowcast_lag Numeric defaults to 3. The number of days to lag the nowcast 
 #' based on confidence.
 #' @param incubation_shift Numeric defaults to 5. 
 #' The number of days to use to shift the incubation period

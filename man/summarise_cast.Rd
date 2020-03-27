@@ -9,7 +9,7 @@ summarise_cast(cast, nowcast_lag = 3, incubation_period = 5)
 \arguments{
 \item{cast}{A dataframe as produced by \code{nowcast_pipeline}}
 
-\item{nowcast_lag}{Numeric defaults to 3. Then number of days to lag the nowcast
+\item{nowcast_lag}{Numeric defaults to 3. The number of days to lag the nowcast
 based on confidence.}
 
 \item{incubation_shift}{Numeric defaults to 5.
