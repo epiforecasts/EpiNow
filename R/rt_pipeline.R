@@ -487,10 +487,9 @@ target_folder <- file.path(target_folder, target_date)
   
   ## Regional summary
   region_summary <- tibble::tibble(
-    measure = c("New infections on modelling cut-off date",
+    measure = c("New infections",
                 "Expected change in daily cases",
                 "Effective reproduction no.",
-                "Rate of spread",
                 "Doubling time (days)",
                 "Adjusted R-squared"),
     estimate = c(
@@ -499,7 +498,6 @@ target_folder <- file.path(target_folder, target_date)
         EpiNow::map_prob_change() %>% 
         as.character(),
       R_latest,
-      rate_spread_latest,
       doubling_time_latest,
       adjusted_r_latest
     )
