@@ -42,6 +42,5 @@ summarise_cast <- function(cast, nowcast_lag = 3, incubation_period = 5) {
     dplyr::filter(date <= (max(date, na.rm = TRUE) - lubridate::days(nowcast_lag))) %>% 
     dplyr::mutate(date_onset = date) %>% ## onset date
     dplyr::mutate(date = date - incubation_period) %>% ## date of infection ~5 days prior
-    dplyr::filter(confidence >= min_conf) %>%
     dplyr::ungroup()
 }
