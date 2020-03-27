@@ -9,7 +9,7 @@
 #' @export
 #' @importFrom tidyr gather nest unnest drop_na
 #' @importFrom dplyr filter group_by ungroup mutate select summarise n group_split bind_rows arrange
-#' @importFrom purrr safely compact map_dbl map
+#' @importFrom purrr safely compact map_dbl map pmap 
 #' @importFrom HDInterval hdi
 #' @importFrom furrr future_map
 #' @importFrom data.table setDT
@@ -64,9 +64,13 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
     mean_window = mean(window), 
     sd_window = sd(window)),
     by = .(type, date)
-    ][, R0_range := paste(round(bottom, 1),
-                          round(top, 1),
-                          sep = " -- "),]
+    ][, R0_range := purrr::pmap(
+      list(mean, bottom, top),
+      function(mean, bottom, top) {
+        list(point = mean,
+             lower = bottom, 
+             upper = top)
+      }),]
 
 
   R0_estimates_sum <- dplyr::arrange(R0_estimates_sum, date)

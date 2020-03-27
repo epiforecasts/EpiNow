@@ -29,23 +29,19 @@ summarise_results <- function(regions = NULL,
    load_data <- purrr::partial(load_nowcast_result,
                                date = target_date, result_dir = results_dir)
    
-   ## Extract a value
-   extract_var <- function(var, index) {
-     var %>% 
-       stringr::str_split(" -- ") %>% 
-       purrr::map_dbl(~ as.numeric(.[[index]]))
-   }
+
+
    
    ## Make reporting table
   estimates <- tibble::tibble(
     Region = names(regions),
-    `New infections on modelling cut-off date` = regions %>% 
-      purrr::map_chr(~ load_data("current_cases.rds", .)),
+    `New infections` = regions %>% 
+      purrr::map(~ load_data("current_cases.rds", .)),
     `Expected change in daily cases` = regions %>% 
       purrr::map_dbl(~ load_data("prob_control_latest.rds", .)) %>% 
       map_prob_change(),
     `Effective reproduction no.` =  regions %>% 
-      purrr::map_chr(~ load_data("bigr_eff_latest.rds", .)),
+      purrr::map(~ load_data("bigr_eff_latest.rds", .)),
     `Doubling time (days)` = regions %>% 
       purrr::map_chr(~ load_data("doubling_time_latest.rds", .))) 
    
@@ -53,14 +49,18 @@ summarise_results <- function(regions = NULL,
   ## Make estimates numeric
   numeric_estimates <- estimates %>% 
     dplyr::select(region = Region, 
-                  `New infections on modelling cut-off date`, 
+                  `New infections`, 
                   `Effective reproduction no.`, 
                   `Expected change in daily cases`) %>% 
     tidyr::gather(value = "value", key = "metric", -region, 
                   -`Expected change in daily cases`) %>% 
     dplyr::mutate(
-      lower = extract_var(value, 1),
-      upper = extract_var(value, 2))
+      lower = purrr::map_dbl(value, ~ .[[1]]$lower),
+      upper = purrr::map_dbl(value, ~ .[[1]]$upper)) %>% 
+    dplyr::mutate(metric = metric %>% 
+                    factor(levels = c("New infections",
+                                      "Effective reproduction no.")))
+
   
   numeric_estimates <- numeric_estimates %>% 
     dplyr::mutate(
@@ -72,6 +72,17 @@ summarise_results <- function(regions = NULL,
     )
   
   
+  estimates <- estimates %>% 
+    dplyr::mutate(
+      `New infections` =
+        `New infections` %>% 
+        purrr::map(~ .[[1]]) %>% 
+        EpiNow::make_conf(digits = 0),
+      `Effective reproduction no.` = 
+        `Effective reproduction no.` %>% 
+        purrr::map(~ .[[1]]) %>% 
+        EpiNow::make_conf(digits = 1)
+    )
   
   ## Rank countries by incidence countires
   high_inc_regions <- numeric_estimates %>% 

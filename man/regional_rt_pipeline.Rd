@@ -11,7 +11,7 @@ regional_rt_pipeline(
   national = FALSE,
   regional_delay = FALSE,
   merge_onsets = FALSE,
-  case_limit = 20,
+  case_limit = 10,
   regions_in_parallel = TRUE,
   samples = 1000,
   ...
@@ -32,7 +32,7 @@ used but in this case \code{merge_onsets} should be set to \code{FALSE}.}
 
 \item{merge_onsets}{Logical defaults to \code{FALSE}. Should available onset data be used. Typically if \code{regional_delay} is}
 
-\item{case_limit}{Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 20.
+\item{case_limit}{Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 10.
 set to \code{FALSE} this should also be \code{FALSE}}
 
 \item{regions_in_parallel}{Logical, should regions be run in parallel or sequentially (allowing for)

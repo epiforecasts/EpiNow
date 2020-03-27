@@ -25,8 +25,8 @@ estimate_r_in_window <- function(onsets = NULL,
   r <- onsets %>%
     purrr::map_dfr(
       ~ EpiNow::estimate_little_r(.,
-                                             min_time = min_time,
-                                             max_time = max_time) %>%
+                                  min_time = min_time,
+                                  max_time = max_time) %>%
         dplyr::mutate(sampled_r = list(
           stats::rnorm(bootstrap_samples, r, sd))
         ),
@@ -43,6 +43,7 @@ estimate_r_in_window <- function(onsets = NULL,
     top = purrr::map_dbl(list(HDInterval::hdi(sampled_r, credMass = 0.9)), ~ .[[2]]),
     lower  = purrr::map_dbl(list(HDInterval::hdi(sampled_r, credMass = 0.5)), ~ .[[1]]),
     upper = purrr::map_dbl(list(HDInterval::hdi(sampled_r, credMass = 0.5)), ~ .[[2]]),
+    mean = mean(sampled_r, na.rm = TRUE),
     median = median(sampled_r, na.rm = TRUE))
     ]
 
@@ -66,10 +67,15 @@ estimate_r_in_window <- function(onsets = NULL,
   summarise_fit <- r
 
   summarise_fit <- data.table::setDT(summarise_fit)[,.(
-    bottom = quantile(fit_meas, 0.025, na.rm = TRUE),
-    top = quantile(fit_meas, 0.975, na.rm = TRUE),
-    lower = quantile(fit_meas, 0.25, na.rm = TRUE),
-    upper = quantile(fit_meas, 0.75, na.rm = TRUE),
+    bottom = purrr::map_dbl(list(HDInterval::hdi(fit_meas, 
+                                                 credMass = 0.9)), ~ .[[1]]),
+    top = purrr::map_dbl(list(HDInterval::hdi(fit_meas, 
+                                              credMass = 0.9)), ~ .[[2]]),
+    lower = purrr::map_dbl(list(HDInterval::hdi(fit_meas, 
+                                                credMass = 0.5)), ~ .[[1]]),
+    upper = purrr::map_dbl(list(HDInterval::hdi(fit_meas, 
+                                                credMass = 0.5)), ~ .[[2]]),
+    mean = mean(fit_meas, na.rm = TRUE),
     median = median(fit_meas, na.rm = TRUE))
     ]
 

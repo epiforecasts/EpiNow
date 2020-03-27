@@ -38,7 +38,7 @@ regional_summary <- function(results_dir = NULL,
                              summary_dir = NULL,
                              target_date = NULL,
                              region_scale = "Region") {
-  
+   
 
   message("Extracting results from: ", results_dir)
   
@@ -49,14 +49,18 @@ if (!dir.exists(summary_dir)) {
 
 regions <- EpiNow::get_regions(results_dir)
 
-### Load data
-load_data <- purrr::partial(EpiNow::load_nowcast_result,
-                            results_dir = results_dir)
+
+## Get latest date
+latest_date <- EpiNow::load_nowcast_result("latest_date.rds", region = regions[1],
+                                           target_date, results_dir)
+
+saveRDS(latest_date, file.path(summary_dir, "latest_date.rds"))
 
 ## Summarise results as a table
 results <- EpiNow::summarise_results(regions, results_dir,
                                      target_date = target_date,
                                      region_scale = region_scale)
+
 message("Saving results summary table")
 
 results$table <- results$table %>% 
@@ -66,6 +70,7 @@ results$table <- results$table %>%
                            "Likely decreasing", "Decreasing")))
 
 saveRDS(results$table, file.path(summary_dir, "summary_table.rds"))
+saveRDS(results$data, file.path(summary_dir, "summary_data.rds"))
 
 message("Plotting results summary")
 

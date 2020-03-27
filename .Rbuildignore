@@ -5,3 +5,4 @@
 ^data-raw$
 ^Dockerfile$
 ^libs$
+^inst/pkg-structure$

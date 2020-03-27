@@ -29,12 +29,12 @@
 #' @importFrom dplyr rename filter mutate count group_by ungroup mutate_at pull select case_when bind_rows left_join bind_rows
 #' @importFrom tidyr drop_na unnest
 #' @importFrom tibble tibble
-#' @importFrom purrr map
+#' @importFrom purrr map pmap
 #' @importFrom ggplot2 ggsave theme labs coord_cartesian scale_x_date
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_layout
 #' @importFrom lubridate days
-#'
+#' 
 #' @examples
 #'
 rt_pipeline <- function(cases = NULL,
@@ -57,9 +57,9 @@ rt_pipeline <- function(cases = NULL,
                               serial_intervals = NULL,
                               rt_prior = NULL,
                               save_plots = TRUE,
-                              min_conf = 0.25, 
+                              nowcast_lag = 3, 
                               incubation_period = 5) {
-
+ 
 
 # Set up folders ----------------------------------------------------------
 
@@ -95,10 +95,10 @@ target_folder <- file.path(target_folder, target_date)
     dplyr::rename(confirm = cases)
 
   ## Define the min plotting (and estimate date as the first date that
-  ## at least 10 local cases were reported minus the incubation period
+  ## at least 5 local cases were reported minus the incubation period
   min_plot_date <- cases %>% 
     dplyr::filter(import_status %in% "local", 
-                  confirm > 10) %>% 
+                  confirm > 5) %>% 
     dplyr::pull(date) %>% 
     {min(., na.rm = TRUE) - lubridate::days(incubation_period)}
   
@@ -128,7 +128,7 @@ target_folder <- file.path(target_folder, target_date)
   # Summarise nowcast -------------------------------------------------------
 
   summarise_cast <- EpiNow::summarise_cast(nowcast,
-                                           min_conf = min_conf, 
+                                           nowcast_lag = nowcast_lag, 
                                            incubation_period = incubation_period)
 
   ## Combine nowcast with observed cases by onset and report
@@ -152,7 +152,21 @@ target_folder <- file.path(target_folder, target_date)
   current_cases <- all_cases %>%
     dplyr::filter(type %in% "nowcast") %>%
     dplyr::filter(date == max(date)) %>%
-    dplyr::mutate(range = paste0(round(bottom, 0), " -- ", round(top, 0))) %>%
+    dplyr::mutate(range = purrr::pmap(
+      list(mean, bottom, top),
+      function(mean, bottom, top) {
+        list(point = mean,
+             lower = bottom, 
+             upper = top)
+      }))
+  
+  
+  latest_date <- current_cases %>% 
+    dplyr::pull(date)
+  
+  saveRDS(latest_date,  paste0(target_folder, "/latest_date.rds"))
+  
+  current_cases <- current_cases  %>% 
     dplyr::pull(range)
 
   saveRDS(current_cases,  paste0(target_folder, "/current_cases.rds"))
@@ -249,6 +263,7 @@ target_folder <- file.path(target_folder, target_date)
 
     return(out)
   }
+  
   ## Pull summary measures
   R_max_estimate <- extract_bigr_values(median, R0_range)
 
@@ -324,7 +339,10 @@ target_folder <- file.path(target_folder, target_date)
   report_overall <- littler_estimates %>%
     dplyr::mutate(report_overall = purrr::map(overall_little_r,
                                               ~ purrr::map_dfr(., function(estimate) {
-                                                paste0(signif(estimate$bottom, 2), "--", signif(estimate$top, 2))
+                                                paste0(
+                                                  signif(estimate$mean, 2), " (",
+                                                  signif(estimate$bottom, 2), " -- ", signif(estimate$top, 2),
+                                                  ")")
                                               }))) %>%
     tidyr::unnest("report_overall") %>%
     dplyr::select(Data = type,
@@ -350,14 +368,18 @@ target_folder <- file.path(target_folder, target_date)
 
       estimate$bottom <- clean_double(estimate$bottom)
       estimate$top <- clean_double(estimate$top)
-      estimate$median <- clean_double(estimate$median)
+      estimate$mean <- clean_double(estimate$mean)
 
       out <- tibble::tibble(
         vars = estimate$vars,
-        range = ifelse(estimate$vars %in% "doubling_time",
-                       estimate$median,
-                       paste0(estimate$bottom, " -- ", estimate$top))
-      )
+        range = paste0(estimate$mean, " (",
+                       estimate$bottom, " -- ", estimate$top,
+                       ")")
+      ) %>% 
+        dplyr::mutate(
+          range = ifelse(range %in% "Cases decreasing (Cases decreasing -- Cases decreasing)",
+                         "Cases decreasing", range)
+        )
 
       return(out)
     })) %>%
@@ -424,7 +446,7 @@ target_folder <- file.path(target_folder, target_date)
   ## Plot each measure
   plot_littler <- plot_littler_data %>%
     plot_littler_fn(plot_var = "Rate of spread") +
-    ggplot2::coord_cartesian(ylim=c(0,2)) +
+    ggplot2::coord_cartesian(ylim=c(0,1)) +
     ggplot2::labs(tag = "A")
 
   plot_doublingtime <- plot_littler_data %>%
@@ -487,19 +509,19 @@ target_folder <- file.path(target_folder, target_date)
   
   ## Regional summary
   region_summary <- tibble::tibble(
-    measure = c("New infections on modelling cut-off date",
+    measure = c("New infections",
                 "Expected change in daily cases",
                 "Effective reproduction no.",
-                "Rate of spread",
                 "Doubling time (days)",
                 "Adjusted R-squared"),
     estimate = c(
-      current_cases,
+      current_cases %>% 
+        EpiNow::make_conf(),
       prob_control %>% 
         EpiNow::map_prob_change() %>% 
         as.character(),
-      R_latest,
-      rate_spread_latest,
+      R_latest %>% 
+        EpiNow::make_conf(digits = 1),
       doubling_time_latest,
       adjusted_r_latest
     )
