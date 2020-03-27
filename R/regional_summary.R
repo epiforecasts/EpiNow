@@ -50,12 +50,11 @@ if (!dir.exists(summary_dir)) {
 regions <- EpiNow::get_regions(results_dir)
 
 
-
 ## Get latest date
 latest_date <- EpiNow::load_nowcast_result("latest_date.rds", region = regions[1],
                                            target_date, results_dir)
 
-saveRDs(latest_date, "latest_date.rds")
+saveRDS(latest_date, file.path(summary_dir, "latest_date.rds"))
 
 ## Summarise results as a table
 results <- EpiNow::summarise_results(regions, results_dir,
