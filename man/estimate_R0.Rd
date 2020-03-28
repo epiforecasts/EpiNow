@@ -11,8 +11,9 @@ estimate_R0(
   windows = NULL,
   si_samples = 100,
   rt_samples = 100,
-  return_best = TRUE,
-  min_est_date = NULL
+  min_est_date = NULL,
+  forecast_model = NULL,
+  horizon = 0
 )
 }
 \arguments{
@@ -30,10 +31,12 @@ selected per serial interval sample by default (based on which window best forec
 
 \item{rt_samples}{Numeric, the number of samples to take from the estimated R distribution for each time point.}
 
-\item{return_best}{Logical defaults to \code{TRUE}. Should the estimates for the best performing window be returned or estimates
-for all windows.}
-
 \item{min_est_date}{Date to begin estimation.}
+
+\item{forecast_model}{An uninitialised bsts model passed to \code{EpiSoon::forecast_rt} to be used for forecasting
+future Rt values. An example of the required structure is: \code{function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)}}.}
+
+\item{horizon}{Numeric, defaults to 0. The horizon over which to forecast Rts and cases.}
 }
 \value{
 A tibble containing the date and summarised R estimte.
@@ -43,17 +46,19 @@ Estimate the time varying R0 - using EpiEstim
 }
 \examples{
 
-cases <- data.frame(date = seq(as.Date("2020-01-01"),
-                               as.Date("2020-01-30"),
-                               by = "days"),
-                    cases = 1:30)
                     
-                    
-serial_intervals <- as.matrix(EpiNow::covid_serial_intervals[,1])
-rt_prior <- list(mean_prior = 2.6, std_prior = 2) 
-windows <- c(1, 3, 7)
+estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
+                         serial_intervals = as.matrix(EpiNow::covid_serial_intervals[,1]), 
+                         rt_prior = list(mean_prior = 2.6, std_prior = 2),
+                         windows = c(1, 3, 7), rt_samples = 10, si_samples = 2,
+                         min_est_date =  as.Date("2020-02-18"),
+                         forecast_model = function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)},
+                         horizon = 7)
+                         
+## Rt estimates and forecasts
+estimates$rts
 
-estimate_R0(cases, serial_intervals, 
-            rt_prior = rt_prior, windows = windows,
-            rt_samples = 10, si_samples = 2, return_best = FALSE)
+
+## Case forecasts
+estimates$cases
 }
