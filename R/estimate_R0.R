@@ -34,7 +34,8 @@
 #' 
 #' estimate_R0(cases, serial_intervals, 
 #'             rt_prior = rt_prior, windows = windows,
-#'             rt_samples = 10, si_samples = 2, return_best = FALSE)
+#'             rt_samples = 10, si_samples = 2, return_best = FALSE,
+#'             min_est_date =  as.Date("2020-01-01"))
 estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                         rt_prior = NULL, windows = NULL, 
                         si_samples = 100, rt_samples = 100,
@@ -81,7 +82,6 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
     wait_time <- 2
   }
   
-
   ## Sample serial intervals
   serial_intervals_index <- sample(1:ncol(serial_intervals),
                              si_samples,
@@ -95,7 +95,8 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
     est_r <- purrr::map_dfr(windows, 
                         function(window) {
                           
-                          window_start <- seq(wait_time - window,
+                          
+                          window_start <- seq(wait_time,
                                               nrow(incid) - (window - 1))
                           window_end <- window_start + window - 1
                           
@@ -171,6 +172,36 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
         dplyr::filter(window == min(window)) %>% 
         dplyr::select(-score, -score_sd)
     }
+
+    
+    model <- function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)}
+    horizon <- 21
+    
+    
+    ## Forecast Rts
+    rt_forecasts <- est_r %>% 
+      dplyr::select(date, rt = R, sample) %>% 
+      dplyr::group_split(sample) %>% 
+      purrr::map(
+        ~ EpiSoon::forecast_rt(.,
+                             model = model, 
+                             horizon = horizon,
+                             samples = 1) %>% 
+          dplyr::select(-sample))
+    
+    ## Bind Rts forecasts together
+    rt_forecasts <- dplyr::bind_rows(rt_forecasts, .id = "sample") %>% 
+      dplyr::mutate(sample = as.numeric(sample))
+    
+    ## Forecast cases
+    case_forecasts <-   
+      EpiSoon::forecast_cases(
+          cases = summed_cases,
+          fit_samples = rt_forecasts,
+          rdist = rpois,
+          serial_interval = serial_intervals[, index]
+        )
+  
     
    return(est_r) 
   }, .id = "si_sample")
