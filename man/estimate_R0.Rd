@@ -46,7 +46,17 @@ Estimate the time varying R0 - using EpiEstim
 }
 \examples{
 
-                    
+## Nowcast Rts                  
+estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
+                         serial_intervals = as.matrix(EpiNow::covid_serial_intervals[,1]), 
+                         rt_prior = list(mean_prior = 2.6, std_prior = 2),
+                         windows = c(1, 3, 7), rt_samples = 10, si_samples = 2,
+                         min_est_date =  as.Date("2020-02-18"))
+                         
+                         
+estimates$rts
+ 
+## Nowcast Rts, forecast Rts and the forecast cases
 estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
                          serial_intervals = as.matrix(EpiNow::covid_serial_intervals[,1]), 
                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
@@ -54,9 +64,10 @@ estimates <- estimate_R0(cases = EpiSoon::example_obs_cases,
                          min_est_date =  as.Date("2020-02-18"),
                          forecast_model = function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)},
                          horizon = 7)
-                         
+                                           
 ## Rt estimates and forecasts
 estimates$rts
+
 
 
 ## Case forecasts

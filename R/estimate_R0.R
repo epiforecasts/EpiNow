@@ -24,7 +24,17 @@
 #' @importFrom EpiSoon predict_current_cases forecast_rt forecast_cases score_case_forecast
 #' @examples
 #'
-#'                     
+#' ## Nowcast Rts                  
+#' estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
+#'                          serial_intervals = as.matrix(EpiNow::covid_serial_intervals[,1]), 
+#'                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
+#'                          windows = c(1, 3, 7), rt_samples = 10, si_samples = 2,
+#'                          min_est_date =  as.Date("2020-02-18"))
+#'                          
+#'                          
+#' estimates$rts
+#'  
+#'## Nowcast Rts, forecast Rts and the forecast cases
 #' estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
 #'                          serial_intervals = as.matrix(EpiNow::covid_serial_intervals[,1]), 
 #'                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
@@ -32,9 +42,10 @@
 #'                          min_est_date =  as.Date("2020-02-18"),
 #'                          forecast_model = function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)},
 #'                          horizon = 7)
-#'                          
+#'                                            
 #'## Rt estimates and forecasts
 #' estimates$rts
+#' 
 #' 
 #' 
 #' ## Case forecasts
@@ -82,6 +93,8 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
     wait_time <- nrow(incid)
   }
   
+  
+  ## Must wait at least two timesteps for EpiEstim
   if (wait_time <= 2) {
     wait_time <- 2
   }
@@ -185,7 +198,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
           dplyr::group_split(sample) %>% 
           purrr::map(
             ~ EpiSoon::forecast_rt(.,
-                                   model = model, 
+                                   model = forecast_model, 
                                    horizon = horizon,
                                    samples = 1) %>% 
               dplyr::select(-sample))
@@ -220,26 +233,34 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
         est_r <- est_r %>% 
           dplyr::mutate(type = "nowcast", horizon = NA)
         
-        return(list(rts = est_r, cases = data.frame()))
+        return(list(rts = est_r))
       }
       
   })
   
-  ## Reorganise list output
-  estimates <- purrr::transpose(estimates)
-
-
+    ## Reorganise list output
+    estimates <- purrr::transpose(estimates)
   
   ## Organise returns to have a unique sample ID
   if (si_samples == 1) {
     return(estimates)
   }else{
     
-    estimates <- estimates %>% 
-      purrr::map( ~ dplyr::bind_rows(., .id = "si_sample") %>% 
-                    dplyr::mutate(sample = sample * as.numeric(si_sample)) %>% 
-                    dplyr::select(-si_sample)
-      )
+    ## Function to bind si sample outputs
+    join_si_samples <- function(df) {
+      dplyr::bind_rows(df, .id = "si_sample") %>% 
+        dplyr::mutate(sample = sample * as.numeric(si_sample)) %>% 
+        dplyr::select(-si_sample)
+    }
+    
+    ## Make sample unique for Rts
+    estimates$rts <- join_si_samples(estimates$rts)
+    
+    ## If forecast has been run do the same for cases
+   if (horizon > 0 & !is.null(forecast_model)) {
+      estimates$cases <- join_si_samples(estimates$cases)
+    }
+     
     
     return(estimates)
   }
