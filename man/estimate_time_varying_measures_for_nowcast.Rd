@@ -12,7 +12,9 @@ estimate_time_varying_measures_for_nowcast(
   rt_samples = NULL,
   rt_windows = 7,
   rate_window = 7,
-  rt_prior = NULL
+  rt_prior = NULL,
+  forecast_model = NULL,
+  horizon = NULL
 )
 }
 \arguments{
@@ -33,6 +35,11 @@ selected per serial interval sample by default (based on which window best forec
 \item{rate_window}{Numeric, the window to use to estimate the rate of spread.}
 
 \item{rt_prior}{A list defining the reproduction number prior containing the mean (\code{mean_prior}) and standard deviation (\code{std_prior})}
+
+\item{forecast_model}{An uninitialised bsts model passed to \code{EpiSoon::forecast_rt} to be used for forecasting
+future Rt values. An example of the required structure is: \code{function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)}}.}
+
+\item{horizon}{Numeric, defaults to 0. The horizon over which to forecast Rts and cases.}
 }
 \value{
 

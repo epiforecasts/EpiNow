@@ -215,15 +215,15 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
             rdist = rpois,
             serial_interval = serial_intervals[, index]
           ) %>% 
-          dplyr::mutate(type = "forecast")
+          dplyr::mutate(rt_type = "forecast")
         
         
         ## Join Rt estimates and forecasts
         est_r <- est_r %>% 
-          dplyr::mutate(type = "nowcast") %>% 
+          dplyr::mutate(rt_type = "nowcast") %>% 
           dplyr::bind_rows(rt_forecasts %>% 
-                             dplyr::mutate(type = "forecast") %>% 
-                             dplyr::select(date, R = rt, sample,  horizon, type))
+                             dplyr::mutate(rt_type = "forecast") %>% 
+                             dplyr::select(date, R = rt, sample,  horizon, rt_type))
         
         return(list(rts = est_r, cases = case_forecasts))
         
@@ -231,7 +231,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
         
         ## Return just nowcast if no forecast has been run
         est_r <- est_r %>% 
-          dplyr::mutate(type = "nowcast", horizon = NA)
+          dplyr::mutate(rt_type = "nowcast", horizon = NA)
         
         return(list(rts = est_r))
       }

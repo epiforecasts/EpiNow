@@ -20,7 +20,8 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
                                                        min_est_date = NULL,
                                                        si_samples = NULL, rt_samples = NULL,
                                                        rt_windows = 7, rate_window = 7,
-                                                       rt_prior = NULL) {
+                                                       rt_prior = NULL, forecast_model = NULL,
+                                                       horizon = NULL) {
 
   ## Estimate time-varying R0
   safe_R0 <- purrr::safely(EpiNow::estimate_R0)
@@ -30,15 +31,17 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
 
 
   R0_estimates <- furrr::future_map(data_list, function(data) {
-    R0 <- safe_R0(cases = data,
+    estimates <- safe_R0(cases = data,
             serial_intervals = serial_intervals,
             rt_prior = rt_prior,
             si_samples = si_samples,
             rt_samples = rt_samples,
             windows = rt_windows,
-            min_est_date = min_est_date)[[1]]
+            min_est_date = min_est_date, 
+            forecast_model = forecast_model,
+            horizon = horizon)[[1]]
 
-    if (!is.null(R0)) {
+    if (!is.null(estimates)) {
      R0 <-  dplyr::mutate(R0, type = data$type[1],
                     sample = data$sample[1])
     }
