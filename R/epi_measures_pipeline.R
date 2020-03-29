@@ -107,9 +107,9 @@ epi_measures_pipeline <- function(nowcast = NULL,
       top = return_hdi(cases, 0.9, 2),
       lower  = return_hdi(cases, 0.5, 1),
       upper = return_hdi(cases, 0.5, 2),
-      median = median(cases, na.rm = TRUE),
-      mean = mean(cases, na.rm = TRUE),
-      std = sd(cases, na.rm = TRUE)),
+      median = as.numeric(median(cases, na.rm = TRUE)),
+      mean = as.numeric(mean(cases, na.rm = TRUE)),
+      std = as.numeric(sd(cases, na.rm = TRUE))),
       by = .(type, date, rt_type)
       ][, range := purrr::pmap(
         list(mean, bottom, top),
