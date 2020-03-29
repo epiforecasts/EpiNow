@@ -1,4 +1,4 @@
-#' Estimate time varying measures for nowcast
+#' Estimate time-varying measures and forecast
 #'
 #' @param nowcast A nowcast as produced by `nowcast_pipeline`
 #' @param rt_windows Numeric vector, windows over which to estimate time-varying R. The best performing window will be 
@@ -15,7 +15,7 @@
 #' @importFrom data.table setDT
 #' @examples
 #'
-estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
+epi_measures_pipeline <- function(nowcast = NULL,
                                                        serial_intervals = NULL,
                                                        min_est_date = NULL,
                                                        si_samples = NULL, rt_samples = NULL,

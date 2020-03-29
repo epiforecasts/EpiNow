@@ -198,46 +198,22 @@ target_folder <- file.path(target_folder, target_date)
 
   time_varying_params <- nowcast %>%
     dplyr::filter(type %in% "nowcast") %>%
-    EpiNow::estimate_time_varying_measures_for_nowcast(min_est_date = min_plot_date + lubridate::days(incubation_period),
-                                                       serial_intervals = serial_intervals,
-                                                       si_samples = si_samples, rt_samples = rt_samples,
-                                                       rate_window = rate_window, rt_windows = rt_windows,
-                                                       rt_prior = rt_prior)
+    EpiNow::epi_measures_pipeline(min_est_date = min_plot_date + lubridate::days(incubation_period),
+                                  serial_intervals = serial_intervals,
+                                  si_samples = si_samples, rt_samples = rt_samples,
+                                  rate_window = rate_window, rt_windows = rt_windows,
+                                  rt_prior = rt_prior, forecast_model = forecast_model, 
+                                  horizon = horizon)
 
 
   saveRDS(time_varying_params,  paste0(target_folder, "/time_varying_params.rds"))
 
-
-  # Time-varying for observed cases -----------------------------------------
-  if (case_only) {
-    case_based_time_varying_params <-
-      EpiNow::estimate_time_varying_measures_for_cases(reported_cases %>%
-                                                                    dplyr::rename(cases = median) %>%
-                                                                    dplyr::mutate(import_status = "local"),
-                                                                  min_est_date = min_plot_date + lubridate::days(incubation_period),
-                                                                  si_samples = si_samples, rt_samples = rt_samples,
-                                                                  serial_intervals = serial_intervals, rt_prior = rt_prior,
-                                                                  rate_window = rate_window, rt_windows = rt_windows,)
-
-
-
-    saveRDS(case_based_time_varying_params,
-            paste0(target_folder, "/case_based_time_varying_params.rds"))
-
-  }
-
   # Munge output ------------------------------------------------------------
 
   ## Pull out R estimates
-  bigr_estimates <- time_varying_params[[1]]
+  bigr_estimates <- time_varying_params[[1]] %>% 
+    dplyr::filter(rt_type %in% "nowcast")
 
-  if (case_only) {
-    bigr_estimates <- bigr_estimates %>%
-      dplyr::bind_rows(
-        case_based_time_varying_params[[1]] %>%
-          dplyr::mutate(type = "Cases by report date")
-      )
-  }
 
   bigr_estimates <- bigr_estimates %>%
     dplyr::left_join(
