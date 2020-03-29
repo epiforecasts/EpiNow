@@ -37,30 +37,14 @@
 #' 
 #' @examples
 #'
-rt_pipeline <- function(cases = NULL,
-                              imported_cases = NULL,
-                              linelist = NULL,
-                              target_folder = NULL,
-                              target_date = NULL,
-                              delay_cutoff_date = NULL,
-                              predict_lag = 0,
-                              samples = 1000,
-                              si_samples = 1,
-                              rt_samples = 10,
-                              rt_windows = 1:7,
-                              rate_window = 7,
-                              earliest_allowed_onset = NULL,
-                              merge_actual_onsets = TRUE,
-                              case_only = FALSE,
-                              delay_only = FALSE,
-                              verbose = FALSE,
-                              serial_intervals = NULL,
-                              rt_prior = NULL,
-                              save_plots = TRUE,
-                              nowcast_lag = 3, 
-                              incubation_period = 5,
-                              forecast_model = forecast_model,
-                              horizon = horizon) {
+rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
+                        target_folder = NULL, target_date = NULL, delay_cutoff_date = NULL,
+                        predict_lag = 0, samples = 1000, si_samples = 1, rt_samples = 10,
+                        rt_windows = 1:7, rate_window = 7, earliest_allowed_onset = NULL,
+                        merge_actual_onsets = TRUE, case_only = FALSE, delay_only = FALSE,
+                        verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, save_plots = TRUE,
+                        nowcast_lag = 3, incubation_period = 5, forecast_model = forecast_model,
+                        horizon = horizon) {
  
 
 # Set up folders ----------------------------------------------------------
