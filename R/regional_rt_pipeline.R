@@ -26,7 +26,7 @@
 #' regional_rt_pipeline
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = "results", 
                                  national = FALSE, regional_delay = FALSE, merge_onsets = FALSE,
-                                 case_limit = 20,
+                                 case_limit = 40,
                                  regions_in_parallel = TRUE,
                                  samples = 1000, ...) {
   
