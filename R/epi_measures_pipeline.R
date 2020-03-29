@@ -55,11 +55,13 @@ epi_measures_pipeline <- function(nowcast = NULL,
     }, .progress = TRUE)
   
   ## Transpose list ordering
-  estimates <- purrr::transpose(estimates)
+  estimates <- purrr::compact(estimates)
   
   ## Clean up NULL rt estimates and bind together
-  R0_estimates <- purrr::compact(estimates$rts)
-  R0_estimates <- dplyr::bind_rows(R0_estimates)
+  R0_estimates <- estimates %>% 
+    purrr::map(~ .$rts) %>% 
+    purrr::compact() %>% 
+    dplyr::bind_rows()
 
   
   ## Generic HDI return function
@@ -98,8 +100,10 @@ epi_measures_pipeline <- function(nowcast = NULL,
   if (!is.null(estimates$cases)) {
     
     ## Clean up case forecasts
-    cases_forecast <- purrr::compact(estimates$cases)
-    cases_forecast <- dplyr::bind_rows(cases_forecast)
+    cases_forecast <-estimates %>% 
+      purrr::map(~ .$cases) %>% 
+      purrr::compact() %>% 
+      dplyr::bind_rows()
     
     ## Summarise case forecasts
     sum_cases_forecast <- data.table::setDT(cases_forecast)[, .(
