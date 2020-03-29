@@ -122,7 +122,6 @@ target_folder <- file.path(target_folder, target_date)
   # Summarise nowcast -------------------------------------------------------
 
   summarise_cast <- EpiNow::summarise_cast(nowcast,
-                                           nowcast_lag = nowcast_lag, 
                                            incubation_period = incubation_period)
 
   ## Combine nowcast with observed cases by onset and report

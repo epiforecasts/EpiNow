@@ -26,8 +26,8 @@ rt_pipeline(
   save_plots = TRUE,
   nowcast_lag = 4,
   incubation_period = 5,
-  forecast_model = forecast_model,
-  horizon = horizon
+  forecast_model = NULL,
+  horizon = NULL
 )
 }
 \arguments{
