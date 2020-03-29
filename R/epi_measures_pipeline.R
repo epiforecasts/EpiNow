@@ -13,7 +13,7 @@
 #' @importFrom HDInterval hdi
 #' @importFrom furrr future_map
 #' @importFrom data.table setDT
-#' @examples
+#' @examples 
 #'
 epi_measures_pipeline <- function(nowcast = NULL,
                                                        serial_intervals = NULL,
@@ -115,6 +115,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
                upper = top)
         }),]
     
+    sum_cases_forecast <- dplyr::arrange(sum_cases_forecast, date)
   }
 
   ## Estimate time-varying little r
@@ -163,8 +164,9 @@ epi_measures_pipeline <- function(nowcast = NULL,
 
   if (!is.null(estimates$cases)) {
     
-    out <- c(out, sum_case_forecast, case_forecast)
-    names(out) <- c(names(out), "case_forecast",  "raw_case_forecast")
+    out$case_forecast <- sum_cases_forecast
+    out$raw_case_forecast <- cases_forecast
+
   }
   
   return(out)
