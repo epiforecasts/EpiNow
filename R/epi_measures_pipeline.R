@@ -42,18 +42,18 @@ epi_measures_pipeline <- function(nowcast = NULL,
             horizon = horizon)[[1]]
 
     if (!is.null(estimates$rts)) {
-     estimates$rts <-  dplyr::mutate(estimates$rts, type = data$type[1],
+     estimates$rts <-  dplyr::mutate(estimates$rts[[1]], type = data$type[1],
                                      sample = data$sample[1])
     }
     
     if (!is.null(estimates$cases)) {
-      estimates$cases <-  dplyr::mutate(estimates$cases, type = data$type[1],
+      estimates$cases <-  dplyr::mutate(estimates$cases[[1]], type = data$type[1],
                                       sample = data$sample[1])
     }
     
     return(estimates)
     }, .progress = TRUE)
- 
+  
   ## Transpose list ordering
   estimates <- purrr::transpose(estimates)
   
