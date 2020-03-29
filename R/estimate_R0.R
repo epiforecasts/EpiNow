@@ -94,11 +94,6 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
   }
   
   
-  ## Must wait at least two timesteps for EpiEstim
-  if (wait_time <= 2) {
-    wait_time <- 2
-  }
-  
   ## Sample serial intervals
   serial_intervals_index <- sample(1:ncol(serial_intervals),
                              si_samples,
@@ -114,9 +109,9 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                         function(window) {
                           
                           
-                          window_start <- seq(wait_time,
-                                              nrow(incid) - (window - 1))
-                          window_end <- window_start + window - 1
+                          window_start <- seq(max(wait_time - window, 2),
+                                              nrow(incid) - window)
+                          window_end <- window_start + window
                           
                           
                           ## estimate R
@@ -142,7 +137,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                                                      stats::rgamma(rt_samples, shape = k, scale = theta)
                                                    })
                           
-                          
+                           
                           ## Put into data frame by date
                           out <- tibble::tibble(
                             date = EpiNow::add_dates(incid$date, length(R_samples)),

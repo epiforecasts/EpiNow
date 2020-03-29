@@ -43,7 +43,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         nowcast_lag = 4, incubation_period = 5, forecast_model = NULL,
                         horizon = NULL) {
  
-
+ 
 # Set up folders ----------------------------------------------------------
 
 latest_folder <- file.path(target_folder, "latest")
@@ -191,7 +191,7 @@ target_folder <- file.path(target_folder, target_date)
 
   time_varying_params <- nowcast %>%
     dplyr::filter(type %in% "nowcast") %>%
-    EpiNow::epi_measures_pipeline(min_est_date = min_plot_date + lubridate::days(incubation_period),
+    EpiNow::epi_measures_pipeline(min_est_date = min_plot_date,
                                   serial_intervals = serial_intervals,
                                   si_samples = si_samples, rt_samples = rt_samples,
                                   rate_window = rate_window, rt_windows = rt_windows,
