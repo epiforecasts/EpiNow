@@ -24,7 +24,7 @@
 #' @param save_plots Logical, defaults to `TRUE`. Should plots be saved.
 #' @return NULL
 #' @export
-#' @inheritParams estimate_time_varying_measures_for_nowcast
+#' @inheritParams epi_measures_pipeline
 #' @inheritParams summarise_cast
 #' @importFrom dplyr rename filter mutate count group_by ungroup mutate_at pull select case_when bind_rows left_join bind_rows
 #' @importFrom tidyr drop_na unnest
@@ -58,7 +58,9 @@ rt_pipeline <- function(cases = NULL,
                               rt_prior = NULL,
                               save_plots = TRUE,
                               nowcast_lag = 3, 
-                              incubation_period = 5) {
+                              incubation_period = 5,
+                              forecast_model = forecast_model,
+                              horizon = horizon) {
  
 
 # Set up folders ----------------------------------------------------------
@@ -81,6 +83,15 @@ target_folder <- file.path(target_folder, target_date)
       std_prior = 2)
   }
 
+ if(is.null(forecast_model)) {
+   message("No forecasting model supplied. Defaulting to an AR3")
+   forecast_model <- function(ss, y){bsts::AddAr(ss, y = y, lags = 3)}
+ }
+
+ if (is.null(horizon)) {
+   horizon <- 14
+   message("No forecasting horizon supplied. Default to ", horizon, " days")
+ }
  
   # Format input ------------------------------------------------------------
 

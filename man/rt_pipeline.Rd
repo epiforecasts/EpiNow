@@ -26,7 +26,9 @@ rt_pipeline(
   rt_prior = NULL,
   save_plots = TRUE,
   nowcast_lag = 3,
-  incubation_period = 5
+  incubation_period = 5,
+  forecast_model = forecast_model,
+  horizon = horizon
 )
 }
 \arguments{
@@ -71,6 +73,11 @@ that day. Defaults to \code{EpiNow::covid_serial_intervals}.}
 
 \item{nowcast_lag}{Numeric defaults to 3. The number of days to lag the nowcast
 based on confidence.}
+
+\item{forecast_model}{An uninitialised bsts model passed to \code{EpiSoon::forecast_rt} to be used for forecasting
+future Rt values. An example of the required structure is: \code{function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)}}.}
+
+\item{horizon}{Numeric, defaults to 0. The horizon over which to forecast Rts and cases.}
 }
 \description{
 Combine fitting a delay distribution, constructing a set of
