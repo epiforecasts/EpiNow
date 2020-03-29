@@ -26,7 +26,7 @@
 #' regional_rt_pipeline
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = "results", 
                                  national = FALSE, regional_delay = FALSE, merge_onsets = FALSE,
-                                 case_limit = 10,
+                                 case_limit = 40,
                                  regions_in_parallel = TRUE,
                                  samples = 1000, ...) {
   
@@ -37,7 +37,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   message("Running pipeline for ", target_date)
   
   
-  ## Check for regions with fewer than required cases
+  ## Check for regions more than required cases
   eval_regions <- cases %>% 
     dplyr::group_by(region, date) %>% 
     dplyr::count(wt = cases) %>% 
