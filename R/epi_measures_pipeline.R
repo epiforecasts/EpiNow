@@ -61,14 +61,19 @@ epi_measures_pipeline <- function(nowcast = NULL,
   R0_estimates <- purrr::compact(estimates$rts)
   R0_estimates <- dplyr::bind_rows(R0_estimates)
 
+  
+  ## Generic HDI return function
+  return_hdi <- function(vect = NULL, mass = NULL, index = NULL) {
+    as.numeric(purrr::map_dbl(list(HDInterval::hdi(vect, credMass = mass)), ~ .[[index]]))
+  }
 
   message("Summarising time-varying R0")
 
   R0_estimates_sum <- data.table::setDT(R0_estimates)[, .(
-    bottom  = purrr::map_dbl(list(HDInterval::hdi(R, credMass = 0.9)), ~ .[[1]]),
-    top = purrr::map_dbl(list(HDInterval::hdi(R, credMass = 0.9)), ~ .[[2]]),
-    lower  = purrr::map_dbl(list(HDInterval::hdi(R, credMass = 0.5)), ~ .[[1]]),
-    upper = purrr::map_dbl(list(HDInterval::hdi(R, credMass = 0.5)), ~ .[[2]]),
+    bottom  = return_hdi(R, 0.9, 1),
+    top = return_hdi(R, 0.9, 2),
+    lower  = return_hdi(R, 0.5, 1),
+    upper = return_hdi(R, 0.5, 2),
     median = median(R, na.rm = TRUE),
     mean = mean(R, na.rm = TRUE),
     std = sd(R, na.rm = TRUE),
@@ -96,13 +101,12 @@ epi_measures_pipeline <- function(nowcast = NULL,
     cases_forecast <- purrr::compact(estimates$cases)
     cases_forecast <- dplyr::bind_rows(cases_forecast)
     
-    
     ## Summarise case forecasts
     sum_cases_forecast <- data.table::setDT(cases_forecast)[, .(
-      bottom  = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.9)), ~ .[[1]]),
-      top = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.9)), ~ .[[2]]),
-      lower  = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[1]]),
-      upper = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[2]]),
+      bottom  = return_hdi(cases, 0.9, 1),
+      top = return_hdi(cases, 0.9, 2),
+      lower  = return_hdi(cases, 0.5, 1),
+      upper = return_hdi(cases, 0.5, 2),
       median = median(cases, na.rm = TRUE),
       mean = mean(cases, na.rm = TRUE),
       std = sd(cases, na.rm = TRUE)),
