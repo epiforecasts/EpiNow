@@ -54,9 +54,6 @@ epi_measures_pipeline <- function(nowcast = NULL,
     return(estimates)
     }, .progress = TRUE)
   
-  ## Transpose list ordering
-  estimates <- purrr::compact(estimates)
-  
   ## Clean up NULL rt estimates and bind together
   R0_estimates <- estimates %>% 
     purrr::map(~ .$rts) %>% 
@@ -97,12 +94,15 @@ epi_measures_pipeline <- function(nowcast = NULL,
   
   message("Summarising forecast cases")
   
-  if (!is.null(estimates$cases)) {
+  cases_forecast <- estimates %>% 
+    purrr::map(~ .$cases) %>% 
+    purrr::compact()
+    
+    
+  if (!is.null(cases_forecast)) {
     
     ## Clean up case forecasts
-    cases_forecast <-estimates %>% 
-      purrr::map(~ .$cases) %>% 
-      purrr::compact() %>% 
+    cases_forecast <- cases_forecast %>% 
       dplyr::bind_rows()
     
     ## Summarise case forecasts
@@ -170,7 +170,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
   out <- list(R0_estimates_sum, little_r_estimates_res, R0_estimates)
   names(out) <- c("R0", "rate_of_spread", "raw_R0")
 
-  if (!is.null(estimates$cases)) {
+  if (!is.null(cases_forecast)) {
     
     out$case_forecast <- sum_cases_forecast
     out$raw_case_forecast <- cases_forecast
