@@ -20,7 +20,7 @@
 #' @importFrom tidyr drop_na complete spread
 #' @importFrom dplyr rename full_join pull
 #' @importFrom tibble tibble
-#' @importFrom purrr map2
+#' @importFrom purrr map2 safely compact map
 #' @importFrom EpiSoon predict_current_cases forecast_rt forecast_cases score_case_forecast
 #' @examples
 #'
@@ -55,7 +55,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                         si_samples = 100, rt_samples = 100,
                         min_est_date = NULL, forecast_model = NULL, 
                         horizon = 0) {
- 
+  
  
   ## Adjust input based on the presence of imported cases
   if (suppressWarnings(length(unique(cases$import_status)) > 1)) {
@@ -192,16 +192,22 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
       
       
       if (horizon > 0 & !is.null(forecast_model)) {
+        
+        safe_forecast <- purrr::safely(EpiSoon::forecast_rt)
+        
         ## Forecast Rts
         rt_forecasts <- est_r %>% 
           dplyr::select(date, rt = R, sample) %>% 
           dplyr::group_split(sample) %>% 
           purrr::map(
-            ~ EpiSoon::forecast_rt(.,
-                                   model = forecast_model, 
-                                   horizon = horizon,
-                                   samples = 1) %>% 
-              dplyr::select(-sample))
+            ~ safe_forecast(.,
+                            model = forecast_model, 
+                             horizon = horizon,
+                             samples = 1)[[1]])
+        
+        ## Get rid of null forecasts due to `bsts` errors and drop sample
+        rt_forecasts <- purrr::compact(rt_forecasts)
+        rt_forecasts <- purrr::map(rt_forecasts, ~ dplyr::select(., -sample))
         
         ## Bind Rts forecasts together
         rt_forecasts <- dplyr::bind_rows(rt_forecasts, .id = "sample") %>% 

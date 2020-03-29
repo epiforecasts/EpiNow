@@ -51,9 +51,9 @@ epi_measures_pipeline <- function(nowcast = NULL,
                                       sample = data$sample[1])
     }
     
-    return(R0)
+    return(estimates)
     }, .progress = TRUE)
-
+ 
   ## Transpose list ordering
   estimates <- purrr::transpose(estimates)
   
