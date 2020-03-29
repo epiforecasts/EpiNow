@@ -80,7 +80,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
     summed_cases <- incid %>% 
       dplyr::rename(cases = I)
   }
-
+ 
   ## Calculate when to start the window estimation of Rt
   min_case_date <- summed_cases %>% 
     dplyr::filter(cases > 0) %>% 

@@ -181,8 +181,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 
     ## Add confidence if missing and filter by lag
     out <- out %>%
-      dplyr::mutate(confidence = ifelse(is.na(confidence), 1, confidence)) %>% 
-      dplyr::filter(date <= (max(date, na.rm = TRUE) - lubridate::days(nowcast_lag)))
+      dplyr::mutate(confidence = ifelse(is.na(confidence), 1, confidence))
 
     return(out)
   }
@@ -196,6 +195,10 @@ message("Nowcasting using fitted delay distributions")
                                ~ nowcast_inner(delay_fn = ., verbose),
                                .progress = TRUE,
                                .id = "sample")
+  
+  ## Add a nowcast lag across samples
+  out <- out %>% 
+    dplyr::filter(date <= (max(date, na.rm = TRUE) - lubridate::days(nowcast_lag)))
 
   return(out)
 }

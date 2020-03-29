@@ -87,10 +87,10 @@ target_folder <- file.path(target_folder, target_date)
     dplyr::rename(confirm = cases)
 
   ## Define the min plotting (and estimate date as the first date that
-  ## at least 5 local cases were reported minus the incubation period
+  ## at least 10 local cases were reported minus the incubation period
   min_plot_date <- cases %>% 
     dplyr::filter(import_status %in% "local", 
-                  confirm > 5) %>% 
+                  confirm >= 10) %>% 
     dplyr::pull(date) %>% 
     {min(., na.rm = TRUE) - lubridate::days(incubation_period)}
   
@@ -191,7 +191,7 @@ target_folder <- file.path(target_folder, target_date)
 
   time_varying_params <- nowcast %>%
     dplyr::filter(type %in% "nowcast") %>%
-    EpiNow::epi_measures_pipeline(min_est_date = min_plot_date,
+    EpiNow::epi_measures_pipeline(min_est_date = min_plot_date + lubridate::days(incubation_period),
                                   serial_intervals = serial_intervals,
                                   si_samples = si_samples, rt_samples = rt_samples,
                                   rate_window = rate_window, rt_windows = rt_windows,
