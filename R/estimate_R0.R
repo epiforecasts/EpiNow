@@ -185,6 +185,12 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
         dplyr::select(-score, -score_sd)
       
       
+      ## Check to see how many Rt data points have been returned
+      ## If fewer than 3 then turn off forecasting
+      if (length(unique(est_r$date)) < 3) {
+        horizon <- 0
+      }
+      
       
       if (horizon > 0 & !is.null(forecast_model)) {
         
