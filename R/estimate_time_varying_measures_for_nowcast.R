@@ -9,7 +9,7 @@
 #' @export
 #' @importFrom tidyr gather nest unnest drop_na
 #' @importFrom dplyr filter group_by ungroup mutate select summarise n group_split bind_rows arrange
-#' @importFrom purrr safely compact map_dbl map pmap 
+#' @importFrom purrr safely compact map_dbl map pmap transpose
 #' @importFrom HDInterval hdi
 #' @importFrom furrr future_map
 #' @importFrom data.table setDT
@@ -30,7 +30,7 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
   data_list <-  dplyr::group_split(nowcast, type, sample, keep = TRUE)
 
 
-  R0_estimates <- furrr::future_map(data_list, function(data) {
+  estimates <- furrr::future_map(data_list, function(data) {
     estimates <- safe_R0(cases = data,
             serial_intervals = serial_intervals,
             rt_prior = rt_prior,
@@ -41,15 +41,24 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
             forecast_model = forecast_model,
             horizon = horizon)[[1]]
 
-    if (!is.null(estimates)) {
-     R0 <-  dplyr::mutate(R0, type = data$type[1],
-                    sample = data$sample[1])
+    if (!is.null(estimates$rts)) {
+     estimates$rts <-  dplyr::mutate(estimates$rts, type = data$type[1],
+                                     sample = data$sample[1])
     }
-
+    
+    if (!is.null(estimates$cases)) {
+      estimates$cases <-  dplyr::mutate(estimates$cases, type = data$type[1],
+                                      sample = data$sample[1])
+    }
+    
     return(R0)
     }, .progress = TRUE)
 
-  R0_estimates <- purrr::compact(R0_estimates)
+  ## Transpose list ordering
+  estimates <- purrr::transpose(estimates)
+  
+  ## Clean up NULL rt estimates and bind together
+  R0_estimates <- purrr::compact(estimates$rts)
   R0_estimates <- dplyr::bind_rows(R0_estimates)
 
 
@@ -66,7 +75,7 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
     prob_control = (sum(R < 1) / .N),
     mean_window = mean(window), 
     sd_window = sd(window)),
-    by = .(type, date)
+    by = .(type, date, rt_type)
     ][, R0_range := purrr::pmap(
       list(mean, bottom, top),
       function(mean, bottom, top) {
@@ -77,6 +86,36 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
 
 
   R0_estimates_sum <- dplyr::arrange(R0_estimates_sum, date)
+
+  
+  message("Summarising forecast cases")
+  
+  if (!is.null(estimates$cases)) {
+    
+    ## Clean up case forecasts
+    cases_forecast <- purrr::compact(estimates$cases)
+    cases_forecast <- dplyr::bind_rows(cases_forecast)
+    
+    
+    ## Summarise case forecasts
+    sum_cases_forecast <- data.table::setDT(cases_forecast)[, .(
+      bottom  = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.9)), ~ .[[1]]),
+      top = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.9)), ~ .[[2]]),
+      lower  = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[1]]),
+      upper = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[2]]),
+      median = median(cases, na.rm = TRUE),
+      mean = mean(cases, na.rm = TRUE),
+      std = sd(cases, na.rm = TRUE)),
+      by = .(type, date, rt_type)
+      ][, range := purrr::pmap(
+        list(mean, bottom, top),
+        function(mean, bottom, top) {
+          list(point = mean,
+               lower = bottom, 
+               upper = top)
+        }),]
+    
+  }
 
   ## Estimate time-varying little r
   message("Estimate time-varying rate of growth")
@@ -122,6 +161,12 @@ estimate_time_varying_measures_for_nowcast <- function(nowcast = NULL,
   out <- list(R0_estimates_sum, little_r_estimates_res, R0_estimates)
   names(out) <- c("R0", "rate_of_spread", "raw_R0")
 
+  if (!is.null(estimates$cases)) {
+    
+    out <- c(out, sum_case_forecast, case_forecast)
+    names(out) <- c(names(out), "case_forecast",  "raw_case_forecast")
+  }
+  
   return(out)
 }
 
