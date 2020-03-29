@@ -19,13 +19,12 @@ rt_pipeline(
   rate_window = 7,
   earliest_allowed_onset = NULL,
   merge_actual_onsets = TRUE,
-  case_only = FALSE,
   delay_only = FALSE,
   verbose = FALSE,
   serial_intervals = NULL,
   rt_prior = NULL,
   save_plots = TRUE,
-  nowcast_lag = 3,
+  nowcast_lag = 4,
   incubation_period = 5,
   forecast_model = forecast_model,
   horizon = horizon
@@ -44,8 +43,6 @@ rt_pipeline(
 \item{delay_cutoff_date}{Character string, in the form "2020-01-01". Cutoff date to use
 to estimate the delay distribution.}
 
-\item{predict_lag}{Numeric, number of days to use as a prediction lag. Defaults to 0.}
-
 \item{samples}{Numeric, the number of pseudo linelists to generate. Defaults to 1000.}
 
 \item{si_samples}{Numeric, the number of samples to take from the serial intervals supplied}
@@ -60,7 +57,10 @@ selected per serial interval sample by default (based on which window best forec
 \item{earliest_allowed_onset}{A character string in the form of a date ("2020-01-01") indiciating the earliest
 allowed onset.}
 
-\item{case_only}{Logical, defaults to \code{FALSE}. Should estimates also be made based on reported cases.}
+\item{merge_actual_onsets}{Logical, defaults to \code{TRUE}.
+Should linelist onset dates be used where available?}
+
+\item{delay_only}{Logical, defaults to \code{FALSE}. Should estimates be made based on estimated onset dates without nowcasting.}
 
 \item{verbose}{Logical, defaults to \code{FALSE}. Should internal nowcasting progress messages be returned.}
 
@@ -71,8 +71,7 @@ that day. Defaults to \code{EpiNow::covid_serial_intervals}.}
 
 \item{save_plots}{Logical, defaults to \code{TRUE}. Should plots be saved.}
 
-\item{nowcast_lag}{Numeric defaults to 3. The number of days to lag the nowcast
-based on confidence.}
+\item{nowcast_lag}{Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.}
 
 \item{forecast_model}{An uninitialised bsts model passed to \code{EpiSoon::forecast_rt} to be used for forecasting
 future Rt values. An example of the required structure is: \code{function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)}}.}

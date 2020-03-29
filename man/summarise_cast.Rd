@@ -4,13 +4,10 @@
 \alias{summarise_cast}
 \title{Summarise a nowcast}
 \usage{
-summarise_cast(cast, nowcast_lag = 3, incubation_period = 5)
+summarise_cast(cast, incubation_period = 5)
 }
 \arguments{
 \item{cast}{A dataframe as produced by \code{nowcast_pipeline}}
-
-\item{nowcast_lag}{Numeric defaults to 3. The number of days to lag the nowcast
-based on confidence.}
 
 \item{incubation_shift}{Numeric defaults to 5.
 The number of days to use to shift the incubation period}

@@ -14,7 +14,7 @@ nowcast_pipeline(
   delay_only = FALSE,
   verbose = FALSE,
   samples = 1,
-  predict_lag = 0
+  nowcast_lag = 4
 )
 }
 \arguments{
@@ -35,6 +35,8 @@ Should linelist onset dates be used where available?}
 \item{verbose}{Logical, defaults to \code{FALSE}. Should internal nowcasting progress messages be returned.}
 
 \item{samples}{Numeric, the number of samples to take.}
+
+\item{nowcast_lag}{Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.}
 
 \item{date_to_case}{A data indicating when to cast up to.}
 }

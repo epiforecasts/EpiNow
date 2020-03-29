@@ -9,6 +9,7 @@
 #'  Should linelist onset dates be used where available?
 #' @param delay_only Logical, defaults to `FALSE`. Should estimates be made based on estimated onset dates without nowcasting.
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
+#' @param nowcast_lag Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.
 #' @inheritParams generate_sample_linelist
 #' @return
 #' @export
@@ -25,7 +26,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              merge_actual_onsets = TRUE,
                              delay_only = FALSE,
                              verbose = FALSE,
-                             samples = 1, predict_lag = 0) {
+                             samples = 1, nowcast_lag = 4) {
 
 
   ## Get the distribution of reporting delays
@@ -137,8 +138,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
       dplyr::count(date_onset) %>%
       dplyr::rename(date = date_onset, cases = n) %>%
       tidyr::complete(date = seq(min(.$date), max(.$date), by = "day"),
-                      fill = list(cases = 0)) %>%
-      dplyr::slice(1:(dplyr::n() - predict_lag))
+                      fill = list(cases = 0))
 
 
     ## sample neg bin
@@ -179,8 +179,10 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
         )
     }
 
+    ## Add confidence if missing and filter by lag
     out <- out %>%
-      dplyr::mutate(confidence = ifelse(is.na(confidence), 1, confidence))
+      dplyr::mutate(confidence = ifelse(is.na(confidence), 1, confidence)) %>% 
+      dplyr::filter(date <= (max(date, na.rm = TRUE) - lubridate::days(nowcast_lag)))
 
     return(out)
   }

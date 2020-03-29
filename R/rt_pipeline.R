@@ -10,22 +10,19 @@
 #' @param target_date Character string, in the form "2020-01-01". Date to cast.
 #' @param delay_cutoff_date Character string, in the form "2020-01-01". Cutoff date to use
 #' to estimate the delay distribution.
-#' @param predict_lag Numeric, number of days to use as a prediction lag. Defaults to 0.
 #' @param samples Numeric, the number of pseudo linelists to generate. Defaults to 1000.
 #' @param earliest_allowed_onset A character string in the form of a date ("2020-01-01") indiciating the earliest
 #' allowed onset.
-#' @param case_only Logical, defaults to `FALSE`. Should estimates also be made based on reported cases.
 #' @param serial_intervals A matrix with columns representing samples and rows representing the probability of the serial intervel being on
 #' that day. Defaults to `EpiNow::covid_serial_intervals`.
-#' @param si_samples Numeric, the number of samples to take from the serial intervals supplied
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
-#' @param rt_prior A list defining the reproduction number prior containing the mean (`mean_prior`) and standard deviation (`std_prior`)
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
 #' @param save_plots Logical, defaults to `TRUE`. Should plots be saved.
 #' @return NULL
 #' @export
 #' @inheritParams epi_measures_pipeline
 #' @inheritParams summarise_cast
+#' @inheritParams nowcast_pipeline
 #' @importFrom dplyr rename filter mutate count group_by ungroup mutate_at pull select case_when bind_rows left_join bind_rows
 #' @importFrom tidyr drop_na unnest
 #' @importFrom tibble tibble
@@ -41,9 +38,9 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         target_folder = NULL, target_date = NULL, delay_cutoff_date = NULL,
                         predict_lag = 0, samples = 1000, si_samples = 1, rt_samples = 10,
                         rt_windows = 1:7, rate_window = 7, earliest_allowed_onset = NULL,
-                        merge_actual_onsets = TRUE, case_only = FALSE, delay_only = FALSE,
+                        merge_actual_onsets = TRUE, delay_only = FALSE,
                         verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, save_plots = TRUE,
-                        nowcast_lag = 3, incubation_period = 5, forecast_model = forecast_model,
+                        nowcast_lag = 4, incubation_period = 5, forecast_model = forecast_model,
                         horizon = horizon) {
  
 
@@ -107,10 +104,12 @@ target_folder <- file.path(target_folder, target_date)
                                                  merge_actual_onsets = merge_actual_onsets,
                                                  samples = samples,
                                                  delay_only = delay_only,
-                                                 predict_lag = predict_lag,
+                                                 nowcast_lag = nowcast_lag,
                                                  verbose = verbose)
 
 
+
+  
   # Save cast ---------------------------------------------------------------
 
   if (!dir.exists(target_folder)) {
@@ -294,14 +293,6 @@ target_folder <- file.path(target_folder, target_date)
     dplyr::mutate(date_onset = date) %>%
     dplyr::mutate(date = date - incubation_period) %>% 
     dplyr::select(-type)
-
-  if (case_only) {
-    littler_estimates <- littler_estimates %>%
-      dplyr::bind_rows(
-        case_based_time_varying_params[[2]] %>%
-          dplyr::mutate(type = "Cases by report date")
-      )
-  }
 
   saveRDS(littler_estimates,
           paste0(target_folder, "/rate_spread_estimates.rds"))
