@@ -10,6 +10,7 @@
 #' @param delay_only Logical, defaults to `FALSE`. Should estimates be made based on estimated onset dates without nowcasting.
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
 #' @param nowcast_lag Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.
+#' @param report_delay_fns List of functions as produced by `EpiNow::get_delay_sample_fn`
 #' @inheritParams generate_sample_linelist
 #' @return
 #' @export
@@ -26,7 +27,9 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              merge_actual_onsets = TRUE,
                              delay_only = FALSE,
                              verbose = FALSE,
-                             samples = 1, nowcast_lag = 4) {
+                             samples = 1,
+                             report_delay_fns = NULL,
+                             nowcast_lag = 4) {
 
 
   ## Get the distribution of reporting delays
@@ -38,15 +41,23 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
   message("Fitting reporting delay between the ", date_to_cutoff_delay, " and the ", date_to_cast)
 
 
-  ## Filter linelist for target delay distribution dates
-  filtered_linelist <- linelist %>%
-    dplyr::filter(date_confirmation >= date_to_cutoff_delay,
-                  !is.na(delay_confirmation),
-                  date_confirmation <= date_to_cast)
+  if (is.null(report_delay_fns)) {
+    ## Filter linelist for target delay distribution dates
+    filtered_linelist <- linelist %>%
+      dplyr::filter(date_confirmation >= date_to_cutoff_delay,
+                    !is.na(delay_confirmation),
+                    date_confirmation <= date_to_cast)
+    
+    ## Fit the delay distribution and draw posterior samples
+    fitted_delay_fn <- EpiNow::get_delay_sample_fn(filtered_linelist, samples = samples)
 
-  ## Fit the delay distribution and draw posterior samples
-  fitted_delay_fn <- EpiNow::get_delay_sample_fn(filtered_linelist, samples = samples)
-  
+  }else{
+    fitted_delay_fn <- report_delay_fns
+    message("A set of report delays functions has been passed to the pipeline so a report delay will not be 
+            fit.")
+    message("Nowcasting for ", length(report_delay_fns), " based on the report delay functions passed in")
+  }
+
   ## Group linelists by day
   linelist_by_day <- linelist %>%
     dplyr::filter(import_status == "local") %>%

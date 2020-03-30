@@ -14,6 +14,7 @@ nowcast_pipeline(
   delay_only = FALSE,
   verbose = FALSE,
   samples = 1,
+  report_delay_fns = NULL,
   nowcast_lag = 4
 )
 }
@@ -35,6 +36,8 @@ Should linelist onset dates be used where available?}
 \item{verbose}{Logical, defaults to \code{FALSE}. Should internal nowcasting progress messages be returned.}
 
 \item{samples}{Numeric, the number of samples to take.}
+
+\item{report_delay_fns}{List of functions as produced by \code{EpiNow::get_delay_sample_fn}}
 
 \item{nowcast_lag}{Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.}
 

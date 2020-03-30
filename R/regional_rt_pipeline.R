@@ -80,9 +80,17 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   ## regional pipelines
   regions <- unique(cases$region)
   
-  if (regional_delay) {
-    message("Using a national linelist so setting merge onsets to FALSE for regional analysis")
+  if (!regional_delay) {
+    message("Using a national linelist so not merging onsets and fitting a single reporting delay")
     merge_onsets <- FALSE
+    
+    ## Fit the delay distribution
+    report_delay_fns <-  linelist %>%
+      dplyr::rename(delay_confirmation = report_delay) %>% 
+      EpiNow::get_delay_sample_fn(samples = samples)  
+    
+  }else{
+    report_delay_fns <- NULL
   }
   
   message("Running pipelines by region")
@@ -108,7 +116,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
       target_folder = file.path(target_folder, target_region),
       target_date = target_date, 
       merge_actual_onsets = merge_onsets, 
-      samples = samples, ...)
+      samples = samples, ..., 
+      report_delay_fns = report_delay_fns)
     
     
     return(invisible(NULL))
