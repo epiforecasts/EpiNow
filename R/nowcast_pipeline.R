@@ -30,18 +30,16 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              samples = 1,
                              report_delay_fns = NULL,
                              nowcast_lag = 4) {
-
-
-  ## Get the distribution of reporting delays
-  ## Look at reporting delays over the two weeks
-  if (is.null(date_to_cutoff_delay)) {
-    date_to_cutoff_delay <- min(linelist$date_confirmation, na.rm = TRUE)
-  }
-
-  message("Fitting reporting delay between the ", date_to_cutoff_delay, " and the ", date_to_cast)
-
-
+ 
   if (is.null(report_delay_fns)) {
+    
+    ## Get the distribution of reporting delays
+    ## Look at reporting delays over the two weeks
+    if (is.null(date_to_cutoff_delay)) {
+      date_to_cutoff_delay <- min(linelist$date_confirmation, na.rm = TRUE)
+    }
+    
+    message("Fitting reporting delay between the ", date_to_cutoff_delay, " and the ", date_to_cast)
     ## Filter linelist for target delay distribution dates
     filtered_linelist <- linelist %>%
       dplyr::filter(date_confirmation >= date_to_cutoff_delay,
@@ -50,12 +48,11 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
     
     ## Fit the delay distribution and draw posterior samples
     fitted_delay_fn <- EpiNow::get_delay_sample_fn(filtered_linelist, samples = samples)
+    
+
 
   }else{
     fitted_delay_fn <- report_delay_fns
-    message("A set of report delays functions has been passed to the pipeline so a report delay will not be 
-            fit.")
-    message("Nowcasting for ", length(report_delay_fns), " based on the report delay functions passed in")
   }
 
   ## Group linelists by day
@@ -200,8 +197,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 
 
 # Nowcast samples ---------------------------------------------------------
-
-message("Nowcasting using fitted delay distributions")
+  message("Nowcasting using fitted delay distributions")
   out <- furrr::future_map_dfr(fitted_delay_fn,
                                ~ nowcast_inner(delay_fn = ., verbose),
                                .progress = TRUE,
