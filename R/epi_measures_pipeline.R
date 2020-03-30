@@ -16,12 +16,12 @@
 #' @examples 
 #'
 epi_measures_pipeline <- function(nowcast = NULL,
-                                                       serial_intervals = NULL,
-                                                       min_est_date = NULL,
-                                                       si_samples = NULL, rt_samples = NULL,
-                                                       rt_windows = 7, rate_window = 7,
-                                                       rt_prior = NULL, forecast_model = NULL,
-                                                       horizon = NULL) {
+                                  serial_intervals = NULL,
+                                  min_est_date = NULL,
+                                  si_samples = NULL, rt_samples = NULL,
+                                  rt_windows = 7, rate_window = 7,
+                                  rt_prior = NULL, forecast_model = NULL,
+                                  horizon = NULL) {
 
   ## Estimate time-varying R0
   safe_R0 <- purrr::safely(EpiNow::estimate_R0)
@@ -29,7 +29,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
   message("Estimate time-varying R0")
   data_list <-  dplyr::group_split(nowcast, type, sample, keep = TRUE)
 
-
+ 
   estimates <- furrr::future_map(data_list, function(data) {
     estimates <- safe_R0(cases = data,
             serial_intervals = serial_intervals,
@@ -99,7 +99,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
     purrr::compact()
     
     
-  if (!is.null(cases_forecast)) {
+  if (!(is.null(cases_forecast) | length(cases_forecast) == 0)) {
     
     ## Clean up case forecasts
     cases_forecast <- cases_forecast %>% 
@@ -170,7 +170,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
   out <- list(R0_estimates_sum, little_r_estimates_res, R0_estimates)
   names(out) <- c("R0", "rate_of_spread", "raw_R0")
 
-  if (!is.null(cases_forecast)) {
+  if (!(is.null(cases_forecast) | length(cases_forecast) == 0)) {
     
     out$case_forecast <- sum_cases_forecast
     out$raw_case_forecast <- cases_forecast

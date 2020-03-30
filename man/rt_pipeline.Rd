@@ -27,7 +27,8 @@ rt_pipeline(
   nowcast_lag = 4,
   incubation_period = 5,
   forecast_model = NULL,
-  horizon = NULL
+  horizon = NULL,
+  report_delay_fns = NULL
 )
 }
 \arguments{
@@ -77,6 +78,8 @@ that day. Defaults to \code{EpiNow::covid_serial_intervals}.}
 future Rt values. An example of the required structure is: \code{function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)}}.}
 
 \item{horizon}{Numeric, defaults to 0. The horizon over which to forecast Rts and cases.}
+
+\item{report_delay_fns}{List of functions as produced by \code{EpiNow::get_delay_sample_fn}}
 }
 \description{
 Combine fitting a delay distribution, constructing a set of
