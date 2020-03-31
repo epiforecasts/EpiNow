@@ -166,12 +166,14 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                           scores <- EpiSoon::score_case_forecast(preds, summed_cases)
                           
                           ## Evaluate the window using the median CRPS across all time points and samples
-                          summarised_score <- scores %>% 
-                            dplyr::summarise(median = median(crps, na.rm = TRUE),
+                          summarised_score <-  
+                            dplyr::summarise(scores,
+                                             median = median(crps, na.rm = TRUE),
                                              sd = sd(crps, na.rm = TRUE))
                           
-                          out <- out %>% 
+                          out <-
                             dplyr::mutate(
+                              out,
                               score = summarised_score$median,
                               score_sd = summarised_score$sd,
                               window = window
