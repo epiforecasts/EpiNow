@@ -134,7 +134,9 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                                                    function(mean, sd) {
                                                      theta <- sd^2/mean
                                                      k <- mean/theta
-                                                     stats::rgamma(rt_samples, shape = k, scale = theta)
+                                                     samples <- stats::rgamma(rt_samples, shape = k, scale = theta)
+                                                     samples <- sort(samples) 
+                                                     return(samples)
                                                    })
                           
                            
