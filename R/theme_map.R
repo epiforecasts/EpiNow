@@ -48,14 +48,10 @@ theme_map <- function(map = NULL, continuous = FALSE,
   }else{
     map <- map +
       ggplot2::guides(fill = ggplot2::guide_legend(title = variable_label, ncol = 2)) +
-      ggplot2::scale_fill_viridis_d(
-        begin = 0,
-        end = 0.9,
-        alpha = 0.7,
-        labels = fill_labels,
-        option = viridis_palette,
-        na.value = "lightgrey"
-      )
+      ggplot2::scale_fill_manual(
+        breaks = c("Increasing", "Likely increasing", "Unsure", "Decreasing"),
+        values = c("steelblue4", "skyblue3", "lightgoldenrod", "lightcoral"),
+        na.value = "lightgrey")
   }
   
   
