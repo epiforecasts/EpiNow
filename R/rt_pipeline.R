@@ -264,7 +264,7 @@ target_folder <- file.path(target_folder, target_date)
     ggplot2::ggsave(paste0(target_folder, "/bigr_eff_plot.png"),
                     plot_bigr,
                     width = 12,
-                    height = 3,
+                    height = 6,
                     dpi = 320)
   }
 
@@ -427,7 +427,7 @@ target_folder <- file.path(target_folder, target_date)
     ggplot2::ggsave(paste0(target_folder, "/rate_spread_plot.png"),
                     plot_littler_summary,
                     width = 12,
-                    height = 6,
+                    height = 12,
                     dpi = 320)
 
   }
@@ -455,7 +455,7 @@ target_folder <- file.path(target_folder, target_date)
     ggplot2::ggsave(paste0(target_folder, "/rt_cases_plot.png"),
                     rt_cases_plot,
                     width = 12,
-                    height = 6,
+                    height = 8,
                     dpi = 320)
     
   }
