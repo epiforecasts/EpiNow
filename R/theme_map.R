@@ -56,7 +56,7 @@ theme_map <- function(map = NULL, continuous = FALSE,
         labels = fill_labels,
         option = viridis_palette,
         na.value = "lightgrey",
-        drop = FALSE
+        drop = FALSE 
       )
   }
   
