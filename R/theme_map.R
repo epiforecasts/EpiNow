@@ -42,7 +42,8 @@ theme_map <- function(map = NULL, continuous = FALSE,
         alpha = 0.7,
         labels = fill_labels,
         option = viridis_palette,
-        na.value = "lightgrey"
+        na.value = "lightgrey",
+        drop = FALSE
       )
     
   }else{
@@ -54,7 +55,8 @@ theme_map <- function(map = NULL, continuous = FALSE,
         alpha = 0.7,
         labels = fill_labels,
         option = viridis_palette,
-        na.value = "lightgrey"
+        na.value = "lightgrey",
+        drop = FALSE
       )
   }
   
