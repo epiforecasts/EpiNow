@@ -19,7 +19,7 @@ if (standalone) {
 }
 ```
 
-### Summary of latest reproduction number and case count estimates
+### Summary of latest reproduction number and case count estimates by date of infection
 
 ```{r, fig.height = 8, fig.width = 8, out.width = "90%"}
 knitr::include_graphics(here::here(file.path(summary_path, "summary_plot.png")))
@@ -28,7 +28,7 @@ knitr::include_graphics(here::here(file.path(summary_path, "summary_plot.png")))
 <br>
 `r paste0("*Figure ", fig_start, ": Cases with date of infection on the ", latest_date, " and the time-varying estimate of the effective reproduction number (bar = 90% credible interval). Regions are ordered by the number of expected daily cases and shaded based on the expected change in daily cases. The dotted line indicates the target value of 1 for the effective reproduction no. required for control and a single case required for elimination.*")`
 
-### Reproduction numbers over time in the six regions with the most cases currently
+### Reproduction numbers over time in the six regions expected to have the most incident cases
 
 ```{r summarise-bigr-plot, fig.height = 6, fig.width = 8, layout="l-body-outset", out.width = "90%"}
 knitr::include_graphics(here::here(file.path(summary_path, "high_cases_rt_plot.png")))
@@ -37,14 +37,14 @@ knitr::include_graphics(here::here(file.path(summary_path, "high_cases_rt_plot.p
 <br>
 `r paste0("*Figure ", fig_start + 1, ": Time-varying estimate of the effective reproduction number (light grey ribbon = 90% credible interval; dark grey ribbon = 50% credible interval) in the regions expected to have the highest number of incident cases. Estimates are shown up to the ", latest_date, ". Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence. The dotted line indicates the target value of 1 for the effective reproduction no. required for control.*")`
 
-### Cases with date of onset on the day of report generation in the six regions with the most cases currently
+### Reported cases and their estimated date of infection in the six regions expected to have the most incident cases
 
 ```{r summarise-cases-plot, fig.height = 6, fig.width = 8, layout="l-body-outset", out.width = "90%"}
 knitr::include_graphics(here::here(file.path(summary_path, "high_cases_plot.png")))
 ```
 
 <br>
-`r paste0("*Figure ", fig_start + 2, ":  Cases by date of report (bars) and estimated cases by date of infection (light grey ribbon = 90% credible interval; dark grey ribbon = 50% credible interval) in the regions expected to have the highest number of incident cases.  Estimates are shown up to the ", latest_date, ".Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence.*")`
+`r paste0("*Figure ", fig_start + 2, ":  Cases by date of report (bars) and their estimated date of infection (light grey ribbon = 90% credible interval; dark grey ribbon = 50% credible interval) in the regions expected to have the highest number of incident cases.  Estimates are shown up to the ", latest_date, ".Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence.*")`
 
 ### Reproduction numbers over time in all regions
 
@@ -56,13 +56,13 @@ knitr::include_graphics(here::here(file.path(summary_path, "rt_plot.png")))
 `r paste0("*Figure ",  fig_start + 3, ": Time-varying estimate of the effective reproduction number (light grey ribbon = 90% credible interval; dark grey ribbon = 50% credible interval) in all regions. Estimates are shown up to the ", latest_date, ". Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence. The dotted line indicates the target value of 1 for the effective reproduction no. required for control.*")`
 
 
-### Cases with date of onset on the day of report generation in all regions
+### Reported cases and their estimated date of infection in all regions
 
 ```{r cases-plot, fig.height = 12, fig.width = 8, layout="l-body-outset", out.width = "90%"}
 knitr::include_graphics(here::here(file.path(summary_path, "cases_plot.png")))
 ```
 
-`r paste0("*Figure ",  fig_start + 4, ":  Cases by date of report (bars) and estimated cases by date of infection (light grey ribbon = 90% credible interval; dark grey ribbon = 50% credible interval) in all regions. Estimates are shown up to the ", latest_date, ". Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence.*")`
+`r paste0("*Figure ",  fig_start + 4, ":  Cases by date of report (bars) and their estimated date of infection (light grey ribbon = 90% credible interval; dark grey ribbon = 50% credible interval) in all regions. Estimates are shown up to the ", latest_date, ". Confidence in the estimated values is indicated by shading with reduced shading corresponding to reduced confidence.*")`
 
 `r paste0("### Latest estimates (as of the ", latest_date, ")")`
 
@@ -74,7 +74,6 @@ readRDS(here::here(file.path(summary_path, "summary_table.rds"))) %>%
  knitr::kable(booktabs = TRUE, longtable = TRUE) %>% 
  kableExtra::landscape()
 ```
-
 
 ```{r}
 summary_tables <- tab_start
