@@ -24,7 +24,8 @@ country_map <- function(data = NULL, country = NULL,
                        trans = "identity",
                        fill_labels = NULL,
                        scale_fill = NULL,
-                       show_caption = TRUE) {
+                       show_caption = TRUE,
+                       ...) {
   
   
   

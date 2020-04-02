@@ -314,9 +314,14 @@ target_folder <- file.path(target_folder, target_date)
   saveRDS(report_overall,
           paste0(target_folder, "/rate_spread_overall_summary.rds"))
 
-  clean_double <- function(var) {
+  clean_double <- function(var, type) {
     var <- signif(var, 2)
-    var[is.infinite(var)] <- "Cases decreasing"
+    
+    if (type %in% "doubling_time") {
+      var[is.infinite(var)] <- "Cases decreasing"
+      var[var < 0] <- "Cases decreasing"
+    }
+
     return(var)
   }
 
@@ -325,9 +330,9 @@ target_folder <- file.path(target_folder, target_date)
     dplyr::mutate(report_latest = purrr::map(time_varying_r, function(estimate) {
       estimate <- dplyr::filter(estimate, date == max(date))
 
-      estimate$bottom <- clean_double(estimate$bottom)
-      estimate$top <- clean_double(estimate$top)
-      estimate$mean <- clean_double(estimate$mean)
+      estimate$bottom <- clean_double(estimate$bottom, type = estimate$vars)
+      estimate$top <- clean_double(estimate$top, type = estimate$vars)
+      estimate$mean <- clean_double(estimate$mean, type = estimate$vars)
 
       out <- tibble::tibble(
         vars = estimate$vars,
