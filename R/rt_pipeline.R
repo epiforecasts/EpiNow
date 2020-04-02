@@ -90,7 +90,7 @@ target_folder <- file.path(target_folder, target_date)
   ## at least 5 local cases were reported minus the incubation period
   min_plot_date <- cases %>% 
     dplyr::filter(import_status %in% "local", 
-                  confirm >= 10) %>% 
+                  confirm >= 5) %>% 
     dplyr::pull(date) %>% 
     {min(., na.rm = TRUE) - lubridate::days(incubation_period)}
   

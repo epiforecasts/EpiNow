@@ -81,8 +81,8 @@ epi_measures_pipeline <- function(nowcast = NULL,
     sd_window = sd(window)),
     by = .(type, date, rt_type)
     ][, R0_range := purrr::pmap(
-      list(mean, bottom, top),
-      function(mean, bottom, top) {
+      list(mean, bottom, top, lower, upper),
+      function(mean, bottom, top, lower, upper) {
         list(point = mean,
              lower = bottom, 
              upper = top,
