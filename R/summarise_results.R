@@ -56,7 +56,9 @@ summarise_results <- function(regions = NULL,
                   -`Expected change in daily cases`) %>% 
     dplyr::mutate(
       lower = purrr::map_dbl(value, ~ .[[1]]$lower),
-      upper = purrr::map_dbl(value, ~ .[[1]]$upper)) %>% 
+      upper = purrr::map_dbl(value, ~ .[[1]]$upper),
+      mid_lower = purrr::map_dbl(value, ~ .[[1]]$mid_lower),
+      mid_upper = purrr::map_dbl(value, ~ .[[1]]$mid_upper)) %>% 
     dplyr::mutate(metric = metric %>% 
                     factor(levels = c("New cases by infection date",
                                       "Effective reproduction no.")))

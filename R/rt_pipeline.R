@@ -146,7 +146,9 @@ target_folder <- file.path(target_folder, target_date)
       function(mean, bottom, top) {
         list(point = mean,
              lower = bottom, 
-             upper = top)
+             upper = top,
+             mid_lower = lower,
+             mid_upper = upper)
       }))
   
   

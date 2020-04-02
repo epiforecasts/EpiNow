@@ -85,7 +85,9 @@ epi_measures_pipeline <- function(nowcast = NULL,
       function(mean, bottom, top) {
         list(point = mean,
              lower = bottom, 
-             upper = top)
+             upper = top,
+             mid_lower = lower,
+             mid_upper = upper)
       }),]
 
 
