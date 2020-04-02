@@ -10,7 +10,8 @@ theme_map(
   variable_label = NULL,
   trans = "identity",
   fill_labels = NULL,
-  viridis_palette = "cividis"
+  viridis_palette = "cividis",
+  breaks = NULL
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ which can be used for percentage data.}
 
 \item{viridis_palette}{Character string indicating the \code{viridis} colour palette to use. Defaults
 to "cividis". Options include "cividis", "magma", "inferno", "plasma", and "viridis". For additional details}
+
+\item{breaks}{Breaks to use in legend. Defaults to \code{ggplot2::waiver}.}
 }
 \value{
 A \code{ggplot2} object

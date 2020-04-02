@@ -11,7 +11,9 @@
 #' which can be used for percentage data.
 #' @param viridis_palette Character string indicating the \code{viridis} colour palette to use. Defaults
 #' to "cividis". Options include "cividis", "magma", "inferno", "plasma", and "viridis". For additional details
-#' @return A `ggplot2` object
+#' @param breaks Breaks to use in legend. Defaults to `ggplot2::waiver`.
+#' @return A `ggplot2` object 
+#' @importFrom ggplot2 waiver theme guides scale_fill_viridis_c scale_fill_viridis_d
 #' @export
 #'
 #' @examples
@@ -23,7 +25,13 @@ theme_map <- function(map = NULL, continuous = FALSE,
                       variable_label = NULL,
                       trans = "identity",
                       fill_labels = NULL,
-                      viridis_palette = "cividis") {
+                      viridis_palette = "cividis",
+                      breaks = NULL){
+  
+
+  if (is.null(breaks)) {
+    breaks <- ggplot2::waiver()
+  }
   
   map <- map +
    cowplot::theme_map() +
@@ -42,8 +50,7 @@ theme_map <- function(map = NULL, continuous = FALSE,
         alpha = 0.7,
         labels = fill_labels,
         option = viridis_palette,
-        na.value = "lightgrey",
-        drop = FALSE
+        na.value = "lightgrey"
       )
     
   }else{
@@ -55,6 +62,7 @@ theme_map <- function(map = NULL, continuous = FALSE,
         alpha = 0.7,
         labels = fill_labels,
         option = viridis_palette,
+        breaks = breaks,
         na.value = "lightgrey",
         drop = FALSE 
       )
