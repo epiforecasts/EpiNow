@@ -330,9 +330,9 @@ target_folder <- file.path(target_folder, target_date)
     dplyr::mutate(report_latest = purrr::map(time_varying_r, function(estimate) {
       estimate <- dplyr::filter(estimate, date == max(date))
 
-      estimate$bottom <- clean_double(estimate$bottom, type = estimate$vars)
-      estimate$top <- clean_double(estimate$top, type = estimate$vars)
-      estimate$mean <- clean_double(estimate$mean, type = estimate$vars)
+      estimate$bottom <- clean_double(estimate$bottom, type = estimate$vars[1])
+      estimate$top <- clean_double(estimate$top, type = estimate$vars[1])
+      estimate$mean <- clean_double(estimate$mean, type = estimate$vars[1])
 
       out <- tibble::tibble(
         vars = estimate$vars,
