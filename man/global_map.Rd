@@ -12,6 +12,7 @@ global_map(
   fill_labels = NULL,
   scale_fill = NULL,
   show_caption = TRUE,
+  projection = "mercator",
   ...
 )
 }
