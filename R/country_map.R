@@ -69,7 +69,7 @@ country_map <- function(data = NULL, country = NULL,
                       trans = trans,
                       fill_labels = fill_labels,
                       viridis_palette = viridis_palette,
-                      breaks = levels(regions_with_data[[variable]))
+                      breaks = levels(regions_with_data[[variable]]))
 
   
   
