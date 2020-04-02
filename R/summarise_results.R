@@ -35,7 +35,7 @@ summarise_results <- function(regions = NULL,
    ## Make reporting table
   estimates <- tibble::tibble(
     Region = names(regions),
-    `New infections` = regions %>% 
+    `New cases by infection date` = regions %>% 
       purrr::map(~ load_data("current_cases.rds", .)),
     `Expected change in daily cases` = regions %>% 
       purrr::map_dbl(~ load_data("prob_control_latest.rds", .)) %>% 
@@ -49,16 +49,18 @@ summarise_results <- function(regions = NULL,
   ## Make estimates numeric
   numeric_estimates <- estimates %>% 
     dplyr::select(region = Region, 
-                  `New infections`, 
+                  `New cases by infection date`, 
                   `Effective reproduction no.`, 
                   `Expected change in daily cases`) %>% 
     tidyr::gather(value = "value", key = "metric", -region, 
                   -`Expected change in daily cases`) %>% 
     dplyr::mutate(
       lower = purrr::map_dbl(value, ~ .[[1]]$lower),
-      upper = purrr::map_dbl(value, ~ .[[1]]$upper)) %>% 
+      upper = purrr::map_dbl(value, ~ .[[1]]$upper),
+      mid_lower = purrr::map_dbl(value, ~ .[[1]]$mid_lower),
+      mid_upper = purrr::map_dbl(value, ~ .[[1]]$mid_upper)) %>% 
     dplyr::mutate(metric = metric %>% 
-                    factor(levels = c("New infections",
+                    factor(levels = c("New cases by infection date",
                                       "Effective reproduction no.")))
 
   
@@ -74,8 +76,8 @@ summarise_results <- function(regions = NULL,
   
   estimates <- estimates %>% 
     dplyr::mutate(
-      `New infections` =
-        `New infections` %>% 
+      `New cases by infection date` =
+        `New cases by infection date` %>% 
         purrr::map(~ .[[1]]) %>% 
         EpiNow::make_conf(digits = 0),
       `Effective reproduction no.` = 

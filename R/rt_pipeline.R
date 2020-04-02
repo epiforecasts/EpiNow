@@ -90,7 +90,7 @@ target_folder <- file.path(target_folder, target_date)
   ## at least 5 local cases were reported minus the incubation period
   min_plot_date <- cases %>% 
     dplyr::filter(import_status %in% "local", 
-                  confirm >= 10) %>% 
+                  confirm >= 5) %>% 
     dplyr::pull(date) %>% 
     {min(., na.rm = TRUE) - lubridate::days(incubation_period)}
   
@@ -146,7 +146,9 @@ target_folder <- file.path(target_folder, target_date)
       function(mean, bottom, top) {
         list(point = mean,
              lower = bottom, 
-             upper = top)
+             upper = top,
+             mid_lower = lower,
+             mid_upper = upper)
       }))
   
   
@@ -264,7 +266,7 @@ target_folder <- file.path(target_folder, target_date)
     ggplot2::ggsave(paste0(target_folder, "/bigr_eff_plot.png"),
                     plot_bigr,
                     width = 12,
-                    height = 3,
+                    height = 6,
                     dpi = 320)
   }
 
@@ -312,9 +314,14 @@ target_folder <- file.path(target_folder, target_date)
   saveRDS(report_overall,
           paste0(target_folder, "/rate_spread_overall_summary.rds"))
 
-  clean_double <- function(var) {
+  clean_double <- function(var, type) {
     var <- signif(var, 2)
-    var[is.infinite(var)] <- "Cases decreasing"
+    
+    if (type %in% "doubling_time") {
+      var[is.infinite(var)] <- "Cases decreasing"
+      var[var < 0] <- "Cases decreasing"
+    }
+
     return(var)
   }
 
@@ -323,9 +330,9 @@ target_folder <- file.path(target_folder, target_date)
     dplyr::mutate(report_latest = purrr::map(time_varying_r, function(estimate) {
       estimate <- dplyr::filter(estimate, date == max(date))
 
-      estimate$bottom <- clean_double(estimate$bottom)
-      estimate$top <- clean_double(estimate$top)
-      estimate$mean <- clean_double(estimate$mean)
+      estimate$bottom <- clean_double(estimate$bottom, type = estimate$vars)
+      estimate$top <- clean_double(estimate$top, type = estimate$vars)
+      estimate$mean <- clean_double(estimate$mean, type = estimate$vars)
 
       out <- tibble::tibble(
         vars = estimate$vars,
@@ -427,7 +434,7 @@ target_folder <- file.path(target_folder, target_date)
     ggplot2::ggsave(paste0(target_folder, "/rate_spread_plot.png"),
                     plot_littler_summary,
                     width = 12,
-                    height = 6,
+                    height = 12,
                     dpi = 320)
 
   }
@@ -455,7 +462,7 @@ target_folder <- file.path(target_folder, target_date)
     ggplot2::ggsave(paste0(target_folder, "/rt_cases_plot.png"),
                     rt_cases_plot,
                     width = 12,
-                    height = 6,
+                    height = 8,
                     dpi = 320)
     
   }
@@ -466,7 +473,7 @@ target_folder <- file.path(target_folder, target_date)
   
   ## Regional summary
   region_summary <- tibble::tibble(
-    measure = c("New infections",
+    measure = c("New cases by infection date",
                 "Expected change in daily cases",
                 "Effective reproduction no.",
                 "Doubling time (days)",

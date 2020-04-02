@@ -22,10 +22,10 @@ global_map <- function(data = NULL, variable = NULL,
                        variable_label = NULL,
                        trans = "identity",
                        fill_labels = NULL,
-                       viridis_palette = "cividis",
+                       scale_fill = NULL,
                        show_caption = TRUE,
-                       projection = "mercator") {
-
+                       projection = "mercator",
+                       ...) {
 
   # Prep --------------------------------------------------------------------
 
@@ -92,7 +92,9 @@ global_map <- function(data = NULL, variable = NULL,
                       variable_label = variable_label,
                       trans = trans,
                       fill_labels = fill_labels,
-                      viridis_palette = viridis_palette)
+                      scale_fill = scale_fill,
+                      breaks = levels(world_with_data[[variable]]),
+                      ...)
  
 
   return(map)

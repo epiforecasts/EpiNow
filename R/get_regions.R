@@ -21,12 +21,7 @@ get_regions <- function(results_dir) {
   ## Put into alphabetical order
   regions <- regions[order(regions)]
   
-  names(regions) <- regions %>%
-    stringr::str_replace_all("-", " ") %>%
-    stringr::str_to_title() %>% 
-    stringr::str_replace_all(" And ", " and ") %>% 
-    stringr::str_replace_all(" Of ", " of ") %>% 
-    stringr::str_replace_all(" The ", " the ") 
+  names(regions) <- regions
   
   
  return(regions)

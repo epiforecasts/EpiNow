@@ -63,11 +63,20 @@ results <- EpiNow::summarise_results(regions, results_dir,
 
 message("Saving results summary table")
 
+force_factor <- function(df) {
+  df %>% 
+    dplyr::mutate(`Expected change in daily cases` =
+                    factor(`Expected change in daily cases`,
+                           levels = c("Increasing", "Likely increasing", "Unsure", 
+                                      "Likely decreasing", "Decreasing")))
+  
+}
 results$table <- results$table %>% 
-  dplyr::mutate(`Expected change in daily cases` =
-                  factor(`Expected change in daily cases`,
-                levels = c("Increasing", "Likely increasing", "Unsure", 
-                           "Likely decreasing", "Decreasing")))
+  force_factor()
+
+results$data <- results$data %>% 
+  force_factor()
+
 
 saveRDS(results$table, file.path(summary_dir, "summary_table.rds"))
 saveRDS(results$data, file.path(summary_dir, "summary_data.rds"))

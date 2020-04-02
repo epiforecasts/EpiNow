@@ -55,6 +55,7 @@ dist_fit <- function(delays = NULL, samples = NULL, dist = "exp") {
     data = data,
     control = list(adapt_delta = adapt_delta),
     chains = 2,
+    cores = 2,
     refresh = 0)
 
 
