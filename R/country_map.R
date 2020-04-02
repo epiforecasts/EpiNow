@@ -23,7 +23,7 @@ country_map <- function(data = NULL, country = NULL,
                        variable_label = NULL,
                        trans = "identity",
                        fill_labels = NULL,
-                       viridis_palette = "cividis",
+                       scale_fill = NULL,
                        show_caption = TRUE) {
   
   
@@ -68,8 +68,9 @@ country_map <- function(data = NULL, country = NULL,
                       variable_label = variable_label,
                       trans = trans,
                       fill_labels = fill_labels,
-                      viridis_palette = viridis_palette,
-                      breaks = levels(regions_with_data[[variable]]))
+                      scale_fill = NULL,
+                      breaks = levels(regions_with_data[[variable]]),
+                      ...)
 
   
   

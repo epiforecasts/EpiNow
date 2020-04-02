@@ -22,7 +22,12 @@ plot_summary <- function(summary_results, x_lab = "Region") {
     cowplot::theme_cowplot() +
     cowplot::panel_border() +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
-    ggplot2::scale_color_viridis_d(option = "cividis", end = 0.9, alpha = 0.7, drop = FALSE) +
+    ggplot2::scale_fill_manual(values = c(
+      "Increasing" = "#00204c",
+      "Likely increasing" = "#49536b",
+      "Likely decreasing" = "#cab969",
+      "Decreasing" = "#ffe945",
+      "Unsure" = "#1c818a"), drop = FALSE) +
     ggplot2::theme(legend.position = "bottom") +
     ggplot2::guides(col = ggplot2::guide_legend(nrow = 2)) +
     ggplot2::labs(x = x_lab)

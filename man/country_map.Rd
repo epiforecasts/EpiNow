@@ -11,7 +11,7 @@ country_map(
   variable_label = NULL,
   trans = "identity",
   fill_labels = NULL,
-  viridis_palette = "cividis",
+  scale_fill = NULL,
   show_caption = TRUE
 )
 }
@@ -27,8 +27,7 @@ transform ("identity"). Other options include log scaling ("log") and log base 1
 \item{fill_labels}{A function to use to allocate legend labels. An example (used below) is \code{scales::percent},
 which can be used for percentage data.}
 
-\item{viridis_palette}{Character string indicating the \code{viridis} colour palette to use. Defaults
-to "cividis". Options include "cividis", "magma", "inferno", "plasma", and "viridis". For additional details}
+\item{scale_fill}{Function to use for scaling the fill. Defaults to a custom \code{ggplot2::scale_fill_manual}}
 }
 \value{
 A \code{ggplot2} object containing a country map.

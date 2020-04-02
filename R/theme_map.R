@@ -9,8 +9,8 @@
 #' ("log10"). For a complete list of options see \code{ggplot2::continous_scale}.
 #' @param fill_labels A function to use to allocate legend labels. An example (used below) is \code{scales::percent},
 #' which can be used for percentage data.
-#' @param viridis_palette Character string indicating the \code{viridis} colour palette to use. Defaults
-#' to "cividis". Options include "cividis", "magma", "inferno", "plasma", and "viridis". For additional details
+#' @param scale_fill Function to use for scaling the fill. Defaults to a custom `ggplot2::scale_fill_manual`
+#' @param additional arguments passed to `scale_fill`
 #' @param breaks Breaks to use in legend. Defaults to `ggplot2::waiver`.
 #' @return A `ggplot2` object 
 #' @importFrom ggplot2 waiver theme guides scale_fill_viridis_c scale_fill_viridis_d
@@ -25,10 +25,22 @@ theme_map <- function(map = NULL, continuous = FALSE,
                       variable_label = NULL,
                       trans = "identity",
                       fill_labels = NULL,
-                      viridis_palette = "cividis",
-                      breaks = NULL){
+                      scale_fill = NULL,
+                      breaks = NULL, 
+                      ...){
   
 
+  if (is.null(scale_fill)) {
+    scale_fill = ggplot2::scale_fill_manual
+    values <- c(
+      "Increasing" = "#00204c",
+      "Likely increasing" = "#49536b",
+      "Likely decreasing" = "#cab969",
+      "Decreasing" = "#ffe945",
+      "Unsure" = "#1c818a"
+    )
+  }
+  
   if (is.null(breaks)) {
     breaks <- ggplot2::waiver()
   }
@@ -43,9 +55,7 @@ theme_map <- function(map = NULL, continuous = FALSE,
     map <- map +
       ggplot2::guides(fill = ggplot2::guide_colorbar(title = variable_label,
                                                      barwidth = 15, barheight = 0.5)) +
-      ggplot2::scale_fill_viridis_c(
-        begin = 0,
-        end = 0.9,
+      scale_fill(
         trans = trans,
         alpha = 0.7,
         labels = fill_labels,
@@ -56,15 +66,13 @@ theme_map <- function(map = NULL, continuous = FALSE,
   }else{
     map <- map +
       ggplot2::guides(fill = ggplot2::guide_legend(title = variable_label, ncol = 2)) +
-      ggplot2::scale_fill_viridis_d(
-        begin = 0,
-        end = 0.9,
-        alpha = 0.7,
+      scale_fill(
+        values = values,
         labels = fill_labels,
-        option = viridis_palette,
         breaks = breaks,
         na.value = "lightgrey",
-        drop = FALSE 
+        drop = FALSE,
+        ...
       )
   }
   
