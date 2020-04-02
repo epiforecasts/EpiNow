@@ -12,7 +12,7 @@
 #' @importFrom rnaturalearth ne_countries
 #' @importFrom dplyr left_join select filter
 #' @importFrom countrycode countrycode
-#' @importFrom ggplot2 ggplot aes geom_sf theme_minimal theme labs waiver
+#' @importFrom ggplot2 ggplot aes geom_sf theme_minimal theme labs waiver coord_map
 #' @importFrom rlang .data
 #'
 #' @examples
@@ -23,7 +23,8 @@ global_map <- function(data = NULL, variable = NULL,
                        trans = "identity",
                        fill_labels = NULL,
                        viridis_palette = "cividis",
-                       show_caption = TRUE) {
+                       show_caption = TRUE,
+                       projection = "mercator") {
 
 
   # Prep --------------------------------------------------------------------
@@ -83,7 +84,8 @@ global_map <- function(data = NULL, variable = NULL,
 
   map <- ggplot2::ggplot(world_with_data) +
     ggplot2::geom_sf(ggplot2::aes(fill = .data[[variable]]), col = "white", size = 0.2) +
-    ggplot2::geom_sf(data = continents, col = "darkgrey", alpha = 0.6, size = 0.2)
+    ggplot2::geom_sf(data = continents, col = "darkgrey", alpha = 0.6, size = 0.2) +
+    ggplot2::coord_map(projection = projection)
   
   map <- 
     EpiNow::theme_map(map, continuous = is.numeric(world_with_data[[variable]]),
