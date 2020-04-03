@@ -33,11 +33,11 @@ theme_map <- function(map = NULL, continuous = FALSE,
   if (is.null(scale_fill)) {
     scale_fill = ggplot2::scale_fill_manual
     values <- c(
-      "Increasing" = "#00204c",
-      "Likely increasing" = "#49536b",
-      "Likely decreasing" = "#cab969",
-      "Decreasing" = "#ffe945",
-      "Unsure" = "#1c818a"
+      "Increasing" = "#49536b",
+      "Likely increasing" = "#8492b1ff",
+      "Likely decreasing" = "#ffec62",
+      "Decreasing" = "#d9bf05",
+      "Unsure" = "#906490"
     )
   }
   
