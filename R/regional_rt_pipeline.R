@@ -96,7 +96,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   message("Running pipelines by region")
   
   ## Function to run the pipeline in a region
-  run_region <- function(target_region) { 
+  run_region <- function(target_region, ...) { 
     message("Running Rt pipeline for ", target_region)
     
     
