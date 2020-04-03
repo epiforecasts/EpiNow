@@ -6,7 +6,7 @@
 #'
 #' @return A `ggplot2` object
 #' @export
-#' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme scale_color_viridis_d guides labs guide_legend
+#' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme scale_color_manual guides labs guide_legend
 #' @importFrom cowplot theme_cowplot panel_border
 #'
 #' @examples
@@ -22,7 +22,7 @@ plot_summary <- function(summary_results, x_lab = "Region") {
     cowplot::theme_cowplot() +
     cowplot::panel_border() +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
-    ggplot2::scale_fill_manual(values = c(
+    ggplot2::scale_color_manual(values = c(
       "Increasing" = "#00204c",
       "Likely increasing" = "#49536b",
       "Likely decreasing" = "#cab969",
