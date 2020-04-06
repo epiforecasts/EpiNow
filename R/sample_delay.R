@@ -9,6 +9,7 @@
 #' @export
 #' @importFrom data.table fifelse
 #' @importFrom purrr map2
+#' @importFrom data.table copy
 #' @examples
 #'
 #'
@@ -18,14 +19,16 @@ sample_delay <- function(linelist = NULL, delay_fn = NULL, earliest_allowed_onse
 ## Sample onsets for all data at once
 ## If missing an actual onset then use the sampled version
 ## Select only onsets and report dates
-    linelist <- linelist[, date_onset_sample := date_report - lubridate::days(delay_fn(.N)),][
+    out <- data.table::copy(linelist)
+    
+    out <- out[, date_onset_sample := date_report - lubridate::days(delay_fn(.N)),][
       is.na(date_onset), date_onset := date_onset_sample][,list(date_onset, date_report)]
                                                                                 
   if (!is.null(earliest_allowed_onset)) {
-    linelist <- linelist[date_onset >= as.Date(earliest_allowed_onset)]
+    out <-out[date_onset >= as.Date(earliest_allowed_onset)]
 
   }
 
-  return(linelist)
+  return(out)
 }
  

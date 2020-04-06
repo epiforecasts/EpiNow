@@ -22,7 +22,7 @@
 #' @importFrom data.table .N
 #' @examples
 #'
-#'
+#' 
 nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              date_to_cast = NULL, date_to_cutoff_delay = NULL,
                              earliest_allowed_onset = NULL,
@@ -131,20 +131,20 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 
 # Nowcasting for each samples or vector of samples ------------------------
 
-  nowcast_inner <- function(delay_fn, verbose = NULL) {
+  nowcast_inner <- function(sample_delay_fn = NULL, verbose = NULL) {
     ## Sample onset dates using reporting delays
     if (verbose) {
       message("Sampling from reporting delay linelist")
     }
 
-    populated_linelist <- sample_delay(linelist = populated_linelist,
-                                       delay_fn = delay_fn,
+    sampled_linelist <- sample_delay(linelist = populated_linelist,
+                                       delay_fn = sample_delay_fn,
                                        earliest_allowed_onset = earliest_allowed_onset)
     
     if (sum(imported_cases$confirm) > 0) {
 
-     imported_populated_linelist <- sample_delay(linelist = imported_populated_linelist,
-                                                 delay_fn = delay_fn,
+     imported_sampled_linelist <- sample_delay(linelist = imported_populated_linelist,
+                                                 delay_fn = sample_delay_fn,
                                                  earliest_allowed_onset = earliest_allowed_onset)
     }
     
@@ -159,13 +159,13 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
     }
 
       ## Summarise local cases
-      cases_by_onset <- summarise_cases(populated_linelist)
+      cases_by_onset <- summarise_cases(sampled_linelist)
       cases_by_onset <- cases_by_onset[, `:=`(type = "from_delay", import_status = "local")]
 
     # Summarise imported cases
 
     if (sum(imported_cases$confirm) > 0) {
-      imported_cases_by_onset <- summarise_cases(imported_populated_linelist)
+      imported_cases_by_onset <- summarise_cases(imported_sampled_linelist)
       imported_cases_by_onset <- imported_cases_by_onset[, `:=`(type = "from_delay",
                                                                 import_status = "imported")]
     
@@ -180,7 +180,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
     sample_bin <- EpiNow::sample_onsets(
       onsets = cases_by_onset$cases,
       dates = cases_by_onset$date,
-      cum_freq = delay_fn(1:nrow(cases_by_onset), dist = TRUE),
+      cum_freq = sample_delay_fn(1:nrow(cases_by_onset), dist = TRUE),
       report_delay = 0,
       samples = 1
     )[[1]]
@@ -233,7 +233,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
   }
 
   out <- furrr::future_map_dfr(fitted_delay_fn,
-                               ~ nowcast_inner(delay_fn = ., verbose),
+                               ~ nowcast_inner(sample_delay_fn = ., verbose),
                                .progress = TRUE,
                                .id = "sample")
   
