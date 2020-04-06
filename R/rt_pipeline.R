@@ -81,19 +81,22 @@ target_folder <- file.path(target_folder, target_date)
   # Format input ------------------------------------------------------------
 
   ## Reformat linelist for use in nowcast_pipeline
-  formatted_linelist <- linelist %>%
-    dplyr::rename(date_onset_symptoms = date_onset,
+  formatted_linelist <- 
+    dplyr::rename(linelist, 
+                  date_onset_symptoms = date_onset,
                   date_confirmation = date_confirm,
                   delay_confirmation = report_delay)
 
   ##Reformat cases
-  cases <- cases %>%
-    dplyr::rename(confirm = cases)
+  cases <- 
+    dplyr::rename(cases, 
+                  confirm = cases)
 
   ## Define the min plotting (and estimate date as the first date that
   ## at least 5 local cases were reported minus the incubation period
-  min_plot_date <- cases %>% 
-    dplyr::filter(import_status %in% "local", 
+  min_plot_date <-  
+    dplyr::filter(cases,
+                  import_status %in% "local", 
                   confirm >= 5) %>% 
     dplyr::pull(date) %>% 
     {min(., na.rm = TRUE) - lubridate::days(incubation_period)}
@@ -125,16 +128,16 @@ target_folder <- file.path(target_folder, target_date)
                                            incubation_period = incubation_period)
 
   ## Combine nowcast with observed cases by onset and report
-  reported_cases <- cases %>%
-    dplyr::count(date, wt = confirm) %>%
+  reported_cases <-
+    dplyr::count(cases, date, wt = confirm) %>%
     dplyr::select(date, median = n) %>%
     dplyr::mutate(type = "Observed by report date",
                   confidence = 1)
 
 
   ## Count cumulative cases
-  all_cases <- summarise_cast %>%
-    dplyr::bind_rows(reported_cases) %>%
+  all_cases <-
+    dplyr::bind_rows(summarise_cast, reported_cases) %>%
     dplyr::group_by(type) %>%
     dplyr::ungroup()
 
@@ -142,8 +145,8 @@ target_folder <- file.path(target_folder, target_date)
   saveRDS(all_cases,  paste0(target_folder, "/summarised_nowcast.rds"))
 
   ## Extract latest cases
-  current_cases <- all_cases %>%
-    dplyr::filter(type %in% "nowcast") %>%
+  current_cases <-
+    dplyr::filter(all_cases, type %in% "nowcast") %>%
     dplyr::filter(date == max(date)) %>%
     dplyr::mutate(range = purrr::pmap(
       list(mean, bottom, top),
@@ -156,19 +159,17 @@ target_folder <- file.path(target_folder, target_date)
       }))
   
   
-  latest_date <- current_cases %>% 
-    dplyr::pull(date)
+  latest_date <- dplyr::pull(current_cases, date)
   
   saveRDS(latest_date,  paste0(target_folder, "/latest_date.rds"))
   
-  current_cases <- current_cases  %>% 
-    dplyr::pull(range)
+  current_cases <- dplyr::pull(current_cases, range)
 
   saveRDS(current_cases,  paste0(target_folder, "/current_cases.rds"))
 
   ## Plot comparison of cases
-  plot_cases <- all_cases %>%
-    dplyr::filter(!type %in% "from_delay",
+  plot_cases <-  
+    dplyr::filter(all_cases, !type %in% "from_delay",
                   date >= min_plot_date) %>%
     dplyr::mutate(median = ifelse(type == "nowcast", NA, median)) %>%
     EpiNow::plot_confidence() +
@@ -177,22 +178,22 @@ target_folder <- file.path(target_folder, target_date)
 
 
   if (save_plots) {
-    ggplot2::ggsave(paste0(target_folder, "/cases_plot.png"),
+    suppressWarnings(
+      ggplot2::ggsave(paste0(target_folder, "/cases_plot.png"),
                     plot_cases,
                     width = 12,
                     height = 3,
                     dpi = 320)
+    )
 
   }
 
   saveRDS(plot_cases,  paste0(target_folder, "/plot_cases.rds"))
 
-
   # Estimate time-varying parameters ----------------------------------------
 
-
-  time_varying_params <- nowcast %>%
-    dplyr::filter(type %in% "nowcast") %>%
+  time_varying_params <-
+    dplyr::filter(nowcast, type %in% "nowcast") %>%
     EpiNow::epi_measures_pipeline(min_est_date = min_plot_date + lubridate::days(incubation_period),
                                   serial_intervals = serial_intervals,
                                   si_samples = si_samples, rt_samples = rt_samples,
@@ -206,14 +207,12 @@ target_folder <- file.path(target_folder, target_date)
   # Munge output ------------------------------------------------------------
 
   ## Pull out R estimates
-  bigr_estimates <- time_varying_params[[1]] %>% 
-    dplyr::filter(rt_type %in% "nowcast")
+  bigr_estimates <- dplyr::filter(time_varying_params[[1]],
+                                  rt_type %in% "nowcast")
 
 
-  bigr_estimates <- bigr_estimates %>%
-    dplyr::left_join(
-      all_cases %>%
-        dplyr::select(type, confidence, date_onset),
+  bigr_estimates <- dplyr::left_join(bigr_estimates, 
+      dplyr::select(all_cases, type, confidence, date_onset),
       by = c("type", "date" = "date_onset")
     ) %>%
     dplyr::filter(!is.na(confidence)) %>% 
@@ -255,8 +254,9 @@ target_folder <- file.path(target_folder, target_date)
           paste0(target_folder, "/prob_control_latest.rds"))
 
   ## Plot R estimates
-  plot_bigr <- bigr_estimates %>%
-    dplyr::filter(type %in% "nowcast",
+  plot_bigr <- 
+    dplyr::filter(bigr_estimates, 
+                  type %in% "nowcast",
                   date >= min_plot_date) %>%
     EpiNow::plot_confidence(plot_median = FALSE) +
     ggplot2::theme(legend.position = "none") +
@@ -267,11 +267,13 @@ target_folder <- file.path(target_folder, target_date)
  
   if (save_plots) {
     ## Save plot
-    ggplot2::ggsave(paste0(target_folder, "/bigr_eff_plot.png"),
+    suppressWarnings(
+      ggplot2::ggsave(paste0(target_folder, "/bigr_eff_plot.png"),
                     plot_bigr,
                     width = 12,
                     height = 6,
                     dpi = 320)
+    )
   }
 
   saveRDS(plot_bigr,
@@ -283,10 +285,9 @@ target_folder <- file.path(target_folder, target_date)
   ## Pull out little
   littler_estimates <- time_varying_params[[2]]
   
-  littler_estimates$time_varying_r[[1]] <- littler_estimates$time_varying_r[[1]] %>%
-    dplyr::left_join(
-      all_cases %>%
-        dplyr::select(type, confidence, date_onset) %>% 
+  littler_estimates$time_varying_r[[1]] <- 
+    dplyr::left_join( littler_estimates$time_varying_r[[1]],
+        dplyr::select(all_cases, type, confidence, date_onset) %>% 
         dplyr::filter(type %in% "nowcast"),
       by = c("date" = "date_onset")
     ) %>%
@@ -299,8 +300,9 @@ target_folder <- file.path(target_folder, target_date)
           paste0(target_folder, "/rate_spread_estimates.rds"))
 
   ## get overall estimates
-  report_overall <- littler_estimates %>%
-    dplyr::mutate(report_overall = purrr::map(overall_little_r,
+  report_overall <-
+    dplyr::mutate( littler_estimates,
+                   report_overall = purrr::map(overall_little_r,
                                               ~ purrr::map_dfr(., function(estimate) {
                                                 paste0(
                                                   signif(estimate$mean, 2), " (",
@@ -334,9 +336,9 @@ target_folder <- file.path(target_folder, target_date)
     dplyr::mutate(report_latest = purrr::map(time_varying_r, function(estimate) {
       estimate <- dplyr::filter(estimate, date == max(date))
 
-      estimate$bottom <- clean_double(estimate$bottom, type = estimate$vars)
-      estimate$top <- clean_double(estimate$top, type = estimate$vars)
-      estimate$mean <- clean_double(estimate$mean, type = estimate$vars)
+      estimate$bottom <- clean_double(estimate$bottom, type = estimate$vars[1])
+      estimate$top <- clean_double(estimate$top, type = estimate$vars[1])
+      estimate$mean <- clean_double(estimate$mean, type = estimate$vars[1])
 
       out <- tibble::tibble(
         vars = estimate$vars,
@@ -389,8 +391,8 @@ target_folder <- file.path(target_folder, target_date)
           paste0(target_folder, "/adjusted_r_latest.rds"))
 
   ## Prepare data for plotting
-  plot_littler_data <-  littler_estimates %>%
-    tidyr::unnest("time_varying_r") %>%
+  plot_littler_data <-
+    tidyr::unnest(littler_estimates, "time_varying_r") %>%
     dplyr::filter(date >= min_plot_date) %>% 
     dplyr::select(-overall_little_r) %>%
     dplyr::mutate(vars = vars %>%
@@ -427,19 +429,24 @@ target_folder <- file.path(target_folder, target_date)
     ggplot2::labs(tag = "C")
 
   ## Combine plots
-  plot_littler_summary <- plot_littler +
+ plot_littler_summary <- suppressWarnings(
+   plot_littler +
     plot_doublingtime +
     plot_fit +
     patchwork::plot_layout(nrow = 3)
+ )
 
 
   if (save_plots) {
     ## Save plot
-    ggplot2::ggsave(paste0(target_folder, "/rate_spread_plot.png"),
-                    plot_littler_summary,
-                    width = 12,
-                    height = 12,
-                    dpi = 320)
+    suppressWarnings(
+      ggplot2::ggsave(paste0(target_folder, "/rate_spread_plot.png"),
+                      plot_littler_summary,
+                      width = 12,
+                      height = 12,
+                      dpi = 320)
+    )
+
 
   }
 
@@ -454,21 +461,24 @@ target_folder <- file.path(target_folder, target_date)
   bigr <- plot_bigr +
     ggplot2::labs("B")
   
-  rt_cases_plot <- cases +
+  rt_cases_plot <- suppressWarnings(
+    cases +
     bigr +
     patchwork::plot_layout(ncol = 1) &
     ggplot2::scale_x_date(date_breaks = "1 week",
                           date_labels = "%b %d",
                           limits = c(min_plot_date, max(cases$data$date)+1))
+  )
   
   if (save_plots) {
     ## Save plot
-    ggplot2::ggsave(paste0(target_folder, "/rt_cases_plot.png"),
-                    rt_cases_plot,
-                    width = 12,
-                    height = 8,
-                    dpi = 320)
-    
+    suppressWarings(
+      ggplot2::ggsave(paste0(target_folder, "/rt_cases_plot.png"),
+                      rt_cases_plot,
+                      width = 12,
+                      height = 8,
+                      dpi = 320)
+    )
   }
   
   saveRDS(rt_cases_plot,
