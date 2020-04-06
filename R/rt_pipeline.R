@@ -179,12 +179,13 @@ target_folder <- file.path(target_folder, target_date)
 
   if (save_plots) {
     suppressWarnings(
+      suppressMessages(
       ggplot2::ggsave(paste0(target_folder, "/cases_plot.png"),
                     plot_cases,
                     width = 12,
                     height = 3,
                     dpi = 320)
-    )
+    ))
 
   }
 
@@ -268,12 +269,13 @@ target_folder <- file.path(target_folder, target_date)
   if (save_plots) {
     ## Save plot
     suppressWarnings(
+      suppressMessages(
       ggplot2::ggsave(paste0(target_folder, "/bigr_eff_plot.png"),
                     plot_bigr,
                     width = 12,
                     height = 6,
                     dpi = 320)
-    )
+    ))
   }
 
   saveRDS(plot_bigr,
@@ -429,7 +431,7 @@ target_folder <- file.path(target_folder, target_date)
     ggplot2::labs(tag = "C")
 
   ## Combine plots
- plot_littler_summary <- suppressWarnings(
+ plot_littler_summary <- suppressMessages(
    plot_littler +
     plot_doublingtime +
     plot_fit +
@@ -440,12 +442,13 @@ target_folder <- file.path(target_folder, target_date)
   if (save_plots) {
     ## Save plot
     suppressWarnings(
+      suppressMessages(
       ggplot2::ggsave(paste0(target_folder, "/rate_spread_plot.png"),
                       plot_littler_summary,
                       width = 12,
                       height = 12,
                       dpi = 320)
-    )
+    ))
 
 
   }
@@ -462,23 +465,25 @@ target_folder <- file.path(target_folder, target_date)
     ggplot2::labs("B")
   
   rt_cases_plot <- suppressWarnings(
+    suppressMessages(
     cases +
     bigr +
     patchwork::plot_layout(ncol = 1) &
     ggplot2::scale_x_date(date_breaks = "1 week",
                           date_labels = "%b %d",
                           limits = c(min_plot_date, max(cases$data$date)+1))
-  )
+  ))
   
   if (save_plots) {
     ## Save plot
-    suppressWarings(
+    suppressWarnings(
+      suppressMessages(
       ggplot2::ggsave(paste0(target_folder, "/rt_cases_plot.png"),
                       rt_cases_plot,
                       width = 12,
                       height = 8,
                       dpi = 320)
-    )
+    ))
   }
   
   saveRDS(rt_cases_plot,

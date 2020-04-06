@@ -13,7 +13,8 @@
 #' 
 #' 
 plot_summary <- function(summary_results, x_lab = "Region") {
-  summary_results %>% 
+  suppressMessages(
+    summary_results %>% 
   ggplot2::ggplot(ggplot2::aes(x = region, col = `Expected change in daily cases`)) +
     ggplot2::geom_linerange(aes(ymin = lower, ymax = upper), size = 6, alpha = 0.4) +
     ggplot2::geom_linerange(aes(ymin = mid_lower, ymax = mid_upper), size = 6, alpha = 0.4) +
@@ -31,4 +32,5 @@ plot_summary <- function(summary_results, x_lab = "Region") {
     ggplot2::theme(legend.position = "bottom") +
     ggplot2::guides(col = ggplot2::guide_legend(nrow = 2)) +
     ggplot2::labs(x = x_lab)
+  )
 }
