@@ -54,30 +54,24 @@ target_folder <- file.path(target_folder, target_date)
 # Default input -----------------------------------------------------------
 
   if (is.null(serial_intervals)) {
-    message("Using default sample of serial intervals with mean (sd) of 4.7 (2.9)")
+    if (verbose) {
+      message("Using default sample of serial intervals with mean (sd) of 4.7 (2.9)")
+    }
+
     serial_intervals <- EpiNow::covid_serial_intervals
   }
 
 
   if (is.null(rt_prior)) {
-    message("Using default Rt prior of 2.6 (2)")
+    if (verbose) {
+      message("Using default Rt prior of 2.6 (2)")
+    }
+
     rt_prior <- list(
       mean_prior = 2.6,
       std_prior = 2)
   }
 
- if(is.null(forecast_model)) {
-   message("No forecasting model supplied. Defaulting to an AR3")
-   forecast_model <- function(...){
-     EpiSoon::bsts_model(model = function(ss, y){bsts::AddAr(ss, y = y, lags = 3)}, ...)
-     }
- }
-
- if (is.null(horizon)) {
-   horizon <- 14
-   message("No forecasting horizon supplied. Default to ", horizon, " days")
- }
- 
   # Format input ------------------------------------------------------------
 
   ## Reformat linelist for use in nowcast_pipeline
@@ -514,13 +508,19 @@ target_folder <- file.path(target_folder, target_date)
   
   
   ## Save all results to a latest folder as well
-  if (dir.exists(latest_folder)) {
-    unlink(latest_folder)
-  }
+  suppressWarnings(
+    if (dir.exists(latest_folder)) {
+      unlink(latest_folder)
+    })
+    
+  suppressWarnings(
+    dir.create(latest_folder)
+  )
 
-  dir.create(latest_folder)
-  file.copy(file.path(target_folder, "."),
-            latest_folder, recursive = TRUE)
-  
+  suppressWarnings(
+    file.copy(file.path(target_folder, "."),
+              latest_folder, recursive = TRUE)
+  )
+
   return(invisible(NULL))
 }
