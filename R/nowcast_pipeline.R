@@ -45,7 +45,10 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
       date_to_cutoff_delay <- min(linelist$date_confirmation, na.rm = TRUE)
     }
     
-    message("Fitting reporting delay between the ", date_to_cutoff_delay, " and the ", date_to_cast)
+    if (verbose) {
+      message("Fitting reporting delay between the ", date_to_cutoff_delay, " and the ", date_to_cast)
+    }
+
     ## Filter linelist for target delay distribution dates
     filtered_linelist <- linelist %>%
       dplyr::filter(date_confirmation >= date_to_cutoff_delay,
@@ -225,7 +228,10 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 
 
 # Nowcast samples ---------------------------------------------------------
-  message("Nowcasting using fitted delay distributions")
+  if (verbose) {
+    message("Nowcasting using fitted delay distributions")
+  }
+
   out <- furrr::future_map_dfr(fitted_delay_fn,
                                ~ nowcast_inner(delay_fn = ., verbose),
                                .progress = TRUE,
