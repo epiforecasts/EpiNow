@@ -125,7 +125,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   }
   
   if (regions_in_parallel) {
-    out <- furrr::future_map(regions, run_region, .progress = TRUE)
+    out <- furrr::future_map(regions, ~ run_region(. , ...), .progress = TRUE)
   }else{
     out <- purrr::map(regions, run_region)
   }
