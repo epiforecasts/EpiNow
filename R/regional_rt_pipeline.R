@@ -95,8 +95,15 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   message("Running pipelines by region")
   
+  region_rt <- purrr::partial(EpiNow::rt_pipeline,
+                              target_date = target_date, 
+                              merge_actual_onsets = merge_onsets, 
+                              samples = samples, 
+                              report_delay_fns = report_delay_fns,
+                              ...)
+  
   ## Function to run the pipeline in a region
-  run_region <- function(target_region, ...) { 
+  run_region <- function(target_region) { 
     message("Running Rt pipeline for ", target_region)
     
     
@@ -110,14 +117,10 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
       regional_linelist <- linelist
     }
     
-    rt_pipeline(
-      cases = regional_cases,
-      linelist = regional_linelist,
-      target_folder = file.path(target_folder, target_region),
-      target_date = target_date, 
-      merge_actual_onsets = merge_onsets, 
-      samples = samples, ..., 
-      report_delay_fns = report_delay_fns)
+    region_rt(cases = regional_cases,
+              linelist = regional_linelist,
+              target_folder = file.path(target_folder, target_region))
+
     
     
     return(invisible(NULL))
@@ -125,7 +128,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   }
   
   if (regions_in_parallel) {
-    out <- furrr::future_map(regions, ~ run_region(. , ...), .progress = TRUE)
+    out <- furrr::future_map(regions, run_region, .progress = TRUE)
   }else{
     out <- purrr::map(regions, run_region)
   }
