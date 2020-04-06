@@ -31,6 +31,8 @@
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_layout
 #' @importFrom lubridate days
+#' @importFrom EpiSoon bsts_model
+#' @importFrom bsts AddAr
 #' 
 #' @examples
 #' 
@@ -66,7 +68,9 @@ target_folder <- file.path(target_folder, target_date)
 
  if(is.null(forecast_model)) {
    message("No forecasting model supplied. Defaulting to an AR3")
-   forecast_model <- function(ss, y){bsts::AddAr(ss, y = y, lags = 3)}
+   forecast_model <- function(...){
+     EpiSoon::bsts_model(model = function(ss, y){bsts::AddAr(ss, y = y, lags = 3)}, ...)
+     }
  }
 
  if (is.null(horizon)) {
