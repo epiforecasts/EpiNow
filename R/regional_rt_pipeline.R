@@ -13,6 +13,7 @@
 #' set to `FALSE` this should also be `FALSE`
 #' @param regions_in_parallel Logical, should regions be run in parallel or sequentially (allowing for)
 #' within pipeline parallisation. Defaults to `TRUE`.
+#' @param verbose Logical, defaults to `FALSE`. Should progress messages be shown for each reigon?
 #' @param ... 
 #' @inheritParams rt_pipeline
 #' @return NULL
@@ -28,6 +29,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
                                  national = FALSE, regional_delay = FALSE, merge_onsets = FALSE,
                                  case_limit = 40,
                                  regions_in_parallel = TRUE,
+                                 verbose = FALSE,
                                  samples = 1000, ...) {
   
   
@@ -65,7 +67,10 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
       dplyr::rename(cases = n)
     
     ## Run and save analysis pipeline
-    message("Running national Rt pipeline")
+    if (verbose) {
+      message("Running national Rt pipeline")
+    }
+
     
     rt_pipeline(
       cases = national_cases,
@@ -100,6 +105,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
                               merge_actual_onsets = merge_onsets, 
                               samples = samples, 
                               report_delay_fns = report_delay_fns,
+                              verbose = verbose,
                               ...)
   
   ## Function to run the pipeline in a region

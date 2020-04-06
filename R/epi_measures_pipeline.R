@@ -4,6 +4,7 @@
 #' @param rt_windows Numeric vector, windows over which to estimate time-varying R. The best performing window will be 
 #' selected per serial interval sample by default (based on which window best forecasts current cases).
 #' @param rate_window Numeric, the window to use to estimate the rate of spread.
+#' @param verbose Logical, defaults to `TRUE`. Should progress messages be shown.
 #' @inheritParams estimate_R0
 #' @return
 #' @export
@@ -21,12 +22,15 @@ epi_measures_pipeline <- function(nowcast = NULL,
                                   si_samples = NULL, rt_samples = NULL,
                                   rt_windows = 7, rate_window = 7,
                                   rt_prior = NULL, forecast_model = NULL,
-                                  horizon = NULL) {
+                                  horizon = NULL, verbose = TRUE) {
 
   ## Estimate time-varying R0
   safe_R0 <- purrr::safely(EpiNow::estimate_R0)
 
-  message("Estimate time-varying R0")
+  if (verbose) {
+    message("Estimate time-varying R0")
+  }
+
   data_list <-  dplyr::group_split(nowcast, type, sample, keep = TRUE)
 
  
@@ -66,7 +70,9 @@ epi_measures_pipeline <- function(nowcast = NULL,
     as.numeric(purrr::map_dbl(list(HDInterval::hdi(vect, credMass = mass)), ~ .[[index]]))
   }
 
+  if (verbose) {
   message("Summarising time-varying R0")
+  }
 
   R0_estimates_sum <- data.table::setDT(R0_estimates)[, .(
     bottom  = return_hdi(R, 0.9, 1),
@@ -93,8 +99,9 @@ epi_measures_pipeline <- function(nowcast = NULL,
 
   R0_estimates_sum <- dplyr::arrange(R0_estimates_sum, date)
 
-  
-  message("Summarising forecast cases")
+  if (verbose) {
+    message("Summarising forecast cases")
+  }
   
   cases_forecast <- estimates %>% 
     purrr::map(~ .$cases) %>% 
@@ -129,7 +136,9 @@ epi_measures_pipeline <- function(nowcast = NULL,
   }
 
   ## Estimate time-varying little r
-  message("Estimate time-varying rate of growth")
+  if (verbose) {
+    message("Estimate time-varying rate of growth")
+  }
 
   if (!is.null(min_est_date)) {
     little_r_estimates <- nowcast %>%

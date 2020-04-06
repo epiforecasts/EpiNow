@@ -200,7 +200,7 @@ target_folder <- file.path(target_folder, target_date)
                                   si_samples = si_samples, rt_samples = rt_samples,
                                   rate_window = rate_window, rt_windows = rt_windows,
                                   rt_prior = rt_prior, forecast_model = forecast_model, 
-                                  horizon = horizon)
+                                  horizon = horizon, verbose = verbose)
 
 
   saveRDS(time_varying_params,  paste0(target_folder, "/time_varying_params.rds"))
