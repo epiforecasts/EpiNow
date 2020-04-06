@@ -31,8 +31,6 @@
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_layout
 #' @importFrom lubridate days
-#' @importFrom EpiSoon bsts_model
-#' @importFrom bsts AddAr
 #' 
 #' @examples
 #' 
