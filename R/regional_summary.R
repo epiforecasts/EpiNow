@@ -106,7 +106,7 @@ high_cases_rt_plot <- suppressWarnings(
   plot_grid(plot_object = "bigr_eff_plot.rds",
             results_dir, target_date = target_date, ncol = 2) &
   ggplot2::coord_cartesian(ylim = c(0, 4)) &
-  ggplot2::ggplot2::scale_x_date(date_breaks = "1 week",
+  ggplot2::scale_x_date(date_breaks = "1 week",
                                  date_labels = "%b %d",
                                  limits = c(NA, latest_date))
 ))
@@ -124,7 +124,7 @@ high_cases_plot <- suppressWarnings(
     regions[names(regions) %in% results$regions_by_inc[1:6]] %>%
   EpiNow::plot_grid(plot_object = "plot_cases.rds",
             results_dir, target_date = target_date, ncol = 2) &
-  ggplot2::ggplot2::scale_x_date(date_breaks = "1 week",
+  ggplot2::scale_x_date(date_breaks = "1 week",
                                  date_labels = "%b %d",
                                  limits = c(NA, latest_date))
 ))
@@ -146,7 +146,7 @@ rt_plot <- suppressWarnings(
       EpiNow::plot_grid(plot_object = "bigr_eff_plot.rds",
                         results_dir, target_date = target_date, ncol = 5) &
       ggplot2::coord_cartesian(ylim = c(0, 4)) &
-      ggplot2::ggplot2::scale_x_date(date_breaks = "1 week",
+      ggplot2::scale_x_date(date_breaks = "1 week",
                                      date_labels = "%b %d",
                                      limits = c(NA, latest_date))
     ))
