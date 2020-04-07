@@ -100,10 +100,16 @@ suppressWarnings(
 message("Plotting summary Rt and case plots")
 
 ## Plot highest incidence countries
-high_cases_rt_plot <- regions[names(regions) %in% results$regions_by_inc[1:6]] %>%
+high_cases_rt_plot <- suppressWarnings(
+  suppressMessages(
+    regions[names(regions) %in% results$regions_by_inc[1:6]] %>%
   plot_grid(plot_object = "bigr_eff_plot.rds",
             results_dir, target_date = target_date, ncol = 2) &
-  ggplot2::coord_cartesian(ylim = c(0, 4))
+  ggplot2::coord_cartesian(ylim = c(0, 4)) &
+  ggplot2::ggplot2::scale_x_date(date_breaks = "1 week",
+                                 date_labels = "%b %d",
+                                 limits = c(NA, latest_date))
+))
 
 
 suppressWarnings(
@@ -113,9 +119,15 @@ suppressWarnings(
 ))
 
 
-high_cases_plot <- regions[names(regions) %in% results$regions_by_inc[1:6]] %>%
+high_cases_plot <- suppressWarnings(
+  suppressMessages(
+    regions[names(regions) %in% results$regions_by_inc[1:6]] %>%
   EpiNow::plot_grid(plot_object = "plot_cases.rds",
-            results_dir, target_date = target_date, ncol = 2)
+            results_dir, target_date = target_date, ncol = 2) &
+  ggplot2::ggplot2::scale_x_date(date_breaks = "1 week",
+                                 date_labels = "%b %d",
+                                 limits = c(NA, latest_date))
+))
 
 
 suppressWarnings(
@@ -128,10 +140,16 @@ suppressWarnings(
 message("Plotting overall Rt and case plots")
 
 ## Plot all countries
-rt_plot <- regions %>%
-  EpiNow::plot_grid(plot_object = "bigr_eff_plot.rds",
-            results_dir, target_date = target_date, ncol = 5) &
-  ggplot2::coord_cartesian(ylim = c(0, 4))
+rt_plot <- suppressWarnings(
+  suppressMessages(
+    regions %>%
+      EpiNow::plot_grid(plot_object = "bigr_eff_plot.rds",
+                        results_dir, target_date = target_date, ncol = 5) &
+      ggplot2::coord_cartesian(ylim = c(0, 4)) &
+      ggplot2::ggplot2::scale_x_date(date_breaks = "1 week",
+                                     date_labels = "%b %d",
+                                     limits = c(NA, latest_date))
+    ))
 
 suppressWarnings(
   suppressMessages(
