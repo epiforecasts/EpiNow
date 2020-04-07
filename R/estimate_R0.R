@@ -245,10 +245,10 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
         )
         
         ## Add gamma noise  and drop mean and sd forecasts
-        ## Assume that the minumum allowed gamma noise is 1% of Rt estimate
+        ## Assume that the minumum allowed gamma noise is 1e-4
         ## Zero sd will result in rgamma draws that are also 0 and so must be avoided
         rt_forecasts <- dplyr::mutate(rt_forecasts, 
-                                      rt.y = ifelse(rt.y <= 0, 0.01 * rt.x, rt.y),
+                                      rt.y = ifelse(rt.y <= 0, 1e-4, rt.y),
                                       rt = purrr::map2_dbl(rt.x, rt.y, ~
                                                             mean_rgamma(1, mean = .x,
                                                                        sd = .y)))
