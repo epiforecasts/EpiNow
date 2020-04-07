@@ -11,16 +11,18 @@
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
 #' @param nowcast_lag Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.
 #' @param report_delay_fns List of functions as produced by `EpiNow::get_delay_sample_fn`
-#' @inheritParams generate_sample_linelist
+#' @inheritParams generate_pseudo_linelist
+#' @inheritParams sample_delay
 #' @return
 #' @export
 #' @importFrom dplyr filter count bind_rows group_by summarise n rename
 #' @importFrom lubridate days
 #' @importFrom purrr map safely map_dfr map_lgl compact
 #' @importFrom furrr future_map future_map_dfr future_map2_dfr
+#' @importFrom data.table .N
 #' @examples
 #'
-#'
+#' 
 nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              date_to_cast = NULL, date_to_cutoff_delay = NULL,
                              earliest_allowed_onset = NULL,
@@ -30,7 +32,11 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              samples = 1,
                              report_delay_fns = NULL,
                              nowcast_lag = 4) {
+  
  
+# Fit delay distribution --------------------------------------------------
+ 
+  
   if (is.null(report_delay_fns)) {
     
     ## Get the distribution of reporting delays
@@ -39,7 +45,10 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
       date_to_cutoff_delay <- min(linelist$date_confirmation, na.rm = TRUE)
     }
     
-    message("Fitting reporting delay between the ", date_to_cutoff_delay, " and the ", date_to_cast)
+    if (verbose) {
+      message("Fitting reporting delay between the ", date_to_cutoff_delay, " and the ", date_to_cast)
+    }
+
     ## Filter linelist for target delay distribution dates
     filtered_linelist <- linelist %>%
       dplyr::filter(date_confirmation >= date_to_cutoff_delay,
@@ -49,25 +58,41 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
     ## Fit the delay distribution and draw posterior samples
     fitted_delay_fn <- EpiNow::get_delay_sample_fn(filtered_linelist, samples = samples)
     
-
-
   }else{
     fitted_delay_fn <- report_delay_fns
+    merge_actual_onsets <- FALSE
   }
 
-  ## Group linelists by day
-  linelist_by_day <- linelist %>%
-    dplyr::filter(import_status == "local") %>%
-    EpiNow::split_linelist_by_day()
 
-  ## Filter out imported cases and repeat linelist step
-  imported_linelist <- linelist %>%
-    dplyr::filter(import_status == "imported")
+# Organise inputted linelist ----------------------------------------------
 
-  if (nrow(imported_linelist) > 0) {
-    imported_linelist_by_day <- EpiNow::split_linelist_by_day(imported_linelist)
+  
+  
+  ## Split linelist into day chunks
+  ## Used to merge actuals with estimated onsets
+  if (merge_actual_onsets) {
+    ## Group linelists by day
+    linelist_by_day <- linelist %>%
+      dplyr::filter(import_status == "local") %>%
+      EpiNow::split_linelist_by_day()
+    
+    ## Filter out imported cases and repeat linelist step
+    imported_linelist <- linelist %>%
+      dplyr::filter(import_status == "imported")
+    
+    if (nrow(imported_linelist) > 0) {
+      imported_linelist_by_day <- EpiNow::split_linelist_by_day(imported_linelist)
+    }
+  }else{
+    linelist_by_day <- NULL
+    imported_linelist_by_day <- NULL
   }
 
+
+
+# Organise input case counts ----------------------------------------------
+
+  
   ## Filter reported cases based on the nowcasting date
   reported_cases <- reported_cases %>%
     dplyr::filter(date <= date_to_cast)
@@ -79,61 +104,71 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
   imported_cases <- reported_cases %>%
     dplyr::filter(import_status == "imported")
 
+ 
+ 
+# Generate a pseudo linelist ----------------------------------------------
+
+  if (verbose) {
+    message("Generating a pseudo linelists")
+  }
+  
+  populate_list <- function(case_df = NULL, linelist_df = NULL) {
+    linelist_from_case_counts(case_df) %>%
+      generate_pseudo_linelist(observed_linelist = linelist_df, merge_actual_onsets =  merge_actual_onsets)
+  }
+  
+  populated_linelist <- populate_list(local_cases, linelist_by_day)
+  
+  if (sum(imported_cases$confirm) > 0) {
+    if (nrow(imported_linelist) == 0 & !merge_actual_onsets) {
+      ## Not used in this scenario but required as something is needed as input
+      imported_linelist_by_day <- linelist_by_day
+    }
+    
+    imported_populated_linelist <- populate_list(imported_cases, imported_linelist_by_day)
+  }
+  
 
 # Nowcasting for each samples or vector of samples ------------------------
 
-  nowcast_inner <- function(delay_fn, verbose = NULL) {
-    ## Make case based pseudo linelist
+  nowcast_inner <- function(sample_delay_fn = NULL, verbose = NULL) {
     ## Sample onset dates using reporting delays
-    ## Populate psuedo linelist with known linelist data
     if (verbose) {
-      message("Sampling from reporting delay to generate pseudo linelists")
+      message("Sampling from reporting delay linelist")
     }
 
-
-    populate_list <- function(case_df = NULL, linelist_df = NULL) {
-      linelist_from_case_counts(case_df, delay_fn = delay_fn) %>%
-        generate_sample_linelist(observed_linelist = linelist_df, merge_actual_onsets =  merge_actual_onsets,
-                                 earliest_allowed_onset = earliest_allowed_onset)
-    }
-
-    populated_linelist <- populate_list(local_cases, linelist_by_day)
-
+    sampled_linelist <- sample_delay(linelist = populated_linelist,
+                                       delay_fn = sample_delay_fn,
+                                       earliest_allowed_onset = earliest_allowed_onset)
+    
     if (sum(imported_cases$confirm) > 0) {
-      if (nrow(imported_linelist) == 0 & !merge_actual_onsets) {
-        ## Not used in this scenario but required as something is needed as input
-        imported_linelist_by_day <- linelist_by_day
-      }
 
-      imported_populated_linelist <- populate_list(imported_cases, imported_linelist_by_day)
+     imported_sampled_linelist <- sample_delay(linelist = imported_populated_linelist,
+                                                 delay_fn = sample_delay_fn,
+                                                 earliest_allowed_onset = earliest_allowed_onset)
     }
-
+    
+  
     ## Function to summarise cases
     summarise_cases <- function(df) {
-        dplyr::count(df, date_onset) %>%
-        tidyr::complete(date_onset = seq(min(.$date_onset), max(.$date_onset), by = "day"),
-                            fill = list(n = 0)) %>%
-        dplyr::rename(date = date_onset,
-                      cases = n)
+      df_cnt <- df[, .(cases = .N), by = date_onset]
+      
+      df_cnt <- df_cnt[df_cnt[,.(date_onset= seq(min(date_onset), max(date_onset), by = "days"))], on=.(date_onset)]
+      df_cnt <- df_cnt[is.na(cases), cases := 0 ][,.(date = date_onset, cases)]
+      return(df_cnt)
     }
 
-    if (delay_only) {
-      if (verbose) {
-        message("Estimating cases by onset date without nowcasting")
-      }
-
-      cases_by_onset <- populated_linelist %>%
-        summarise_cases() %>%
-        dplyr::mutate(type = "from_delay", import_status = "local")
-
-    }
+      ## Summarise local cases
+      cases_by_onset <- summarise_cases(sampled_linelist)
+      cases_by_onset <- cases_by_onset[, `:=`(type = "from_delay", import_status = "local")]
 
     # Summarise imported cases
 
     if (sum(imported_cases$confirm) > 0) {
-      imported_cases_by_onset <- imported_populated_linelist %>%
-        summarise_cases() %>%
-        dplyr::mutate(type = "from_delay", import_status = "imported")
+      imported_cases_by_onset <- summarise_cases(imported_sampled_linelist)
+      imported_cases_by_onset <- imported_cases_by_onset[, `:=`(type = "from_delay",
+                                                                import_status = "imported")]
+    
     }
 
     ## Sample using  binomial
@@ -141,23 +176,18 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
       message("Running nowcast")
     }
 
-    ## Estimate case counts by onset
-    case_counts_by_onset <- populated_linelist %>%
-      dplyr::count(date_onset) %>%
-      dplyr::rename(date = date_onset, cases = n) %>%
-      tidyr::complete(date = seq(min(.$date), max(.$date), by = "day"),
-                      fill = list(cases = 0))
-
-
     ## sample neg bin
     sample_bin <- EpiNow::sample_onsets(
-      onsets = case_counts_by_onset$cases,
-      dates = case_counts_by_onset$date,
-      cum_freq = delay_fn(1:nrow(case_counts_by_onset), dist = TRUE),
+      onsets = cases_by_onset$cases,
+      dates = cases_by_onset$date,
+      cum_freq = sample_delay_fn(1:nrow(cases_by_onset), dist = TRUE),
       report_delay = 0,
       samples = 1
-    )[[1]] %>%
-      dplyr::mutate(type = "nowcast", import_status = "local")
+    )[[1]]
+    
+    sample_bin <- dplyr::mutate(sample_bin, 
+                                type = "nowcast", 
+                                import_status = "local")
 
     ## Add in delay only estimates
     if (delay_only) {
@@ -165,12 +195,11 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
         message("Joining nowcasts and preparing output")
       }
 
-      out <- sample_bin %>%
-        dplyr::bind_rows(cases_by_onset)
+      out <- dplyr::bind_rows(sample_bin, cases_by_onset)
 
       if (nrow(imported_cases) > 0) {
-        out <- out %>%
-          dplyr::bind_rows(
+        out <- 
+          dplyr::bind_rows(out, 
             imported_cases_by_onset
           )
       }
@@ -180,16 +209,18 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 
     ## Add in imported cases for nowcast if present
     if (sum(imported_cases$confirm) > 0) {
-      out <- out %>%
-        dplyr::bind_rows(
+      out <-  
+        dplyr::bind_rows(out, 
           imported_cases_by_onset %>%
             dplyr::mutate(type = "nowcast")
         )
     }
 
     ## Add confidence if missing and filter by lag
-    out <- out %>%
-      dplyr::mutate(confidence = ifelse(is.na(confidence), 1, confidence))
+    out <- 
+      dplyr::mutate(out, 
+                    confidence = ifelse(is.na(confidence),
+                                        1, confidence))
 
     return(out)
   }
@@ -197,15 +228,17 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 
 
 # Nowcast samples ---------------------------------------------------------
-  message("Nowcasting using fitted delay distributions")
+  if (verbose) {
+    message("Nowcasting using fitted delay distributions")
+  }
+
   out <- furrr::future_map_dfr(fitted_delay_fn,
-                               ~ nowcast_inner(delay_fn = ., verbose),
+                               ~ nowcast_inner(sample_delay_fn = ., verbose),
                                .progress = TRUE,
                                .id = "sample")
   
   ## Add a nowcast lag across samples
-  out <- out %>% 
-    dplyr::filter(date <= (max(date, na.rm = TRUE) - lubridate::days(nowcast_lag)))
+  out <-  dplyr::filter(out, date <= (max(date, na.rm = TRUE) - lubridate::days(nowcast_lag)))
 
   return(out)
 }

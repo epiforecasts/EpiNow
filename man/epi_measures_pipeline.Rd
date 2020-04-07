@@ -14,7 +14,8 @@ epi_measures_pipeline(
   rate_window = 7,
   rt_prior = NULL,
   forecast_model = NULL,
-  horizon = NULL
+  horizon = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ selected per serial interval sample by default (based on which window best forec
 future Rt values. An example of the required structure is: \code{function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)}}.}
 
 \item{horizon}{Numeric, defaults to 0. The horizon over which to forecast Rts and cases.}
+
+\item{verbose}{Logical, defaults to \code{TRUE}. Should progress messages be shown.}
 }
 \value{
 

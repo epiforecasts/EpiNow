@@ -11,6 +11,7 @@
 #'
 #' @importFrom ggplot2 ggplot aes geom_line scale_x_date geom_ribbon theme element_text
 #' @importFrom cowplot theme_cowplot
+#' @importFrom dplyr filter slice
 #' @examples
 #'
 plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2, plot_median = TRUE) {
@@ -50,8 +51,8 @@ plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2, plot_med
 
   ## Not confident ribbons
   varying_conf_data <- conf_data %>%
-    slice(., nrow(.)) %>%
-    bind_rows(
+    dplyr::slice(., nrow(.)) %>%
+    dplyr::bind_rows(
       data %>%
         dplyr::filter(confidence != 1)
     )

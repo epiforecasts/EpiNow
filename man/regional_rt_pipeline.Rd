@@ -13,6 +13,7 @@ regional_rt_pipeline(
   merge_onsets = FALSE,
   case_limit = 40,
   regions_in_parallel = TRUE,
+  verbose = FALSE,
   samples = 1000,
   ...
 )
@@ -37,6 +38,8 @@ set to \code{FALSE} this should also be \code{FALSE}}
 
 \item{regions_in_parallel}{Logical, should regions be run in parallel or sequentially (allowing for)
 within pipeline parallisation. Defaults to \code{TRUE}.}
+
+\item{verbose}{Logical, defaults to \code{FALSE}. Should progress messages be shown for each reigon?}
 
 \item{samples}{Numeric, the number of pseudo linelists to generate. Defaults to 1000.}
 

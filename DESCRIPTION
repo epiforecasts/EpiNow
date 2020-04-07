@@ -28,7 +28,6 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     EpiSoon, 
-    bsts,
     dplyr,
     rlang,
     EpiEstim,

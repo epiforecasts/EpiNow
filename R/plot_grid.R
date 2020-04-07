@@ -19,7 +19,7 @@
 plot_grid <- function(regions = NULL, plot_object = "bigr_eff_plot.rds", 
                       results_dir = "results", target_date = NULL, ...) {
   
-plots <- suppressWarnings(
+plots <- suppressMessages(
   purrr::map(regions, function(region) {
     plot <- EpiNow::load_nowcast_result(plot_object, region, 
                                         date = target_date, results_dir) +
@@ -35,5 +35,5 @@ plots <- suppressWarnings(
     patchwork::wrap_plots() +
     patchwork::plot_layout(...)
   
-  return(plot)
+  return(suppressMessages(plot))
 }
