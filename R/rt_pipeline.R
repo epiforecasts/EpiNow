@@ -305,7 +305,7 @@ target_folder <- file.path(target_folder, target_date)
                                               }))) %>%
     tidyr::unnest("report_overall") %>%
     dplyr::select(Data = type,
-                  `Rate of spread` = little_r,
+                  `Rate of growth` = little_r,
                   `Doubling time (days)` = doubling_time,
                   `Adjusted R-squared` = goodness_of_fit
     )
@@ -364,7 +364,7 @@ target_folder <- file.path(target_folder, target_date)
   ## Get individual estimates
   rate_spread_latest <- report_latest %>%
     dplyr::filter(Data == "nowcast") %>%
-    dplyr::pull(`Rate of spread`)
+    dplyr::pull(`Rate of growth`)
 
 
   saveRDS(rate_spread_latest,
@@ -391,13 +391,13 @@ target_folder <- file.path(target_folder, target_date)
     dplyr::select(-overall_little_r) %>%
     dplyr::mutate(vars = vars %>%
                     factor(levels = c("little_r", "doubling_time", "goodness_of_fit"),
-                           labels = c("Rate of spread",
+                           labels = c("Rate of growth",
                                       "Doubling time (days)",
                                       "Adjusted R-squared")
                     ))
 
   ## Define generic plotting function
-  plot_littler_fn <- function(littler_df, plot_var = "Rate of spread") {
+  plot_littler_fn <- function(littler_df, plot_var = "Rate of growth") {
     plot_littler <- littler_df %>%
       dplyr::filter(vars %in% plot_var) %>%
       EpiNow::plot_confidence(plot_median = FALSE) +
