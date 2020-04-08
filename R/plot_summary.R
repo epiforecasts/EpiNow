@@ -16,8 +16,8 @@ plot_summary <- function(summary_results, x_lab = "Region") {
   suppressMessages(
     summary_results %>% 
   ggplot2::ggplot(ggplot2::aes(x = region, col = `Expected change in daily cases`)) +
-    ggplot2::geom_linerange(aes(ymin = lower, ymax = upper), size = 6, alpha = 0.4) +
-    ggplot2::geom_linerange(aes(ymin = mid_lower, ymax = mid_upper), size = 6, alpha = 0.4) +
+    ggplot2::geom_linerange(aes(ymin = lower, ymax = upper), size = 4, alpha = 0.5) +
+    ggplot2::geom_linerange(aes(ymin = mid_lower, ymax = mid_upper), size = 4, alpha = 0.5) +
     ggplot2::geom_hline(yintercept = 1, linetype = 2) +
     ggplot2::facet_wrap(~ metric, ncol = 1, scales = "free_y") +
     cowplot::theme_cowplot() +
