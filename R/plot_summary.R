@@ -6,7 +6,7 @@
 #'
 #' @return A `ggplot2` object
 #' @export
-#' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme scale_color_manual guides labs guide_legend
+#' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme scale_color_manual guides labs expand_limits guide_legend
 #' @importFrom cowplot theme_cowplot panel_border
 #'
 #' @examples
@@ -31,6 +31,7 @@ plot_summary <- function(summary_results, x_lab = "Region") {
       "Unsure" = "#906490"), drop = FALSE) +
     ggplot2::theme(legend.position = "bottom") +
     ggplot2::guides(col = ggplot2::guide_legend(nrow = 2)) +
-    ggplot2::labs(x = x_lab)
+    ggplot2::labs(x = x_lab) +
+    ggplot2::expand_limits(y = 0)
   )
 }
