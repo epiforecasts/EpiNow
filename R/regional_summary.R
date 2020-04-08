@@ -49,6 +49,11 @@ if (!dir.exists(summary_dir)) {
 
 regions <- EpiNow::get_regions(results_dir)
 
+if (target_date %in% "latest") {
+  plot_date <- Sys.Date() 
+}else{
+  plot_date <- as.Date(target_date)
+}
 
 ## Get latest date
 latest_date <- EpiNow::load_nowcast_result("latest_date.rds", region = regions[1],
@@ -108,7 +113,7 @@ high_cases_rt_plot <- suppressWarnings(
   ggplot2::coord_cartesian(ylim = c(0, 4)) &
   ggplot2::scale_x_date(date_breaks = "1 week",
                                  date_labels = "%b %d",
-                                 limits = c(NA, latest_date))
+                                 limits = c(as.Date(NA_character_), as.Date(plot_date)))
 ))
 
 
@@ -126,7 +131,7 @@ high_cases_plot <- suppressWarnings(
             results_dir, target_date = target_date, ncol = 2) &
   ggplot2::scale_x_date(date_breaks = "1 week",
                                  date_labels = "%b %d",
-                                 limits = c(NA, latest_date))
+                                 limits = c(as.Date(NA_character_), plot_date))
 ))
 
 
@@ -148,7 +153,7 @@ rt_plot <- suppressWarnings(
       ggplot2::coord_cartesian(ylim = c(0, 4)) &
       ggplot2::scale_x_date(date_breaks = "1 week",
                                      date_labels = "%b %d",
-                                     limits = c(NA, latest_date))
+                                     limits = c(as.Date(NA_character_), plot_date))
     ))
 
 suppressWarnings(
