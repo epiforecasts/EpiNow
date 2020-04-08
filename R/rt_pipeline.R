@@ -351,7 +351,7 @@ target_folder <- file.path(target_folder, target_date)
     dplyr::select(type, vars, range) %>%
     tidyr::spread(key = "vars", value = "range") %>%
     dplyr::select(Data = type,
-                  `Rate of spread` = little_r,
+                  `Rate of growth` = little_r,
                   `Doubling time (days)` = doubling_time,
                   `Adjusted R-squared` = goodness_of_fit
     )
@@ -409,7 +409,7 @@ target_folder <- file.path(target_folder, target_date)
 
   ## Plot each measure
   plot_littler <- plot_littler_data %>%
-    plot_littler_fn(plot_var = "Rate of spread") +
+    plot_littler_fn(plot_var = "Rate of growth") +
     ggplot2::coord_cartesian(ylim=c(0,1)) +
     ggplot2::labs(tag = "A")
 

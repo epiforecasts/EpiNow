@@ -39,12 +39,12 @@ knitr::include_graphics(here::here(file.path(region_path, region, "latest/rt_cas
 <br>
 `r paste0("*Figure ",  summary_figures + 1 + (index - 1) * 2, ": A.) Confirmed cases by date of report (bars) and their estimated date of infection. B.) Time-varying estimate of the effective reproduction number. Light ribbon = 90% credible interval; dark ribbon = the 50% credible interval. Estimates are shown until the ", latest_date,  ".Dark grey ribbon = 50% credible interval. Confidence in the estimated values is indicated by translucency with increased translucency corresponding to reduced confidence.*")`
 
-`r paste(c(rep("#", title_depth), " Time-varying rate of spread and doubling time"), collapse = "")`
+`r paste(c(rep("#", title_depth), " Time-varying rate of growth and doubling time"), collapse = "")`
 
 ```{r, fig.height = 6, fig.width = 8, out.width = "90%"}
 knitr::include_graphics(here::here(file.path(region_path, region, "latest/rate_spread_plot.png")))
 ```
 
 <br>
-`r paste0("*Figure ",  summary_figures + 2 + (index - 1) * 2, ": A.) Time-varying estimate of the rate of spread, B.) Time-varying estimate of the doubling time in days (note that when the rate of spread is negative the doubling time is assumed to be infinite), C.) The adjusted R-squared estimates indicating the goodness of fit of the exponential regression model (with values closer to 1 indicating a better fit).  Estimates are shown until the ", latest_date,  ". Light ribbon = 90% credible interval; dark ribbon = the 50% credible interval. Confidence in the estimated values is indicated by translucency with increased translucency corresponding to reduced confidence.*")`
+`r paste0("*Figure ",  summary_figures + 2 + (index - 1) * 2, ": A.) Time-varying estimate of the rate of growth, B.) Time-varying estimate of the doubling time in days (note that when the rate of growth is negative the doubling time is assumed to be infinite), C.) The adjusted R-squared estimates indicating the goodness of fit of the exponential regression model (with values closer to 1 indicating a better fit).  Estimates are shown until the ", latest_date,  ". Light ribbon = 90% credible interval; dark ribbon = the 50% credible interval. Confidence in the estimated values is indicated by translucency with increased translucency corresponding to reduced confidence.*")`
 
