@@ -56,7 +56,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
     }
     
     return(estimates)
-    }, .progress = TRUE)
+    }, .progress = verbose)
   
   ## Clean up NULL rt estimates and bind together
   R0_estimates <- estimates %>% 
@@ -169,13 +169,13 @@ epi_measures_pipeline <- function(nowcast = NULL,
   ## Estimate overall
   little_r_estimates_res$overall_little_r <- furrr::future_map(little_r_estimates_list,
                                                         ~ EpiNow::estimate_r_in_window(.$data), 
-                                                        .progress = TRUE)
+                                                        .progress = verbose)
 
   ## Estimate time-varying
   little_r_estimates_res$time_varying_r <- furrr::future_map(little_r_estimates_list,
                                                              ~ EpiNow::estimate_time_varying_r(.$data,
                                                                                                window = rate_window),
-                                                             .progress = TRUE)
+                                                             .progress = verbose)
 
 
   out <- list(R0_estimates_sum, little_r_estimates_res, R0_estimates)

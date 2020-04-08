@@ -234,7 +234,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 
   out <- furrr::future_map_dfr(fitted_delay_fn,
                                ~ nowcast_inner(sample_delay_fn = ., verbose),
-                               .progress = TRUE,
+                               .progress = verbose,
                                .id = "sample")
   
   ## Add a nowcast lag across samples
