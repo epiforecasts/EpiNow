@@ -41,7 +41,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         merge_actual_onsets = TRUE, delay_only = FALSE,
                         verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, save_plots = TRUE,
                         nowcast_lag = 4, incubation_period = 5, forecast_model = NULL,
-                        horizon = NULL, report_delay_fns = NULL) {
+                        horizon = 0, report_delay_fns = NULL) {
  
  
 # Set up folders ----------------------------------------------------------

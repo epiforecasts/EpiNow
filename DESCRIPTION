@@ -58,7 +58,8 @@ Suggests:
     rnaturalearthdata,
     rnaturalearthhires
 Remotes:
-    epiforecasts/EpiSoon
+    epiforecasts/EpiSoon,
+    ropensci/rnaturalearthhires
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 Biarch: true

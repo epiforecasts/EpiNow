@@ -27,7 +27,7 @@ rt_pipeline(
   nowcast_lag = 4,
   incubation_period = 5,
   forecast_model = NULL,
-  horizon = NULL,
+  horizon = 0,
   report_delay_fns = NULL
 )
 }
