@@ -1,6 +1,8 @@
 
 # EpiNow
 
+[![DOI](https://zenodo.org/badge/247464257.svg)](https://zenodo.org/badge/latestdoi/247464257)
+
 *Warning: This package is a work in progress and is currently developed solely with the COVID-19 outbreak in mind. Breaking changes may occur and the authors cannot guarantee support.*
 
 **Aim:** To identify changes in the reproduction number, rate of spread, and doubling time during the course of outbreaks whilst accounting for potential biases due to delays in case reporting.
