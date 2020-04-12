@@ -35,7 +35,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              report_delay_fns = NULL,
                              nowcast_lag = 4,
                              onset_modifier = NULL) {
-  
+   
  
 # Fit delay distribution --------------------------------------------------
  
