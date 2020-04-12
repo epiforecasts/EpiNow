@@ -21,7 +21,7 @@
 #' @importFrom lubridate days
 #' @importFrom purrr map safely map_dfr map_lgl compact
 #' @importFrom furrr future_map future_map_dfr future_map2_dfr
-#' @importFrom data.table .N as.data.table
+#' @importFrom data.table .N as.data.table :=
 #' @examples
 #'
 #' 
@@ -137,7 +137,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 if (!is.null(onset_modifier)) {
   onset_modifier <- data.table::as.data.table(onset_modifier)
 }
-
+ 
 # Nowcasting for each samples or vector of samples ------------------------
 
   nowcast_inner <- function(sample_delay_fn = NULL, verbose = NULL) {
@@ -173,8 +173,9 @@ if (!is.null(onset_modifier)) {
 
       ## Adjusted onset cases based on proportion if supplied
       if (!is.null(onset_modifier)) {
-        cases_by_onset <- cases_by_onset[onset_modifier, on = 'date'][
-          cases := cases * modifier][modifier := NULL]
+        cases_by_onset <- cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
+          cases := as.integer(cases * modifier)][,modifier := NULL]
+        
       }
     # Summarise imported cases
 
@@ -184,8 +185,8 @@ if (!is.null(onset_modifier)) {
                                                                 import_status = "imported")]
       
       if (!is.null(onset_modifier)) {
-        imported_cases_by_onset < imported_cases_by_onset[onset_modifier, on = 'date'][
-          cases := cases * modifier][modifier := NULL]
+        imported_cases_by_onset <-  imported_cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
+          cases := as.integer(cases * modifier)][,modifier := NULL]
       }
     }
 
