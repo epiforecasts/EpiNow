@@ -162,13 +162,20 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
       cases_by_onset <- summarise_cases(sampled_linelist)
       cases_by_onset <- cases_by_onset[, `:=`(type = "from_delay", import_status = "local")]
 
+      ## Adjusted onset cases based on proportion if supplied
+      if (!is.null(onset_case_modifier)) {
+        cases_by_onset <- cases_by_onset[onset_case_modifier, on = 'date'][
+          cases := cases * modifier][modifier := NULL]
+      }
     # Summarise imported cases
 
     if (sum(imported_cases$confirm) > 0) {
       imported_cases_by_onset <- summarise_cases(imported_sampled_linelist)
       imported_cases_by_onset <- imported_cases_by_onset[, `:=`(type = "from_delay",
                                                                 import_status = "imported")]
-    
+      
+      imported_cases_by_onset < imported_cases_by_onset[onset_case_modifier, on = 'date'][
+        cases := cases * modifier][modifier := NULL]
     }
 
     ## Sample using  binomial
