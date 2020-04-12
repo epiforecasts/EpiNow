@@ -15,7 +15,8 @@ nowcast_pipeline(
   verbose = FALSE,
   samples = 1,
   report_delay_fns = NULL,
-  nowcast_lag = 4
+  nowcast_lag = 4,
+  onset_modifier = NULL
 )
 }
 \arguments{
@@ -40,6 +41,9 @@ Should linelist onset dates be used where available?}
 \item{report_delay_fns}{List of functions as produced by \code{EpiNow::get_delay_sample_fn}}
 
 \item{nowcast_lag}{Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.}
+
+\item{onset_modifier}{data.frame containing a \code{date} variable and a numeric \code{modifier} variable. This is used
+to modify estimated cases by onset date.}
 
 \item{date_to_case}{A data indicating when to cast up to.}
 }

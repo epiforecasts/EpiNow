@@ -28,7 +28,8 @@ rt_pipeline(
   incubation_period = 5,
   forecast_model = NULL,
   horizon = 0,
-  report_delay_fns = NULL
+  report_delay_fns = NULL,
+  onset_modifier = NULL
 )
 }
 \arguments{
@@ -80,6 +81,9 @@ future Rt values. An example of the required structure is: \code{function(ss, y)
 \item{horizon}{Numeric, defaults to 0. The horizon over which to forecast Rts and cases.}
 
 \item{report_delay_fns}{List of functions as produced by \code{EpiNow::get_delay_sample_fn}}
+
+\item{onset_modifier}{data.frame containing a \code{date} variable and a numeric \code{modifier} variable. This is used
+to modify estimated cases by onset date.}
 }
 \description{
 Combine fitting a delay distribution, constructing a set of

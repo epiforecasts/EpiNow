@@ -11,6 +11,8 @@
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
 #' @param nowcast_lag Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.
 #' @param report_delay_fns List of functions as produced by `EpiNow::get_delay_sample_fn`
+#' @param onset_modifier data.frame containing a `date` variable and a numeric `modifier` variable. This is used 
+#' to modify estimated cases by onset date. 
 #' @inheritParams generate_pseudo_linelist
 #' @inheritParams sample_delay
 #' @return
@@ -19,7 +21,7 @@
 #' @importFrom lubridate days
 #' @importFrom purrr map safely map_dfr map_lgl compact
 #' @importFrom furrr future_map future_map_dfr future_map2_dfr
-#' @importFrom data.table .N
+#' @importFrom data.table .N as.data.table :=
 #' @examples
 #'
 #' 
@@ -31,8 +33,9 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              verbose = FALSE,
                              samples = 1,
                              report_delay_fns = NULL,
-                             nowcast_lag = 4) {
-  
+                             nowcast_lag = 4,
+                             onset_modifier = NULL) {
+   
  
 # Fit delay distribution --------------------------------------------------
  
@@ -129,6 +132,12 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
   }
   
 
+# Argument conversion -----------------------------------------------------
+
+if (!is.null(onset_modifier)) {
+  onset_modifier <- data.table::as.data.table(onset_modifier)
+}
+ 
 # Nowcasting for each samples or vector of samples ------------------------
 
   nowcast_inner <- function(sample_delay_fn = NULL, verbose = NULL) {
@@ -162,13 +171,23 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
       cases_by_onset <- summarise_cases(sampled_linelist)
       cases_by_onset <- cases_by_onset[, `:=`(type = "from_delay", import_status = "local")]
 
+      ## Adjusted onset cases based on proportion if supplied
+      if (!is.null(onset_modifier)) {
+        cases_by_onset <- cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
+          cases := as.integer(cases * modifier)][,modifier := NULL]
+        
+      }
     # Summarise imported cases
 
     if (sum(imported_cases$confirm) > 0) {
       imported_cases_by_onset <- summarise_cases(imported_sampled_linelist)
       imported_cases_by_onset <- imported_cases_by_onset[, `:=`(type = "from_delay",
                                                                 import_status = "imported")]
-    
+      
+      if (!is.null(onset_modifier)) {
+        imported_cases_by_onset <-  imported_cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
+          cases := as.integer(cases * modifier)][,modifier := NULL]
+      }
     }
 
     ## Sample using  binomial
