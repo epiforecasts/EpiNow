@@ -21,7 +21,7 @@
 #' @importFrom lubridate days
 #' @importFrom purrr map safely map_dfr map_lgl compact
 #' @importFrom furrr future_map future_map_dfr future_map2_dfr
-#' @importFrom data.table .N
+#' @importFrom data.table .N as.data.table
 #' @examples
 #'
 #' 
@@ -131,6 +131,12 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
     imported_populated_linelist <- populate_list(imported_cases, imported_linelist_by_day)
   }
   
+
+# Argument conversion -----------------------------------------------------
+
+if (!is.null(onset_modifier)) {
+  onset_modifier <- data.table::as.data.table(onset_modifier)
+}
 
 # Nowcasting for each samples or vector of samples ------------------------
 
