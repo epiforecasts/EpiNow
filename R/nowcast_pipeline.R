@@ -11,6 +11,8 @@
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
 #' @param nowcast_lag Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.
 #' @param report_delay_fns List of functions as produced by `EpiNow::get_delay_sample_fn`
+#' @param onset_modifier data.frame containing a `date` variable and a numeric `modifier` variable. This is used 
+#' to modify estimated cases by onset date. 
 #' @inheritParams generate_pseudo_linelist
 #' @inheritParams sample_delay
 #' @return
@@ -31,7 +33,8 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              verbose = FALSE,
                              samples = 1,
                              report_delay_fns = NULL,
-                             nowcast_lag = 4) {
+                             nowcast_lag = 4,
+                             onset_modifier = NULL) {
   
  
 # Fit delay distribution --------------------------------------------------
@@ -163,8 +166,8 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
       cases_by_onset <- cases_by_onset[, `:=`(type = "from_delay", import_status = "local")]
 
       ## Adjusted onset cases based on proportion if supplied
-      if (!is.null(onset_case_modifier)) {
-        cases_by_onset <- cases_by_onset[onset_case_modifier, on = 'date'][
+      if (!is.null(onset_modifier)) {
+        cases_by_onset <- cases_by_onset[onset_modifier, on = 'date'][
           cases := cases * modifier][modifier := NULL]
       }
     # Summarise imported cases
@@ -174,8 +177,10 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
       imported_cases_by_onset <- imported_cases_by_onset[, `:=`(type = "from_delay",
                                                                 import_status = "imported")]
       
-      imported_cases_by_onset < imported_cases_by_onset[onset_case_modifier, on = 'date'][
-        cases := cases * modifier][modifier := NULL]
+      if (!is.null(onset_modifier)) {
+        imported_cases_by_onset < imported_cases_by_onset[onset_modifier, on = 'date'][
+          cases := cases * modifier][modifier := NULL]
+      }
     }
 
     ## Sample using  binomial
