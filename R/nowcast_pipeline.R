@@ -184,6 +184,10 @@ if (!is.null(onset_modifier)) {
       imported_cases_by_onset <- imported_cases_by_onset[, `:=`(type = "from_delay",
                                                                 import_status = "imported")]
       
+      if (!is.null(onset_modifier)) {
+        imported_cases_by_onset <-  imported_cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
+          cases := as.integer(cases * (1 - modifier))][,modifier := NULL]
+      }
     }
 
     ## Sample using  binomial
