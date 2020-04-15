@@ -122,12 +122,8 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
   
   populated_linelist <- populate_list(local_cases, linelist_by_day)
   
-  if (sum(imported_cases$confirm) > 0) {
-    if (nrow(imported_linelist) == 0 & !merge_actual_onsets) {
-      ## Not used in this scenario but required as something is needed as input
-      imported_linelist_by_day <- linelist_by_day
-    }
-    
+  if (sum(imported_cases$confirm) > 0) 
+
     imported_populated_linelist <- populate_list(imported_cases, imported_linelist_by_day)
   }
   
