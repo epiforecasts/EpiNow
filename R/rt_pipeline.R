@@ -124,7 +124,7 @@ target_folder <- file.path(target_folder, target_date)
   ## Combine nowcast with observed cases by onset and report
   reported_cases <-
     dplyr::filter(cases, import_status %in% "local") %>% 
-    dplyr::count(cases, date, wt = confirm) %>%
+    dplyr::count(date, wt = confirm) %>%
     dplyr::select(date, median = n) %>%
     dplyr::mutate(type = "Observed by report date",
                   confidence = 1)
