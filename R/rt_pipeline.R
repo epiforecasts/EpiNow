@@ -117,11 +117,14 @@ target_folder <- file.path(target_folder, target_date)
 
   # Summarise nowcast -------------------------------------------------------
 
-  summarise_cast <- EpiNow::summarise_cast(nowcast,
-                                           incubation_period = incubation_period)
+  summarise_cast <- nowcast %>% 
+    dplyr::filter(import_status %in% "local") %>% 
+    EpiNow::summarise_cast(nowcast,
+                           incubation_period = incubation_period)
 
   ## Combine nowcast with observed cases by onset and report
   reported_cases <-
+    dplyr::filter(cases, import_status %in% "local") %>% 
     dplyr::count(cases, date, wt = confirm) %>%
     dplyr::select(date, median = n) %>%
     dplyr::mutate(type = "Observed by report date",

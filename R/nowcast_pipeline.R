@@ -126,8 +126,6 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
     imported_populated_linelist <- populate_list(imported_cases, imported_linelist_by_day)
   }
 
-  
-
 # Argument conversion -----------------------------------------------------
 
 if (!is.null(onset_modifier)) {
