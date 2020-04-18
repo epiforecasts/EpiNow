@@ -176,7 +176,8 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                             dplyr::select(date, cases, sample, horizon)
                           
                           ## Score the forecast
-                          scores <- EpiSoon::score_case_forecast(preds, summed_cases)
+                          scores <- EpiSoon::score_case_forecast(preds, summed_cases, 
+                                                                 scores = "crps")
                           
                           ## Evaluate the window using the median CRPS across all time points and samples
                           summarised_score <-  
