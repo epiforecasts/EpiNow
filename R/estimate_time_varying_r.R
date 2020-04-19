@@ -1,7 +1,7 @@
 
 #' Estimate time varying r
 #'
-#' @param window
+#' @param window integer value for window size in days (default = 7)
 #'
 #' @inheritParams estimate_r_in_window
 #' @return A dataframe of r estimates over time summarisd across samples.
