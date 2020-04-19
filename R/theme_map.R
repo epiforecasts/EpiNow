@@ -9,11 +9,11 @@
 #' ("log10"). For a complete list of options see \code{ggplot2::continous_scale}.
 #' @param fill_labels A function to use to allocate legend labels. An example (used below) is \code{scales::percent},
 #' which can be used for percentage data.
-#' @param scale_fill Function to use for scaling the fill. Defaults to a custom `ggplot2::scale_fill_manual`
+#' @param scale_fill Function to use for scaling the fill. Defaults to a custom `ggplot2::scale_fill_brewer`
 #' @param additional arguments passed to `scale_fill`
 #' @param breaks Breaks to use in legend. Defaults to `ggplot2::waiver`.
 #' @return A `ggplot2` object 
-#' @importFrom ggplot2 waiver theme guides scale_fill_viridis_c scale_fill_viridis_d
+#' @importFrom ggplot2 waiver theme guides scale_fill_brewer
 #' @export
 #'
 #' @examples
