@@ -31,14 +31,8 @@ theme_map <- function(map = NULL, continuous = FALSE,
   
 
   if (is.null(scale_fill)) {
-    scale_fill = ggplot2::scale_fill_manual
-    values <- c(
-      "Increasing" = "#49536b",
-      "Likely increasing" = "#8492b1ff",
-      "Likely decreasing" = "#ffec62",
-      "Decreasing" = "#d9bf05",
-      "Unsure" = "#906490"
-    )
+    scale_fill = ggplot2::scale_fill_brewer
+    palette <- "RdYlBu"
   }
   
   if (is.null(breaks)) {
@@ -67,7 +61,8 @@ theme_map <- function(map = NULL, continuous = FALSE,
     map <- map +
       ggplot2::guides(fill = ggplot2::guide_legend(title = variable_label, ncol = 2)) +
       scale_fill(
-        values = values,
+        # values = values,
+        palette = palette,
         labels = fill_labels,
         breaks = breaks,
         na.value = "lightgrey",
