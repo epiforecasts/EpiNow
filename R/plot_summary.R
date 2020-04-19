@@ -6,7 +6,7 @@
 #'
 #' @return A `ggplot2` object
 #' @export
-#' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme scale_color_manual guides labs expand_limits guide_legend
+#' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme guides labs expand_limits guide_legend scale_fill_brewer
 #' @importFrom cowplot theme_cowplot panel_border
 #'
 #' @examples
