@@ -67,7 +67,6 @@ theme_map <- function(map = NULL, continuous = FALSE,
       ggplot2::guides(fill = ggplot2::guide_legend(title = variable_label, ncol = 2)) +
       scale_fill(
         values = values,
-        # palette = palette,
         labels = fill_labels,
         breaks = breaks,
         na.value = "lightgrey",
