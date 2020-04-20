@@ -9,11 +9,11 @@
 #' ("log10"). For a complete list of options see \code{ggplot2::continous_scale}.
 #' @param fill_labels A function to use to allocate legend labels. An example (used below) is \code{scales::percent},
 #' which can be used for percentage data.
-#' @param scale_fill Function to use for scaling the fill. Defaults to a custom `ggplot2::scale_fill_brewer`
+#' @param scale_fill Function to use for scaling the fill. Defaults to a custom `ggplot2::scale_fill_manual`
 #' @param additional arguments passed to `scale_fill`
 #' @param breaks Breaks to use in legend. Defaults to `ggplot2::waiver`.
 #' @return A `ggplot2` object 
-#' @importFrom ggplot2 waiver theme guides scale_fill_brewer
+#' @importFrom ggplot2 waiver theme guides scale_fill_manual
 #' @export
 #'
 #' @examples
@@ -31,8 +31,13 @@ theme_map <- function(map = NULL, continuous = FALSE,
   
 
   if (is.null(scale_fill)) {
-    scale_fill = ggplot2::scale_fill_brewer
-    palette <- "RdYlBu"
+    scale_fill = ggplot2::scale_fill_manual
+    values <- c(
+      "Increasing" = "#7b3294",
+      "Likely increasing" = "#c2a5cf",
+      "Likely decreasing" = "#a6dba0",
+      "Decreasing" = "#008837",
+      "Unsure" = "#d9bf05")
   }
   
   if (is.null(breaks)) {
@@ -61,8 +66,7 @@ theme_map <- function(map = NULL, continuous = FALSE,
     map <- map +
       ggplot2::guides(fill = ggplot2::guide_legend(title = variable_label, ncol = 2)) +
       scale_fill(
-        # values = values,
-        palette = palette,
+        values = values,
         labels = fill_labels,
         breaks = breaks,
         na.value = "lightgrey",
