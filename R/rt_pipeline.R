@@ -15,19 +15,12 @@
 #' that day. Defaults to `EpiNow::covid_serial_intervals`.
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
-#' @param save_plots Logical, defaults to `TRUE`. Should plots be saved.
 #' @return NULL
 #' @export
 #' @inheritParams epi_measures_pipeline
 #' @inheritParams report_estimates
 #' @inheritParams nowcast_pipeline
-#' @importFrom dplyr rename filter mutate count group_by ungroup mutate_at pull select case_when bind_rows left_join bind_rows
-#' @importFrom tidyr drop_na unnest
-#' @importFrom tibble tibble
-#' @importFrom purrr map pmap
-#' @importFrom ggplot2 ggsave theme labs coord_cartesian scale_x_date
-#' @importFrom cowplot theme_cowplot
-#' @importFrom patchwork plot_layout
+#' @importFrom dplyr filter pull rename
 #' @importFrom lubridate days
 #' 
 #' @examples
@@ -39,7 +32,8 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         merge_actual_onsets = TRUE, delay_only = FALSE,
                         verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, save_plots = TRUE,
                         nowcast_lag = 4, incubation_period = 5, forecast_model = NULL,
-                        horizon = 0, report_delay_fns = NULL, onset_modifier = NULL) {
+                        horizon = 0, report_forecast = FALSE, report_delay_fns = NULL,
+                        onset_modifier = NULL) {
  
  
  # Set up folders ----------------------------------------------------------
@@ -123,8 +117,9 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
   
  # Summarise results -------------------------------------------------------
 
- EpiNow::report_estimates(cases = cases, nowcast = nowcast, epi_estimates =epi_estimates,
+ EpiNow::report_estimates(cases = cases, nowcast = nowcast, epi_estimates = epi_estimates,
                           incubation_period = incubation_period, target_folder = target_folder,
+                          min_plot_date = min_plot_date, save_plots = save_plots, 
                           report_forecast = report_forecast)  
 
  # Copy all results to latest folder ---------------------------------------

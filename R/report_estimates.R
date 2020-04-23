@@ -1,6 +1,3 @@
-
-
-
 #' Report on Estimates
 #'
 #' @param cases A dataframe of cases (`confirm`) by date of confirmation (`date`) and import status (`import_status`)
@@ -9,14 +6,22 @@
 #' @param incubation_period Numeric, the number of days to add as an incubation shift. Defaults to 5.
 #' @param target_folder Character string, name of the folder in which to save the results.
 #' @param report_forecast Logical, defaults to `FALSE`. Should the forecast be reported.
-#'
+#' @param save_plots Logical, defaults to `TRUE`. Should plots be saved.
+#' @importFrom dplyr rename filter mutate count group_by ungroup mutate_at pull select case_when bind_rows left_join bind_rows
+#' @importFrom tidyr drop_na unnest
+#' @importFrom tibble tibble
+#' @importFrom purrr map pmap
+#' @importFrom ggplot2 ggsave theme labs coord_cartesian scale_x_date
+#' @importFrom cowplot theme_cowplot
+#' @importFrom patchwork plot_layout
 #' @return
 #' @export
 #'
 #' @examples
 report_estimates <- function(cases = NULL, nowcast = NULL, epi_estimates = NULL,
                              incubation_period = 5, target_folder = NULL,
-                             report_forecast = FALSE) {
+                             min_plot_date = NULL, report_forecast = FALSE,
+                             save_plots = TRUE) {
   
   
 

@@ -8,7 +8,8 @@ summarise_to_csv(
   results_dir = NULL,
   summary_dir = NULL,
   type = "country",
-  incubation_shift = 5
+  incubation_shift = 5,
+  date = NULL
 )
 }
 \arguments{
@@ -19,6 +20,9 @@ summarise_to_csv(
 \item{type}{Character string, the region identifier to apply}
 
 \item{incubation_shift}{Numeric, the incubation shift to apply to the estimates, defaults to 5 days.}
+
+\item{date}{A Character string (in the format "yyyy-mm-dd") indicating the date to extract
+data for. Defaults to "latest" which finds the latest results available.}
 }
 \value{
 Nothing is returned

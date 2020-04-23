@@ -28,6 +28,7 @@ rt_pipeline(
   incubation_period = 5,
   forecast_model = NULL,
   horizon = 0,
+  report_forecast = FALSE,
   report_delay_fns = NULL,
   onset_modifier = NULL
 )
@@ -75,10 +76,14 @@ that day. Defaults to \code{EpiNow::covid_serial_intervals}.}
 
 \item{nowcast_lag}{Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.}
 
+\item{incubation_period}{Numeric, the number of days to add as an incubation shift. Defaults to 5.}
+
 \item{forecast_model}{An uninitialised bsts model passed to \code{EpiSoon::forecast_rt} to be used for forecasting
 future Rt values. An example of the required structure is: \code{function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)}}.}
 
 \item{horizon}{Numeric, defaults to 0. The horizon over which to forecast Rts and cases.}
+
+\item{report_forecast}{Logical, defaults to \code{FALSE}. Should the forecast be reported.}
 
 \item{report_delay_fns}{List of functions as produced by \code{EpiNow::get_delay_sample_fn}}
 
