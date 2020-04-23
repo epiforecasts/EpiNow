@@ -9,6 +9,7 @@ report_estimates(
   nowcast = NULL,
   reff_estimates = NULL,
   littler_estimates = NULL,
+  case_forecast = NULL,
   incubation_period = 5,
   target_folder = NULL,
   min_plot_date = NULL,
@@ -25,7 +26,7 @@ report_estimates(
 
 \item{littler_estimates}{Dataframe of little R estimates. As produced by \code{epi_measures_pipeline}.}
 
-\item{incubation_period}{Numeric, the number of days to add as an incubation shift. Defaults to 5.}
+\item{case_forecast}{Dataframe of case forecasts as produced by \code{epi_measures_pipeline}.}
 
 \item{target_folder}{Character string, name of the folder in which to save the results.}
 
@@ -38,4 +39,7 @@ report_estimates(
 }
 \description{
 Report on Estimates
+}
+\examples{
+
 }

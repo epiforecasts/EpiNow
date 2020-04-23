@@ -4,7 +4,13 @@
 \alias{plot_confidence}
 \title{Plot a Time Series with Confidence.}
 \usage{
-plot_confidence(data, outer_alpha = 0.1, inner_alpha = 0.2, plot_median = TRUE)
+plot_confidence(
+  data,
+  outer_alpha = 0.1,
+  inner_alpha = 0.2,
+  plot_median = TRUE,
+  legend = "none"
+)
 }
 \arguments{
 \item{data}{Dataframe containing the follwoing variables: \code{date}, \code{median}, \code{type}, \code{bottom},
@@ -15,6 +21,8 @@ plot_confidence(data, outer_alpha = 0.1, inner_alpha = 0.2, plot_median = TRUE)
 \item{inner_alpha}{Numeric, inner alpha level.}
 
 \item{plot_median}{Logical, defaults to \code{FALSE}. Should the median be plotted.}
+
+\item{legend}{Character string defaults to "none". Should a legend be displayed.}
 }
 \value{
 A \code{ggplot2} object.

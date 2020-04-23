@@ -4,7 +4,7 @@
 #' @param nowcast A dataframe of nowcast cases as produced by `nowcast_pipeline`.
 #' @param reff_estimates Dataframe of effective R estimates. As produced by `epi_measures_pipeline`.
 #' @param littler_estimates Dataframe of little R estimates. As produced by `epi_measures_pipeline`.
-#' @param incubation_period Numeric, the number of days to add as an incubation shift. Defaults to 5.
+#' @param case_forecast Dataframe of case forecasts as produced by `epi_measures_pipeline`.
 #' @param target_folder Character string, name of the folder in which to save the results.
 #' @param report_forecast Logical, defaults to `FALSE`. Should the forecast be reported.
 #' @param save_plots Logical, defaults to `TRUE`. Should plots be saved.
@@ -15,17 +15,32 @@
 #' @importFrom ggplot2 ggsave theme labs coord_cartesian scale_x_date
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_layout
+#' @inheritParams summarise_cast
 #' @return
 #' @export
 #'
 #' @examples
+#' 
 report_estimates <- function(cases = NULL, nowcast = NULL,
                              reff_estimates = NULL, littler_estimates = NULL,
-                             incubation_period = 5, target_folder = NULL,
-                             min_plot_date = NULL, report_forecast = FALSE,
+                             case_forecast = NULL,
+                             incubation_period = 5, target_folder = NULL, 
+                             min_plot_date = NULL, report_forecast = FALSE, 
                              save_plots = TRUE) {
   
   
+
+# Detect NULL arguments ---------------------------------------------------
+
+  if (is.null(case_forecast)) {
+    report_forecast = FALSE
+  }
+  
+  if (report_forecast) {
+    horizon <- nrow(case_forecast)
+  }else{
+    horizon <- 0
+  }
 
 # Report on cases ---------------------------------------------------------
 
@@ -80,10 +95,21 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     dplyr::filter(all_cases, !type %in% "from_delay",
                   date >= min_plot_date) %>%
     dplyr::mutate(median = ifelse(type == "nowcast", NA, median)) %>%
-    EpiNow::plot_confidence() +
+    EpiNow::plot_confidence(legend = ifelse(report_forecast, "bottom", "none")) +
     ggplot2::theme(legend.position = "none") +
     ggplot2::labs(y = "Daily cases", x = "Date")
   
+  
+  if (report_forecast) {
+    
+    case_forecast <- case_forecast %>% 
+      dplyr::mutate(date = date - lubridate::days(incubation_period))
+    
+    plot_cases <- 
+      EpiNow::plot_forecast(plot =  plot_cases, 
+                            forecast = case_forecast)
+    
+  }
   
   if (save_plots) {
     suppressWarnings(
@@ -156,12 +182,22 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     dplyr::filter(bigr_estimates, 
                   type %in% "nowcast",
                   date >= min_plot_date) %>%
-    EpiNow::plot_confidence(plot_median = FALSE) +
-    ggplot2::theme(legend.position = "none") +
+    EpiNow::plot_confidence(plot_median = FALSE, 
+                            legend = ifelse(report_forecast, "bottom", "none")) +
     ggplot2::labs(y = "Effective Reproduction no.", x = "Date") +
     ggplot2::geom_hline(yintercept = 1, linetype = 2) +
     ggplot2::expand_limits(y = 0)
   
+  if (report_forecast) {
+    
+    effr_forecast <-  dplyr::filter(reff_estimates,
+                                    rt_type %in% "forecast") %>% 
+      dplyr::mutate(date = date - lubridate::days(incubation_period))
+      
+    plot_bigr <- 
+      EpiNow::plot_forecast(plot =  plot_bigr, 
+                            forecast = effr_forecast)
+  }
   
   if (save_plots) {
     ## Save plot
@@ -197,7 +233,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   
   ## get overall estimates
   report_overall <-
-    dplyr::mutate( littler_estimates,
+    dplyr::mutate(littler_estimates,
                    report_overall = purrr::map(overall_little_r,
                                                ~ purrr::map_dfr(., function(estimate) {
                                                  paste0(
@@ -354,7 +390,9 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   
   ## Summary plots
   cases <- plot_cases +
-    ggplot2::labs("A")
+    ggplot2::labs("A") + 
+    ggplot2::theme(legend.position = "none")
+  
   bigr <- plot_bigr +
     ggplot2::labs("B")
   
@@ -365,7 +403,9 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
         patchwork::plot_layout(ncol = 1) &
         ggplot2::scale_x_date(date_breaks = "1 week",
                               date_labels = "%b %d",
-                              limits = c(min_plot_date, max(cases$data$date)+1))
+                              limits = c(min_plot_date,
+                                         ifelse(!report_forecast, max(cases$data$date), 
+                                                NA)))
     ))
   
   if (save_plots) {

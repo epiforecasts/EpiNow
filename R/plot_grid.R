@@ -33,7 +33,7 @@ plots <- suppressMessages(
   
   plot <- plots %>% 
     patchwork::wrap_plots() +
-    patchwork::plot_layout(...)
+    patchwork::plot_layout(..., guides = "collect")
   
   return(suppressMessages(plot))
 }

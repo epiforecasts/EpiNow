@@ -14,7 +14,7 @@
 #' @importFrom stringr str_replace_all str_to_title
 #' @importFrom purrr partial
 #' @importFrom dplyr rename
-#' @importFrom ggplot2 coord_cartesian guides guide_legend ggsave
+#' @importFrom ggplot2 coord_cartesian guides guide_legend ggsave ggplot_build
 #' @examples
 #' 
 #' \dontrun{
@@ -103,7 +103,7 @@ suppressWarnings(
 )
 
 
- 
+
 
 message("Plotting summary Rt and case plots")
 
@@ -112,12 +112,23 @@ high_cases_rt_plot <- suppressWarnings(
   suppressMessages(
     regions[names(regions) %in% results$regions_by_inc[1:6]] %>%
   plot_grid(plot_object = "bigr_eff_plot.rds",
-            results_dir, target_date = target_date, ncol = 2) &
-  ggplot2::coord_cartesian(ylim = c(0, 4)) &
+            results_dir, target_date = target_date, ncol = 2))
+)
+  
+  data_date <- as.Date(max(
+    ggplot2::ggplot_build(high_cases_rt_plot[[1]])$layout$panel_scales_x[[1]]$range$range
+    ), origin = "1970-01-01"
+    )
+  
+  high_cases_rt_plot <- suppressWarnings( suppressMessages(
+    high_cases_rt_plot &
+  ggplot2::coord_cartesian(ylim = c(0, 3)) &
   ggplot2::scale_x_date(date_breaks = "1 week",
                                  date_labels = "%b %d",
-                                 limits = c(as.Date(NA_character_), as.Date(plot_date)))
-))
+                                 limits = c(as.Date(NA_character_),
+                                            max(data_date, plot_date)))
+  )
+  )
 
 
 suppressWarnings(
@@ -134,7 +145,8 @@ high_cases_plot <- suppressWarnings(
             results_dir, target_date = target_date, ncol = 2) &
   ggplot2::scale_x_date(date_breaks = "1 week",
                                  date_labels = "%b %d",
-                                 limits = c(as.Date(NA_character_), plot_date))
+                                 limits = c(as.Date(NA_character_), 
+                                            max(data_date, plot_date)))
 ))
 
 
@@ -153,10 +165,10 @@ rt_plot <- suppressWarnings(
     regions %>%
       EpiNow::plot_grid(plot_object = "bigr_eff_plot.rds",
                         results_dir, target_date = target_date, ncol = 4) &
-      ggplot2::coord_cartesian(ylim = c(0, 4)) &
+      ggplot2::coord_cartesian(ylim = c(0, 3)) &
       ggplot2::scale_x_date(date_breaks = "1 week",
                                      date_labels = "%b %d",
-                                     limits = c(as.Date(NA_character_), plot_date))
+                                     limits = c(as.Date(NA_character_), max(data_date, plot_date)))
     ))
 
 suppressWarnings(
