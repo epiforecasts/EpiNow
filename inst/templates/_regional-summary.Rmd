@@ -21,7 +21,7 @@ if (standalone) {
 
 ### Summary of latest reproduction number and confirmed case count estimates by date of infection
 
-```{r, fig.height = 8, fig.width = 8, out.width = "90%"}
+```{r, fig.height = 8, fig.width = 12, out.width = "95%"}
 knitr::include_graphics(here::here(file.path(summary_path, "summary_plot.png")))
 ```
 
@@ -30,7 +30,7 @@ knitr::include_graphics(here::here(file.path(summary_path, "summary_plot.png")))
 
 ### Reproduction numbers over time in the six regions expected to have the most new confirmed cases
 
-```{r summarise-bigr-plot, fig.height = 6, fig.width = 8, layout="l-body-outset", out.width = "90%"}
+```{r summarise-bigr-plot, fig.height = 6, fig.width = 8, layout="l-body-outset", out.width = "95%"}
 knitr::include_graphics(here::here(file.path(summary_path, "high_cases_rt_plot.png")))
 ```
 
@@ -39,7 +39,7 @@ knitr::include_graphics(here::here(file.path(summary_path, "high_cases_rt_plot.p
 
 ### Reported confirmed cases and their estimated date of infection in the six regions expected to have the most new confirmed cases
 
-```{r summarise-cases-plot, fig.height = 6, fig.width = 8, layout="l-body-outset", out.width = "90%"}
+```{r summarise-cases-plot, fig.height = 6, fig.width = 8, layout="l-body-outset", out.width = "95%"}
 knitr::include_graphics(here::here(file.path(summary_path, "high_cases_plot.png")))
 ```
 
@@ -48,7 +48,7 @@ knitr::include_graphics(here::here(file.path(summary_path, "high_cases_plot.png"
 
 ### Reproduction numbers over time in all regions
 
-```{r bigr-plot, fig.height = 12, fig.width = 8, layout="l-body-outset", out.width = "90%"}
+```{r bigr-plot, fig.height = 12, fig.width = 8, layout="l-body-outset", out.width = "95%"}
 knitr::include_graphics(here::here(file.path(summary_path, "rt_plot.png")))
 ```
 

@@ -98,7 +98,7 @@ summary_plot <- EpiNow::plot_summary(results$data, x_lab = region_scale, log_cas
 suppressWarnings(
   suppressMessages(
     ggplot2::ggsave(file.path(summary_dir, "summary_plot.png"),
-                    dpi = 330, width = 12, height = 12)
+                    dpi = 330, width = 12, height = ifelse(length(regions) > 60, 24, 12))
   )
 )
 
