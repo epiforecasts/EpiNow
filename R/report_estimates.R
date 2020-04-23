@@ -2,7 +2,8 @@
 #'
 #' @param cases A dataframe of cases (`confirm`) by date of confirmation (`date`) and import status (`import_status`)
 #' @param nowcast A dataframe of nowcast cases as produced by `nowcast_pipeline`.
-#' @param epi_estimates A list of dataframes as produced by `epi_measures_pipeline`.
+#' @param reff_estimates Dataframe of effective R estimates. As produced by `epi_measures_pipeline`.
+#' @param littler_estimates Dataframe of little R estimates. As produced by `epi_measures_pipeline`.
 #' @param incubation_period Numeric, the number of days to add as an incubation shift. Defaults to 5.
 #' @param target_folder Character string, name of the folder in which to save the results.
 #' @param report_forecast Logical, defaults to `FALSE`. Should the forecast be reported.
@@ -18,7 +19,8 @@
 #' @export
 #'
 #' @examples
-report_estimates <- function(cases = NULL, nowcast = NULL, epi_estimates = NULL,
+report_estimates <- function(cases = NULL, nowcast = NULL,
+                             reff_estimates = NULL, littler_estimates = NULL,
                              incubation_period = 5, target_folder = NULL,
                              min_plot_date = NULL, report_forecast = FALSE,
                              save_plots = TRUE) {
@@ -103,7 +105,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL, epi_estimates = NULL,
 
   
   ## Pull out R estimates
-  bigr_estimates <- dplyr::filter(epi_estimates[[1]],
+  bigr_estimates <- dplyr::filter(reff_estimates,
                                   rt_type %in% "nowcast")
   
   
@@ -178,9 +180,6 @@ report_estimates <- function(cases = NULL, nowcast = NULL, epi_estimates = NULL,
   
   
   # Pull out and plot little R ----------------------------------------------
-  
-  ## Pull out little
-  littler_estimates <- epi_estimates[[2]]
   
   littler_estimates$time_varying_r[[1]] <- 
     dplyr::left_join( littler_estimates$time_varying_r[[1]],

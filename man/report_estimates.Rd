@@ -7,7 +7,8 @@
 report_estimates(
   cases = NULL,
   nowcast = NULL,
-  epi_estimates = NULL,
+  reff_estimates = NULL,
+  littler_estimates = NULL,
   incubation_period = 5,
   target_folder = NULL,
   min_plot_date = NULL,
@@ -20,7 +21,9 @@ report_estimates(
 
 \item{nowcast}{A dataframe of nowcast cases as produced by \code{nowcast_pipeline}.}
 
-\item{epi_estimates}{A list of dataframes as produced by \code{epi_measures_pipeline}.}
+\item{reff_estimates}{Dataframe of effective R estimates. As produced by \code{epi_measures_pipeline}.}
+
+\item{littler_estimates}{Dataframe of little R estimates. As produced by \code{epi_measures_pipeline}.}
 
 \item{incubation_period}{Numeric, the number of days to add as an incubation shift. Defaults to 5.}
 

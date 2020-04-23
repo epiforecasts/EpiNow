@@ -117,7 +117,9 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
   
  # Summarise results -------------------------------------------------------
 
- EpiNow::report_estimates(cases = cases, nowcast = nowcast, epi_estimates = epi_estimates,
+ EpiNow::report_estimates(cases = cases, nowcast = nowcast, 
+                          reff_estimates = epi_estimates$R0,
+                          littler_estimates = epi_estimates$rate_of_spread,
                           incubation_period = incubation_period, target_folder = target_folder,
                           min_plot_date = min_plot_date, save_plots = save_plots, 
                           report_forecast = report_forecast)  
