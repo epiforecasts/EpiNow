@@ -6,7 +6,7 @@
 #'
 #' @return A `ggplot2` object
 #' @export
-#' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme guides labs expand_limits guide_legend scale_color_brewer
+#' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme guides labs expand_limits guide_legend scale_color_manual
 #' @importFrom cowplot theme_cowplot panel_border
 #' @importFrom patchwork plot_layout
 #' @importFrom dplyr filter
@@ -27,7 +27,12 @@ plot_summary <- function(summary_results, x_lab = "Region", log_cases = FALSE) {
       ggplot2::facet_wrap(~ metric, ncol = 1, scales = "free_y") +
       cowplot::theme_cowplot() +
       cowplot::panel_border() +
-      ggplot2::scale_color_brewer(palette = "RdYlGn", drop = FALSE)
+      ggplot2::scale_color_manual(values = c(
+        "Increasing" = "#49536b",
+        "Likely increasing" = "#8492b1ff",
+        "Likely decreasing" = "#ffec62",
+        "Decreasing" = "#d9bf05",
+        "Unsure" = "#906490"), drop = FALSE) 
   }
   
   ## cases plot
