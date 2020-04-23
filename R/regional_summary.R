@@ -10,6 +10,7 @@
 #' @export
 #'
 #' @inheritParams summarise_results
+#' @inheritParams plot_summary
 #' @importFrom stringr str_replace_all str_to_title
 #' @importFrom purrr partial
 #' @importFrom dplyr rename
@@ -37,7 +38,8 @@
 regional_summary <- function(results_dir = NULL, 
                              summary_dir = NULL,
                              target_date = NULL,
-                             region_scale = "Region") {
+                             region_scale = "Region",
+                             log_cases = FALSE) {
    
 
   message("Extracting results from: ", results_dir)
@@ -82,6 +84,7 @@ results$table <- results$table %>%
 results$data <- results$data %>% 
   force_factor()
 
+##
 
 saveRDS(results$table, file.path(summary_dir, "summary_table.rds"))
 saveRDS(results$data, file.path(summary_dir, "summary_data.rds"))
@@ -89,7 +92,7 @@ saveRDS(results$data, file.path(summary_dir, "summary_data.rds"))
 message("Plotting results summary")
 
 ## Summarise cases and Rts
-summary_plot <- EpiNow::plot_summary(results$data, x_lab = region_scale)
+summary_plot <- EpiNow::plot_summary(results$data, x_lab = region_scale, log_cases = log_cases)
 
 
 suppressWarnings(
