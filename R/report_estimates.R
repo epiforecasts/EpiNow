@@ -328,9 +328,8 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   plot_littler_fn <- function(littler_df, plot_var = "Rate of growth") {
     plot_littler <- littler_df %>%
       dplyr::filter(vars %in% plot_var) %>%
-      dplyr::mutate_at(.vars = c("upper", "lower", "top", "bottom"),
-                       ~ ifelse(. < -20, NA, ifelse(. > 20, NA, .)))
       EpiNow::plot_confidence(plot_median = FALSE) +
+      ggplot2::geom_hline(yintercept = 1, linetype = 2) +
       ggplot2::theme(legend.position = "none") +
       ggplot2::labs(y = "", x = "Date")
     
@@ -345,7 +344,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   
   plot_doublingtime <- plot_littler_data %>%
     plot_littler_fn(plot_var = "Doubling time (days)") +
-    ggplot2::coord_cartesian(ylim=c(-20, 20)) +
+    ggplot2::coord_cartesian(ylim=c(-30, 30)) +
     ggplot2::labs(tag = "B")
   
   plot_fit <- plot_littler_data %>%
