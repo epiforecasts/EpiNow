@@ -15,6 +15,7 @@
 #' @importFrom purrr partial
 #' @importFrom dplyr rename
 #' @importFrom ggplot2 coord_cartesian guides guide_legend ggsave ggplot_build
+#' @importFrom cowplot get_legend
 #' @examples
 #' 
 #' \dontrun{
@@ -111,22 +112,29 @@ message("Plotting summary Rt and case plots")
 high_cases_rt_plot <- suppressWarnings(
   suppressMessages(
     regions[names(regions) %in% results$regions_by_inc[1:6]] %>%
-  plot_grid(plot_object = "bigr_eff_plot.rds",
-            results_dir, target_date = target_date, ncol = 2))
+      plot_grid(plot_object = "bigr_eff_plot.rds",
+                results_dir, target_date = target_date, ncol = 2))
 )
-  
-  data_date <- as.Date(max(
-    ggplot2::ggplot_build(high_cases_rt_plot[[1]])$layout$panel_scales_x[[1]]$range$range
-    ), origin = "1970-01-01"
-    )
-  
+
+
+## Check the plots for forecast and adapt date and legend accordingly
+data_date <- as.Date(max(
+  ggplot2::ggplot_build(high_cases_rt_plot[[1]])$layout$panel_scales_x[[1]]$range$range
+), origin = "1970-01-01"
+)
+
+legend <- 'gtable' %in% class(try(cowplot::get_legend(high_cases_rt_plot[[1]]), silent = TRUE))
+
+
+## Adapt legend
   high_cases_rt_plot <- suppressWarnings( suppressMessages(
     high_cases_rt_plot &
   ggplot2::coord_cartesian(ylim = c(0, 3)) &
   ggplot2::scale_x_date(date_breaks = "1 week",
                                  date_labels = "%b %d",
                                  limits = c(as.Date(NA_character_),
-                                            max(data_date, plot_date)))
+                                            max(data_date, plot_date))) &
+    ggplot2::theme(legend.position = ifelse(legend, "bottom", "none"))
   )
   )
 
@@ -146,7 +154,8 @@ high_cases_plot <- suppressWarnings(
   ggplot2::scale_x_date(date_breaks = "1 week",
                                  date_labels = "%b %d",
                                  limits = c(as.Date(NA_character_), 
-                                            max(data_date, plot_date)))
+                                            max(data_date, plot_date))) &
+    ggplot2::theme(legend.position = ifelse(legend, "bottom", "none"))
 ))
 
 
@@ -168,24 +177,26 @@ rt_plot <- suppressWarnings(
       ggplot2::coord_cartesian(ylim = c(0, 3)) &
       ggplot2::scale_x_date(date_breaks = "1 week",
                                      date_labels = "%b %d",
-                                     limits = c(as.Date(NA_character_), max(data_date, plot_date)))
+                                     limits = c(as.Date(NA_character_), max(data_date, plot_date))) &
+      ggplot2::theme(legend.position = ifelse(legend, "bottom", "none"))
     ))
 
 suppressWarnings(
   suppressMessages(
   ggplot2::ggsave(file.path(summary_dir, "rt_plot.png"), 
-                  rt_plot, dpi = 330, width = 24, height = 4 * round(length(regions) / 4, 0), limitsize = FALSE)
+                  rt_plot, dpi = 330, width = 24, height = 5 * round(length(regions) / 3, 0), limitsize = FALSE)
   
 ))
 
 cases_plot <- regions %>%
   plot_grid(plot_object = "plot_cases.rds",
-            results_dir, target_date = target_date, ncol = 4)
+            results_dir, target_date = target_date, ncol = 4) &
+  ggplot2::theme(legend.position = ifelse(legend, "bottom", "none"))
 
 suppressWarnings(
   suppressMessages( 
   ggplot2::ggsave(file.path(summary_dir, "cases_plot.png"), 
-                  cases_plot, dpi = 330, width = 24, height =  4 * round(length(regions) / 4, 0), limitsize = FALSE)
+                  cases_plot, dpi = 330, width = 24, height =  5 * round(length(regions) / 3, 0), limitsize = FALSE)
   ))
 
 

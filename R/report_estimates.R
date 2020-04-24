@@ -96,7 +96,6 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
                   date >= min_plot_date) %>%
     dplyr::mutate(median = ifelse(type == "nowcast", NA, median)) %>%
     EpiNow::plot_confidence(legend = ifelse(report_forecast, "bottom", "none")) +
-    ggplot2::theme(legend.position = "none") +
     ggplot2::labs(y = "Daily cases", x = "Date")
   
   
