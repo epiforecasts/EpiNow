@@ -49,7 +49,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   ## Exclude zero regions
   cases <- cases %>% 
-    dplyr::drop_na(region) %>% 
+    tidyr::drop_na(region) %>% 
     dplyr::filter(region %in% eval_regions)
   message("Running the pipeline for: ",
           paste(eval_regions, collapse = ", "))
