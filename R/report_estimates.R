@@ -254,11 +254,6 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   clean_double <- function(var, type) {
     var <- signif(var, 2)
     
-    if (type %in% "doubling_time") {
-      var[is.infinite(var)] <- "Cases decreasing"
-      var[var < 0] <- "Cases decreasing"
-    }
-    
     return(var)
   }
   
@@ -276,11 +271,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
         range = paste0(estimate$mean, " (",
                        estimate$bottom, " -- ", estimate$top,
                        ")")
-      ) %>% 
-        dplyr::mutate(
-          range = ifelse(range %in% "Cases decreasing (Cases decreasing -- Cases decreasing)",
-                         "Cases decreasing", range)
-        )
+      )
       
       return(out)
     })) %>%

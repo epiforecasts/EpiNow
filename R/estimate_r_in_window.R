@@ -59,9 +59,7 @@ estimate_r_in_window <- function(onsets = NULL,
       top = summarise_doubling$bottom,
       lower = summarise_doubling$upper,
       upper = summarise_doubling$lower,
-    ) %>%
-    dplyr::mutate_at(.vars = c("bottom", "lower", "median", "upper", 'top'),
-                     ~ ifelse(. < 0, Inf, .))
+    ) 
 
   ## Sumamrise goodness of fit
   summarise_fit <- r
