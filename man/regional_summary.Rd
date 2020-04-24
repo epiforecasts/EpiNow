@@ -9,6 +9,8 @@ regional_summary(
   summary_dir = NULL,
   target_date = NULL,
   region_scale = "Region",
+  csv_region_label = "region",
+  incubation_shift = 5,
   log_cases = FALSE
 )
 }
@@ -21,6 +23,8 @@ in which to store summary of results.}
 
 \item{target_date}{A character string giving the target date for which to extract results
 (in the format "yyyy-mm-dd").}
+
+\item{incubation_shift}{Numeric, the incubation shift to apply to the estimates, defaults to 5 days.}
 
 \item{log_cases}{Logical, should cases be shown on a logged scale. Defaults to \code{FALSE}}
 }

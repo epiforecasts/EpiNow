@@ -27,7 +27,7 @@ plot_summary <- function(summary_results, x_lab = "Region", log_cases = FALSE) {
       ggplot2::facet_wrap(~ metric, ncol = 1, scales = "free_y") +
       cowplot::theme_cowplot() +
       cowplot::panel_border() +
-      ggplot2::scale_color_manual(values <- c(
+      ggplot2::scale_color_manual(values = c(
         "Increasing" = "#7b3294",
         "Likely increasing" = "#c2a5cf",
         "Likely decreasing" = "#a6dba0",
