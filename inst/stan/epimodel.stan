@@ -1,6 +1,6 @@
 
 data {
-  int t; // number of time steps
+  int t; // number of time steps 
   int <lower = 0> obs_imported[t]; // imported cases
   int <lower = 0> obs_local[t]; // local cases
   int tau; // length of window
