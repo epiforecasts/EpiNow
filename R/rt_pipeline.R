@@ -5,7 +5,6 @@
 #' the time-varying effective reproduction number and rate of spread.
 #' @param linelist A dataframe of of cases (by row) containing the following variables:
 #' `import_status` (values "local" and "imported"), `date_onset`, `date_confirm`, `report_delay`.
-#' @param target_date Character string, in the form "2020-01-01". Date to cast.
 #' @param delay_cutoff_date Character string, in the form "2020-01-01". Cutoff date to use
 #' to estimate the delay distribution.
 #' @param samples Numeric, the number of pseudo linelists to generate. Defaults to 1000.
@@ -121,7 +120,8 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                           reff_estimates = epi_estimates$R0,
                           littler_estimates = epi_estimates$rate_of_spread,
                           case_forecast = epi_estimates$case_forecast,
-                          incubation_period = incubation_period, target_folder = target_folder,
+                          incubation_period = incubation_period,
+                          target_folder = target_folder, target_date = target_date,
                           min_plot_date = min_plot_date, save_plots = save_plots, 
                           report_forecast = report_forecast)  
 

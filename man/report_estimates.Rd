@@ -10,6 +10,7 @@ report_estimates(
   reff_estimates = NULL,
   littler_estimates = NULL,
   case_forecast = NULL,
+  target_date = NULL,
   incubation_period = 5,
   target_folder = NULL,
   min_plot_date = NULL,
@@ -27,6 +28,8 @@ report_estimates(
 \item{littler_estimates}{Dataframe of little R estimates. As produced by \code{epi_measures_pipeline}.}
 
 \item{case_forecast}{Dataframe of case forecasts as produced by \code{epi_measures_pipeline}.}
+
+\item{target_date}{Character string, in the form "2020-01-01". Date to cast.}
 
 \item{target_folder}{Character string, name of the folder in which to save the results.}
 

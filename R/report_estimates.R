@@ -6,13 +6,14 @@
 #' @param littler_estimates Dataframe of little R estimates. As produced by `epi_measures_pipeline`.
 #' @param case_forecast Dataframe of case forecasts as produced by `epi_measures_pipeline`.
 #' @param target_folder Character string, name of the folder in which to save the results.
+#' @param target_date Character string, in the form "2020-01-01". Date to cast.
 #' @param report_forecast Logical, defaults to `FALSE`. Should the forecast be reported.
 #' @param save_plots Logical, defaults to `TRUE`. Should plots be saved.
 #' @importFrom dplyr rename filter mutate count group_by ungroup mutate_at pull select case_when bind_rows left_join bind_rows
 #' @importFrom tidyr drop_na unnest
 #' @importFrom tibble tibble
 #' @importFrom purrr map pmap
-#' @importFrom ggplot2 ggsave theme labs coord_cartesian scale_x_date
+#' @importFrom ggplot2 ggsave theme labs coord_cartesian scale_x_date geom_hline geom_vline
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_layout
 #' @inheritParams summarise_cast
@@ -23,7 +24,7 @@
 #' 
 report_estimates <- function(cases = NULL, nowcast = NULL,
                              reff_estimates = NULL, littler_estimates = NULL,
-                             case_forecast = NULL,
+                             case_forecast = NULL, target_date = NULL,
                              incubation_period = 5, target_folder = NULL, 
                              min_plot_date = NULL, report_forecast = FALSE, 
                              save_plots = TRUE) {
@@ -96,7 +97,8 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
                   date >= min_plot_date) %>%
     dplyr::mutate(median = ifelse(type == "nowcast", NA, median)) %>%
     EpiNow::plot_confidence(legend = ifelse(report_forecast, "bottom", "none")) +
-    ggplot2::labs(y = "Daily cases", x = "Date")
+    ggplot2::labs(y = "Daily cases", x = "Date") +
+    ggplot2::geom_vline(xintercept = as.Date(target_date), linetype = 2)
   
   
   if (report_forecast) {

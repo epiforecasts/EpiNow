@@ -13,7 +13,7 @@
 #' @inheritParams plot_summary
 #' @inheritParams summarise_to_csv
 #' @importFrom stringr str_replace_all str_to_title
-#' @importFrom purrr partial
+#' @importFrom purrr partial map_chr
 #' @importFrom dplyr rename
 #' @importFrom ggplot2 coord_cartesian guides guide_legend ggsave ggplot_build
 #' @importFrom cowplot get_legend
@@ -62,8 +62,13 @@ if (target_date %in% "latest") {
 }
 
 ## Get latest date
-latest_date <- EpiNow::load_nowcast_result("latest_date.rds", region = regions[1],
-                                           target_date, results_dir)
+latest_date <- regions %>% 
+  purrr::map_chr(EpiNow::load_nowcast_result("latest_date.rds", region = .,
+                                              target_date, results_dir)) %>% 
+  as.Date() %>% 
+  max(na.rm = TRUE)
+  
+
 
 saveRDS(latest_date, file.path(summary_dir, "latest_date.rds"))
 

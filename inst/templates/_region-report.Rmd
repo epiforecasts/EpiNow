@@ -37,7 +37,7 @@ knitr::include_graphics(here::here(file.path(region_path, region, "latest/rt_cas
 ```
 
 <br>
-`r paste0("*Figure ",  summary_figures + 1 + (index - 1) * 2, ": A.) Confirmed cases by date of report (bars) and their estimated date of infection. B.) Time-varying estimate of the effective reproduction number. Light ribbon = 90% credible interval; dark ribbon = the 50% credible interval. Estimates are shown until the ", latest_date, ifelse(report_forecast, " from when forecasts are shown. These should be considered indicative only", ""),  ". Confidence in the estimated values is indicated by translucency with increased translucency corresponding to reduced confidence.*")`
+`r paste0("*Figure ",  summary_figures + 1 + (index - 1) * 2, ": A.) Confirmed cases by date of report (bars) and their estimated date of infection. B.) Time-varying estimate of the effective reproduction number. Light ribbon = 90% credible interval; dark ribbon = the 50% credible interval. Estimates are shown until the ", latest_date, ifelse(report_forecast, " from when forecasts are shown. These should be considered indicative only", ""),  ". Confidence in the estimated values is indicated by translucency with increased translucency corresponding to reduced confidence. The vertical dashed line indicates the date of report generation.*")`
 
 `r paste(c(rep("#", title_depth), " Time-varying rate of growth and doubling time"), collapse = "")`
 
