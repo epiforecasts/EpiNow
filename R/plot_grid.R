@@ -9,7 +9,7 @@
 #' @return A `ggplot2` object combinng multiple plots
 #' @export
 #' @importFrom purrr map
-#' @importFrom ggplot2 labs scale_x_date coord_cartesian theme
+#' @importFrom ggplot2 labs scale_x_date coord_cartesian guides
 #' @importFrom stringr str_replace str_to_title
 #' @importFrom patchwork wrap_plots plot_layout
 #' @examples
@@ -34,7 +34,7 @@ plots <- suppressMessages(
 plots[-1] <- plots[-1] %>% 
   purrr::map(function(plot){
     plot <- plot +
-      ggplot2::theme(legend.position = "none")
+      ggplot2::guides(fill = FALSE)
     
     return(plot)
   })
