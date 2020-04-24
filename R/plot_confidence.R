@@ -24,7 +24,7 @@ plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2,
 
   if (plot_median) {
     plot <- plot +
-      ggplot2::geom_col(alpha = 0.3)
+      ggplot2::geom_col(alpha = 0.4)
   }
 
   plot <- plot +

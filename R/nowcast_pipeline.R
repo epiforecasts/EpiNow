@@ -12,7 +12,8 @@
 #' @param nowcast_lag Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.
 #' @param report_delay_fns List of functions as produced by `EpiNow::get_delay_sample_fn`
 #' @param onset_modifier data.frame containing a `date` variable and a numeric `modifier` variable. This is used 
-#' to modify estimated cases by onset date. 
+#' to modify estimated cases by onset date. Optionally `modifier` may be a function that returns a proportion when called 
+#' (enables inclusion of uncertainty).
 #' @inheritParams generate_pseudo_linelist
 #' @inheritParams sample_delay
 #' @return
@@ -168,7 +169,7 @@ if (!is.null(onset_modifier)) {
       ## Adjusted onset cases based on proportion if supplied
       if (!is.null(onset_modifier)) {
         
-        onset_modifier <- onset_modifier[, modifier := ifelse(is.function(modifier), modifier(1), modifier)]
+        onset_modifier <- onset_modifier[, modifier := ifelse(is.function(modifier), modifier(), modifier)]
         
         cases_by_onset <- cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
           cases := as.integer(cases * modifier)][,modifier := NULL]

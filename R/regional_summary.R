@@ -201,7 +201,7 @@ suppressWarnings(
 
 cases_plot <- regions %>%
   plot_grid(plot_object = "plot_cases.rds",
-            results_dir, target_date = target_date, ncol = 4) &
+            results_dir, target_date = target_date, ncol = 3) &
   ggplot2::theme(legend.position = ifelse(legend, "bottom", "none"))
 
 suppressWarnings(

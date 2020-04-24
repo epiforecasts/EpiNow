@@ -43,7 +43,8 @@ Should linelist onset dates be used where available?}
 \item{nowcast_lag}{Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.}
 
 \item{onset_modifier}{data.frame containing a \code{date} variable and a numeric \code{modifier} variable. This is used
-to modify estimated cases by onset date.}
+to modify estimated cases by onset date. Optionally \code{modifier} may be a function that returns a proportion when called
+(enables inclusion of uncertainty).}
 
 \item{date_to_case}{A data indicating when to cast up to.}
 }
