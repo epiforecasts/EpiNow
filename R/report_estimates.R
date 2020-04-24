@@ -187,7 +187,8 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
                             legend = ifelse(report_forecast, "bottom", "none")) +
     ggplot2::labs(y = "Effective Reproduction no.", x = "Date") +
     ggplot2::geom_hline(yintercept = 1, linetype = 2) +
-    ggplot2::expand_limits(y = 0)
+    ggplot2::expand_limits(y = 0) +
+    ggplot2::geom_vline(xintercept = as.Date(target_date), linetype = 2)
   
   if (report_forecast) {
     
