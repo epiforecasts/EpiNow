@@ -167,6 +167,9 @@ if (!is.null(onset_modifier)) {
 
       ## Adjusted onset cases based on proportion if supplied
       if (!is.null(onset_modifier)) {
+        
+        onset_modifier <- onset_modifier[, modifier := ifelse(is.function(modifier), modifier(1), modifier)]
+        
         cases_by_onset <- cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
           cases := as.integer(cases * modifier)][,modifier := NULL]
         
