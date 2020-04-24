@@ -328,8 +328,6 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   plot_littler_fn <- function(littler_df, plot_var = "Rate of growth") {
     plot_littler <- littler_df %>%
       dplyr::filter(vars %in% plot_var) %>%
-      dplyr::mutate_at(.vars = c("top", "bottom", "upper", "lower"),
-                       ~ ifelse(. < -200, NA, ifelse(. > 200, NA, .))) %>% 
       EpiNow::plot_confidence(plot_median = FALSE) +
       ggplot2::geom_hline(yintercept = 0, linetype = 2) +
       ggplot2::theme(legend.position = "none") +
