@@ -31,8 +31,8 @@ plots <- suppressMessages(
     return(plot)
   }))
 
-plots[[-1]] <- plots[[-1]] %>% 
-  purrr::map(~ ggplot2::theme(legend.position = "none"))
+plots[-1] <- plots[-1] %>% 
+  purrr::map(~ ggplot2::theme(., legend.position = "none"))
   
   plot <- plots %>% 
     patchwork::wrap_plots() +
