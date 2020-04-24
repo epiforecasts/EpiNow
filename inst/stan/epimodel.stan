@@ -63,7 +63,7 @@ transformed parameters {
   
   // Discretised delay distribution
   for(i in 1:((2 * t) - 1)) {
-        delayvec[i] = (i > t) ? gamma_cdf(i - t + 1, alpha, beta) - gamma_cdf(i - t , alpha, beta) : 0;
+        delayvec[i] = (i >= t) ? gamma_cdf(i - t + 1, alpha, beta) - gamma_cdf(i - t , alpha, beta) : 0;
   }
 
   for(i in 1:((2 * t) - 1)) {
@@ -120,40 +120,26 @@ model {
 generated quantities {
   // vector[t] onset_R;
   vector[t] actual_R;
+  vector[t] inf_back;
+  vector[t-7] inf_cases;
   vector[(2 * t) - 1] inc_conv_delay;
-  // vector[(2 * t) - 1] t_del;
-  
-  // for(i in 1:(2 * t) - 1){
-  //   t_del[i] = (i > t) ? gamma_cdf(i - t + 1, alpha, beta) - gamma_cdf(i - t, alpha, beta) : 0;
-  // }
-  // 
-  for(i in 1:t){
-    // onset_R[i] = 0;
-    actual_R[i] = 0;
-  }
-
-  // for(k in 1:t) {
-  //   for(j in 1:k) {
-  //     onset_R[j] += R[k] * delayvec[k - j + t];
-  //   }
-  // }
 
   inc_conv_delay = incmat2 * delayvec;
+  
+  for(i in 1:t){
+    actual_R[i] = 0;
+    inf_back[i] = 0;
+  }
 
   for(k in 1:t) {
     for(j in 1:t) {
       actual_R[k] += R[j] * inc_conv_delay[j - k + t];
+      inf_back[k] += infectiousness[j] * inc_conv_delay[j - k + t];
     }
   }
-  // 
-  // for(i in 1:t)
-  //   actual_inf[i] = (actual_inf[i] > 0) ? actual_inf[i] : 0.00001;
-  // real inf_up[t];
-  // vector[(2 * t) - 1] conv_inc_out;
-  // 
-  // conv_inc_out = conv_inc;
-  // 
-  // for(p in 1:t)
-  //   inf_up[p] = onset_inf[p] *  (1 + (1 - gamma_cdf(t - p, alpha, beta)));
+  
+  for(i in 1:(t-7)) {
+    inf_cases[i] = neg_binomial_2_rng(actual_R[i] * inf_back[i],  1 / sqrt(phi));
+  }
 
 }
