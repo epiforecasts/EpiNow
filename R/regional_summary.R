@@ -46,7 +46,7 @@ regional_summary <- function(results_dir = NULL,
                              log_cases = FALSE) {
    
 
-  message("Extracting results from: ", results_dir)
+message("Extracting results from: ", results_dir)
   
 ## Make summary directory
 if (!dir.exists(summary_dir)) {
@@ -63,8 +63,9 @@ if (target_date %in% "latest") {
 
 ## Get latest date
 latest_date <- regions %>% 
-  purrr::map_chr(EpiNow::load_nowcast_result("latest_date.rds", region = .,
-                                              target_date, results_dir)) %>% 
+  purrr::map_chr(~ as.character(
+    EpiNow::load_nowcast_result("latest_date.rds", region = .,
+                                target_date, results_dir))) %>% 
   as.Date() %>% 
   max(na.rm = TRUE)
   
@@ -120,7 +121,7 @@ suppressWarnings(
 )
 
 
-
+ 
 
 message("Plotting summary Rt and case plots")
 
