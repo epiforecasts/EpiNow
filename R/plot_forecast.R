@@ -11,17 +11,20 @@
 #' 
 plot_forecast <- function(plot = NULL, forecast = NULL) {
   
-  plot <- plot + 
-  ggplot2::geom_ribbon(data = forecast,
-                       ggplot2::aes(ymin = bottom, ymax = top,
-                                    fill = "Forecast"),
-                       alpha = 0.1) +
-    ggplot2::geom_ribbon(data = forecast,
-                         ggplot2::aes(ymin = lower, ymax = upper,
-                                      fill = "Forecast"),
-                         alpha = 0.2) + 
-    ggplot2::geom_line(data = forecast, ggplot2::aes(y = bottom, alpha = 1)) +
-    ggplot2::geom_line(data = forecast, ggplot2::aes(y = top, alpha =  1))
-  
+  if (nrow(forecast) > 0) {
+    plot <- plot + 
+      ggplot2::geom_ribbon(data = forecast,
+                           ggplot2::aes(ymin = bottom, ymax = top,
+                                        fill = "Forecast"),
+                           alpha = 0.1) +
+      ggplot2::geom_ribbon(data = forecast,
+                           ggplot2::aes(ymin = lower, ymax = upper,
+                                        fill = "Forecast"),
+                           alpha = 0.2) + 
+      ggplot2::geom_line(data = forecast, ggplot2::aes(y = bottom, alpha = 1)) +
+      ggplot2::geom_line(data = forecast, ggplot2::aes(y = top, alpha =  1))
+    
+  }
+
   return(plot)
 }
