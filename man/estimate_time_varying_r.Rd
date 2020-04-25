@@ -9,7 +9,7 @@ estimate_time_varying_r(onsets, window = 7)
 \arguments{
 \item{onsets}{A list of samples datasets nested within the dataset sampled from.}
 
-\item{window}{}
+\item{window}{integer value for window size in days (default = 7)}
 }
 \value{
 A dataframe of r estimates over time summarisd across samples.

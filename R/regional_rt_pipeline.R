@@ -19,8 +19,8 @@
 #' @return NULL
 #' @export
 #' @importFrom furrr future_map
-#' @importFrom tidyr complete
-#' @importFrom dplyr count filter rename filter group_by pull
+#' @importFrom tidyr complete drop_na
+#' @importFrom dplyr count filter rename filter group_by pull ungroup
 #' @examples
 #' 
 #' ## Code
@@ -49,15 +49,18 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   ## Exclude zero regions
   cases <- cases %>% 
+    tidyr::drop_na(region) %>% 
     dplyr::filter(region %in% eval_regions)
   message("Running the pipeline for: ",
           paste(eval_regions, collapse = ", "))
   
   ## Make sure all dates have cases numbers
   cases <- cases %>% 
+    group_by(region) %>% 
     tidyr::complete(date = seq(min(date), max(date), by = "day"),
                     import_status = c("imported", "local"),
-                    fill = list(cases = 0))
+                    fill = list(cases = 0)) %>% 
+    dplyr::ungroup()
   
   
   if (national) {

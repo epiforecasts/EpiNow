@@ -4,12 +4,14 @@
 \alias{plot_summary}
 \title{Plot a Summary of the Latest Results}
 \usage{
-plot_summary(summary_results, x_lab = "Region")
+plot_summary(summary_results, x_lab = "Region", log_cases = FALSE)
 }
 \arguments{
 \item{summary_results}{A dataframe as returned by \code{summarise_results} (the \code{data} object).}
 
 \item{x_lab}{A character string giving the label for the x axis, defaults to region.}
+
+\item{log_cases}{Logical, should cases be shown on a logged scale. Defaults to \code{FALSE}}
 }
 \value{
 A \code{ggplot2} object
