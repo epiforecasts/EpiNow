@@ -185,12 +185,14 @@ suppressWarnings(
 
 message("Plotting overall Rt and case plots")
 
+plots_per_row <- ifelse(length(regions) < 60, 3, 5)
+
 ## Plot all countries
 rt_plot <- suppressWarnings(
   suppressMessages(
     regions %>%
       EpiNow::plot_grid(plot_object = "bigr_eff_plot.rds",
-                        results_dir, target_date = target_date, ncol = 3) &
+                        results_dir, target_date = target_date, ncol = plots_per_row) &
       ggplot2::coord_cartesian(ylim = c(0, 3)) &
       ggplot2::scale_x_date(date_breaks = "1 week",
                                      date_labels = "%b %d",
@@ -201,19 +203,19 @@ rt_plot <- suppressWarnings(
 suppressWarnings(
   suppressMessages(
   ggplot2::ggsave(file.path(summary_dir, "rt_plot.png"), 
-                  rt_plot, dpi = 330, width = 24, height = 4 * round(length(regions) / 3, 0), limitsize = FALSE)
+                  rt_plot, dpi = 330, width = 24, height = 4 * round(length(regions) / plots_per_row, 0), limitsize = FALSE)
   
 ))
 
 cases_plot <- regions %>%
   plot_grid(plot_object = "plot_cases.rds",
-            results_dir, target_date = target_date, ncol = 3) &
+            results_dir, target_date = target_date, ncol = plots_per_row) &
   ggplot2::theme(legend.position = ifelse(legend, "bottom", "none"))
 
 suppressWarnings(
   suppressMessages( 
   ggplot2::ggsave(file.path(summary_dir, "cases_plot.png"), 
-                  cases_plot, dpi = 330, width = 24, height =  4 * round(length(regions) / 3, 0), limitsize = FALSE)
+                  cases_plot, dpi = 330, width = 24, height =  4 * round(length(regions) / plots_per_row, 0), limitsize = FALSE)
   ))
 
 
