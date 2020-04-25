@@ -12,6 +12,7 @@
 #' @importFrom ggplot2 labs scale_x_date coord_cartesian guides
 #' @importFrom stringr str_replace str_to_title
 #' @importFrom patchwork wrap_plots plot_layout
+#' @importFrom purrr safely
 #' @examples
 #' 
 #' ## Code 
@@ -19,8 +20,9 @@
 plot_grid <- function(regions = NULL, plot_object = "bigr_eff_plot.rds", 
                       results_dir = "results", target_date = NULL, ...) {
   
-plots <- suppressMessages(
-  purrr::map(regions, function(region) {
+  
+  ## Define fn for plot loading
+  load_plot <- function(region) {
     plot <- EpiNow::load_nowcast_result(plot_object, region, 
                                         date = target_date, results_dir) +
       ggplot2::labs(title = region %>% 
@@ -29,7 +31,13 @@ plots <- suppressMessages(
       ggplot2::scale_x_date(date_breaks = "1 week", date_labels = "%b %d")
     
     return(plot)
-  }))
+  }
+  
+  ## Make safe
+  safe_load_plot <- purrr::safely(load_plot)
+  
+plots <- suppressMessages(
+  purrr::map(regions, ~ safe_load_plot(.)[[1]]))
 
 plots[-1] <- plots[-1] %>% 
   purrr::map(function(plot){
