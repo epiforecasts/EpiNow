@@ -8,20 +8,26 @@ data {
   real <lower = 0> si_scale;
   real <lower = 0> inc_loc;
   real <lower = 0> inc_scale;
+  real <lower = 0> delay_alpha;
+  real <lower = 0> delay_beta;
   int N; // number of delay samples
   vector[N] low; // lower bound for delay
   vector[N] up; // upper bound for delay
 }
 
 transformed data {
-  int indw;
-  vector[(2 * t) - 1] sivec;
-  matrix[(2 * t) - 1, (2 * t) - 1] simat;
-  vector[(2 * t) - 1] incvec;
-  matrix[(2 * t) - 1, (2 * t) - 1] incmat;
-  matrix[(2 * t) - 1, (2 * t) - 1] incmat2;
-  vector[(2 * t) - 1] conv_inc;
-  vector[(2 * t) - 1] wv;
+  
+  // all vectors and matrices length / ncol = 2t - 1
+  // this corresponds to probability of the distribution being
+  // equal to -t, through to 0 at index t, to t
+  int indw; // index variable
+  vector[(2 * t) - 1] sivec; // vector of discretised serial interval
+  matrix[(2 * t) - 1, (2 * t) - 1] simat; // serial interval matrix (for convolution purposes)
+  vector[(2 * t) - 1] incvec; // vector of discretised incubation period
+  matrix[(2 * t) - 1, (2 * t) - 1] incmat; // incubation period matrix (convolutions)
+  matrix[(2 * t) - 1, (2 * t) - 1] incmat2; // incubation period matrix (different convolutions)
+  vector[(2 * t) - 1] conv_inc; // discretised distribution of difference between two incubation periods
+  vector[(2 * t) - 1] wv; // convolution of vector above and the serial interval
   
   // Discretised serial interval distribution and incubation period
   for(i in 1:((2 * t) - 1)){
@@ -30,6 +36,8 @@ transformed data {
   }
   
   // Matrices for later convolution calculations
+  // these are constructed so that I can do matrix * vector of distribution
+  // and get the convolution I want
   for(i in 1:((2 * t) - 1)) {
     for(j in 1:((2 * t) - 1)) {
       indw = t + i - j;
@@ -49,23 +57,26 @@ transformed data {
 parameters{
   real <lower = 0> R[t]; // Effective reproduction number over time
   real <lower = 0> phi; // Dispersion of negative binomial distribution
-  real<lower = 0> alpha;
-  real<lower = 0> beta;
+  // real<lower = 0> alpha; // Delay distribution gamma parameter
+  // real<lower = 0> beta; // Delay distribution gamma parameter
 }
 
 transformed parameters {
-  matrix[(2 * t) - 1, (2 * t) - 1] delaymat;
-  vector[(2 * t) - 1] delayvec;
-  vector[(2 * t) - 1] conv_delay;
-  matrix[(2 * t) - 1, (2 * t) - 1] conv_delay_mat;
-  vector[(2 * t) - 1] ci;
-  real infectiousness[t];
+  matrix[(2 * t) - 1, (2 * t) - 1] delaymat; // convolution matrix for delay distribution
+  vector[(2 * t) - 1] delayvec; // vector of discretised delay distribution
+  vector[(2 * t) - 1] conv_delay; // discretised distribution of difference between two delays
+  matrix[(2 * t) - 1, (2 * t) - 1] conv_delay_mat; // convolution matrix
+  vector[(2 * t) - 1] ci; // final product, confirmation interval (can be negative)
+  vector[t] infectiousness; // infectiousness 
+  vector[t] upscaled_cases; // upscaled confirmed cases
   
   // Discretised delay distribution
   for(i in 1:((2 * t) - 1)) {
-        delayvec[i] = (i >= t) ? gamma_cdf(i - t + 1, alpha, beta) - gamma_cdf(i - t , alpha, beta) : 0;
+        // delayvec[i] = (i >= t) ? gamma_cdf(i - t + 1, alpha, beta) - gamma_cdf(i - t , alpha, beta) : 0;
+        delayvec[i] = (i >= t) ? gamma_cdf(i - t + 1, delay_alpha, delay_beta) - gamma_cdf(i - t , delay_alpha, delay_beta) : 0;
   }
 
+  // calculate matrix for convolution
   for(i in 1:((2 * t) - 1)) {
     for(j in 1:((2 * t) - 1)) {
       delaymat[i, j] = ((t - i + j) <= 0) ? 0: (((t - i + j) >= ((2 * t) -1)) ? 0 : delayvec[(t - i + j)]);
@@ -75,7 +86,7 @@ transformed parameters {
   // Difference of two confirmation delays
   conv_delay = delaymat * delayvec;
   
-  
+  // Matrix for convolution with serial interval
   for(i in 1:((2 * t) - 1)) {
     for(j in 1:((2 * t) - 1)) {
       conv_delay_mat[i, j] = ((t + i - j) <= 0) ? 0: (((t + i - j) >= ((2 * t) -1)) ? 0 : conv_delay[(t + i - j)]);
@@ -85,41 +96,50 @@ transformed parameters {
   // Confirmation interval
   ci = conv_delay_mat * wv;
   
+  // Upscaling confirmed cases 
+  for(g in 1:t) {
+    upscaled_cases[g] = (obs_imported[g] + obs_local[g]) / sum(ci[(t - (t - g)):(2 * t - 1)]);
+  }
+  
   // Calculate infectiousness
-
   for (s in 1:t) {
     infectiousness[s] = 0;
     for(i in 1:t) {
-      infectiousness[s] += (obs_imported[i] + obs_local[i]) * ci[(s - i + t)];
+      infectiousness[s] += upscaled_cases[i] * ci[(s - i + t)];
     }
   }
+  
 }
 
 model {
   // Delay distribution likelihood
   
-  alpha ~ normal(0, 1) T[0,];
-  beta ~ normal(0, 1) T[0,];
-  // 
+  // Priors for delay distribution parameters
+  // alpha ~ normal(0, 1) T[0,];
+  // beta ~ normal(0, 1) T[0,];
 
-  for(i in 1:N){
-    target += log(gamma_cdf(up[i] , alpha, beta) - gamma_cdf(low[i] , alpha, beta));
-  }
+  // Log likelihood of delays given candidate parameter values
+  // for(i in 1:N){
+  //   target += log(gamma_cdf(up[i] , alpha, beta) - gamma_cdf(low[i] , alpha, beta));
+  // }
   
+  
+  // Priors for Rts and negative binomial dispersion
+  R ~ gamma(1, 0.2);
+  phi ~ normal(0, 1) T[0,];
+  
+  // Log likelihood of observed local cases given infectiousness and Rts
   for (s in (tau + 1):t){
     for (i in (s-tau + 1):s){
       target += neg_binomial_2_lpmf(obs_local[i] | R[s] * infectiousness[i], 1 / sqrt(phi));
     }
   }
-
-  R ~ gamma(1, 0.2);
-  phi ~ normal(0, 1) T[0,];
   
 }
 
 generated quantities {
   // vector[t] onset_R;
-  vector[t] actual_R;
+  vector[t] inf_R;
   vector[t] inf_back;
   vector[t-7] inf_cases;
   vector[(2 * t) - 1] inc_conv_delay;
@@ -127,19 +147,19 @@ generated quantities {
   inc_conv_delay = incmat2 * delayvec;
   
   for(i in 1:t){
-    actual_R[i] = 0;
+    inf_R[i] = 0;
     inf_back[i] = 0;
   }
 
   for(k in 1:t) {
     for(j in 1:t) {
-      actual_R[k] += R[j] * inc_conv_delay[j - k + t];
+      inf_R[k] += R[j] * inc_conv_delay[j - k + t];
       inf_back[k] += infectiousness[j] * inc_conv_delay[j - k + t];
     }
   }
   
   for(i in 1:(t-7)) {
-    inf_cases[i] = neg_binomial_2_rng(actual_R[i] * inf_back[i],  1 / sqrt(phi));
+    inf_cases[i] = neg_binomial_2_rng(inf_R[i] * inf_back[i],  1 / sqrt(phi));
   }
 
 }
