@@ -33,11 +33,11 @@ theme_map <- function(map = NULL, continuous = FALSE,
   if (is.null(scale_fill)) {
     scale_fill = ggplot2::scale_fill_manual
     values <- c(
-      "Increasing" = "#7b3294",
-      "Likely increasing" = "#c2a5cf",
-      "Likely decreasing" = "#a6dba0",
-      "Decreasing" = "#008837",
-      "Unsure" = "#d9bf05")
+      "Increasing" = "#1170aa",
+      "Likely increasing" = "#5fa2ce",
+      "Likely decreasing" = "#fc7d0b",
+      "Decreasing" = "#c85200",
+      "Unsure" = "#7b848f")
   }
   
   if (is.null(breaks)) {
@@ -59,7 +59,7 @@ theme_map <- function(map = NULL, continuous = FALSE,
         alpha = 0.7,
         labels = fill_labels,
         option = viridis_palette,
-        na.value = "lightgrey"
+        na.value = "#c8d0d9"
       )
     
   }else{
@@ -69,7 +69,7 @@ theme_map <- function(map = NULL, continuous = FALSE,
         values = values,
         labels = fill_labels,
         breaks = breaks,
-        na.value = "lightgrey",
+        na.value = "#c8d0d9",
         drop = FALSE,
         ...
       )
