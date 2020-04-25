@@ -42,13 +42,16 @@ plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2,
   conf_data <- data %>%
     dplyr::filter(confidence == 1, type %in% "nowcast")
 
-  plot <- plot +
-    ggplot2::geom_ribbon(data = conf_data,
-                         ggplot2::aes(ymin = bottom, ymax = top, fill = "Nowcast"),
-                         alpha = outer_alpha) +
-    ggplot2::geom_ribbon(data = conf_data,
-                         ggplot2::aes(ymin = lower, ymax = upper, fill = "Nowcast"),
-                         alpha = inner_alpha)
+  if (nrow(conf_data) > 0) {
+    plot <- plot +
+      ggplot2::geom_ribbon(data = conf_data,
+                           ggplot2::aes(ymin = bottom, ymax = top, fill = "Nowcast"),
+                           alpha = outer_alpha) +
+      ggplot2::geom_ribbon(data = conf_data,
+                           ggplot2::aes(ymin = lower, ymax = upper, fill = "Nowcast"),
+                           alpha = inner_alpha)
+    
+  }
 
   ## Not confident ribbons
   varying_conf_data <- conf_data %>%
