@@ -20,7 +20,7 @@
 #' @export
 #' @importFrom dplyr filter count bind_rows group_by summarise n rename
 #' @importFrom lubridate days
-#' @importFrom purrr map safely map_dfr map_lgl compact
+#' @importFrom purrr map safely map_dfr map_lgl compact map2_dbl
 #' @importFrom furrr future_map future_map_dfr future_map2_dfr
 #' @importFrom data.table .N as.data.table :=
 #' @examples
@@ -170,7 +170,7 @@ if (!is.null(onset_modifier)) {
       if (!is.null(onset_modifier)) {
         
         cases_by_onset <- cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
-          cases := as.integer(cases * modifier())][,modifier := NULL]
+          cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * .y()))][,modifier := NULL]
         
       }
     # Summarise imported cases
@@ -182,7 +182,7 @@ if (!is.null(onset_modifier)) {
       
       if (!is.null(onset_modifier)) {
         imported_cases_by_onset <-  imported_cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
-          cases := as.integer(cases * (1 - modifier()))][,modifier := NULL]
+          cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * (1 - .y())))][,modifier := NULL]
       }
     }
 
