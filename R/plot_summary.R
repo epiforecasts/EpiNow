@@ -27,11 +27,11 @@ plot_summary <- function(summary_results, x_lab = "Region", log_cases = FALSE) {
       ggplot2::facet_wrap(~ metric, ncol = 1, scales = "free_y") +
       cowplot::theme_cowplot() +
       cowplot::panel_border() +
-      ggplot2::scale_color_manual( values = c(
-        "Increasing" = "#1170aa",
-        "Likely increasing" = "#5fa2ce",
-        "Likely decreasing" = "#fc7d0b",
-        "Decreasing" = "#c85200",
+      ggplot2::scale_color_manual(   values = c(
+        "Increasing" = "#e75f00",
+        "Likely increasing" = "#fd9e49",
+        "Likely decreasing" = "#5fa2ce",
+        "Decreasing" = "#1170aa",
         "Unsure" = "#7b848f"), drop = FALSE) 
   }
   

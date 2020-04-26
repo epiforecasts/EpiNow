@@ -42,7 +42,7 @@ summarise_results <- function(regions = NULL,
       map_prob_change(),
     `Effective reproduction no.` =  regions %>% 
       purrr::map(~ load_data("bigr_eff_latest.rds", .)),
-    `Doubling time (days)` = regions %>% 
+    `Doubling/halving time (days)` = regions %>% 
       purrr::map_chr(~ load_data("doubling_time_latest.rds", .))) 
    
   

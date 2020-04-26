@@ -246,7 +246,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     tidyr::unnest("report_overall") %>%
     dplyr::select(Data = type,
                   `Rate of growth` = little_r,
-                  `Doubling time (days)` = doubling_time,
+                  `Doubling/halving time (days)` = doubling_time,
                   `Adjusted R-squared` = goodness_of_fit
     )
   
@@ -283,7 +283,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     tidyr::spread(key = "vars", value = "range") %>%
     dplyr::select(Data = type,
                   `Rate of growth` = little_r,
-                  `Doubling time (days)` = doubling_time,
+                  `Doubling/halving time (days)` = doubling_time,
                   `Adjusted R-squared` = goodness_of_fit
     )
   
@@ -323,7 +323,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     dplyr::mutate(vars = vars %>%
                     factor(levels = c("little_r", "doubling_time", "goodness_of_fit"),
                            labels = c("Rate of growth",
-                                      "Doubling time (days)",
+                                      "Doubling/halving time (days)",
                                       "Adjusted R-squared")
                     ))
   
@@ -346,7 +346,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     ggplot2::labs(tag = "A")
   
   plot_doublingtime <- plot_littler_data %>%
-    plot_littler_fn(plot_var = "Doubling time (days)") +
+    plot_littler_fn(plot_var = "Doubling/halving time (days)") +
     ggplot2::coord_cartesian(ylim=c(-40, 40)) +
     ggplot2::labs(tag = "B")
   
@@ -423,7 +423,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     measure = c("New confirmed cases by infection date",
                 "Expected change in daily cases",
                 "Effective reproduction no.",
-                "Doubling time (days)",
+                "Doubling/halving time (days)",
                 "Adjusted R-squared"),
     estimate = c(
       current_cases %>% 
