@@ -16,13 +16,13 @@ plot_forecast <- function(plot = NULL, forecast = NULL) {
       ggplot2::geom_ribbon(data = forecast,
                            ggplot2::aes(ymin = bottom, ymax = top,
                                         fill = "Forecast"),
-                           alpha = 0.1) +
+                           alpha = 0.075) +
       ggplot2::geom_ribbon(data = forecast,
                            ggplot2::aes(ymin = lower, ymax = upper,
                                         fill = "Forecast"),
-                           alpha = 0.2) + 
-      ggplot2::geom_line(data = forecast, ggplot2::aes(y = bottom, alpha = 1)) +
-      ggplot2::geom_line(data = forecast, ggplot2::aes(y = top, alpha =  1))
+                           alpha = 0.125) + 
+      ggplot2::geom_line(data = forecast, ggplot2::aes(y = bottom, alpha = 0.5)) +
+      ggplot2::geom_line(data = forecast, ggplot2::aes(y = top, alpha =  0.5))
     
   }
 
