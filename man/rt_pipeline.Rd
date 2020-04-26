@@ -85,8 +85,8 @@ future Rt values. An example of the required structure is: \code{function(ss, y)
 
 \item{report_delay_fns}{List of functions as produced by \code{EpiNow::get_delay_sample_fn}}
 
-\item{onset_modifier}{data.frame containing a \code{date} variable and a numeric \code{modifier} variable. This is used
-to modify estimated cases by onset date. Optionally \code{modifier} may be a function that returns a proportion when called
+\item{onset_modifier}{data.frame containing a \code{date} variable and a function \code{modifier} variable. This is used
+to modify estimated cases by onset date. \code{modifier} must be a function that returns a proportion when called
 (enables inclusion of uncertainty).}
 }
 \description{
