@@ -303,7 +303,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   
   doubling_time_latest <- report_latest %>%
     dplyr::filter(Data == "nowcast") %>%
-    dplyr::pull(`Doubling time (days)`)
+    dplyr::pull(`Doubling/halving time (days)`)
   
   saveRDS(doubling_time_latest,
           paste0(target_folder, "/doubling_time_latest.rds"))
