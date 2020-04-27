@@ -21,7 +21,12 @@ model {
 
 generated quantities {
   vector[N] log_lik;
+  vector[100] samps;
   for (n in 1:N) {
     log_lik[n] = log(gamma_cdf(up[n] , alpha, beta) - gamma_cdf(low[n] , alpha, beta));
   }
+  
+  for(j in 1:100)
+    samps[j] = gamma_rng(alpha, beta);
+  
 }
