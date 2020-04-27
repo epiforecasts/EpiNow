@@ -31,7 +31,7 @@ transformed data {
   matrix[(2 * t) - 1, (2 * t) - 1] conv_delay_mat; // convolution matrix
   vector[(2 * t) - 1] ci; // final product, confirmation interval (can be negative)
   vector[t] infectiousness; // infectiousness 
-  vector[t] upscaled_cases; // upscaled confirmed cases
+  vector[2 * t] upscaled_cases; // upscaled confirmed cases
   vector[(2 * t) - 1] inc_conv_delay; // convolution of 1 incubation period + 1 delay
   vector[t] inf_back; // infectiousness by infection date
   
@@ -62,7 +62,7 @@ transformed data {
   
   // Discretised delay distribution
   for(i in 1:((2 * t) - 1)) {
-        delayvec[i] = (i >= t) ? gamma_cdf(i - t + 1, delay_alpha, delay_beta) - gamma_cdf(i - t , delay_alpha, delay_beta) : 0;
+        delayvec[i] = (i >= t) ? gamma_cdf(i - t + 1, delay_alpha, 1 / delay_beta) - gamma_cdf(i - t , delay_alpha, 1 / delay_beta) : 0;
   }
 
   // calculate matrix for convolution
@@ -116,10 +116,6 @@ transformed data {
 parameters{
   real <lower = 0> R[t]; // Effective reproduction number over time
   real <lower = 0> phi; // Dispersion of negative binomial distribution
-}
-
-transformed parameters {
-
 }
 
 model {
