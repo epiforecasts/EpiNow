@@ -61,7 +61,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
   estimates <- furrr::future_map(data_list, process_R0, 
                                  .progress = verbose,
                                  .options = furrr::future_options(packages = c("EpiNow", "dplyr"),
-                                                                  scheduling = 5))
+                                                                  scheduling = 10))
   
   ## Clean up NULL rt estimates and bind together
   R0_estimates <-   
@@ -173,7 +173,8 @@ epi_measures_pipeline <- function(nowcast = NULL,
   ## Estimate overall
   little_r_estimates_res$overall_little_r <- furrr::future_map(little_r_estimates_list,
                                                         ~ EpiNow::estimate_r_in_window(.$data), 
-                                                        .options = furrr::future_options(packages = "EpiNow"),
+                                                        .options = furrr::future_options(packages = "EpiNow",
+                                                                                         scheduling = 10),
                                                         .progress = verbose)
 
   ## Estimate time-varying
@@ -181,7 +182,8 @@ epi_measures_pipeline <- function(nowcast = NULL,
                                                              ~ EpiNow::estimate_time_varying_r(.$data,
                                                                                                window = rate_window),
                                                              .options = furrr::future_options(globals = c("rate_window"),
-                                                                                              packages = "EpiNow"),
+                                                                                              packages = "EpiNow",
+                                                                                              scheduling = 10),
                                                              .progress = verbose)
 
 

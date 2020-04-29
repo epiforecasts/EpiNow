@@ -21,7 +21,7 @@
 #' @importFrom dplyr filter count bind_rows group_by summarise n rename
 #' @importFrom lubridate days
 #' @importFrom purrr map safely map_dfr map_lgl compact map2_dbl
-#' @importFrom furrr future_map future_map_dfr future_map2_dfr
+#' @importFrom furrr future_map future_map_dfr future_map2_dfr future_options
 #' @importFrom data.table .N as.data.table :=
 #' @examples
 #'
@@ -250,6 +250,7 @@ if (!is.null(onset_modifier)) {
   out <- furrr::future_map_dfr(fitted_delay_fn,
                                ~ nowcast_inner(sample_delay_fn = ., verbose = FALSE),
                                .progress = verbose,
+                               .options = furrr::future_options(scheduling = 10),
                                .id = "sample")
   
   ## Add a nowcast lag across samples

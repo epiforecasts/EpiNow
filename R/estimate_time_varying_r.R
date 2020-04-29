@@ -7,7 +7,7 @@
 #' @return A dataframe of r estimates over time summarisd across samples.
 #' @export
 #' @importFrom purrr safely
-#' @importFrom furrr future_map2
+#' @importFrom furrr future_map2 future_options
 #' @importFrom tibble tibble
 #' @importFrom dplyr mutate
 #' @importFrom tidyr unnest
@@ -31,7 +31,8 @@ estimate_time_varying_r <- function(onsets, window = 7) {
                                 safe_estimate_r_window(onsets,
                                                        min_time = .x,
                                                        max_time = .y)[[1]]),
-                              .progress = TRUE),
+                              .progress = TRUE,
+                              .options = furrr::future_options(scheduling = 10)),
       vars = list(names(estimates[[1]]))
     ) %>%
     tidyr::unnest(c("estimates", "vars")) %>%
