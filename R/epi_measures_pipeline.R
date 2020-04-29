@@ -61,7 +61,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
   estimates <- furrr::future_map(data_list, process_R0, 
                                  .progress = verbose,
                                  .options = furrr::future_options(packages = c("EpiNow", "dplyr"),
-                                                                  scheduling = 10))
+                                                                  scheduling = 20))
   
   ## Clean up NULL rt estimates and bind together
   R0_estimates <-   

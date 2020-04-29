@@ -250,7 +250,7 @@ if (!is.null(onset_modifier)) {
   out <- furrr::future_map_dfr(fitted_delay_fn,
                                ~ nowcast_inner(sample_delay_fn = ., verbose = FALSE),
                                .progress = verbose,
-                               .options = furrr::future_options(scheduling = 10),
+                               .options = furrr::future_options(scheduling = 20),
                                .id = "sample")
   
   ## Add a nowcast lag across samples
