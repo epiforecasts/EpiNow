@@ -92,10 +92,9 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
   }
  
   ## Calculate when to start the window estimation of Rt
-  min_case_date <- 
-    dplyr::filter(summed_cases, cases > 0) %>% 
-    dplyr::pull(date) %>% 
-    min()
+  min_case_date <- dplyr::filter(summed_cases, cases > 0)
+  min_case_date <- dplyr::pull(min_case_date, date)
+  min_case_date <- min(min_case_date)
   
   wait_time <- as.numeric(min_est_date - min_case_date) + 1
   
@@ -152,8 +151,9 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                             sd_R = R$`Std(R)`,
                             R = purrr::map(R_samples,
                                            ~ tibble::tibble(R = ., sample = 1:length(.)))
-                          ) %>% 
-                            tidyr::unnest(R)
+                          )
+                          
+                          out <- tidyr::unnest(out, R)
                           
                           ## Make current case predictions from past cases and current Rt values
                           preds <-  
@@ -171,8 +171,9 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                           
                           preds <- dplyr::bind_rows(preds, .id  = "sample") %>% 
                             dplyr::mutate(sample = as.numeric(sample), 
-                                          horizon = 0) %>% 
-                            dplyr::select(date, cases, sample, horizon)
+                                          horizon = 0) 
+                          
+                          preds <- dplyr::select(preds, date, cases, sample, horizon)
                           
                           ## Score the forecast
                           scores <- EpiSoon::score_case_forecast(preds, summed_cases, 
@@ -270,8 +271,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
         
         
         ## Join Rt estimates and forecasts
-        est_r <- 
-          dplyr::mutate(est_r, rt_type = "nowcast") %>% 
+        est_r <- dplyr::mutate(est_r, rt_type = "nowcast") %>% 
           dplyr::select(-mean_R, -sd_R) %>% 
           dplyr::bind_rows(rt_forecasts %>% 
                              dplyr::mutate(rt_type = "forecast") %>% 
@@ -282,8 +282,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
       }else{
         
         ## Return just nowcast if no forecast has been run
-        est_r <-
-          dplyr::mutate(est_r, rt_type = "nowcast", horizon = NA)
+        est_r <- dplyr::mutate(est_r, rt_type = "nowcast", horizon = NA)
         
         return(list(rts = est_r))
       }

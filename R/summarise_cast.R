@@ -5,10 +5,10 @@
 #' The number of days to use to shift the incubation period
 #' @return A summarised dataframe
 #' @export
-#' @importFrom tidyr gather
-#' @importFrom dplyr filter group_by summarise ungroup
+#' @importFrom data.table copy setorder
 #' @importFrom purrr map_dbl
 #' @importFrom HDInterval hdi
+#' @importFrom lubridate days
 #' @examples
 #'
 #'
@@ -23,21 +23,27 @@ summarise_cast <- function(cast, incubation_period = 5) {
     return(out)
   }
   
-  cast %>%
-    dplyr::group_by(sample, date, type) %>%
-    dplyr::summarise(cases = sum(cases),
-                     confidence = get_conf(confidence, import_status)) %>%
-    dplyr::ungroup() %>%
-    dplyr::group_by(type, date) %>%
-    dplyr::summarise(
-      bottom  = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.9)), ~ .[[1]]),
-      top = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.9)), ~ .[[2]]),
-      lower  = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[1]]),
-      upper = purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[2]]),
-      median = median(cases, na.rm = TRUE),
-      mean = mean(cases, na.rm = TRUE),
-      confidence = mean(confidence, na.rm = TRUE)) %>%
-    dplyr::mutate(date_onset = date) %>% ## onset date
-    dplyr::mutate(date = date - incubation_period) %>% ## date of infection ~5 days prior
-    dplyr::ungroup()
+  ## Make an explict copy
+  summarised_cast <- data.table::copy(cast)
+  
+  ## SUmmarises cases by reference across sample, data and type
+  summarised_cast <- data.table::as.data.table(summarised_cast)[
+    , .(cases = sum(cases), confidence = get_conf(confidence, import_status)),
+    by = .(sample, date, type)]
+  
+  ## Create CI and other summary measures
+  summarised_cast <- summarised_cast[, .(
+    bottom  = as.numeric(purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.9)), ~ .[[1]])),
+    top = as.numeric(purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.9)), ~ .[[2]])),
+    lower  = as.numeric(purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[1]])),
+    upper = as.numeric(purrr::map_dbl(list(HDInterval::hdi(cases, credMass = 0.5)), ~ .[[2]])),
+    median = as.numeric(median(cases, na.rm = TRUE)),
+    mean = as.numeric(mean(cases, na.rm = TRUE)),
+    confidence = as.numeric(mean(confidence, na.rm = TRUE))
+  ), by = .(date, type)][, date_onset := date][, date := date - lubridate::days(incubation_period)]
+
+  data.table::setorder(summarised_cast, date)  
+  
+  return(summarised_cast)
+  
 }

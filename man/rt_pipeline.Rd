@@ -14,7 +14,7 @@ rt_pipeline(
   predict_lag = 0,
   samples = 1000,
   si_samples = 1,
-  rt_samples = 10,
+  rt_samples = 5,
   rt_windows = 1:7,
   rate_window = 7,
   earliest_allowed_onset = NULL,
