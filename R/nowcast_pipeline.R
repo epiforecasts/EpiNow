@@ -248,7 +248,7 @@ if (!is.null(onset_modifier)) {
   }
 
   out <- furrr::future_map_dfr(fitted_delay_fn,
-                               ~ nowcast_inner(sample_delay_fn = ., verbose),
+                               ~ nowcast_inner(sample_delay_fn = ., verbose = FALSE),
                                .progress = verbose,
                                .id = "sample")
   
