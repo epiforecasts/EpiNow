@@ -12,7 +12,7 @@
 #' @importFrom dplyr filter group_by ungroup mutate select summarise n group_split bind_rows arrange
 #' @importFrom purrr safely compact map_dbl map pmap transpose
 #' @importFrom HDInterval hdi
-#' @importFrom furrr future_map
+#' @importFrom furrr future_map future_options
 #' @importFrom data.table setDT
 #' @examples 
 #'
@@ -56,11 +56,16 @@ epi_measures_pipeline <- function(nowcast = NULL,
     }
     
     return(estimates)
-    }, .progress = verbose)
+    }, .progress = verbose,
+    options = furrr::future_options(global = c("rate_window", "safe_R0", "serial_intervals",
+                                               "rt_prior", "si_samples", "rt_samples", "min_est_date",
+                                               "forecast_model", "horizon"),
+                                    packages = c("EpiNow", "dplyr"),
+                                    scheduling = 5))
   
   ## Clean up NULL rt estimates and bind together
-  R0_estimates <- estimates %>% 
-    purrr::map(~ .$rts) %>% 
+  R0_estimates <-   
+    purrr::map(estimates~ .$rts) %>% 
     purrr::compact() %>% 
     dplyr::bind_rows()
 
@@ -141,40 +146,43 @@ epi_measures_pipeline <- function(nowcast = NULL,
   }
 
   if (!is.null(min_est_date)) {
-    little_r_estimates <- nowcast %>%
-      dplyr::filter(date >= (min_est_date - lubridate::days(rate_window)))
+    little_r_estimates <-  
+      dplyr::filter(nowcast, date >= (min_est_date - lubridate::days(rate_window)))
   }else{
     little_r_estimates <- nowcast
   }
 
   ## Sum across cases and imports
-  little_r_estimates <- little_r_estimates %>%
-    group_by(type, sample, date) %>%
+  little_r_estimates <-
+    group_by(little_r_estimates, type, sample, date) %>%
     dplyr::summarise(cases = sum(cases, na.rm  = TRUE)) %>%
     dplyr::ungroup() %>%
     tidyr::drop_na()
 
   ## Nest by type and sample then split by type only
-  little_r_estimates_list <- little_r_estimates %>%
-    dplyr::group_by(type, sample) %>%
+  little_r_estimates_list <-
+    dplyr::group_by(little_r_estimates, type, sample) %>%
     tidyr::nest() %>%
     dplyr::ungroup() %>%
     dplyr::group_split(type, keep = TRUE)
 
   ## Pull out unique list
-  little_r_estimates_res <- little_r_estimates %>%
-    dplyr::select(type) %>%
+  little_r_estimates_res <- dplyr::select(little_r_estimates, type) %>%
     unique()
 
   ## Estimate overall
   little_r_estimates_res$overall_little_r <- furrr::future_map(little_r_estimates_list,
                                                         ~ EpiNow::estimate_r_in_window(.$data), 
+                                                        options = furrr::future_options(global = FALSE,
+                                                                                        packages = "EpiNow"),
                                                         .progress = verbose)
 
   ## Estimate time-varying
   little_r_estimates_res$time_varying_r <- furrr::future_map(little_r_estimates_list,
                                                              ~ EpiNow::estimate_time_varying_r(.$data,
                                                                                                window = rate_window),
+                                                             options = furrr::future_options(global = c("rate_window"),
+                                                                                             packages = "EpiNow"),
                                                              .progress = verbose)
 
 
