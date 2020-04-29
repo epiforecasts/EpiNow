@@ -18,7 +18,7 @@
 #' @inheritParams rt_pipeline
 #' @return NULL
 #' @export
-#' @importFrom furrr future_map
+#' @importFrom furrr future_map future_options
 #' @importFrom tidyr complete drop_na
 #' @importFrom dplyr count filter rename filter group_by pull ungroup
 #' @examples
@@ -137,7 +137,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   }
   
   if (regions_in_parallel) {
-    out <- furrr::future_map(regions, run_region, .progress = TRUE)
+    out <- furrr::future_map(regions, run_region, .progress = TRUE,
+                             .options = furrr::future_options(scheduling = Inf))
   }else{
     out <- purrr::map(regions, run_region)
   }
