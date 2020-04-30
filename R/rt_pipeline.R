@@ -91,7 +91,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
  min_plot_date <-  
    dplyr::filter(cases,
                  import_status %in% "local", 
-                 confirm >= 5) %>% 
+                 cases >= 5) %>% 
    dplyr::pull(date) %>% 
    {min(., na.rm = TRUE) - lubridate::days(incubation_period)}
  
