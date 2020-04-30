@@ -34,8 +34,12 @@ estimate_time_varying_r <- function(onsets, window = 7) {
                               .progress = TRUE,
                               .options = furrr::future_options(scheduling = 20)),
       vars = list(names(estimates[[1]]))
-    ) %>%
-    tidyr::unnest(c("estimates", "vars")) %>%
-    tidyr::unnest("estimates")
+    )
+  
+  windowed_r <- 
+    tidyr::unnest(windowed_r, c("estimates", "vars"))
+  
+  windowed_r <-
+    tidyr::unnest(windowed_r, "estimates")
 
 }

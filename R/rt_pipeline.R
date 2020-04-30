@@ -12,6 +12,8 @@
 #' allowed onset.
 #' @param serial_intervals A matrix with columns representing samples and rows representing the probability of the serial intervel being on
 #' that day. Defaults to `EpiNow::covid_serial_intervals`.
+#' @param min_forecast_cases Numeric, defaults to 200. The minimum number of cases required in the last 7 days
+#' of data in order for a forecast to be run. This prevents spurious forecasts based on highly uncertain Rt estimates.
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
 #' @return NULL
@@ -32,7 +34,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, save_plots = TRUE,
                         nowcast_lag = 4, incubation_period = 5, forecast_model = NULL,
                         horizon = 0, report_forecast = FALSE, report_delay_fns = NULL,
-                        onset_modifier = NULL) {
+                        onset_modifier = NULL, min_forecast_cases = 200) {
  
  
  # Set up folders ----------------------------------------------------------
@@ -64,6 +66,35 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
       mean_prior = 2.6,
       std_prior = 2)
   }
+ 
+
+# Control errors by changing options --------------------------------------
+
+ ##Define the minimum number of recent cases required for a forecast to be run
+ if (!is.null(min_forecast_cases)) {
+   current_cases <- dplyr::filter(cases, date <= max(date),
+                                  data >= (max(date) - lubridate::days(7))) %>% 
+   dplyr::summarise(cases = sum(cases, na.rm = TRUE)) %>% 
+   dplyr::pull(cases)
+   
+   ## If cases in the last week are fewer than this number then turn off forecasting.
+   if (min_forecast_cases < current_cases) {
+     horizon <- 0
+     report_forecast <- FALSE
+     forecast_model <- NULL
+   }
+ }
+ 
+ 
+ ## Define the min plotting (and estimate date as the first date that
+ ## at least 5 local cases were reported minus the incubation period
+ min_plot_date <-  
+   dplyr::filter(cases,
+                 import_status %in% "local", 
+                 confirm >= 5) %>% 
+   dplyr::pull(date) %>% 
+   {min(., na.rm = TRUE) - lubridate::days(incubation_period)}
+ 
 
   # Format input ------------------------------------------------------------
 
@@ -79,15 +110,6 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
     dplyr::rename(cases, 
                   confirm = cases)
 
-  ## Define the min plotting (and estimate date as the first date that
-  ## at least 5 local cases were reported minus the incubation period
-  min_plot_date <-  
-    dplyr::filter(cases,
-                  import_status %in% "local", 
-                  confirm >= 5) %>% 
-    dplyr::pull(date) %>% 
-    {min(., na.rm = TRUE) - lubridate::days(incubation_period)}
-  
   # Run a nowcast -----------------------------------------------------------
 
   nowcast <- EpiNow::nowcast_pipeline(reported_cases = cases, linelist = formatted_linelist,
