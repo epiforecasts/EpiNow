@@ -30,7 +30,8 @@ rt_pipeline(
   horizon = 0,
   report_forecast = FALSE,
   report_delay_fns = NULL,
-  onset_modifier = NULL
+  onset_modifier = NULL,
+  min_forecast_cases = 200
 )
 }
 \arguments{
@@ -88,6 +89,9 @@ future Rt values. An example of the required structure is: \code{function(ss, y)
 \item{onset_modifier}{data.frame containing a \code{date} variable and a function \code{modifier} variable. This is used
 to modify estimated cases by onset date. \code{modifier} must be a function that returns a proportion when called
 (enables inclusion of uncertainty).}
+
+\item{min_forecast_cases}{Numeric, defaults to 200. The minimum number of cases required in the last 7 days
+of data in order for a forecast to be run. This prevents spurious forecasts based on highly uncertain Rt estimates.}
 }
 \description{
 Combine fitting a delay distribution, constructing a set of
