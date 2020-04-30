@@ -78,7 +78,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
    dplyr::pull(cases)
    
    ## If cases in the last week are fewer than this number then turn off forecasting.
-   if (min_forecast_cases < current_cases) {
+   if (min_forecast_cases > current_cases) {
      horizon <- 0
      report_forecast <- FALSE
      forecast_model <- NULL
