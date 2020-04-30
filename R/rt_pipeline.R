@@ -73,7 +73,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
  ##Define the minimum number of recent cases required for a forecast to be run
  if (!is.null(min_forecast_cases)) {
    current_cases <- dplyr::filter(cases, date <= max(date),
-                                  data >= (max(date) - lubridate::days(7))) %>% 
+                                  date >= (max(date) - lubridate::days(7))) %>% 
    dplyr::summarise(cases = sum(cases, na.rm = TRUE)) %>% 
    dplyr::pull(cases)
    
