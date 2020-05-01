@@ -179,7 +179,7 @@ generated quantities {
   // obs_app_out = obs_app;
   ups = upscaled_inf;
   
-  // Calculate infectiousness at each timestep 
+  // Calculate infectiousness at each timestep
   old_inf[1] = 0;
   for (s in 2:t){
     old_inf[s] = 0;
