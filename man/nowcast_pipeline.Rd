@@ -11,6 +11,7 @@ nowcast_pipeline(
   date_to_cutoff_delay = NULL,
   earliest_allowed_onset = NULL,
   merge_actual_onsets = TRUE,
+  explicit_sample = TRUE,
   delay_only = FALSE,
   verbose = FALSE,
   samples = 1,
