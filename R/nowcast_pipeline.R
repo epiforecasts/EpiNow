@@ -15,7 +15,7 @@
 #' to modify estimated cases by onset date. `modifier` must be a function that returns a proportion when called 
 #' (enables inclusion of uncertainty).
 #' @param approx_delay  Logical, defaults to `FALSE`. Should delay sampling be approximated using case counts. Not appropriate
-#' when case numbers are low.
+#' when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.
 #' @inheritParams generate_pseudo_linelist
 #' @inheritParams sample_delay
 #' @return
