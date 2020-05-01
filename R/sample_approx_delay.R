@@ -30,7 +30,7 @@ sample_approx_delay <- function(reported_cases = NULL,
   
   ## Draw from the density fn of the delay dist
   delay_draw <- delay_fn(0:max_delay, dist = TRUE, cum = FALSE)
-  
+   
   ## Approximate onset cases
   onset_cases <- purrr::map_dfc(1:length(reversed_cases), 
                                 ~ c(rep(0, . - 1), 
@@ -40,7 +40,7 @@ sample_approx_delay <- function(reported_cases = NULL,
   
   ## Summarise imputed onsets and build output data.table
   onset_cases <- data.table::data.table(
-    date = seq(min(reported_cases$date) - lubridate::days(max_delay),
+    date = seq(min(reported_cases$date) - lubridate::days(length(delay_draw) - 1),
                max(reported_cases$date), by = "days"),
     ## This step will round to zero days when cases < 0 on average
     ## This can lead to a slight reduction in case count early on
