@@ -14,6 +14,8 @@
 #' @param onset_modifier data.frame containing a `date` variable and a function `modifier` variable. This is used 
 #' to modify estimated cases by onset date. `modifier` must be a function that returns a proportion when called 
 #' (enables inclusion of uncertainty).
+#' @param approx_delay  Logical, defaults to `FALSE`. Should delay sampling be approximated using case counts. Not appropriate
+#' when case numbers are low.
 #' @inheritParams generate_pseudo_linelist
 #' @inheritParams sample_delay
 #' @return
@@ -31,6 +33,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              earliest_allowed_onset = NULL,
                              merge_actual_onsets = TRUE,
                              approx_delay = FALSE,
+                             max_delay = 120,
                              delay_only = FALSE,
                              verbose = FALSE,
                              samples = 1,
@@ -185,58 +188,17 @@ if (!is.null(onset_modifier)) {
         }
       }
     }else{
-      
-      ## Fn to map from reported case counts -> onset case counts
-      sample_approx_delay <- function(reported_cases = NULL, 
-                                      delay_fn = NULL,
-                                      max_delay = NULL, 
-                                      earliest_allowed_onset = NULL) {
-        
-        ## Reverse cases so starts with current first
-        reversed_cases <- rev(reported_cases$confirm)
-        
-        ## Draw from the density fn of the delay dist
-        delay_draw <- delay_fn(0:max_delay, dist = TRUE, cum = FALSE)
-        
-        ## Approximate onset cases
-        onset_cases <- purrr::map_dfc(1:length(reversed_cases), 
-                                      ~ c(rep(0, . - 1), 
-                                          reversed_cases[.] * 
-                                            delay_draw,
-                                           rep(0, length(reversed_cases) - .)))
-        
-        ## Summarise imputed onsets and build output data.table
-        onset_cases <- data.table::data.table(
-          date = seq(min(reported_cases$date) - lubridate::days(max_delay),
-                     max(reported_cases$date), by = "days"),
-          ## This step will round to zero days when cases < 0 on average
-          ## This can lead to a slight reduction in case count early on
-          cases = as.integer(rev(rowSums(onset_cases)))
-        )
-        
-        ## Filter out all zero cases until first recorded case
-        onset_cases <- data.table::setorder(onset_cases, date)
-        onset_cases <- onset_cases[,cum_cases := cumsum(cases)][cum_cases != 0][,cum_cases := NULL]
-        
-        if (!is.null(earliest_allowed_onset)) {
-          onset_cases <- onset_cases[date >= as.Date(earliest_allowed_onset)]
-        }
-        
-        return(onset_cases)
-      }
-      
-
       ## Apply to local cases 
       cases_by_onset <- sample_approx_delay(reported_cases = local_cases, 
                                             delay_fn = sample_delay_fn,
-                                            max_delay = 120,
+                                            max_delay = max_delay,
                                             earliest_allowed_onset = earliest_allowed_onset)
       
       ## Apply to imported cases if present
       if (sum(imported_cases$confirm) > 0) {
         imported_cases_by_onset <- sample_approx_delay(reported_cases = imported_cases, 
                                                        delay_fn = sample_delay_fn,
-                                                       max_delay = 120,
+                                                       max_delay = max_delay,
                                                        earliest_allowed_onset = earliest_allowed_onset)
       }
       

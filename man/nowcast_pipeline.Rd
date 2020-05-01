@@ -11,7 +11,8 @@ nowcast_pipeline(
   date_to_cutoff_delay = NULL,
   earliest_allowed_onset = NULL,
   merge_actual_onsets = TRUE,
-  explicit_sample = TRUE,
+  approx_delay = FALSE,
+  max_delay = 120,
   delay_only = FALSE,
   verbose = FALSE,
   samples = 1,
@@ -32,6 +33,9 @@ allowed onset.}
 
 \item{merge_actual_onsets}{Logical, defaults to \code{TRUE}.
 Should linelist onset dates be used where available?}
+
+\item{approx_delay}{Logical, defaults to \code{FALSE}. Should delay sampling be approximated using case counts. Not appropriate
+when case numbers are low.}
 
 \item{delay_only}{Logical, defaults to \code{FALSE}. Should estimates be made based on estimated onset dates without nowcasting.}
 

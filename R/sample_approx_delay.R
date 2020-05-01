@@ -1,10 +1,28 @@
 
-
-
-## Fn to map from reported case counts -> onset case counts
+#' Approximate Sampling Reporting Delays using Reported Case Counts
+#'
+#' @param reported_cases A dataframe of reported cases (in date order) with the following variables:
+#' `date` and `confirm`. 
+#' @param max_delay Numeric, maximum delay to allow. Defaults to 120 days
+#' @inheritParams sample_delay
+#' @return A `data.table` of cases by date of onset
+#' @export
+#' @importFrom purrr map_dfc
+#' @importFrom data.table data.table setorder
+#' @examples
+#' 
+#' cases <- EpiSoon::example_obs_cases %>% 
+#' dplyr::rename(confirm = cases)
+#' 
+#' delay_fn <- function(n, dist, cum) {
+#'    dgamma(n, 2, 1)}
+#' 
+#' onsets <- sample_approx_delay(reported_cases = cases,
+#'                               delay_fn = delay_fn)
+#' 
 sample_approx_delay <- function(reported_cases = NULL, 
                                 delay_fn = NULL,
-                                max_delay = NULL, 
+                                max_delay = 120, 
                                 earliest_allowed_onset = NULL) {
   
   ## Reverse cases so starts with current first

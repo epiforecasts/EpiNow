@@ -20,6 +20,8 @@ rt_pipeline(
   earliest_allowed_onset = NULL,
   merge_actual_onsets = TRUE,
   delay_only = FALSE,
+  approx_delay = FALSE,
+  max_delay = 120,
   verbose = FALSE,
   serial_intervals = NULL,
   rt_prior = NULL,
@@ -65,6 +67,9 @@ allowed onset.}
 Should linelist onset dates be used where available?}
 
 \item{delay_only}{Logical, defaults to \code{FALSE}. Should estimates be made based on estimated onset dates without nowcasting.}
+
+\item{approx_delay}{Logical, defaults to \code{FALSE}. Should delay sampling be approximated using case counts. Not appropriate
+when case numbers are low.}
 
 \item{verbose}{Logical, defaults to \code{FALSE}. Should internal nowcasting progress messages be returned.}
 
