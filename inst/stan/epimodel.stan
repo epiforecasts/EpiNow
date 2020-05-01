@@ -10,6 +10,7 @@ data {
   real <lower = 0> inc_scale;
   real <lower = 0> delay_alpha;
   real <lower = 0> delay_beta;
+  int cut;
 }
 
 transformed data {
@@ -20,6 +21,7 @@ transformed data {
   int indw; // index variables
   int indv; 
   int indc;
+  int indk;
   vector[(2 * t) - 1] sivec; // vector of discretised serial interval
   matrix[(2 * t) - 1, (2 * t) - 1] simat; // serial interval matrix (for convolution purposes)
   vector[(2 * t) - 1] incvec; // vector of discretised incubation period
@@ -30,7 +32,7 @@ transformed data {
   matrix[(2 * t) - 1, (2 * t) - 1] conv_delay_mat; // convolution matrix
   vector[(2 * t) - 1] ci; // final product, confirmation interval (can be negative)
   vector[(2 * t) - 1] infectiousness; // infectiousness 
-  // vector[2 * t] upscaled_cases; // upscaled confirmed cases
+  vector[t] upscaled_inf; // upscaled confirmed cases
   vector[(2 * t) - 1] inc_conv_delay; // convolution of 1 incubation period + 1 delay
   vector[(2 * t) - 1] inf_back; // infectiousness by infection date
   matrix[(2 * t) - 1, (2 * t) - 1] cimat;
@@ -91,7 +93,10 @@ transformed data {
   for(i in 1:((2 * t) - 1)) {
     for(j in 1:((2 * t) - 1)) {
       // Matrix for Confirmation Interval
-      cimat[i, j] = ((t + i - j) <= 0) ? 0: (((t + i - j) >= ((2 * t) -1)) ? 0 : ci[(t + i - j)]);
+      // cimat[i, j] = ((t + i - j) <= 0) ? 0: (((t + i - j) >= ((2 * t) -1)) ? 0 : ci[(t + i - j)]);
+      indk  = t + (i - 1) - (j - 1);
+      cimat[i, j] = indk <= 0 ? 0 : indk > (2 * t - 1) ? 0 : ci[indk];
+      // cimat[i, j] = ((t - i + j) <= 0) ? 0: (((t - i + j) >= ((2 * t) -1)) ? 0 : ci[(t - i + j)]);
     }
   }
       
@@ -101,18 +106,10 @@ transformed data {
     infectiousness[i] = max({infectiousness[i], 1E-06});
   }
   
-  // // Upscaling confirmed cases 
-  // for(g in 1:t) {
-  //   upscaled_cases[g] = (obs_imported[g] + obs_local[g]) / sum(ci[(t - (t - g)):(2 * t - 1)]);
-  // }
-  // 
-  // // Calculate infectiousness
-  // for (s in 1:t) {
-  //   infectiousness[s] = 0;
-  //   for(i in 1:t) {
-  //     infectiousness[s] += upscaled_cases[i] * ci[(s - i + t)];
-  //   }
-  // }
+  // Upscaling infectiousness
+  for(g in 1:(t)) {
+    upscaled_inf[g] = infectiousness[g] / (1 - sum(ci[1:g]));
+  }
   
   // Infectiousness by infection date
   for(i in 1:((2 * t) - 1)){
@@ -123,13 +120,12 @@ transformed data {
     for(j in 1:((2 * t) - 1)) {
       indc = j - k + t;
       inf_back[k] += (indc <= 0) ? 0 : indc >= ((2 * t) - 1) ? 0 : infectiousness[j] * inc_conv_delay[j - k + t];
-      // inf_back[k] += infectiousness[j] * inc_conv_delay[j - k + t];
     }
   }
 }
 
 parameters{
-  real <lower = 0> R[(2 * t) - 1]; // Effective reproduction number over time
+  real <lower = 0> R[t]; // Effective reproduction number over time
   real <lower = 0> phi; // Dispersion of negative binomial distribution
 }
 
@@ -140,50 +136,47 @@ model {
   phi ~ normal(0, 1) T[0,];
   
   // Log likelihood of observed local cases given infectiousness and Rts
-  for (s in (tau + 1):((2 * t) - 1)){
+  for (s in (tau + 1):t){
     for (i in (s-tau + 1):s){
-      target += neg_binomial_2_lpmf(obs_app[i] | R[s] * infectiousness[i], 1 / sqrt(phi));
+      // target += neg_binomial_2_lpmf(obs_app[i] | R[s] * infectiousness[i], 1 / sqrt(phi));
+      target += neg_binomial_2_lpmf(obs_app[i] | R[s] * upscaled_inf[i], 1 / sqrt(phi));
+      // target += poisson_lpmf(obs_app[i] | R[s] * infectiousness[i]);
     }
   }
   
 }
 
 generated quantities {
-  vector[(2 * t) - 1] inf_cases;
-  vector[(2 * t) - 1] inf_R;
-  vector[(2 * t) - 1] confirmation_interval;
-  vector[(2 * t) - 1] notification_delay;
-  vector[(2 * t) - 1] serial_interval;
-  vector[(2 * t) - 1] notif_incub_conv;
-  vector[(2 * t) - 1] incubation_period;
-  vector[(2 * t) - 1] delay_conv;
-  vector[(2 * t) - 1] infectiousness_out;
-  vector[(2 * t) - 1] inf_back_out;
-  int obs_app_out[(2 * t) - 1];
+  vector[t - cut] inf_cases;
+  vector[t - cut] inf_R;
+  // vector[(2 * t) - 1] confirmation_interval;
+  // vector[(2 * t) - 1] notification_delay;
+  // vector[(2 * t) - 1] serial_interval;
+  // vector[(2 * t) - 1] notif_incub_conv;
+  // vector[(2 * t) - 1] incubation_period;
+  // vector[(2 * t) - 1] delay_conv;
+  // vector[(2 * t) - 1] infectiousness_out;
+  // vector[(2 * t) - 1] inf_back_out;
+  // vector[t] inf_back_ups;
+  // vector[t] inf_cases_ups;
+  // vector[t] ups;
+  // int obs_app_out[(2 * t) - 1];
 
-  confirmation_interval = ci;
-  notification_delay = delayvec;
-  serial_interval = sivec;
-  notif_incub_conv = inc_conv_delay;
-  incubation_period = incvec;
-  infectiousness_out = infectiousness;
-  inf_back_out = inf_back;
-  delay_conv = conv_delay;
-  obs_app_out = obs_app;
+  // confirmation_interval = ci;
+  // notification_delay = delayvec;
+  // serial_interval = sivec;
+  // notif_incub_conv = inc_conv_delay;
+  // incubation_period = incvec;
+  // infectiousness_out = infectiousness;
+  // inf_back_out = inf_back;
+  // delay_conv = conv_delay;
+  // obs_app_out = obs_app;
+  // ups = upscaled_inf;
 
 
-  for(i in 1:((2 * t) - 1)){
-    inf_R[i] = 0;
-  }
-
-  for(k in 1:((2 * t) - 1)) {
-    for(j in 1:((2 * t) - 1)) {
-      inf_R[k] += (j - k + t <= 0) ? 0 : j - k + t >= ((2 * t) - 1) ? 0 : R[j] * inc_conv_delay[j - k + t];
-    }
-  }
-
-  for(i in 1:((2 * t) - 1)) {
-    inf_cases[i] = neg_binomial_2_rng(max({inf_R[i] * inf_back[i],0.00001}),  1 / sqrt(phi));
+  for(i in 1:(t - cut)){
+    inf_R[i] = R[i + cut];
+    inf_cases[i] = neg_binomial_2_rng(inf_R[i] * infectiousness[i + cut],  1 / sqrt(phi));
   }
 
 }
