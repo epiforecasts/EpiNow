@@ -139,6 +139,10 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
 
   saveRDS(epi_estimates,  paste0(target_folder, "/time_varying_params.rds"))
   
+  ##Remove raw estimates now saved
+  epi_estimates$raw_R0 <- NULL
+  epi_estimates$raw_case_forecast <- NULL
+  
  # Summarise results -------------------------------------------------------
 
  EpiNow::report_estimates(cases = cases, nowcast = nowcast, 
@@ -167,5 +171,8 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
               latest_folder, recursive = TRUE)
   )
 
+  ## Clean everything not in use
+  rm(list = ls())
+  
   return(invisible(NULL))
 }
