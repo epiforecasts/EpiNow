@@ -138,7 +138,7 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
     ## Fit each sub sample
     truncated_sample_functions <- purrr::map(1:sub_samples,
                                              ~ get_single_delay_fn(sample(confirmation_delays, 
-                                                                          round(lenght(confirmation_delays) / sub_samples),
+                                                                          round(length(confirmation_delays) / sub_samples),
                                                                           replace = TRUE),
                                                                    samples = round(samples / sub_samples)))
      ## Bind together in a list of functions                                        
