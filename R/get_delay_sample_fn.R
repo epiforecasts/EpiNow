@@ -10,6 +10,7 @@
 ##'   delays to randomly sample
 ##' @importFrom dplyr filter
 ##' @importFrom purrr map map2 flatten
+##' @importFrom furrr future_map
 ##' @importFrom rstan extract
 ##' @importFrom loo loo relative_eff extract_log_lik
 ##' @author Sebastian Funk <sebastian.funk@lshtm.ac.uk>
