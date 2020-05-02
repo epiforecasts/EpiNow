@@ -144,7 +144,7 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
                                              ~ get_single_delay_fn(sample(delays, 
                                                                           round(length(delays) / sub_samples),
                                                                           replace = FALSE),
-                                                                   samples = round(samples / sub_samples)),
+                                                                   samples = ceiling(samples / sub_samples)),
                                              .progress = FALSE)
      ## Bind together in a list of functions                                        
     truncated_sample_functions <- purrr::flatten(truncated_sample_functions)
