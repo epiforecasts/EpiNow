@@ -83,14 +83,19 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1) {
     delay_beta <- sample(rstan::extract(fit_gam)$beta, samples)
     
     sample_functions <- purrr::map2(delay_alpha, delay_beta, function(alpha, beta){
-      sample_function <- function(n, dist = FALSE, max_delay = NULL){
+      sample_function <- function(n, dist = FALSE, cum = TRUE, max_delay = NULL){
         if(!dist) {
           rgamma(n, alpha, beta)
         }else{
           if (length(n) > max_delay) {
             n <- 1:max_delay
           }
-          pgamma(n, alpha, beta)
+          if (cum) {
+            pgamma(n, alpha, beta)
+          }else{
+            dgamma(n, alpha, beta)
+          }
+
         }
       }
     })
@@ -99,8 +104,8 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1) {
   
   truncated_sample_functions <- sample_functions %>%
     purrr::map( function(sample_function) {
-      truncated_sample_function <- function(n, dist = FALSE) {
-      n <- sample_function(n, dist, get("max_delay"))
+      truncated_sample_function <- function(n, dist = FALSE, cum = TRUE) {
+      n <- sample_function(n, dist, cum, get("max_delay"))
 
       if (!dist) {
         while(any(!is.na(n) & n >= get("max_delay"))) {

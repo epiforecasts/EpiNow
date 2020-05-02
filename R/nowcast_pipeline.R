@@ -14,11 +14,13 @@
 #' @param onset_modifier data.frame containing a `date` variable and a function `modifier` variable. This is used 
 #' to modify estimated cases by onset date. `modifier` must be a function that returns a proportion when called 
 #' (enables inclusion of uncertainty).
+#' @param approx_delay  Logical, defaults to `FALSE`. Should delay sampling be approximated using case counts. Not appropriate
+#' when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.
 #' @inheritParams generate_pseudo_linelist
 #' @inheritParams sample_delay
 #' @return
 #' @export
-#' @importFrom dplyr filter count bind_rows group_by summarise n rename
+#' @importFrom dplyr filter count bind_rows group_by summarise n rename arrange
 #' @importFrom lubridate days
 #' @importFrom purrr map safely map_dfr map_lgl compact map2_dbl
 #' @importFrom furrr future_map future_map_dfr future_map2_dfr future_options
@@ -30,6 +32,8 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              date_to_cast = NULL, date_to_cutoff_delay = NULL,
                              earliest_allowed_onset = NULL,
                              merge_actual_onsets = TRUE,
+                             approx_delay = FALSE,
+                             max_delay = 120,
                              delay_only = FALSE,
                              verbose = FALSE,
                              samples = 1,
@@ -70,27 +74,29 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 
 # Organise inputted linelist ----------------------------------------------
 
-  
-  
-  ## Split linelist into day chunks
-  ## Used to merge actuals with estimated onsets
-  if (merge_actual_onsets) {
-    ## Group linelists by day
-    linelist_by_day <- linelist %>%
-      dplyr::filter(import_status == "local") %>%
-      EpiNow::split_linelist_by_day()
-    
-    ## Filter out imported cases and repeat linelist step
-    imported_linelist <- linelist %>%
-      dplyr::filter(import_status == "imported")
-    
-    if (nrow(imported_linelist) > 0) {
-      imported_linelist_by_day <- EpiNow::split_linelist_by_day(imported_linelist)
+  if (!approx_delay) {
+    ## Split linelist into day chunks
+    ## Used to merge actuals with estimated onsets
+    if (merge_actual_onsets) {
+      ## Group linelists by day
+      linelist_by_day <- linelist %>%
+        dplyr::filter(import_status == "local") %>%
+        EpiNow::split_linelist_by_day()
+      
+      ## Filter out imported cases and repeat linelist step
+      imported_linelist <- linelist %>%
+        dplyr::filter(import_status == "imported")
+      
+      if (nrow(imported_linelist) > 0) {
+        imported_linelist_by_day <- EpiNow::split_linelist_by_day(imported_linelist)
+      }
+    }else{
+      linelist_by_day <- NULL
+      imported_linelist_by_day <- NULL
     }
-  }else{
-    linelist_by_day <- NULL
-    imported_linelist_by_day <- NULL
   }
+  
+
 
 
 
@@ -112,19 +118,21 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
  
 # Generate a pseudo linelist ----------------------------------------------
 
-  if (verbose) {
-    message("Generating a pseudo linelists")
-  }
-  
-  populate_list <- function(case_df = NULL, linelist_df = NULL) {
-    linelist_from_case_counts(case_df) %>%
-      generate_pseudo_linelist(observed_linelist = linelist_df, merge_actual_onsets =  merge_actual_onsets)
-  }
-  
-  populated_linelist <- populate_list(local_cases, linelist_by_day)
-  
-  if (sum(imported_cases$confirm) > 0) {
-    imported_populated_linelist <- populate_list(imported_cases, imported_linelist_by_day)
+  if (!approx_delay) {
+    if (verbose) {
+      message("Generating a pseudo linelists")
+    }
+    
+    populate_list <- function(case_df = NULL, linelist_df = NULL) {
+      linelist_from_case_counts(case_df) %>%
+        generate_pseudo_linelist(observed_linelist = linelist_df, merge_actual_onsets =  merge_actual_onsets)
+    }
+    
+    populated_linelist <- populate_list(local_cases, linelist_by_day)
+    
+    if (sum(imported_cases$confirm) > 0) {
+      imported_populated_linelist <- populate_list(imported_cases, imported_linelist_by_day)
+    }
   }
 
 # Argument conversion -----------------------------------------------------
@@ -136,56 +144,92 @@ if (!is.null(onset_modifier)) {
 # Nowcasting for each samples or vector of samples ------------------------
 
   nowcast_inner <- function(sample_delay_fn = NULL, verbose = NULL) {
-    ## Sample onset dates using reporting delays
-    if (verbose) {
-      message("Sampling from reporting delay linelist")
-    }
-
-    sampled_linelist <- sample_delay(linelist = populated_linelist,
+    
+    if (!approx_delay) {
+      ## Sample onset dates using reporting delays
+      if (verbose) {
+        message("Sampling from reporting delay linelist")
+      }
+      
+      sampled_linelist <- sample_delay(linelist = populated_linelist,
                                        delay_fn = sample_delay_fn,
                                        earliest_allowed_onset = earliest_allowed_onset)
-    
-    if (sum(imported_cases$confirm) > 0) {
-
-     imported_sampled_linelist <- sample_delay(linelist = imported_populated_linelist,
-                                                 delay_fn = sample_delay_fn,
-                                                 earliest_allowed_onset = earliest_allowed_onset)
-    }
-    
-  
-    ## Function to summarise cases
-    summarise_cases <- function(df) {
-      df_cnt <- df[, .(cases = .N), by = date_onset]
       
-      df_cnt <- df_cnt[df_cnt[,.(date_onset= seq(min(date_onset), max(date_onset), by = "days"))], on=.(date_onset)]
-      df_cnt <- df_cnt[is.na(cases), cases := 0 ][,.(date = date_onset, cases)]
-      return(df_cnt)
-    }
-
+      if (sum(imported_cases$confirm) > 0) {
+        
+        imported_sampled_linelist <- sample_delay(linelist = imported_populated_linelist,
+                                                  delay_fn = sample_delay_fn,
+                                                  earliest_allowed_onset = earliest_allowed_onset)
+      }
+      
+      
+      ## Function to summarise cases
+      summarise_cases <- function(df) {
+        df_cnt <- df[, .(cases = .N), by = date_onset]
+        
+        df_cnt <- df_cnt[df_cnt[,.(date_onset= seq(min(date_onset), max(date_onset), by = "days"))], on=.(date_onset)]
+        df_cnt <- df_cnt[is.na(cases), cases := 0 ][,.(date = date_onset, cases)]
+        return(df_cnt)
+      }
+      
       ## Summarise local cases
       cases_by_onset <- summarise_cases(sampled_linelist)
-      cases_by_onset <- cases_by_onset[, `:=`(type = "from_delay", import_status = "local")]
 
-      ## Adjusted onset cases based on proportion if supplied
-      if (!is.null(onset_modifier)) {
+      # Summarise imported cases
+      
+      if (sum(imported_cases$confirm) > 0) {
+        imported_cases_by_onset <- summarise_cases(imported_sampled_linelist)
+        imported_cases_by_onset <- imported_cases_by_onset[, `:=`(type = "from_delay",
+                                                                  import_status = "imported")]
         
-        cases_by_onset <- cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
-          cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * .y()))][,modifier := NULL]
-        
+        if (!is.null(onset_modifier)) {
+          imported_cases_by_onset <-  imported_cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
+                                                                                                          cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * (1 - .y())))][,modifier := NULL]
+        }
       }
-    # Summarise imported cases
+    }else{
+      ## Apply to local cases 
+      cases_by_onset <- sample_approx_delay(reported_cases = local_cases, 
+                                            delay_fn = sample_delay_fn,
+                                            max_delay = max_delay,
+                                            earliest_allowed_onset = earliest_allowed_onset)
+      
+      ## Apply to imported cases if present
+      if (sum(imported_cases$confirm) > 0) {
+        imported_cases_by_onset <- sample_approx_delay(reported_cases = imported_cases, 
+                                                       delay_fn = sample_delay_fn,
+                                                       max_delay = max_delay,
+                                                       earliest_allowed_onset = earliest_allowed_onset)
+      }
+      
+      
+      
+      
+    }
 
+    
+    ## Add in type variables and modify by onset if needed
+    cases_by_onset <- cases_by_onset[, `:=`(type = "from_delay", import_status = "local")]
+    
+    ## Adjusted onset cases based on proportion if supplied
+    if (!is.null(onset_modifier)) {
+      cases_by_onset <- cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
+                                                                                   cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * .y()))][,modifier := NULL]
+      
+    }
+    
+    ## Add in variable type and modify if needed for imported cases
     if (sum(imported_cases$confirm) > 0) {
-      imported_cases_by_onset <- summarise_cases(imported_sampled_linelist)
       imported_cases_by_onset <- imported_cases_by_onset[, `:=`(type = "from_delay",
                                                                 import_status = "imported")]
       
       if (!is.null(onset_modifier)) {
         imported_cases_by_onset <-  imported_cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
-          cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * (1 - .y())))][,modifier := NULL]
+                                                                                                        cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * (1 - .y())))][,modifier := NULL]
       }
     }
-
+      
+    
     ## Sample using  binomial
     if (verbose) {
       message("Running nowcast")
