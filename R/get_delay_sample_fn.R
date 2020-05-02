@@ -29,17 +29,17 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
                                 sub_samples = 1) {
 
   ## Confirmation delays
-  confirmation_delays <- linelist %>%
+  delays <- linelist %>%
     .$delay_confirmation %>%
     as.integer() %>%
     .[!is.na(.)] %>%
     ## Check confirmation delay is above 0 if not drop
     .[. >= 0]
   
-  ## Maximum allowed delay
-  max_delay <- max(confirmation_delays) + 1
-  
   get_single_delay_fn <- function(confirmation_delays = NULL, samples = 1) {
+    
+    ## Maximum allowed delay
+    max_delay <- max(confirmation_delays) + 1
     
     # Fit gamma and exponential models
     fit_exp <- EpiNow::dist_fit(confirmation_delays, samples = samples, dist = "exp")
@@ -133,19 +133,21 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
 
   
   if (sub_samples == 1) {
-    truncated_sample_functions <- get_single_delay_fn(confirmation_delays, samples = samples)
+    truncated_sample_functions <- get_single_delay_fn(delays, samples = samples)
   }else{
     ## Fit each sub sample
-    truncated_sample_functions <- purrr::map(1:sub_samples,
-                                             ~ get_single_delay_fn(sample(confirmation_delays, 
-                                                                          round(length(confirmation_delays) / sub_samples),
-                                                                          replace = TRUE),
-                                                                   samples = round(samples / sub_samples)))
+    truncated_sample_functions <- furrr::future_map(1:sub_samples,
+                                             ~ get_single_delay_fn(sample(delays, 
+                                                                          round(length(delays) / sub_samples),
+                                                                          replace = FALSE),
+                                                                   samples = round(samples / sub_samples)),
+                                             .progress = FALSE)
      ## Bind together in a list of functions                                        
     truncated_sample_functions <- purrr::flatten(truncated_sample_functions)
     
     ## Resample without replacement to force the correct number of samples.
-    truncated_sample_functions <- sample(truncated_sample_functions, samples, replace = FALSE)
+    sample_indexs <- sample(1:length(truncated_sample_functions), samples, replace = FALSE)
+    truncated_sample_functions <- truncated_sample_functions[sample_indexs]
     
   }
 
