@@ -28,9 +28,10 @@
 #' 
 rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         target_folder = NULL, target_date = NULL, delay_cutoff_date = NULL,
-                        predict_lag = 0, samples = 1000, si_samples = 1, rt_samples = 5,
-                        rt_windows = 1:7, rate_window = 7, earliest_allowed_onset = NULL,
-                        merge_actual_onsets = TRUE, delay_only = FALSE, approx_delay = FALSE,
+                        delay_sub_samples = 1, predict_lag = 0, samples = 1000, 
+                        si_samples = 1, rt_samples = 5, rt_windows = 1:7, rate_window = 7,
+                        earliest_allowed_onset = NULL,  merge_actual_onsets = TRUE,
+                        delay_only = FALSE, approx_delay = FALSE,
                         max_delay = 120, verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, 
                         save_plots = TRUE, nowcast_lag = 4, incubation_period = 5, forecast_model = NULL,
                         horizon = 0, report_forecast = FALSE, report_delay_fns = NULL,
@@ -118,6 +119,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                                       merge_actual_onsets = merge_actual_onsets, samples = samples,
                                       delay_only = delay_only, nowcast_lag = nowcast_lag,
                                       verbose = verbose, report_delay_fns = report_delay_fns,
+                                      delay_sub_samples = delay_sub_samples,
                                       onset_modifier = onset_modifier, approx_delay = approx_delay,
                                       max_delay = max_delay)
 

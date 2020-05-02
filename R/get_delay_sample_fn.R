@@ -2,7 +2,7 @@
 ##'
 ##' @param linelist Dataframe with a delay_confirmation date variable
 ##' @param verbose Logical, defaults to `FALSE`. Should progress messages be printed
-##' @param sub_sample Numeric, defaults to 1. When set to 1 all data is used to fit a single delay
+##' @param sub_samples Numeric, defaults to 1. When set to 1 all data is used to fit a single delay
 ##' distribution where uncertainty is only propagated in the uncertainty of the fit. If set to more than one
 ##' the supplied delay data is sampled this many times (with samples equalling the overall number of samples divided 
 ##' by the number of sub samples each time).

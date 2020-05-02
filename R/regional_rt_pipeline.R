@@ -27,7 +27,7 @@
 #' regional_rt_pipeline
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = "results", 
                                  national = FALSE, regional_delay = FALSE, merge_onsets = FALSE,
-                                 case_limit = 40,
+                                 case_limit = 40, delay_sub_samples = 1,
                                  regions_in_parallel = TRUE,
                                  verbose = FALSE,
                                  samples = 1000, ...) {
@@ -95,7 +95,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     ## Fit the delay distribution
     report_delay_fns <-  linelist %>%
       dplyr::rename(delay_confirmation = report_delay) %>% 
-      EpiNow::get_delay_sample_fn(samples = samples)  
+      EpiNow::get_delay_sample_fn(samples = samples, sub_samples = delay_sub_samples)  
     
   }else{
     report_delay_fns <- NULL
