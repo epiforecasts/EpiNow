@@ -72,14 +72,18 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
       
       sample_functions <- delay_rate %>%
         purrr::map(function(par) {
-          sample_function <- function(n, dist = FALSE, max_delay = NULL){
+          sample_function <- function(n, dist = FALSE, cum = TRUE, max_delay = NULL){
             if(!dist) {
               rexp(n, par)
             }else{
               if (length(n) > max_delay) {
                 n <- 1:max_delay
               }
-              pexp(n, par)
+              if (cum) {
+                pexp(n, par)
+              }else{
+                dexp(n, par)
+              }
             }
           }
         })
