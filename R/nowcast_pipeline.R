@@ -13,7 +13,7 @@
 #' @param report_delay_fns List of functions as produced by `EpiNow::get_delay_sample_fn`
 #' @param onset_modifier data.frame containing a `date` variable and a function `modifier` variable. This is used 
 #' to modify estimated cases by onset date. `modifier` must be a function that returns a proportion when called 
-#' (enables inclusion of uncertainty).
+#' (enables inclusion of uncertainty) and takes the following arguments: `n` (samples to return) and `status` ("local" or "import").
 #' @param approx_delay  Logical, defaults to `FALSE`. Should delay sampling be approximated using case counts. Not appropriate
 #' when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.
 #' @inheritParams generate_pseudo_linelist
@@ -179,13 +179,6 @@ if (!is.null(onset_modifier)) {
       
       if (sum(imported_cases$confirm) > 0) {
         imported_cases_by_onset <- summarise_cases(imported_sampled_linelist)
-        imported_cases_by_onset <- imported_cases_by_onset[, `:=`(type = "from_delay",
-                                                                  import_status = "imported")]
-        
-        if (!is.null(onset_modifier)) {
-          imported_cases_by_onset <-  imported_cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
-                                                                                                          cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * (1 - .y())))][,modifier := NULL]
-        }
       }
     }else{
       ## Apply to local cases 
@@ -214,7 +207,7 @@ if (!is.null(onset_modifier)) {
     ## Adjusted onset cases based on proportion if supplied
     if (!is.null(onset_modifier)) {
       cases_by_onset <- cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
-                                                                                   cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * .y()))][,modifier := NULL]
+                cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * .y(n = 1, status = "local")))][,modifier := NULL]
       
     }
     
@@ -225,7 +218,7 @@ if (!is.null(onset_modifier)) {
       
       if (!is.null(onset_modifier)) {
         imported_cases_by_onset <-  imported_cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
-                                                                                                        cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * (1 - .y())))][,modifier := NULL]
+                 cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * (1 - .y(n = 1, status = "status"))))][,modifier := NULL]
       }
     }
       
