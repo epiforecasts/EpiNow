@@ -113,7 +113,10 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
         dplyr::select(-region)
       
       rm(onset_modifier)
+    }else{
+      region_onset_modifier <- NULL
     }
+    
     region_rt(cases = regional_cases,
               linelist = regional_linelist,
               onset_modifier = region_onset_modifier,
