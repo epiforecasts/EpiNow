@@ -10,12 +10,14 @@ require(knitr)
 require(kableExtra)
 require(here)
 
-if (standalone) {
-  fig_start <- 1
-  tab_start <- 1
-}else{
-  fig_start <- 4
-  tab_start <- 2
+if (is.null(fig_start) & is.null(tab_start)) {
+    if (standalone) {
+      fig_start <- 1
+      tab_start <- 1
+    }else{
+      fig_start <- 4
+      tab_start <- 2
+    }
 }
 ```
 
