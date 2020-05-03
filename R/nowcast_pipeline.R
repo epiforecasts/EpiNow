@@ -218,7 +218,7 @@ if (!is.null(onset_modifier)) {
       
       if (!is.null(onset_modifier)) {
         imported_cases_by_onset <-  imported_cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
-                 cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * (1 - .y(n = 1, status = "status"))))][,modifier := NULL]
+                 cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * .y(n = 1, status = "import")))][,modifier := NULL]
       }
     }
       
