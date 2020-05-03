@@ -109,7 +109,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     
     if (!is.null(onset_modifier)) {
       region_onset_modifier <- onset_modifier %>% 
-        dplyr::filter(region %in% "target_region") %>% 
+        dplyr::filter(region %in% target_region) %>% 
         dplyr::select(-region)
       
       rm(onset_modifier)
