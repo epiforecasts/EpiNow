@@ -96,8 +96,6 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     regional_cases <- cases %>% 
       dplyr::filter(region %in% target_region)
     
-    rm(cases)
-    
     if (regional_delay) {
       regional_linelist <- linelist %>% 
         dplyr::filter(region %in% target_region)
@@ -105,14 +103,11 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
       regional_linelist <- linelist
     }
     
-    rm(linelist)
-    
     if (!is.null(onset_modifier)) {
       region_onset_modifier <- onset_modifier %>% 
         dplyr::filter(region %in% target_region) %>% 
         dplyr::select(-region)
-      
-      rm(onset_modifier)
+  
     }else{
       region_onset_modifier <- NULL
     }
