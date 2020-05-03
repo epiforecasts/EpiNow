@@ -240,6 +240,22 @@ if (!is.null(onset_modifier)) {
     sample_bin <- dplyr::mutate(sample_bin, 
                                 type = "nowcast", 
                                 import_status = "local")
+    
+    if (sum(imported_cases$confirm) > 0) {
+      ## sample neg bin
+      imported_sample_bin <- EpiNow::sample_onsets(
+        onsets = imported_cases_by_onset$cases,
+        dates = imported_cases_by_onset$date,
+        cum_freq = sample_delay_fn(1:nrow(imported_cases_by_onset), dist = TRUE),
+        report_delay = 0,
+        samples = 1
+      )[[1]]
+      
+      imported_sample_bin <- dplyr::mutate(imported_sample_bin, 
+                                           type = "nowcast", 
+                                           import_status = "imported")
+      
+    }
 
     ## Add in delay only estimates
     if (delay_only) {
@@ -263,8 +279,7 @@ if (!is.null(onset_modifier)) {
     if (sum(imported_cases$confirm) > 0) {
       out <-  
         dplyr::bind_rows(out, 
-          imported_cases_by_onset %>%
-            dplyr::mutate(type = "nowcast")
+                         imported_sample_bin
         )
     }
 
