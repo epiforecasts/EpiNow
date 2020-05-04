@@ -153,7 +153,6 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
     ## Resample without replacement to force the correct number of samples.
     sample_indexs <- sample(1:length(truncated_sample_functions), samples, replace = FALSE)
     truncated_sample_functions <- truncated_sample_functions[sample_indexs]
-    
   }
 
 
