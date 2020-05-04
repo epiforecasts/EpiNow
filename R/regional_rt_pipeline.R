@@ -131,7 +131,6 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   if (regions_in_parallel) {
     out <- furrr::future_map(regions, run_region, .progress = TRUE,
                              .options = furrr::future_options(scheduling = Inf,
-                                                              packages = c("dplyr", "EpiNow"),
                                                               globals = c("region_rt", "target_date",
                                                                           "merge_onsets", "samples", 
                                                                           "report_delay_fns", "verbose",
