@@ -156,7 +156,6 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
   }
 
 
- 
 
   return(truncated_sample_functions)
 }
