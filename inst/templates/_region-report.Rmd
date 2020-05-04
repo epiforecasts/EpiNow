@@ -15,12 +15,16 @@ library(tibble)
 library(knitr)
 library(kableExtra)
 library(here)
+
+if (!exists("case_def")) {
+  case_def <- "case"
+}
 ```
 
 `r paste(c(rep("#", title_depth), paste0(" Summary (estimates as of the ", latest_date, ")")), collapse = "")`
 
 
-`r paste0("*Table ",  summary_tables + index, ": Latest estimates (as of the ", latest_date,  ") of the number of confirmed cases by date of infection, the expected change in daily confirmed cases, the effective reproduction number, the doubling time (when negative this corresponds to the halving time), and the adjusted R-squared of the exponential fit. The mean and 90% credible interval is shown for each numeric estimate.*")`
+`r paste0("*Table ",  summary_tables + index, ": Latest estimates (as of the ", latest_date,  ") of the number of confirmed ", case_def, "s by date of infection, the expected change in daily confirmed ", case_def, "s, the effective reproduction number, the doubling time (when negative this corresponds to the halving time), and the adjusted R-squared of the exponential fit. The mean and 90% credible interval is shown for each numeric estimate.*")`
 <br>
 ```{r}
 readRDS(here::here(file.path(region_path, region, "latest/region_summary.rds"))) %>% 
@@ -30,14 +34,14 @@ knitr::kable(col.names = c("", "Estimate"), booktabs = TRUE) %>%
 ```
 
 
-`r paste(c(rep("#", title_depth), " Reported confirmed cases, their estimated date of infection, and time-varying reproduction number estimates"), collapse = "")`
+`r paste(c(rep("#", title_depth), " Confirmed ", case_def, "s, their estimated date of infection, and time-varying reproduction number estimates"), collapse = "")`
 
 ```{r, fig.height = 6, fig.width = 8, out.width = "90%"}
 knitr::include_graphics(here::here(file.path(region_path, region, "latest/rt_cases_plot.png")))
 ```
 
 <br>
-`r paste0("*Figure ",  summary_figures + 1 + (index - 1) * 2, ": A.) Confirmed cases by date of report (bars) and their estimated date of infection. B.) Time-varying estimate of the effective reproduction number. Light ribbon = 90% credible interval; dark ribbon = the 50% credible interval. Estimates from existing data are shown up to the ", latest_date, ifelse(report_forecast, " from when forecasts are shown. These should be considered indicative only", ""),  ". Confidence in the estimated values is indicated by translucency with increased translucency corresponding to reduced confidence. The vertical dashed line indicates the date of report generation.*")`
+`r paste0("*Figure ",  summary_figures + 1 + (index - 1) * 2, ": A.) Confirmed ",  case_def, "s by date of report (bars) and their estimated date of infection. B.) Time-varying estimate of the effective reproduction number. Light ribbon = 90% credible interval; dark ribbon = the 50% credible interval. Estimates from existing data are shown up to the ", latest_date, ifelse(report_forecast, " from when forecasts are shown. These should be considered indicative only", ""),  ". Confidence in the estimated values is indicated by translucency with increased translucency corresponding to reduced confidence. The vertical dashed line indicates the date of report generation.*")`
 
 `r paste(c(rep("#", title_depth), " Time-varying rate of growth and doubling time"), collapse = "")`
 
