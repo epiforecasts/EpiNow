@@ -6,7 +6,6 @@
 #' @param linelist A dataframe of of cases (by row) containing the following variables:
 #' `import_status` (values "local" and "imported"), `date_onset`, `date_confirm`, `report_delay`, and `region`. If a national linelist is not available a proxy linelist may be 
 #' used but in this case `merge_onsets` should be set to `FALSE`.
-#' @param national Logical defaults to `FALSE`. Should a national summary nowcast be made.
 #' @param regional_delay Logical defaults to `FALSE`. Should reporting delays be estimated by region.
 #' @param merge_onsets Logical defaults to `FALSE`. Should available onset data be used. Typically if `regional_delay` is
 #' @param case_limit Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 10.
@@ -26,8 +25,9 @@
 #' ## Code
 #' regional_rt_pipeline
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = "results", 
-                                 national = FALSE, regional_delay = FALSE, merge_onsets = FALSE,
-                                 case_limit = 40, delay_sub_samples = 1,
+                                 regional_delay = FALSE, merge_onsets = FALSE,
+                                 case_limit = 40, onset_modifier = NULL,
+                                 delay_sub_samples = 1,
                                  regions_in_parallel = TRUE,
                                  verbose = FALSE,
                                  samples = 1000, ...) {
@@ -62,28 +62,6 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
                     fill = list(cases = 0)) %>% 
     dplyr::ungroup()
   
-  
-  if (national) {
-    ## National cast
-    national_cases <- cases %>% 
-      dplyr::count(date, import_status, wt = cases) %>% 
-      dplyr::rename(cases = n)
-    
-    ## Run and save analysis pipeline
-    if (verbose) {
-      message("Running national Rt pipeline")
-    }
-
-    
-    rt_pipeline(
-      cases = national_cases,
-      linelist = linelist,
-      target_folder = file.path(target_folder, "national"),
-      target_date = target_date, 
-      merge_actual_onsets = merge_onsets, 
-      samples = samples, ...)
-    
-  }
 
   ## regional pipelines
   regions <- unique(cases$region)
@@ -126,11 +104,21 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
       regional_linelist <- linelist
     }
     
+    if (!is.null(onset_modifier)) {
+      region_onset_modifier <- onset_modifier %>% 
+        dplyr::filter(region %in% target_region) %>% 
+        dplyr::select(-region)
+  
+    }else{
+      region_onset_modifier <- NULL
+    }
+    
     region_rt(cases = regional_cases,
               linelist = regional_linelist,
+              onset_modifier = region_onset_modifier,
               target_folder = file.path(target_folder, target_region))
 
-    
+    rm(list = ls())
     
     return(invisible(NULL))
     

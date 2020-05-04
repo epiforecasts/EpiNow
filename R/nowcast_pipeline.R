@@ -17,7 +17,7 @@
 ##' by the number of sub samples each time).
 #' @param onset_modifier data.frame containing a `date` variable and a function `modifier` variable. This is used 
 #' to modify estimated cases by onset date. `modifier` must be a function that returns a proportion when called 
-#' (enables inclusion of uncertainty).
+#' (enables inclusion of uncertainty) and takes the following arguments: `n` (samples to return) and `status` ("local" or "import").
 #' @param approx_delay  Logical, defaults to `FALSE`. Should delay sampling be approximated using case counts. Not appropriate
 #' when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.
 #' @inheritParams generate_pseudo_linelist
@@ -185,13 +185,6 @@ if (!is.null(onset_modifier)) {
       
       if (sum(imported_cases$confirm) > 0) {
         imported_cases_by_onset <- summarise_cases(imported_sampled_linelist)
-        imported_cases_by_onset <- imported_cases_by_onset[, `:=`(type = "from_delay",
-                                                                  import_status = "imported")]
-        
-        if (!is.null(onset_modifier)) {
-          imported_cases_by_onset <-  imported_cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
-                                                                                                          cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * (1 - .y())))][,modifier := NULL]
-        }
       }
     }else{
       ## Apply to local cases 
@@ -220,7 +213,7 @@ if (!is.null(onset_modifier)) {
     ## Adjusted onset cases based on proportion if supplied
     if (!is.null(onset_modifier)) {
       cases_by_onset <- cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
-                                                                                   cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * .y()))][,modifier := NULL]
+                cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * .y(n = 1, status = "local")))][,modifier := NULL]
       
     }
     
@@ -231,7 +224,7 @@ if (!is.null(onset_modifier)) {
       
       if (!is.null(onset_modifier)) {
         imported_cases_by_onset <-  imported_cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
-                                                                                                        cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * (1 - .y())))][,modifier := NULL]
+                 cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * .y(n = 1, status = "import")))][,modifier := NULL]
       }
     }
       
@@ -253,6 +246,22 @@ if (!is.null(onset_modifier)) {
     sample_bin <- dplyr::mutate(sample_bin, 
                                 type = "nowcast", 
                                 import_status = "local")
+    
+    if (sum(imported_cases$confirm) > 0) {
+      ## sample neg bin
+      imported_sample_bin <- EpiNow::sample_onsets(
+        onsets = imported_cases_by_onset$cases,
+        dates = imported_cases_by_onset$date,
+        cum_freq = sample_delay_fn(1:nrow(imported_cases_by_onset), dist = TRUE),
+        report_delay = 0,
+        samples = 1
+      )[[1]]
+      
+      imported_sample_bin <- dplyr::mutate(imported_sample_bin, 
+                                           type = "nowcast", 
+                                           import_status = "imported")
+      
+    }
 
     ## Add in delay only estimates
     if (delay_only) {
@@ -276,8 +285,7 @@ if (!is.null(onset_modifier)) {
     if (sum(imported_cases$confirm) > 0) {
       out <-  
         dplyr::bind_rows(out, 
-          imported_cases_by_onset %>%
-            dplyr::mutate(type = "nowcast")
+                         imported_sample_bin
         )
     }
 
