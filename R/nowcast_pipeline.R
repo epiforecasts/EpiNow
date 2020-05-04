@@ -42,7 +42,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              verbose = FALSE,
                              samples = 1,
                              report_delay_fns = NULL,
-                             delay_sub_samples = 1,
+                             bootstraps = 1, bootstrap_samples = 1000,
                              nowcast_lag = 4,
                              onset_modifier = NULL) {
    

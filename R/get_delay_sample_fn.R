@@ -2,10 +2,10 @@
 ##'
 ##' @param linelist Dataframe with a delay_confirmation date variable
 ##' @param verbose Logical, defaults to `FALSE`. Should progress messages be printed
-##' @param sub_samples Numeric, defaults to 1. When set to 1 all data is used to fit a single delay
-##' distribution where uncertainty is only propagated in the uncertainty of the fit. If set to more than one
-##' the supplied delay data is sampled this many times (with samples equalling the overall number of samples divided 
-##' by the number of sub samples each time).
+##' @param bootstraps Numeric, defaults to 1. The number of bootstrap samples (with replacement)
+##'  of the delay distribution to take.
+##' @param bootstrap_samples Numeric, defaults to 1000. The number of samples to take in each boostrap. 
+##' When the sample size of the supplied delay distribution is less than 1000 this is used instead.
 ##' @return A list of function that takes one parameter, `n`, the number of reporting
 ##'   delays to randomly sample
 ##' @importFrom dplyr filter
@@ -27,7 +27,7 @@
 ##' ## Code
 ##' get_delay_sample_fn
 get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
-                                sub_samples = 1) {
+                                bootstraps = 1, bootstrap_samples = 1000) {
 
   ## Confirmation delays
   delays <- linelist %>%
@@ -137,15 +137,15 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
   }
 
   
-  if (sub_samples == 1) {
+  if (bootstraps == 1) {
     truncated_sample_functions <- get_single_delay_fn(delays, samples = samples)
   }else{
     ## Fit each sub sample
-    truncated_sample_functions <- furrr::future_map(1:sub_samples,
+    truncated_sample_functions <- furrr::future_map(1:bootstraps,
                                              ~ get_single_delay_fn(sample(delays, 
-                                                                          round(length(delays) / sub_samples),
-                                                                          replace = FALSE),
-                                                                   samples = ceiling(samples / sub_samples)),
+                                                                          min(length(delays), bootstrap_samples),
+                                                                          replace = TRUE),
+                                                                   samples = ceiling(samples / bootstraps)),
                                              .progress = FALSE)
      ## Bind together in a list of functions                                        
     truncated_sample_functions <- purrr::flatten(truncated_sample_functions)
