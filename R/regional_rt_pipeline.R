@@ -28,7 +28,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
                                  regional_delay = FALSE, merge_onsets = FALSE,
                                  case_limit = 40, onset_modifier = NULL,
                                  bootstraps = 1, 
-                                 bootstrap_samples = 1000,
+                                 bootstrap_samples = 100,
                                  regions_in_parallel = TRUE,
                                  verbose = FALSE,
                                  samples = 1000, ...) {
@@ -130,7 +130,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   if (regions_in_parallel) {
     out <- furrr::future_map(regions, run_region, .progress = TRUE,
-                             .options = furrr::future_options(scheduling = Inf,
+                             .options = furrr::future_options(scheduling = 3,
                                                               globals = c("region_rt", "target_date",
                                                                           "merge_onsets", "samples", 
                                                                           "report_delay_fns", "verbose",

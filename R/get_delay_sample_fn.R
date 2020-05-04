@@ -4,8 +4,8 @@
 ##' @param verbose Logical, defaults to `FALSE`. Should progress messages be printed
 ##' @param bootstraps Numeric, defaults to 1. The number of bootstrap samples (with replacement)
 ##'  of the delay distribution to take.
-##' @param bootstrap_samples Numeric, defaults to 1000. The number of samples to take in each boostrap. 
-##' When the sample size of the supplied delay distribution is less than 1000 this is used instead.
+##' @param bootstrap_samples Numeric, defaults to 100. The number of samples to take in each boostrap. 
+##' When the sample size of the supplied delay distribution is less than 100 this is used instead.
 ##' @return A list of function that takes one parameter, `n`, the number of reporting
 ##'   delays to randomly sample
 ##' @importFrom dplyr filter
@@ -27,7 +27,7 @@
 ##' ## Code
 ##' get_delay_sample_fn
 get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
-                                bootstraps = 1, bootstrap_samples = 1000) {
+                                bootstraps = 1, bootstrap_samples = 100) {
 
   ## Confirmation delays
   delays <- linelist %>%
