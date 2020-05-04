@@ -119,7 +119,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                                       merge_actual_onsets = merge_actual_onsets, samples = samples,
                                       delay_only = delay_only, nowcast_lag = nowcast_lag,
                                       verbose = verbose, report_delay_fns = report_delay_fns,
-                                      delay_sub_samples = delay_sub_samples,
+                                      bootstraps = bootstraps, bootstrap_samples = bootstrap_samples,
                                       onset_modifier = onset_modifier, approx_delay = approx_delay,
                                       max_delay = max_delay)
 

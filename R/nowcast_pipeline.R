@@ -70,7 +70,8 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
     
     ## Fit the delay distribution and draw posterior samples
     fitted_delay_fn <- EpiNow::get_delay_sample_fn(filtered_linelist, samples = samples,
-                                                   sub_samples = delay_sub_samples)
+                                                   bootstraps = bootstraps, 
+                                                   bootstrap_samples = bootstrap_samples)
     
   }else{
     fitted_delay_fn <- report_delay_fns
