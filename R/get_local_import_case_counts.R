@@ -4,8 +4,6 @@
 #' @param linelist Dataframe with at least the following variables: `date_confirm`, `import_status`
 #' @param cases_from A character string containing a date in the format `"yyyy-mm-dd"`. Applies a 
 #' filter to returned cases.
-#' @importFrom dplyr rename mutate count filter select full_join lag
-#' @importFrom tidyr complete gather
 #' @importFrom lubridate ymd
 #' @return A tibble containing cases by date locally and imported
 #' @export
@@ -14,6 +12,8 @@
 #'
 get_local_import_case_counts <- function(total_cases, linelist = NULL, cases_from = NULL) {
 
+  .Deprecated()
+  
   total_cases <- total_cases %>%
     dplyr::rename(total = cases) %>%
     dplyr::mutate(date = as.Date(date))

@@ -69,7 +69,7 @@ Should linelist onset dates be used where available?}
 \item{delay_only}{Logical, defaults to \code{FALSE}. Should estimates be made based on estimated onset dates without nowcasting.}
 
 \item{approx_delay}{Logical, defaults to \code{FALSE}. Should delay sampling be approximated using case counts. Not appropriate
-when case numbers are low.}
+when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.}
 
 \item{verbose}{Logical, defaults to \code{FALSE}. Should internal nowcasting progress messages be returned.}
 
@@ -93,7 +93,7 @@ future Rt values. An example of the required structure is: \code{function(ss, y)
 
 \item{onset_modifier}{data.frame containing a \code{date} variable and a function \code{modifier} variable. This is used
 to modify estimated cases by onset date. \code{modifier} must be a function that returns a proportion when called
-(enables inclusion of uncertainty).}
+(enables inclusion of uncertainty) and takes the following arguments: \code{n} (samples to return) and \code{status} ("local" or "import").}
 
 \item{min_forecast_cases}{Numeric, defaults to 200. The minimum number of cases required in the last 7 days
 of data in order for a forecast to be run. This prevents spurious forecasts based on highly uncertain Rt estimates.}

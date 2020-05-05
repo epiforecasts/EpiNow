@@ -16,11 +16,9 @@
 #' @return A tibble containing the date and summarised R estimte.
 #' @export
 #' @importFrom EpiEstim estimate_R make_config
-#' @importFrom tidyr drop_na complete spread
-#' @importFrom dplyr rename full_join pull bind_rows left_join
-#' @importFrom tibble tibble
-#' @importFrom purrr map2 safely compact map
+#' @importFrom purrr map2 map2_dbl safely map
 #' @importFrom EpiSoon predict_current_cases forecast_rt forecast_cases score_case_forecast
+#' @importFrom data.table setDT rbindlist .SD dcast copy
 #' @examples
 #'
 #' ## Nowcast Rts                  
@@ -67,35 +65,35 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
   
   ## Adjust input based on the presence of imported cases
   if (suppressWarnings(length(unique(cases$import_status)) > 1)) {
-    incid <-  
-      dplyr::select(cases, 
-                    date, cases, import_status) %>% 
-      tidyr::spread(key = "import_status", value = "cases") %>%
-      tidyr::complete(date = seq(min(date), max(date), by = "day"),
-                      fill = list(local = 0, imported = 0)) 
     
+    ## Select columns
+    incid <- data.table::setDT(cases)[, .(date, cases, import_status)]
+    
+    ## Fill in any missing data
+    incid <- incid[incid[, .(date = seq(min(date), max(date), by = "days"))],
+                   on = "date"][
+                     is.na(cases), cases := 0]
+    
+    ## Spread to wide and fill in missing combinations
+    incid <- data.table::dcast(incid, date ~ import_status, 
+                                 value.var = "cases", fill = 0)
+ 
     ## Predict cases forward in time using just local cases
-    summed_cases <- 
-      dplyr::rename(incid,
-                    cases = local) %>% 
-      dplyr::select(-imported)
+    summed_cases <- data.table::copy(incid)[, `:=`(cases = local, imported = NULL)]
   
   }else{
-    incid <-
-      dplyr::select(cases,
-                    date, cases) %>% 
-      dplyr::rename(I = cases) %>%
-      tidyr::complete(date = seq(min(date), max(date), by = "day"),
-                      fill = list(I = 0))
-    
-    summed_cases <- dplyr::rename(incid, cases = I)
+    incid <- data.table::setDT(cases)[, .(date, I = cases)]
+
+    incid <- incid[incid[, .(date = seq(min(date), max(date), by = "days"))],
+                   on = "date"][
+      is.na(I), I := 0]
+
+    summed_cases <- data.table::copy(incid)[, cases := I][, I := NULL]
   }
  
   ## Calculate when to start the window estimation of Rt
-  min_case_date <- dplyr::filter(summed_cases, cases > 0)
-  min_case_date <- dplyr::pull(min_case_date, date)
-  min_case_date <- min(min_case_date)
-  
+  min_case_date <- data.table::copy(summed_cases)[cases > 0][date == min(date)]$date
+    
   wait_time <- as.numeric(min_est_date - min_case_date) + 1
   
   if (wait_time > nrow(incid)){
@@ -135,83 +133,57 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                                                                   )))$R
                           )
                           
-                          ## Filter out NA values
-                          R <- tidyr::drop_na(R, `Mean(R)`)
+                          ## Filter out NA values, choose columns and make into data.table
+                          R <- data.table::setDT(R)[!is.na(`Mean(R)`),
+                                                            .(t_start, t_end, `Mean(R)`, `Std(R)`)]
+                          
+                          R <- R[!is.na(R$`Mean(R)`)]
                           
                           ## Take samples from the assumed gamma distribution
-                          R_samples <- purrr::map2(R$`Mean(R)`, R$`Std(R)`,
-                                                    ~ mean_rgamma(rt_samples, .x, .y) %>% 
-                                                     sort())
+                          R <- R[, .(date = EpiNow::add_dates(incid$date, .N), mean_R = `Mean(R)`,
+                                     sd_R = `Std(R)`, sample_R = purrr::map2(`Mean(R)`, `Std(R)`, 
+                                                                       ~ mean_rgamma(rt_samples, .x, .y) %>% 
+                                                                         sort()),
+                                     sample = list(1:rt_samples))]
                           
-                           
-                          ## Put into data frame by date
-                          out <- tibble::tibble(
-                            date = EpiNow::add_dates(incid$date, length(R_samples)),
-                            mean_R = R$`Mean(R)`,
-                            sd_R = R$`Std(R)`,
-                            R = purrr::map(R_samples,
-                                           ~ tibble::tibble(R = ., sample = 1:length(.)))
-                          )
-                          
-                          out <- tidyr::unnest(out, R)
-                          
-                          ## Make current case predictions from past cases and current Rt values
-                          preds <-  
-                            dplyr::rename(out, rt = R) %>% 
-                            dplyr::group_split(sample)
-                          
+                          R <- R[, .(sample_R = unlist(sample_R), sample = unlist(sample)), 
+                                 by = c("date", "mean_R", "sd_R")]
+                        
+                         ## Make current case predictions from past cases and current Rt values
                           preds <- 
                             purrr::map(
-                              preds, 
+                              split(R, by = "sample"), 
                               ~ EpiSoon::predict_current_cases(
-                                rts = dplyr::select(., -sample), 
+                                rts = .[,.(date, rt = sample_R)], 
                                 cases = summed_cases,
                                 serial_interval = serial_intervals[, index]
                               ))
                           
-                          preds <- dplyr::bind_rows(preds, .id  = "sample") %>% 
-                            dplyr::mutate(sample = as.numeric(sample), 
-                                          horizon = 0) 
-                          
-                          preds <- dplyr::select(preds, date, cases, sample, horizon)
+                          preds <- data.table::rbindlist(preds, idcol = "sample")
+                          preds <- preds[, `:=`(sample = as.numeric(sample), horizon = 0)][,
+                                          .(date, cases, sample, horizon)]
                           
                           ## Score the forecast
-                          scores <- EpiSoon::score_case_forecast(preds, summed_cases, 
-                                                                 scores = "crps")
+                          scores <- data.table::setDT(
+                            EpiSoon::score_case_forecast(preds, summed_cases, 
+                                                         scores = "crps"))[,horizon := NULL]
                           
-                          ## Evaluate the window using the median CRPS across all time points and samples
-                          summarised_score <-  
-                            dplyr::summarise(scores,
-                                             median = median(crps, na.rm = TRUE))
-                          
-                          out_list <-
-                            list(
-                              rt = dplyr::mutate(
-                                out,
-                                window = window
-                              ),
-                             score = summarised_score$median
-                            )
+                          R <- R[scores, on = "date", nomatch=0][, "window" := window]
 
-                          
-                          return(out_list)
+                          return(R)
                         }) 
     
-    ## Extract scores, detect which is smallest and extract largest window with smallest score
-    min_score_index <- purrr::map_dbl(est_r, 
-                                  ~ .$score)
-    min_score_index <- which(min_score_index == min(min_score_index, na.rm = TRUE))
-    min_score_index <- min_score_index[length(min_score_index)]
+    ## Join output
+    est_r <- data.table::rbindlist(est_r)
     
-    ##Extract the estimates with the lowest score
-    est_r <- est_r[[min_score_index]]$r
-      
-      
-      ## Check to see how many Rt data points have been returned
-      ## If fewer than 3 then turn off forecasting
-      if (length(unique(est_r$date)) < 3) {
+    ## Choose best scoring (according to CRPS) window at each timepoint
+    est_r <- est_r[, .SD[crps == min(crps)], by = "date"]
+    
+    ## Check to see how many Rt data points have been returned
+    ## If fewer than 3 then turn off forecasting
+    if (length(unique(est_r$date)) < 3) {
         horizon <- 0
-      }
+    }
       
       
       if (horizon > 0 & !is.null(forecast_model)) {
@@ -220,70 +192,60 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
         
         ## Forecast Rts using the mean estimate
         rt_forecasts <-
-          dplyr::select(est_r, date, rt = mean_R) %>%
-          unique() %>%
-          safe_forecast(model = forecast_model, 
-                        horizon = horizon,
-                        samples = rt_samples)
+          data.table::setDT(
+            safe_forecast(rts = est_r[sample == 1, .(date, rt = mean_R)],
+                          model = forecast_model, 
+                          horizon = horizon,
+                          samples = rt_samples)[[1]]
+          )
 
-        
         ##Forecast the variance using the same model structure
         sd_forecasts <- 
-          dplyr::select(est_r, date, rt = sd_R) %>% 
-          unique() %>% 
-          safe_forecast(model = forecast_model, 
-                        horizon = horizon,
-                        samples = rt_samples)
-        
-        
-        ## Drop the error catching element
-        rt_forecasts <- rt_forecasts[[1]]
-        sd_forecasts <- sd_forecasts[[1]]
-        
-        rt_forecasts <- dplyr::left_join(
-          rt_forecasts,
-          sd_forecasts, by = c("date", "sample", "horizon")
-        )
-        
+          data.table::setDT(
+            safe_forecast(rts = est_r[sample == 1, .(date, rt = sd_R)],
+                          model = forecast_model, 
+                          horizon = horizon,
+                          samples = rt_samples)[[1]] 
+          )[, sd_rt := rt][,rt := NULL]
+
+        ## Join mean and sd forecasts
+        rt_forecasts <- rt_forecasts[sd_forecasts, on = c("date", "sample", "horizon")]
+          
         ## Add gamma noise  and drop mean and sd forecasts
         ## Assume that the minumum allowed gamma noise is 1e-4
         ## Zero sd will result in rgamma draws that are also 0 and so must be avoided
-        rt_forecasts <- dplyr::mutate(rt_forecasts, 
-                                      rt.y = ifelse(rt.y <= 0, 1e-4, rt.y),
-                                      rt = purrr::map2_dbl(rt.x, rt.y, ~
-                                                            mean_rgamma(1, mean = .x,
-                                                                       sd = .y)))
-        
-        rt_forecasts <- dplyr::select(rt_forecasts,
-                                      sample, date, horizon, rt)
-        
+        rt_forecasts <- rt_forecasts[sd_rt <= 0, sd_rt := 1e-4][, 
+                rt := purrr::map2_dbl(rt, sd_rt, ~ mean_rgamma(1, mean = .x, sd = .y))][,
+                    .(sample, date, horizon, rt)]
+          
         ## Forecast cases
-        case_forecasts <-   
-          EpiSoon::forecast_cases(
-            cases = summed_cases,
-            fit_samples = rt_forecasts,
-            rdist = rpois,
-            serial_interval = serial_intervals[, index]
-          ) 
-        
-        case_forecasts <- 
-          dplyr::mutate(case_forecasts, rt_type = "forecast")
-        
+        case_forecasts <-  
+          data.table::setDT(
+            EpiSoon::forecast_cases(
+              cases = summed_cases,
+              fit_samples = rt_forecasts,
+              rdist = rpois,
+              serial_interval = serial_intervals[, index]
+            ) 
+          )[,rt_type := "forecast"]
         
         ## Join Rt estimates and forecasts
-        est_r <- dplyr::mutate(est_r, rt_type = "nowcast") %>% 
-          dplyr::select(-mean_R, -sd_R) %>% 
-          dplyr::bind_rows(rt_forecasts %>% 
-                             dplyr::mutate(rt_type = "forecast") %>% 
-                             dplyr::select(date, R = rt, sample,  horizon, rt_type))
+        est_r <- est_r[, `:=`(R = sample_R, rt_type = "nowcast")][,
+                  `:=`(mean_R = NULL, sd_R = NULL, sample_R = NULL)][,
+                   .(date, R, sample, crps, window, rt_type)]
+          
+        est_r <- data.table::rbindlist(
+          list(est_r,
+          rt_forecasts[,.(date, R = rt, sample, rt_type = "forecast")]
+          ), fill = TRUE)
         
         return(list(rts = est_r, cases = case_forecasts))
         
       }else{
         
         ## Return just nowcast if no forecast has been run
-        est_r <- dplyr::mutate(est_r, rt_type = "nowcast", horizon = NA)
-        
+        est_r <- est_r[, rt_type := "nowcast"]
+          
         return(list(rts = est_r))
       }
       
@@ -299,9 +261,10 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
     
     ## Function to bind si sample outputs
     join_si_samples <- function(df) {
-      dplyr::bind_rows(df, .id = "si_sample") %>% 
-        dplyr::mutate(sample = sample * as.numeric(si_sample)) %>% 
-        dplyr::select(-si_sample)
+      df <- data.table::rbindlist(df, idcol = "si_sample")
+      
+      df <- df[, sample := sample * as.numeric(si_sample)][,
+               si_sample := NULL]
     }
     
     ## Make sample unique for Rts
@@ -311,8 +274,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
    if (horizon > 0 & !is.null(forecast_model)) {
       estimates$cases <- join_si_samples(estimates$cases)
     }
-     
-    
+
     return(estimates)
   }
 

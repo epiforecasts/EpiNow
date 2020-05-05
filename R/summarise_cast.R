@@ -27,7 +27,7 @@ summarise_cast <- function(cast, incubation_period = 5) {
   summarised_cast <- data.table::copy(cast)
   
   ## SUmmarises cases by reference across sample, data and type
-  summarised_cast <- data.table::as.data.table(summarised_cast)[
+  summarised_cast <- summarised_cast[
     , .(cases = sum(cases), confidence = get_conf(confidence, import_status)),
     by = .(sample, date, type)]
   

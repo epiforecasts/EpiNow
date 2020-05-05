@@ -8,10 +8,10 @@ regional_rt_pipeline(
   cases = NULL,
   linelist = NULL,
   target_folder = "results",
-  national = FALSE,
   regional_delay = FALSE,
   merge_onsets = FALSE,
   case_limit = 40,
+  onset_modifier = NULL,
   regions_in_parallel = TRUE,
   verbose = FALSE,
   samples = 1000,
@@ -27,14 +27,16 @@ used but in this case \code{merge_onsets} should be set to \code{FALSE}.}
 
 \item{target_folder}{Character string, name of the folder in which to save the results.}
 
-\item{national}{Logical defaults to \code{FALSE}. Should a national summary nowcast be made.}
-
 \item{regional_delay}{Logical defaults to \code{FALSE}. Should reporting delays be estimated by region.}
 
 \item{merge_onsets}{Logical defaults to \code{FALSE}. Should available onset data be used. Typically if \code{regional_delay} is}
 
 \item{case_limit}{Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 10.
 set to \code{FALSE} this should also be \code{FALSE}}
+
+\item{onset_modifier}{data.frame containing a \code{date} variable and a function \code{modifier} variable. This is used
+to modify estimated cases by onset date. \code{modifier} must be a function that returns a proportion when called
+(enables inclusion of uncertainty) and takes the following arguments: \code{n} (samples to return) and \code{status} ("local" or "import").}
 
 \item{regions_in_parallel}{Logical, should regions be run in parallel or sequentially (allowing for)
 within pipeline parallisation. Defaults to \code{TRUE}.}

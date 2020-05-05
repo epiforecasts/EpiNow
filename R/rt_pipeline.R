@@ -21,7 +21,7 @@
 #' @inheritParams epi_measures_pipeline
 #' @inheritParams report_estimates
 #' @inheritParams nowcast_pipeline
-#' @importFrom dplyr filter pull rename
+#' @importFrom data.table setDT
 #' @importFrom lubridate days
 #' 
 #' @examples
@@ -37,7 +37,13 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         horizon = 0, report_forecast = FALSE, report_delay_fns = NULL,
                         onset_modifier = NULL, min_forecast_cases = 200) {
  
- 
+
+# Convert input to DT -----------------------------------------------------
+
+  cases <- data.table::setDT(cases)
+  imported_cases <- data.table::setDT(imported_cases)
+  linelist <- data.table::setDT(linelist)
+  
  # Set up folders ----------------------------------------------------------
 
  latest_folder <- file.path(target_folder, "latest")
@@ -73,10 +79,10 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
 
  ##Define the minimum number of recent cases required for a forecast to be run
  if (!is.null(min_forecast_cases)) {
-   current_cases <- dplyr::filter(cases, date <= max(date),
-                                  date >= (max(date) - lubridate::days(7))) %>% 
-   dplyr::summarise(cases = sum(cases, na.rm = TRUE)) %>% 
-   dplyr::pull(cases)
+   current_cases <- data.table::copy(cases)[date <= max(date)][
+     date >= (max(date) - lubridate::days(7))
+   ][, .(cases = sum(cases, na.rm = TRUE))]$cases
+
    
    ## If cases in the last week are fewer than this number then turn off forecasting.
    if (min_forecast_cases > current_cases) {
@@ -89,40 +95,33 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
  
  ## Define the min plotting (and estimate date as the first date that
  ## at least 5 local cases were reported minus the incubation period
- min_plot_date <-  
-   dplyr::filter(cases,
-                 import_status %in% "local", 
-                 cases >= 5) %>% 
-   dplyr::pull(date) %>% 
-   {min(., na.rm = TRUE) - lubridate::days(incubation_period)}
+ min_plot_date <- data.table::copy(cases)[
+   import_status %in% "local"][cases >= 5][
+     ,.(date = min(date, na.rm = TRUE) - lubridate::days(incubation_period))]$date
  
-
   # Format input ------------------------------------------------------------
 
   ## Reformat linelist for use in nowcast_pipeline
-  formatted_linelist <- 
-    dplyr::rename(linelist, 
-                  date_onset_symptoms = date_onset,
-                  date_confirmation = date_confirm,
-                  delay_confirmation = report_delay)
+  linelist <- linelist[, .(date_onset_symptoms = date_onset, 
+                           date_confirmation = date_confirm,
+                           delay_confirmation = report_delay)]
 
   ##Reformat cases
-  cases <- 
-    dplyr::rename(cases, 
-                  confirm = cases)
+  cases <- cases[, confirm := cases][,cases := NULL]
 
   # Run a nowcast -----------------------------------------------------------
 
-  nowcast <- EpiNow::nowcast_pipeline(reported_cases = cases, linelist = formatted_linelist,
-                                      date_to_cast = target_date,  date_to_cutoff_delay = delay_cutoff_date,
-                                      earliest_allowed_onset = earliest_allowed_onset,
-                                      merge_actual_onsets = merge_actual_onsets, samples = samples,
-                                      delay_only = delay_only, nowcast_lag = nowcast_lag,
-                                      verbose = verbose, report_delay_fns = report_delay_fns,
-                                      bootstraps = bootstraps, bootstrap_samples = bootstrap_samples,
-                                      onset_modifier = onset_modifier, approx_delay = approx_delay,
-                                      max_delay = max_delay)
 
+  nowcast <- EpiNow::nowcast_pipeline(
+    reported_cases = cases, linelist = linelist,
+    date_to_cast = target_date,  date_to_cutoff_delay = delay_cutoff_date,
+    earliest_allowed_onset = earliest_allowed_onset,
+    merge_actual_onsets = merge_actual_onsets, samples = samples,
+    delay_only = delay_only, nowcast_lag = nowcast_lag,
+    verbose = verbose, report_delay_fns = report_delay_fns,
+    bootstraps = bootstraps, bootstrap_samples = bootstrap_samples,
+    onset_modifier = onset_modifier, approx_delay = approx_delay,
+    max_delay = max_delay)
 
   saveRDS(nowcast,  paste0(target_folder, "/nowcast.rds"))
 
@@ -130,13 +129,14 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
   # Estimate time-varying parameters ----------------------------------------
 
   epi_estimates <-
-    dplyr::filter(nowcast, type %in% "nowcast") %>%
-    EpiNow::epi_measures_pipeline(min_est_date = min_plot_date + lubridate::days(incubation_period),
-                                  serial_intervals = serial_intervals,
-                                  si_samples = si_samples, rt_samples = rt_samples,
-                                  rate_window = rate_window, rt_windows = rt_windows,
-                                  rt_prior = rt_prior, forecast_model = forecast_model, 
-                                  horizon = horizon, verbose = verbose)
+    EpiNow::epi_measures_pipeline(
+          count_linelist = nowcast[type == "nowcast"],
+          min_est_date = min_plot_date + lubridate::days(incubation_period),
+          serial_intervals = serial_intervals,
+          si_samples = si_samples, rt_samples = rt_samples,
+          rate_window = rate_window, rt_windows = rt_windows,
+          rt_prior = rt_prior, forecast_model = forecast_model, 
+          horizon = horizon, verbose = verbose)
 
   saveRDS(epi_estimates,  paste0(target_folder, "/time_varying_params.rds"))
   
@@ -171,6 +171,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
     file.copy(file.path(target_folder, "."),
               latest_folder, recursive = TRUE)
   )
+
 
   ## Clean everything not in use
   rm(list = ls())

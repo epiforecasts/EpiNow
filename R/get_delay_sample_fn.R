@@ -8,7 +8,6 @@
 ##' When the sample size of the supplied delay distribution is less than 100 this is used instead.
 ##' @return A list of function that takes one parameter, `n`, the number of reporting
 ##'   delays to randomly sample
-##' @importFrom dplyr filter
 ##' @importFrom purrr map map2 flatten
 ##' @importFrom furrr future_map
 ##' @importFrom rstan extract

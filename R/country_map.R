@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @importFrom rnaturalearth ne_countries ne_states
-#' @importFrom dplyr left_join select filter
+#' @importFrom dplyr left_join 
 #' @importFrom countrycode countrycode
 #' @importFrom ggplot2 ggplot aes geom_sf theme_minimal theme labs waiver
 #' @importFrom rlang .data
@@ -44,8 +44,8 @@ country_map <- function(data = NULL, country = NULL,
   regions <- rnaturalearth::ne_states(country, returnclass = "sf")
   
   
-  regions_with_data <- regions %>% 
-    dplyr::left_join(data,
+  regions_with_data <-  
+    dplyr::left_join(regions, data,
                      by = c("provnum_ne" = "region_code"))
 
 
@@ -73,10 +73,5 @@ country_map <- function(data = NULL, country = NULL,
                       breaks = levels(regions_with_data[[variable]]),
                       ...)
 
-  
-  
-  # Return map --------------------------------------------------------------
-  
-  
   return(map)
 }

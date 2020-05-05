@@ -8,9 +8,6 @@
 #' @export
 #' @importFrom purrr safely
 #' @importFrom furrr future_map2 future_options
-#' @importFrom tibble tibble
-#' @importFrom dplyr mutate
-#' @importFrom tidyr unnest
 #' @examples
 #'
 estimate_time_varying_r <- function(onsets, window = 7) {
@@ -19,27 +16,32 @@ estimate_time_varying_r <- function(onsets, window = 7) {
     EpiNow::estimate_r_in_window
     )
 
-  windowed_r <- tibble::tibble(
+  ## Set up results data.table
+  windowed_r <- data.table::data.table(
     max_time = window:nrow(onsets[[1]]),
     date = onsets[[1]]$date[window:nrow(onsets[[1]])]
-  ) %>%
-    dplyr::mutate(
-      min_time = max_time - window) %>%
-    dplyr::mutate(
-      estimates = furrr::future_map2(min_time, max_time,
-                              ~ suppressMessages(
-                                safe_estimate_r_window(onsets,
-                                                       min_time = .x,
-                                                       max_time = .y)[[1]]),
-                              .progress = TRUE,
-                              .options = furrr::future_options(scheduling = 20)),
-      vars = list(names(estimates[[1]]))
-    )
+  )
   
-  windowed_r <- 
-    tidyr::unnest(windowed_r, c("estimates", "vars"))
+  ## Add minimium window
+  windowed_r <- windowed_r[, min_time := max_time - window]
   
-  windowed_r <-
-    tidyr::unnest(windowed_r, "estimates")
+  ## Estimate little r
+  windowed_r <- windowed_r[, 
+       .(date, min_time, max_time,
+         estimates = furrr::future_map2(min_time, max_time,
+            ~ suppressMessages(safe_estimate_r_window(onsets, 
+                                                      min_time = .x,
+                                                      max_time = .y)[[1]]),
+            .progress = TRUE))][, var := list(names(estimates[[1]]))]
+  
+  ## Remove first nesting layer
+  windowed_r <- windowed_r[, .(estimates = purrr::flatten(estimates),
+                               var = unlist(var)),
+                           by = c("date", "min_time", "max_time")]
+  
+  windowed_r <- windowed_r[, .(windowed_r[, .(date, var)],
+                               data.table::rbindlist(estimates))]
 
+
+  return(windowed_r)
 }

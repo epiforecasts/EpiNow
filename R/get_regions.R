@@ -7,8 +7,6 @@
 #'
 #' @return A named character vector containing the results to plot.
 #' @export
-#' @importFrom stringr str_replace_all
-#' @importFrom stringr str_to_title
 #' @examples
 #' 
 #' ## Code 

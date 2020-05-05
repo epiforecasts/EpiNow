@@ -9,11 +9,9 @@
 #' @return A list of 3 dataframes containing estimates for little r, doubling time and
 #' model goodness of fit.
 #' @export
-#' @importFrom purrr map_dfr map_dbl
+#' @importFrom purrr map map_dbl
 #' @importFrom HDInterval hdi
-#' @importFrom dplyr mutate group_by summarise ungroup mutate_if
-#' @importFrom tidyr unnest
-#' @importFrom data.table setDT
+#' @importFrom data.table rbindlist copy setDT
 #'
 #' @examples
 #'
@@ -22,23 +20,23 @@ estimate_r_in_window <- function(onsets = NULL,
                                  min_time = NULL,
                                  max_time = NULL,
                                  bootstrap_samples = 1000) {
-  r <- onsets %>%
-    purrr::map_dfr(
-      ~ EpiNow::estimate_little_r(.,
+  r <- 
+    purrr::map(
+      onsets, 
+      ~ data.table::setDT(EpiNow::estimate_little_r(.,
                                   min_time = min_time,
-                                  max_time = max_time) %>%
-        dplyr::mutate(sampled_r = list(
-          stats::rnorm(bootstrap_samples, r, sd))
-        ),
-      .id = "sample"
-    )
+                                  max_time = max_time))[,
+            sampled_r := list(stats::rnorm(bootstrap_samples, r, sd))]
+        )
+  
+  r <- data.table::rbindlist(r, idcol = "sample")
 
   ## Summarise r
-  r <- tidyr::unnest(r, "sampled_r")
+  r <- r[, .(sampled_r = unlist(sampled_r)), 
+         by = c("sample", "r", "sd", "fit_meas")]
+    
 
-  summarise_r <- r
-
-  summarise_r <- data.table::setDT(summarise_r)[,.(
+  summarise_r <- data.table::copy(r)[,.(
     bottom  = purrr::map_dbl(list(HDInterval::hdi(sampled_r, credMass = 0.9)), ~ .[[1]]),
     top = purrr::map_dbl(list(HDInterval::hdi(sampled_r, credMass = 0.9)), ~ .[[2]]),
     lower  = purrr::map_dbl(list(HDInterval::hdi(sampled_r, credMass = 0.5)), ~ .[[1]]),
@@ -49,22 +47,18 @@ estimate_r_in_window <- function(onsets = NULL,
 
 
   ## Summarise doubling time
-  summarise_doubling <- summarise_r %>%
-    dplyr::mutate_if(is.numeric, estimate_doubling_time)
+  cols <- colnames(summarise_r)
+  summarise_doubling <- data.table::copy(summarise_r)[, 
+                                    (cols) := lapply(.SD,EpiNow::estimate_doubling_time),
+                                    .SDcols = cols] 
 
   ## Flip credible intervals
-  summarise_doubling <- summarise_doubling %>%
-    dplyr::mutate(
-      bottom = summarise_doubling$top,
-      top = summarise_doubling$bottom,
-      lower = summarise_doubling$upper,
-      upper = summarise_doubling$lower,
-    ) 
-
+  summarise_doubling <- summarise_doubling[,
+    .(bottom = top, top = bottom, lower = upper,
+      upper = lower, mean, median)]
+    
   ## Sumamrise goodness of fit
-  summarise_fit <- r
-
-  summarise_fit <- data.table::setDT(summarise_fit)[,.(
+  summarise_fit <- r[,.(
     bottom = purrr::map_dbl(list(HDInterval::hdi(fit_meas, 
                                                  credMass = 0.9)), ~ .[[1]]),
     top = purrr::map_dbl(list(HDInterval::hdi(fit_meas, 

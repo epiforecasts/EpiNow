@@ -8,7 +8,7 @@
 #' @return
 #' @export
 #' @importFrom purrr map
-#' @importFrom tibble tibble
+#' @importFrom data.table data.table
 #' @examples
 #'
 #'
@@ -29,9 +29,9 @@ sample_onsets <- function(onsets = NULL, cum_freq = NULL, dates = NULL, samples 
     confidence <- rep(1, length(x_onsets))
     confidence[length(confidence):(length(confidence) - (length(cum_freq) - 1))] <- cum_freq
 
-    return(tibble::tibble(date = dates,
-                          cases = x_onsets,
-                          confidence = confidence))
+    return(data.table::data.table(date = dates,
+                                  cases = x_onsets,
+                                  confidence = confidence))
   })
 
  return(out)
