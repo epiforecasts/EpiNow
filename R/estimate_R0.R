@@ -67,7 +67,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
   
   ## Adjust input based on the presence of imported cases
   if (suppressWarnings(length(unique(cases$import_status)) > 1)) {
-    incid <-  
+    incid <- 
       dplyr::select(cases, 
                     date, cases, import_status) %>% 
       tidyr::spread(key = "import_status", value = "cases") %>%
@@ -83,8 +83,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
   }else{
     incid <-
       dplyr::select(cases,
-                    date, cases) %>% 
-      dplyr::rename(I = cases) %>%
+                    date, I = cases) %>% 
       tidyr::complete(date = seq(min(date), max(date), by = "day"),
                       fill = list(I = 0))
     
@@ -135,60 +134,44 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                                                                   )))$R
                           )
                           
-                          ## Filter out NA values
-                          R <- tidyr::drop_na(R, `Mean(R)`)
+                          ## Filter out NA values, choose columns and make into data.table
+                          R <- data.table::as.data.table(R)[!is.na(`Mean(R)`),
+                                                            .(t_start, t_end, `Mean(R)`, `Std(R)`)]
+                          
+                          R <- R[!is.na(R$`Mean(R)`)]
                           
                           ## Take samples from the assumed gamma distribution
-                          R_samples <- purrr::map2(R$`Mean(R)`, R$`Std(R)`,
-                                                    ~ mean_rgamma(rt_samples, .x, .y) %>% 
-                                                     sort())
+                          R <- R[, .(date = EpiNow::add_dates(incid$date, .N), mean_R = `Mean(R)`,
+                                     sd_R = `Std(R)`, sample_R = purrr::map2(`Mean(R)`, `Std(R)`, 
+                                                                       ~ mean_rgamma(rt_samples, .x, .y) %>% 
+                                                                         sort()),
+                                     sample = list(1:rt_samples))]
                           
-                           
-                          ## Put into data frame by date
-                          out <- data.table::data.table(
-                            date = EpiNow::add_dates(incid$date, length(R_samples)),
-                            mean_R = R$`Mean(R)`,
-                            sd_R = R$`Std(R)`,
-                            R = purrr::map(R_samples,
-                                           ~ list(R = ., sample = 1:length(.)))
-                          )
-                          
-                          out <- data.table::unwrap(out)
-                          
-                          ## Make current case predictions from past cases and current Rt values
+                          R <- R[, .(sample_R = unlist(sample_R), sample = unlist(sample)), 
+                                 by = c("date", "mean_R", "sd_R")]
+                        
+                         ## Make current case predictions from past cases and current Rt values
                           preds <- 
                             purrr::map(
-                              split(out, by = "sample"), 
+                              split(R, by = "sample"), 
                               ~ EpiSoon::predict_current_cases(
-                                rts = .[, `:=`(sample = NULL, R = NULL)], 
+                                rts = .[,.(date, rt = sample_R)], 
                                 cases = summed_cases,
                                 serial_interval = serial_intervals[, index]
                               ))
                           
-                          preds <- data.table::rbindlist(preds, .idcol = "sample")
+                          preds <- data.table::rbindlist(preds, idcol = "sample")
                           preds <- preds[, `:=`(sample = as.numeric(sample), horizon = 0)][,
                                           .(date, cases, sample, horizon)]
                           
                           ## Score the forecast
-                          scores <- EpiSoon::score_case_forecast(preds, summed_cases, 
-                                                                 scores = "crps")
+                          scores <- data.table::as.data.table(
+                            EpiSoon::score_case_forecast(preds, summed_cases, 
+                                                         scores = "crps"))[,horizon := NULL]
                           
-                          ## Evaluate the window using the median CRPS across all time points and samples
-                          summarised_score <-  
-                            dplyr::summarise(scores,
-                                             median = median(crps, na.rm = TRUE))
-                          
-                          out_list <-
-                            list(
-                              rt = dplyr::mutate(
-                                out,
-                                window = window
-                              ),
-                             score = summarised_score$median
-                            )
+                          R <- R[scores, on="date", nomatch=0][, "window" := window]
 
-                          
-                          return(out_list)
+                          return(R)
                         }) 
     
     ## Extract scores, detect which is smallest and extract largest window with smallest score
