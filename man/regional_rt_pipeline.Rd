@@ -12,6 +12,8 @@ regional_rt_pipeline(
   merge_onsets = FALSE,
   case_limit = 40,
   onset_modifier = NULL,
+  bootstraps = 1,
+  bootstrap_samples = 100,
   regions_in_parallel = TRUE,
   verbose = FALSE,
   samples = 1000,

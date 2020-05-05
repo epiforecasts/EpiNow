@@ -21,6 +21,8 @@ rt_pipeline(
   merge_actual_onsets = TRUE,
   delay_only = FALSE,
   approx_delay = FALSE,
+  bootstraps = 1,
+  bootstrap_samples = 100,
   max_delay = 120,
   verbose = FALSE,
   serial_intervals = NULL,

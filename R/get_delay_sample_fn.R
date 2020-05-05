@@ -26,7 +26,7 @@
 ##' ## Code
 ##' get_delay_sample_fn
 get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
-                                bootstraps = 1, bootstrap_samples = 100) {
+                                bootstraps = 1, bootstrap_samples = 250) {
 
   ## Confirmation delays
   delays <- linelist %>%

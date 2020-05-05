@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Run a complete nowcast — nowcast_pipeline • EpiNow</title>
+<title>Get Timeseries from EpiNow — get_timeseries • EpiNow</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Run a complete nowcast — nowcast_pipeline" />
-<meta property="og:description" content="Run a complete nowcast" />
+<meta property="og:title" content="Get Timeseries from EpiNow — get_timeseries" />
+<meta property="og:description" content="Get Timeseries from EpiNow" />
 
 
 
@@ -106,100 +106,34 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Run a complete nowcast</h1>
+    <h1>Get Timeseries from EpiNow</h1>
     
-    <div class="hidden name"><code>nowcast_pipeline.Rd</code></div>
+    <div class="hidden name"><code>get_timeseries.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Run a complete nowcast</p>
+    <p>Get Timeseries from EpiNow</p>
     </div>
 
-    <pre class="usage"><span class='fu'>nowcast_pipeline</span>(
-  <span class='kw'>reported_cases</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>linelist</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>date_to_cast</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>date_to_cutoff_delay</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>earliest_allowed_onset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>merge_actual_onsets</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>approx_delay</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>max_delay</span> <span class='kw'>=</span> <span class='fl'>120</span>,
-  <span class='kw'>delay_only</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>report_delay_fns</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>bootstraps</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>bootstrap_samples</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-  <span class='kw'>nowcast_lag</span> <span class='kw'>=</span> <span class='fl'>4</span>,
-  <span class='kw'>onset_modifier</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>get_timeseries</span>(<span class='kw'>results_dir</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>summarised</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>reported_cases</th>
-      <td><p>A dataframe of reported cases</p></td>
+      <th>results_dir</th>
+      <td><p>A character string indicating the folder containing the <code>EpiNow</code>
+results to extract.</p></td>
     </tr>
     <tr>
-      <th>linelist</th>
-      <td><p>A linelist of report dates and onset dates</p></td>
+      <th>date</th>
+      <td><p>A Character string (in the format "yyyy-mm-dd") indicating the date to extract
+data for. Defaults to "latest" which finds the latest results available.</p></td>
     </tr>
     <tr>
-      <th>date_to_cutoff_delay</th>
-      <td><p>A character</p></td>
-    </tr>
-    <tr>
-      <th>earliest_allowed_onset</th>
-      <td><p>A character string in the form of a date ("2020-01-01") indiciating the earliest
-allowed onset.</p></td>
-    </tr>
-    <tr>
-      <th>merge_actual_onsets</th>
-      <td><p>Logical, defaults to <code>TRUE</code>.
-Should linelist onset dates be used where available?</p></td>
-    </tr>
-    <tr>
-      <th>approx_delay</th>
-      <td><p>Logical, defaults to <code>FALSE</code>. Should delay sampling be approximated using case counts. Not appropriate
-when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.</p></td>
-    </tr>
-    <tr>
-      <th>delay_only</th>
-      <td><p>Logical, defaults to <code>FALSE</code>. Should estimates be made based on estimated onset dates without nowcasting.</p></td>
-    </tr>
-    <tr>
-      <th>verbose</th>
-      <td><p>Logical, defaults to <code>FALSE</code>. Should internal nowcasting progress messages be returned.</p></td>
-    </tr>
-    <tr>
-      <th>samples</th>
-      <td><p>Numeric, the number of samples to take.</p></td>
-    </tr>
-    <tr>
-      <th>report_delay_fns</th>
-      <td><p>List of functions as produced by <code><a href='get_delay_sample_fn.html'>EpiNow::get_delay_sample_fn</a></code></p></td>
-    </tr>
-    <tr>
-      <th>nowcast_lag</th>
-      <td><p>Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.</p></td>
-    </tr>
-    <tr>
-      <th>onset_modifier</th>
-      <td><p>data.frame containing a <code>date</code> variable and a function <code>modifier</code> variable. This is used
-to modify estimated cases by onset date. <code>modifier</code> must be a function that returns a proportion when called
-(enables inclusion of uncertainty) and takes the following arguments: <code>n</code> (samples to return) and <code>status</code> ("local" or "import").</p></td>
-    </tr>
-    <tr>
-      <th>date_to_case</th>
-      <td><p>A data indicating when to cast up to.</p></td>
-    </tr>
-    <tr>
-      <th>delay_sub_samples</th>
-      <td><p>Numeric, defaults to 1. When set to 1 all data is used to fit a single delay
-distribution where uncertainty is only propagated in the uncertainty of the fit. If set to more than one
-the supplied delay data is sampled this many times (with samples equalling the overall number of samples divided
-by the number of sub samples each time).</p></td>
+      <th>summarised</th>
+      <td><p>Logical, defaults to <code>FALSE</code>. Should full or summarised results be
+returned.</p></td>
     </tr>
     </table>
 
@@ -212,7 +146,43 @@ by the number of sub samples each time).</p></td>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 
-</div></pre>
+<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='co'>## Assuming epiforecasts/covid is one repo higher</span>
+<span class='co'>## Summary results</span>
+<span class='fu'>get_timeseries</span>(<span class='st'>"../covid/_posts/global/nowcast/results/"</span>,
+               <span class='kw'>summarised</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+
+<span class='co'>## Simulations</span>
+<span class='fu'>get_timeseries</span>(<span class='st'>"../covid/_posts/global/nowcast/results/"</span>)
+}
+<span class='co'>## Code</span>
+<span class='no'>get_timeseries</span></div><div class='output co'>#&gt; function (results_dir = NULL, date = NULL, summarised = FALSE) 
+#&gt; {
+#&gt;     if (is.null(date)) {
+#&gt;         date &lt;- "latest"
+#&gt;     }
+#&gt;     if (summarised) {
+#&gt;         nowcast &lt;- "summarised_nowcast.rds"
+#&gt;         rt_index &lt;- 1
+#&gt;     }
+#&gt;     else {
+#&gt;         nowcast &lt;- "nowcast.rds"
+#&gt;         rt_index &lt;- 3
+#&gt;     }
+#&gt;     regions &lt;- list.files(results_dir)
+#&gt;     names(regions) &lt;- regions
+#&gt;     load_data &lt;- purrr::safely(EpiNow::load_nowcast_result)
+#&gt;     rt &lt;- purrr::map_dfr(regions, ~load_data("time_varying_params.rds", 
+#&gt;         ., result_dir = results_dir, date = date)[[1]][[rt_index]], 
+#&gt;         .id = "region")
+#&gt;     incidence &lt;- purrr::map_dfr(regions, ~load_data(nowcast, 
+#&gt;         ., result_dir = results_dir, date = date)[[1]], .id = "region")
+#&gt;     out &lt;- list(rt, incidence)
+#&gt;     names(out) &lt;- c("rt", "incidence")
+#&gt;     return(out)
+#&gt; }
+#&gt; &lt;bytecode: 0x559f7c7eeb78&gt;
+#&gt; &lt;environment: namespace:EpiNow&gt;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

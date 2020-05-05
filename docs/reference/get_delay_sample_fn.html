@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -37,7 +41,6 @@
 
 <meta property="og:title" content="Get a sampling function for reporting delays — get_delay_sample_fn" />
 <meta property="og:description" content="Get a sampling function for reporting delays" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -55,7 +58,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -112,7 +115,13 @@
     <p>Get a sampling function for reporting delays</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_delay_sample_fn</span>(<span class='no'>linelist</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
+    <pre class="usage"><span class='fu'>get_delay_sample_fn</span>(
+  <span class='no'>linelist</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>bootstraps</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>bootstrap_samples</span> <span class='kw'>=</span> <span class='fl'>250</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -126,8 +135,14 @@
       <td><p>Logical, defaults to <code>FALSE</code>. Should progress messages be printed</p></td>
     </tr>
     <tr>
-      <th>resample</th>
-      <td><p>Logical, defaults to <code>FALSE</code>. Should the supplied delays be resampled.</p></td>
+      <th>bootstraps</th>
+      <td><p>Numeric, defaults to 1. The number of bootstrap samples (with replacement)
+of the delay distribution to take.</p></td>
+    </tr>
+    <tr>
+      <th>bootstrap_samples</th>
+      <td><p>Numeric, defaults to 100. The number of samples to take in each boostrap.
+When the sample size of the supplied delay distribution is less than 100 this is used instead.</p></td>
     </tr>
     </table>
 
@@ -144,55 +159,125 @@ delays to randomly sample</p>
 }
 
 <span class='co'>## Code</span>
-<span class='no'>get_delay_sample_fn</span></div><div class='output co'>#&gt; function (linelist, verbose = FALSE, samples = 1) 
+<span class='no'>get_delay_sample_fn</span></div><div class='output co'>#&gt; function (linelist, verbose = FALSE, samples = 1, bootstraps = 1, 
+#&gt;     bootstrap_samples = 250) 
 #&gt; {
-#&gt;     confirmation_delays &lt;- linelist %&gt;% .$delay_confirmation %&gt;% 
-#&gt;         as.integer() %&gt;% .[!is.na(.)] %&gt;% .[. &gt;= 0]
-#&gt;     max_delay &lt;- max(confirmation_delays) + 1
-#&gt;     fit &lt;- EpiNow::dist_fit(confirmation_delays, samples = samples, 
-#&gt;         dist = "exp")
-#&gt;     delay_rate &lt;- sample(rstan::extract(fit)$lambda, samples)
-#&gt;     sample_functions &lt;- delay_rate %&gt;% purrr::map(function(par) {
-#&gt;         sample_function &lt;- function(n, dist = FALSE, max_delay = NULL) {
-#&gt;             if (!dist) {
-#&gt;                 rexp(n, par)
-#&gt;             }
-#&gt;             else {
-#&gt;                 if (length(n) &gt; max_delay) {
-#&gt;                   n &lt;- 1:max_delay
-#&gt;                 }
-#&gt;                 pexp(n, par)
-#&gt;             }
+#&gt;     delays &lt;- linelist %&gt;% .$delay_confirmation %&gt;% as.integer() %&gt;% 
+#&gt;         .[!is.na(.)] %&gt;% .[. &gt;= 0]
+#&gt;     get_single_delay_fn &lt;- function(confirmation_delays = NULL, 
+#&gt;         samples = 1) {
+#&gt;         max_delay &lt;- max(confirmation_delays) + 1
+#&gt;         fit_exp &lt;- EpiNow::dist_fit(confirmation_delays, samples = samples, 
+#&gt;             dist = "exp")
+#&gt;         if (length(confirmation_delays) &gt;= 30) {
+#&gt;             fit_gam &lt;- EpiNow::dist_fit(confirmation_delays, 
+#&gt;                 samples = samples, dist = "gamma")
+#&gt;             log_lik_exp &lt;- loo::extract_log_lik(fit_exp, merge_chains = FALSE)
+#&gt;             log_lik_gam &lt;- loo::extract_log_lik(fit_gam, merge_chains = FALSE)
+#&gt;             rel_exp &lt;- loo::relative_eff(exp(log_lik_exp))
+#&gt;             rel_gam &lt;- loo::relative_eff(exp(log_lik_gam))
+#&gt;             loo_exp &lt;- loo::loo(log_lik_exp, r_eff = rel_exp)
+#&gt;             loo_gam &lt;- loo::loo(log_lik_gam, r_eff = rel_gam)
+#&gt;             best_model &lt;- ifelse(loo_exp$estimates[3, 1] &lt; loo_gam$estimates[3, 
+#&gt;                 1], "exp", "gamma")
 #&gt;         }
-#&gt;     })
-#&gt;     truncated_sample_functions &lt;- sample_functions %&gt;% purrr::map(function(sample_function) {
-#&gt;         truncated_sample_function &lt;- function(n, dist = FALSE) {
-#&gt;             n &lt;- sample_function(n, dist, get("max_delay"))
-#&gt;             if (!dist) {
-#&gt;                 while (any(!is.na(n) &amp; n &gt;= get("max_delay"))) {
-#&gt;                   n &lt;- ifelse(n &gt;= get("max_delay"), sample_function(n), 
-#&gt;                     n)
-#&gt;                 }
-#&gt;                 n &lt;- as.integer(n)
-#&gt;             }
-#&gt;             return(n)
+#&gt;         else {
+#&gt;             best_model &lt;- "exp"
 #&gt;         }
-#&gt;     })
+#&gt;         if (best_model == "exp") {
+#&gt;             if (verbose) {
+#&gt;                 message("Exponential selected as the best fit for the delay distribution")
+#&gt;             }
+#&gt;             delay_rate &lt;- sample(rstan::extract(fit_exp)$lambda, 
+#&gt;                 samples)
+#&gt;             sample_functions &lt;- delay_rate %&gt;% purrr::map(function(par) {
+#&gt;                 sample_function &lt;- function(n, dist = FALSE, 
+#&gt;                   cum = TRUE, max_delay = NULL) {
+#&gt;                   if (!dist) {
+#&gt;                     rexp(n, par)
+#&gt;                   }
+#&gt;                   else {
+#&gt;                     if (length(n) &gt; max_delay) {
+#&gt;                       n &lt;- 1:max_delay
+#&gt;                     }
+#&gt;                     if (cum) {
+#&gt;                       pexp(n, par)
+#&gt;                     }
+#&gt;                     else {
+#&gt;                       dexp(n, par)
+#&gt;                     }
+#&gt;                   }
+#&gt;                 }
+#&gt;             })
+#&gt;         }
+#&gt;         else if (best_model == "gamma") {
+#&gt;             if (verbose) {
+#&gt;                 message("Gamma selected as the best fit for the delay distribution")
+#&gt;             }
+#&gt;             delay_alpha &lt;- sample(rstan::extract(fit_gam)$alpha, 
+#&gt;                 samples)
+#&gt;             delay_beta &lt;- sample(rstan::extract(fit_gam)$beta, 
+#&gt;                 samples)
+#&gt;             sample_functions &lt;- purrr::map2(delay_alpha, delay_beta, 
+#&gt;                 function(alpha, beta) {
+#&gt;                   sample_function &lt;- function(n, dist = FALSE, 
+#&gt;                     cum = TRUE, max_delay = NULL) {
+#&gt;                     if (!dist) {
+#&gt;                       rgamma(n, alpha, beta)
+#&gt;                     }
+#&gt;                     else {
+#&gt;                       if (length(n) &gt; max_delay) {
+#&gt;                         n &lt;- 1:max_delay
+#&gt;                       }
+#&gt;                       if (cum) {
+#&gt;                         pgamma(n, alpha, beta)
+#&gt;                       }
+#&gt;                       else {
+#&gt;                         dgamma(n, alpha, beta)
+#&gt;                       }
+#&gt;                     }
+#&gt;                   }
+#&gt;                 })
+#&gt;         }
+#&gt;         truncated_sample_functions &lt;- sample_functions %&gt;% purrr::map(function(sample_function) {
+#&gt;             truncated_sample_function &lt;- function(n, dist = FALSE, 
+#&gt;                 cum = TRUE) {
+#&gt;                 n &lt;- sample_function(n, dist, cum, get("max_delay"))
+#&gt;                 if (!dist) {
+#&gt;                   while (any(!is.na(n) &amp; n &gt;= get("max_delay"))) {
+#&gt;                     n &lt;- ifelse(n &gt;= get("max_delay"), sample_function(n), 
+#&gt;                       n)
+#&gt;                   }
+#&gt;                   n &lt;- as.integer(n)
+#&gt;                 }
+#&gt;                 return(n)
+#&gt;             }
+#&gt;         })
+#&gt;         return(truncated_sample_functions)
+#&gt;     }
+#&gt;     if (bootstraps == 1) {
+#&gt;         truncated_sample_functions &lt;- get_single_delay_fn(delays, 
+#&gt;             samples = samples)
+#&gt;     }
+#&gt;     else {
+#&gt;         truncated_sample_functions &lt;- furrr::future_map(1:bootstraps, 
+#&gt;             ~get_single_delay_fn(sample(delays, min(length(delays), 
+#&gt;                 bootstrap_samples), replace = TRUE), samples = ceiling(samples/bootstraps)), 
+#&gt;             .progress = FALSE)
+#&gt;         truncated_sample_functions &lt;- purrr::flatten(truncated_sample_functions)
+#&gt;         sample_indexs &lt;- sample(1:length(truncated_sample_functions), 
+#&gt;             samples, replace = FALSE)
+#&gt;         truncated_sample_functions &lt;- truncated_sample_functions[sample_indexs]
+#&gt;     }
 #&gt;     return(truncated_sample_functions)
 #&gt; }
-#&gt; &lt;bytecode: 0x55fa8ad05890&gt;
+#&gt; &lt;bytecode: 0x559f7d6da958&gt;
 #&gt; &lt;environment: namespace:EpiNow&gt;</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
-    <h2>Author</h2>
-    <p>Sebastian Funk <a href='mailto:sebastian.funk@lshtm.ac.uk'>sebastian.funk@lshtm.ac.uk</a></p>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -203,7 +288,7 @@ delays to randomly sample</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
 </div>
 
       </footer>

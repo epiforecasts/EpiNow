@@ -4,14 +4,24 @@
 \alias{get_delay_sample_fn}
 \title{Get a sampling function for reporting delays}
 \usage{
-get_delay_sample_fn(linelist, verbose = FALSE, samples = 1)
+get_delay_sample_fn(
+  linelist,
+  verbose = FALSE,
+  samples = 1,
+  bootstraps = 1,
+  bootstrap_samples = 250
+)
 }
 \arguments{
 \item{linelist}{Dataframe with a delay_confirmation date variable}
 
 \item{verbose}{Logical, defaults to \code{FALSE}. Should progress messages be printed}
 
-\item{resample}{Logical, defaults to \code{FALSE}. Should the supplied delays be resampled.}
+\item{bootstraps}{Numeric, defaults to 1. The number of bootstrap samples (with replacement)
+of the delay distribution to take.}
+
+\item{bootstrap_samples}{Numeric, defaults to 100. The number of samples to take in each boostrap.
+When the sample size of the supplied delay distribution is less than 100 this is used instead.}
 }
 \value{
 A list of function that takes one parameter, \code{n}, the number of reporting
