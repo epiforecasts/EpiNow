@@ -29,7 +29,7 @@
 #' @importFrom furrr future_map future_options
 #' @importFrom data.table .N as.data.table := setDT rbindlist
 #' @examples
-#'
+#' 
 #' 
 nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              date_to_cast = NULL, date_to_cutoff_delay = NULL,
@@ -113,7 +113,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
   reported_cases <- data.table::setDT(reported_cases)
   
   ## Filter reported cases based on the nowcasting date
-  reported_cases <- reported_cases[date <= date_to_case]
+  reported_cases <- reported_cases[date <= date_to_cast]
 
   ## Split cases into local and imported
   local_cases <- data.table::copy(reported_cases)[import_status == "local"]

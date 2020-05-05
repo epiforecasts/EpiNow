@@ -37,7 +37,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         horizon = 0, report_forecast = FALSE, report_delay_fns = NULL,
                         onset_modifier = NULL, min_forecast_cases = 200) {
  
-
+ 
 # Convert input to DT -----------------------------------------------------
 
   cases <- data.table::setDT(cases)
@@ -68,7 +68,6 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
     if (verbose) {
       message("Using default Rt prior of 2.6 (2)")
     }
-
     rt_prior <- list(
       mean_prior = 2.6,
       std_prior = 2)
@@ -104,7 +103,8 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
   ## Reformat linelist for use in nowcast_pipeline
   linelist <- linelist[, .(date_onset_symptoms = date_onset, 
                            date_confirmation = date_confirm,
-                           delay_confirmation = report_delay)]
+                           delay_confirmation = report_delay,
+                           import_status)]
 
   ##Reformat cases
   cases <- cases[, confirm := cases][,cases := NULL]

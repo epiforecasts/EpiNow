@@ -43,7 +43,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   
   ## Check for regions more than required cases
-  eval_regions <- data.table::copy(cases)[.(cases = sum(cases, na.rm = TRUE)), 
+  eval_regions <- data.table::copy(cases)[,.(cases = sum(cases, na.rm = TRUE)), 
                                           by = c("region", "date")][
                       cases >= case_limit]$region
   
@@ -55,7 +55,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   message("Running the pipeline for: ",
           paste(eval_regions, collapse = ", "))
-  
+   
   ## Make sure all dates have cases numbers
   cases_grid <- cases[,.(date = seq(min(date), max(date), by = "days"), 
                          import_status = list(list("local", "imported"))),
@@ -75,7 +75,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     
     ## Fit the delay distribution
     report_delay_fns <- 
-      EpiNow::get_delay_sample_fn(linelist = linelist[, delay_confirmatin := report_delay],
+      EpiNow::get_delay_sample_fn(linelist = linelist[, delay_confirmation := report_delay],
                                   samples = samples, bootstraps = bootstraps, 
                                   bootstrap_samples = bootstrap_samples)  
     
@@ -91,6 +91,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
                               samples = samples, 
                               report_delay_fns = report_delay_fns,
                               verbose = verbose,
+                              bootstraps = bootstraps,
+                              bootstrap_samples = bootstrap_samples,
                               ...)
   
   ## Function to run the pipeline in a region
@@ -98,10 +100,10 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     message("Running Rt pipeline for ", target_region)
     
    
-    regional_cases <- cases[regions %in% target_region]
+    regional_cases <- cases[region %in% target_region][, region := NULL]
     
     if (regional_delay) {
-      regional_linelist <- linelist[region %in% target_region]
+      regional_linelist <- linelist[region %in% target_region][, region := NULL]
     }else{
       regional_linelist <- linelist
     }
@@ -117,8 +119,6 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
               linelist = regional_linelist,
               onset_modifier = region_onset_modifier,
               target_folder = file.path(target_folder, target_region))
-
-    rm(list = ls())
     
     return(invisible(NULL))
     
