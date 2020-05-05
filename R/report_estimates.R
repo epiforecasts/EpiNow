@@ -16,6 +16,7 @@
 #' @importFrom ggplot2 ggsave theme labs coord_cartesian scale_x_date geom_hline geom_vline
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_layout
+#' @importFrom data.table rbindlist copy
 #' @inheritParams summarise_cast
 #' @return
 #' @export
@@ -45,39 +46,28 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
 
 # Report on cases ---------------------------------------------------------
 
+  summarised_cast <- 
+    EpiNow::summarise_cast(nowcast[import_status %in% "local"],
+                                   incubation_period = incubation_period)
   
-  summarise_cast <- nowcast %>% 
-    dplyr::filter(import_status %in% "local") %>% 
-    EpiNow::summarise_cast(incubation_period = incubation_period)
-  
-  ## Drop nowcast
-  rm(nowcast)
+
   
   ## Combine nowcast with observed cases by onset and report
-  reported_cases <-
-    dplyr::filter(cases, import_status %in% "local") %>% 
-    dplyr::count(date, wt = confirm) %>%
-    dplyr::select(date, median = n) %>%
-    dplyr::mutate(type = "Observed by report date",
-                  confidence = 1)
+  reported_cases <- cases[import_status %in% "local",
+                    .(median = sum(confirm), 
+                      type = "Observed by report date",
+                      confidence = 1), by = "date"]
   
   
   ## Count cumulative cases
-  all_cases <-
-    dplyr::bind_rows(summarise_cast, reported_cases) %>%
-    dplyr::group_by(type) %>%
-    dplyr::ungroup()
+  all_cases <- data.table::rbindlist(summarised_cast, reported_cases)
   
   ## Save combined data
   saveRDS(all_cases,  paste0(target_folder, "/summarised_nowcast.rds"))
   
-  rm(summarise_cast, reported_cases)
-  
   ## Extract latest cases
-  current_cases <-
-    dplyr::filter(all_cases, type %in% "nowcast") %>%
-    dplyr::filter(date == max(date)) %>%
-    dplyr::mutate(range = purrr::pmap(
+  current_cases <- all_cases[type %in% "nowcast"][
+    date == max(date)][, .(range = purrr::pmap(
       list(mean, bottom, top),
       function(mean, bottom, top) {
         list(point = mean,
@@ -85,37 +75,38 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
              upper = top,
              mid_lower = lower,
              mid_upper = upper)
-      }))
+      }))]
+
   
-  
-  latest_date <- dplyr::pull(current_cases, date)
+  latest_date <- current_cases$date
   
   saveRDS(latest_date,  paste0(target_folder, "/latest_date.rds"))
   
-  current_cases <- dplyr::pull(current_cases, range)
+  current_cases <- current_cases$range
   
   saveRDS(current_cases,  paste0(target_folder, "/current_cases.rds"))
   
   ## Plot comparison of cases
-  plot_cases <-  
-    dplyr::filter(all_cases, !type %in% "from_delay",
-                  date >= min_plot_date) %>%
-    dplyr::mutate(median = ifelse(type == "nowcast", NA, median)) %>%
-    EpiNow::plot_confidence(legend = ifelse(report_forecast, "bottom", "none")) +
+  plot_cases <-  all_cases[!type %in% "from_delay"][date >= min_plot_date]
+  
+  ## Make median NA if type nowcast
+  plot_cases[type == "nowcast", median := NA]
+  
+  plot_cases <- EpiNow::plot_confidence(plot_cases,
+                                        legend = ifelse(report_forecast,
+                                                        "bottom", "none")) +
     ggplot2::labs(y = "Daily cases", x = "Date") +
     ggplot2::geom_vline(xintercept = as.Date(target_date), linetype = 2)
   
   
   if (report_forecast) {
     
-    case_forecast <- case_forecast %>% 
-      dplyr::mutate(date = date - lubridate::days(incubation_period))
+    case_forecast <- case_forecast[, 
+                      date := date - lubridate::days(incubation_period)]
     
     plot_cases <- 
-      EpiNow::plot_forecast(plot =  plot_cases, 
+      EpiNow::plot_forecast(plot = plot_cases, 
                             forecast = case_forecast)
-    
-    rm(case_forecast)
   }
   
   if (save_plots) {
@@ -136,18 +127,15 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
 
   
   ## Pull out R estimates
-  bigr_estimates <- dplyr::filter(reff_estimates,
-                                  rt_type %in% "nowcast")
+  bigr_estimates <- reff_estimates[rt_type %in% "nowcast"]
   
+  ## Data.table of confidence estimates
+  case_confidence <- data.table::copy(all_cases)[, .(type, confidence, date = date_onset)]
   
-  bigr_estimates <- dplyr::left_join(bigr_estimates, 
-                                     dplyr::select(all_cases, type, confidence, date_onset),
-                                     by = c("type", "date" = "date_onset")
-  ) %>%
-    dplyr::filter(!is.na(confidence)) %>% 
-    dplyr::mutate(date_onset = date) %>%
-    dplyr::mutate(date = date - incubation_period)
-  
+  ## Join confidence onto R estimates
+  bigr_estimates <- all_cases[bigr_estimates, on = c("type", "date")][
+    !is.na(confidence)][, date_onset := date][, date := date - incubation_period]
+
   saveRDS(bigr_estimates,
           paste0(target_folder, "/bigr_estimates.rds"))
   
@@ -184,10 +172,8 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   
   ## Plot R estimates
   plot_bigr <- 
-    dplyr::filter(bigr_estimates, 
-                  type %in% "nowcast",
-                  date >= min_plot_date) %>%
-    EpiNow::plot_confidence(plot_median = FALSE, 
+    EpiNow::plot_confidence(bigr_estimates[type %in% "nowcast"][date >= min_plot_date],
+                            plot_median = FALSE, 
                             legend = ifelse(report_forecast, "bottom", "none")) +
     ggplot2::labs(y = "Effective Reproduction no.", x = "Date") +
     ggplot2::geom_hline(yintercept = 1, linetype = 2) +
@@ -196,9 +182,8 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   
   if (report_forecast) {
     
-    effr_forecast <-  dplyr::filter(reff_estimates,
-                                    rt_type %in% "forecast") %>% 
-      dplyr::mutate(date = date - lubridate::days(incubation_period))
+    effr_forecast <-  reff_estimates[rt_type %in% "forecast"][, 
+              date := date - lubridate::days(incubation_period)]
       
     plot_bigr <- 
       EpiNow::plot_forecast(plot =  plot_bigr, 
@@ -219,8 +204,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   
   saveRDS(plot_bigr,
           paste0(target_folder, "/bigr_eff_plot.rds"))
-  
-  rm(reff_estimates, bigr_estimates)
+
   # Pull out and plot little R ----------------------------------------------
   
   littler_estimates$time_varying_r[[1]] <- 
