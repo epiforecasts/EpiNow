@@ -30,7 +30,7 @@ estimate_little_r <- function(sample, min_time = NULL, max_time = NULL) {
   sample <- sample[time >= min_time][time <= max_time]
 
   ## Fit log model - adapted from the R0 package
-  model <- glm(cases ~ time, family = poisson(), data = sample)
+  model <- glm(cases ~ time, family = quasipoisson(), data = sample)
 
   model_sum <- summary(model)
 

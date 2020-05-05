@@ -73,10 +73,5 @@ country_map <- function(data = NULL, country = NULL,
                       breaks = levels(regions_with_data[[variable]]),
                       ...)
 
-  
-  
-  # Return map --------------------------------------------------------------
-  
-  
   return(map)
 }
