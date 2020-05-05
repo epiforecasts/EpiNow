@@ -16,11 +16,9 @@
 #' @return A tibble containing the date and summarised R estimte.
 #' @export
 #' @importFrom EpiEstim estimate_R make_config
-#' @importFrom tidyr complete spread
-#' @importFrom dplyr rename
 #' @importFrom purrr map2 map2_dbl safely map
 #' @importFrom EpiSoon predict_current_cases forecast_rt forecast_cases score_case_forecast
-#' @importFrom data.table setDT rbindlist .SD
+#' @importFrom data.table setDT rbindlist .SD data.table::dcast.data.table copy
 #' @examples
 #'
 #' ## Nowcast Rts                  
@@ -67,34 +65,35 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
   
   ## Adjust input based on the presence of imported cases
   if (suppressWarnings(length(unique(cases$import_status)) > 1)) {
-    incid <- 
-      dplyr::select(cases, 
-                    date, cases, import_status) %>% 
-      tidyr::spread(key = "import_status", value = "cases") %>%
-      tidyr::complete(date = seq(min(date), max(date), by = "day"),
-                      fill = list(local = 0, imported = 0)) 
     
+    ## Select columns
+    incid <- data.table::setDT(cases)[, .(date, cases, import_status)]
+    
+    ## Fill in any missing data
+    incid <- incid[incid[, .(date = seq(min(date), max(date), by = "days"))],
+                   on = "date"][
+                     is.na(cases), cases := 0]
+    
+    ## Spread to wide and fill in missing combinations
+    incid <- data.table::dcast.data.table(incid, date ~ import_status, 
+                                 value.var = "cases", fill = 0)
+ 
     ## Predict cases forward in time using just local cases
-    summed_cases <- 
-      dplyr::rename(incid,
-                    cases = local) %>% 
-      dplyr::select(-imported)
+    summed_cases <- data.table::copy(incid)[, `:=`(cases = local, imported = NULL)]
   
   }else{
-    incid <-
-      dplyr::select(cases,
-                    date, I = cases) %>% 
-      tidyr::complete(date = seq(min(date), max(date), by = "day"),
-                      fill = list(I = 0))
-    
-    summed_cases <- dplyr::rename(incid, cases = I)
+    incid <- data.table::setDT(cases)[, .(date, I = cases)]
+
+    incid <- incid[incid[, .(date = seq(min(date), max(date), by = "days"))],
+                   on = "date"][
+      is.na(I), I := 0]
+
+    summed_cases <- data.table::copy(incid)[, cases := I][, I := NULL]
   }
  
   ## Calculate when to start the window estimation of Rt
-  min_case_date <- dplyr::filter(summed_cases, cases > 0)
-  min_case_date <- dplyr::pull(min_case_date, date)
-  min_case_date <- min(min_case_date)
-  
+  min_case_date <- data.table::copy(summed_cases)[cases > 0][date == min(date)]$date
+    
   wait_time <- as.numeric(min_est_date - min_case_date) + 1
   
   if (wait_time > nrow(incid)){
