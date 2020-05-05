@@ -261,7 +261,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
                                      data.table::rbindlist(latest))][,
                                     .(type, vars, range)]
   
-  report_latest <- data.table::dcast(report_latest, type ~ vars, value.vars = "range")
+  report_latest <- data.table::dcast(report_latest, type ~ vars, value.var = "range")
 
   report_latest <- report_latest[, .(Data = type,
                                      `Rate of growth` = little_r,

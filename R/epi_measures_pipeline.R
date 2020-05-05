@@ -157,9 +157,6 @@ epi_measures_pipeline <- function(nowcast = NULL,
   
   ## Break nowcast into list
   nowcast <- split(nowcast, by = "type")
-
-
-  rm(little_r_estimates)
   
   ## Estimate overall
   little_r <- little_r[, overall_little_r := furrr::future_map(nowcast,
