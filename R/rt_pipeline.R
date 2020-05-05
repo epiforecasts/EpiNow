@@ -73,7 +73,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
       std_prior = 2)
   }
  
-
+ 
 # Control errors by changing options --------------------------------------
 
  ##Define the minimum number of recent cases required for a forecast to be run

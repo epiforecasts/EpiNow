@@ -44,11 +44,9 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              bootstraps = 1, bootstrap_samples = 1000,
                              nowcast_lag = 4,
                              onset_modifier = NULL) {
-   
- 
+  
 # Fit delay distribution --------------------------------------------------
  
-  
   if (is.null(report_delay_fns)) {
     
     ## Get the distribution of reporting delays
@@ -302,7 +300,7 @@ if (!is.null(onset_modifier)) {
   out <- data.table::rbindlist(out, idcol = "sample")
   
   ## Add a nowcast lag across samples
-  out <- out[data <=  (max(date, na.rm = TRUE) - lubridate::days(nowcast_lag))]
+  out <- out[date <= (max(date, na.rm = TRUE) - lubridate::days(nowcast_lag))]
 
   return(out)
 }
