@@ -135,7 +135,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                           )
                           
                           ## Filter out NA values, choose columns and make into data.table
-                          R <- data.table::as.data.table(R)[!is.na(`Mean(R)`),
+                          R <- data.table::setDT(R)[!is.na(`Mean(R)`),
                                                             .(t_start, t_end, `Mean(R)`, `Std(R)`)]
                           
                           R <- R[!is.na(R$`Mean(R)`)]
@@ -165,30 +165,26 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                                           .(date, cases, sample, horizon)]
                           
                           ## Score the forecast
-                          scores <- data.table::as.data.table(
+                          scores <- data.table::setDT(
                             EpiSoon::score_case_forecast(preds, summed_cases, 
                                                          scores = "crps"))[,horizon := NULL]
                           
-                          R <- R[scores, on="date", nomatch=0][, "window" := window]
+                          R <- R[scores, on = "date", nomatch=0][, "window" := window]
 
                           return(R)
                         }) 
     
-    ## Extract scores, detect which is smallest and extract largest window with smallest score
-    min_score_index <- purrr::map_dbl(est_r, 
-                                  ~ .$score)
-    min_score_index <- which(min_score_index == min(min_score_index, na.rm = TRUE))
-    min_score_index <- min_score_index[length(min_score_index)]
+    ## Join output
+    est_r <- data.table::rbindlist(est_r)
     
-    ##Extract the estimates with the lowest score
-    est_r <- est_r[[min_score_index]]$r
-      
-      
-      ## Check to see how many Rt data points have been returned
-      ## If fewer than 3 then turn off forecasting
-      if (length(unique(est_r$date)) < 3) {
+    ## Choose best scoring (according to CRPS) window at each timepoint
+    est_r <- est_r[, .SD[crps == min(crps)], by = "date"]
+    
+    ## Check to see how many Rt data points have been returned
+    ## If fewer than 3 then turn off forecasting
+    if (length(unique(est_r$date)) < 3) {
         horizon <- 0
-      }
+    }
       
       
       if (horizon > 0 & !is.null(forecast_model)) {
@@ -197,70 +193,60 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
         
         ## Forecast Rts using the mean estimate
         rt_forecasts <-
-          dplyr::select(est_r, date, rt = mean_R) %>%
-          unique() %>%
-          safe_forecast(model = forecast_model, 
-                        horizon = horizon,
-                        samples = rt_samples)
+          data.table::setDT(
+            safe_forecast(rts = est_r[sample == 1, .(date, rt = mean_R)],
+                          model = forecast_model, 
+                          horizon = horizon,
+                          samples = rt_samples)[[1]]
+          )
 
-        
         ##Forecast the variance using the same model structure
         sd_forecasts <- 
-          dplyr::select(est_r, date, rt = sd_R) %>% 
-          unique() %>% 
-          safe_forecast(model = forecast_model, 
-                        horizon = horizon,
-                        samples = rt_samples)
-        
-        
-        ## Drop the error catching element
-        rt_forecasts <- rt_forecasts[[1]]
-        sd_forecasts <- sd_forecasts[[1]]
-        
-        rt_forecasts <- dplyr::left_join(
-          rt_forecasts,
-          sd_forecasts, by = c("date", "sample", "horizon")
-        )
-        
+          data.table::setDT(
+            safe_forecast(rts = est_r[sample == 1, .(date, rt = sd_R)],
+                          model = forecast_model, 
+                          horizon = horizon,
+                          samples = rt_samples)[[1]] 
+          )[, sd_rt := rt][,rt := NULL]
+
+        ## Join mean and sd forecasts
+        rt_forecasts <- rt_forecasts[sd_forecasts, on = c("date", "sample", "horizon")]
+          
         ## Add gamma noise  and drop mean and sd forecasts
         ## Assume that the minumum allowed gamma noise is 1e-4
         ## Zero sd will result in rgamma draws that are also 0 and so must be avoided
-        rt_forecasts <- dplyr::mutate(rt_forecasts, 
-                                      rt.y = ifelse(rt.y <= 0, 1e-4, rt.y),
-                                      rt = purrr::map2_dbl(rt.x, rt.y, ~
-                                                            mean_rgamma(1, mean = .x,
-                                                                       sd = .y)))
-        
-        rt_forecasts <- dplyr::select(rt_forecasts,
-                                      sample, date, horizon, rt)
-        
+        rt_forecasts <- rt_forecasts[sd_rt <= 0, sd_rt := 1e-4][, 
+                rt := purrr::map2_dbl(rt, sd_rt, ~ mean_rgamma(1, mean = .x, sd = .y))][,
+                    .(sample, date, horizon, rt)]
+          
         ## Forecast cases
-        case_forecasts <-   
-          EpiSoon::forecast_cases(
-            cases = summed_cases,
-            fit_samples = rt_forecasts,
-            rdist = rpois,
-            serial_interval = serial_intervals[, index]
-          ) 
-        
-        case_forecasts <- 
-          dplyr::mutate(case_forecasts, rt_type = "forecast")
-        
+        case_forecasts <-  
+          data.table::setDT(
+            EpiSoon::forecast_cases(
+              cases = summed_cases,
+              fit_samples = rt_forecasts,
+              rdist = rpois,
+              serial_interval = serial_intervals[, index]
+            ) 
+          )[,rt_type := "forecast"]
         
         ## Join Rt estimates and forecasts
-        est_r <- dplyr::mutate(est_r, rt_type = "nowcast") %>% 
-          dplyr::select(-mean_R, -sd_R) %>% 
-          dplyr::bind_rows(rt_forecasts %>% 
-                             dplyr::mutate(rt_type = "forecast") %>% 
-                             dplyr::select(date, R = rt, sample,  horizon, rt_type))
+        est_r <- est_r[, `:=`(R = sample_R, rt_type = "nowcast")][,
+                  `:=`(mean_R = NULL, sd_R = NULL, sample_R = NULL)][,
+                   .(date, R, sample, crps, window, rt_type)]
+          
+        est_r <- data.table::rbindlist(
+          list(est_r,
+          rt_forecasts[,.(date, R = rt, sample, rt_type = "forecast")]
+          ), fill = TRUE)
         
         return(list(rts = est_r, cases = case_forecasts))
         
       }else{
         
         ## Return just nowcast if no forecast has been run
-        est_r <- dplyr::mutate(est_r, rt_type = "nowcast", horizon = NA)
-        
+        est_r <- est_r[, rt_type := "nowcast"]
+          
         return(list(rts = est_r))
       }
       
@@ -276,9 +262,10 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
     
     ## Function to bind si sample outputs
     join_si_samples <- function(df) {
-      dplyr::bind_rows(df, .id = "si_sample") %>% 
-        dplyr::mutate(sample = sample * as.numeric(si_sample)) %>% 
-        dplyr::select(-si_sample)
+      df <- data.table::rbindlist(df, idcol = "si_sample")
+      
+      df <- df[, sample := sample * as.numeric(si_sample)][,
+               si_sample := NULL]
     }
     
     ## Make sample unique for Rts
@@ -288,8 +275,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
    if (horizon > 0 & !is.null(forecast_model)) {
       estimates$cases <- join_si_samples(estimates$cases)
     }
-     
-    
+
     return(estimates)
   }
 
