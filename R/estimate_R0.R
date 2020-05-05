@@ -145,35 +145,29 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                           
                            
                           ## Put into data frame by date
-                          out <- tibble::tibble(
+                          out <- data.table::data.table(
                             date = EpiNow::add_dates(incid$date, length(R_samples)),
                             mean_R = R$`Mean(R)`,
                             sd_R = R$`Std(R)`,
                             R = purrr::map(R_samples,
-                                           ~ tibble::tibble(R = ., sample = 1:length(.)))
+                                           ~ list(R = ., sample = 1:length(.)))
                           )
                           
-                          out <- tidyr::unnest(out, R)
+                          out <- data.table::unwrap(out)
                           
                           ## Make current case predictions from past cases and current Rt values
-                          preds <-  
-                            dplyr::rename(out, rt = R) %>% 
-                            dplyr::group_split(sample)
-                          
                           preds <- 
                             purrr::map(
-                              preds, 
+                              split(out, by = "sample"), 
                               ~ EpiSoon::predict_current_cases(
-                                rts = dplyr::select(., -sample), 
+                                rts = .[, `:=`(sample = NULL, R = NULL)], 
                                 cases = summed_cases,
                                 serial_interval = serial_intervals[, index]
                               ))
                           
-                          preds <- dplyr::bind_rows(preds, .id  = "sample") %>% 
-                            dplyr::mutate(sample = as.numeric(sample), 
-                                          horizon = 0) 
-                          
-                          preds <- dplyr::select(preds, date, cases, sample, horizon)
+                          preds <- data.table::rbindlist(preds, .idcol = "sample")
+                          preds <- preds[, `:=`(sample = as.numeric(sample), horizon = 0)][,
+                                          .(date, cases, sample, horizon)]
                           
                           ## Score the forecast
                           scores <- EpiSoon::score_case_forecast(preds, summed_cases, 
