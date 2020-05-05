@@ -7,8 +7,6 @@
 #' @return A datatable containing an estimate of r, its standard deviation and a
 #' measure of the goodness of fit.
 #' @export
-#' @importFrom dplyr filter mutate select
-#' @importFrom tibble tibble
 #' @examples
 #'
 #' cases <- data.table::setDT(EpiSoon::example_obs_cases)[, 
