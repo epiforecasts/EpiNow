@@ -16,11 +16,11 @@
 #' @return A tibble containing the date and summarised R estimte.
 #' @export
 #' @importFrom EpiEstim estimate_R make_config
-#' @importFrom tidyr drop_na complete spread
-#' @importFrom dplyr rename full_join pull bind_rows left_join
-#' @importFrom tibble tibble
-#' @importFrom purrr map2 safely compact map
+#' @importFrom tidyr complete spread
+#' @importFrom dplyr rename
+#' @importFrom purrr map2 map2_dbl safely map
 #' @importFrom EpiSoon predict_current_cases forecast_rt forecast_cases score_case_forecast
+#' @importFrom data.table setDT rbindlist .SD
 #' @examples
 #'
 #' ## Nowcast Rts                  
