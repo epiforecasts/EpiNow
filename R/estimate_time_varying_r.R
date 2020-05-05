@@ -8,9 +8,6 @@
 #' @export
 #' @importFrom purrr safely
 #' @importFrom furrr future_map2 future_options
-#' @importFrom tibble tibble
-#' @importFrom dplyr mutate
-#' @importFrom tidyr unnest
 #' @examples
 #'
 estimate_time_varying_r <- function(onsets, window = 7) {
@@ -30,17 +27,21 @@ estimate_time_varying_r <- function(onsets, window = 7) {
   
   ## Estimate little r
   windowed_r <- windowed_r[, 
-       estimates = furrr::future_map2(min_time, max_time,
-            ~ suppressMessages(safe_estimate_r_window(onsets)),
-            .progress = TRUE),
-       vars = list(names(estimates[[1]]))]
-
+       .(date, min_time, max_time,
+         estimates = furrr::future_map2(min_time, max_time,
+            ~ suppressMessages(safe_estimate_r_window(onsets, 
+                                                      min_time = .x,
+                                                      max_time = .y)[[1]]),
+            .progress = TRUE))][, var := list(names(estimates[[1]]))]
   
-  windowed_r <- windowed_r[, .(estimates = unlist(estimates),
-                               vars = unlist(vars)),
-                           by = c("date", "min_time", "max_time")] 
+  ## Remove first nesting layer
+  windowed_r <- windowed_r[, .(estimates = purrr::flatten(estimates),
+                               var = unlist(var)),
+                           by = c("date", "min_time", "max_time")]
   
-  windowed_r <-
-    tidyr::unnest(windowed_r, "estimates")
+  windowed_r <- windowed_r[, .(windowed_r[, .(date, var)],
+                               data.table::rbindlist(estimates))]
 
+
+  return(windowed_r)
 }

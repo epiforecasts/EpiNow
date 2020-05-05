@@ -5,7 +5,7 @@
 #' The number of days to use to shift the incubation period
 #' @return A summarised dataframe
 #' @export
-#' @importFrom data.table copy setorder
+#' @importFrom data.table copy setorder setDT
 #' @importFrom purrr map_dbl
 #' @importFrom HDInterval hdi
 #' @importFrom lubridate days
@@ -27,7 +27,7 @@ summarise_cast <- function(cast, incubation_period = 5) {
   summarised_cast <- data.table::copy(cast)
   
   ## SUmmarises cases by reference across sample, data and type
-  summarised_cast <- data.table::as.data.table(summarised_cast)[
+  summarised_cast <- data.table::setDT(summarised_cast)[
     , .(cases = sum(cases), confidence = get_conf(confidence, import_status)),
     by = .(sample, date, type)]
   
