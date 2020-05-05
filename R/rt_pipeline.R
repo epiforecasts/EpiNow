@@ -28,9 +28,10 @@
 #' 
 rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         target_folder = NULL, target_date = NULL, delay_cutoff_date = NULL,
-                        predict_lag = 0, samples = 1000, si_samples = 1, rt_samples = 5,
+                        predict_lag = 0, samples = 1000,si_samples = 1, rt_samples = 5,
                         rt_windows = 1:7, rate_window = 7, earliest_allowed_onset = NULL,
-                        merge_actual_onsets = TRUE, delay_only = FALSE, approx_delay = FALSE,
+                        merge_actual_onsets = TRUE, delay_only = FALSE, 
+                        approx_delay = FALSE, bootstraps = 1, bootstrap_samples = 100,
                         max_delay = 120, verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, 
                         save_plots = TRUE, nowcast_lag = 4, incubation_period = 5, forecast_model = NULL,
                         horizon = 0, report_forecast = FALSE, report_delay_fns = NULL,
@@ -110,6 +111,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
 
   # Run a nowcast -----------------------------------------------------------
 
+
   nowcast <- EpiNow::nowcast_pipeline(
     reported_cases = cases, linelist = linelist,
     date_to_cast = target_date,  date_to_cutoff_delay = delay_cutoff_date,
@@ -117,12 +119,13 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
     merge_actual_onsets = merge_actual_onsets, samples = samples,
     delay_only = delay_only, nowcast_lag = nowcast_lag,
     verbose = verbose, report_delay_fns = report_delay_fns,
+    bootstraps = bootstraps, bootstrap_samples = bootstrap_samples,
     onset_modifier = onset_modifier, approx_delay = approx_delay,
     max_delay = max_delay)
 
-
   saveRDS(nowcast,  paste0(target_folder, "/nowcast.rds"))
 
+  rm(formatted_linelist, report_delay_fns, linelist)
   # Estimate time-varying parameters ----------------------------------------
 
   epi_estimates <-
@@ -136,6 +139,10 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
           horizon = horizon, verbose = verbose)
 
   saveRDS(epi_estimates,  paste0(target_folder, "/time_varying_params.rds"))
+  
+  ##Remove raw estimates now saved
+  epi_estimates$raw_R0 <- NULL
+  epi_estimates$raw_case_forecast <- NULL
   
  # Summarise results -------------------------------------------------------
 
@@ -165,6 +172,8 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
               latest_folder, recursive = TRUE)
   )
 
+
+  ## Clean everything not in use
   rm(list = ls())
   
   return(invisible(NULL))

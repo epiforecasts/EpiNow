@@ -50,6 +50,9 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     dplyr::filter(import_status %in% "local") %>% 
     EpiNow::summarise_cast(incubation_period = incubation_period)
   
+  ## Drop nowcast
+  rm(nowcast)
+  
   ## Combine nowcast with observed cases by onset and report
   reported_cases <-
     dplyr::filter(cases, import_status %in% "local") %>% 
@@ -67,6 +70,8 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   
   ## Save combined data
   saveRDS(all_cases,  paste0(target_folder, "/summarised_nowcast.rds"))
+  
+  rm(summarise_cast, reported_cases)
   
   ## Extract latest cases
   current_cases <-
@@ -110,6 +115,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
       EpiNow::plot_forecast(plot =  plot_cases, 
                             forecast = case_forecast)
     
+    rm(case_forecast)
   }
   
   if (save_plots) {
@@ -126,8 +132,6 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   
   saveRDS(plot_cases,  paste0(target_folder, "/plot_cases.rds"))  
   
-  
-
 # Munge time-varying ------------------------------------------------------
 
   
@@ -216,7 +220,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   saveRDS(plot_bigr,
           paste0(target_folder, "/bigr_eff_plot.rds"))
   
-  
+  rm(reff_estimates, bigr_estimates)
   # Pull out and plot little R ----------------------------------------------
   
   littler_estimates$time_varying_r[[1]] <- 
@@ -380,7 +384,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   saveRDS(plot_littler_summary,
           paste0(target_folder, "/rate_spread_plot.rds"))
   
-  
+  rm(littler_estimates, plot_littler_summary)
   
   ## Summary plots
   cases <- plot_cases +
@@ -440,6 +444,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   
   saveRDS(region_summary, paste0(target_folder, '/region_summary.rds'))
   
+  rm(list = ls())
   
 return(invisible(NULL)) 
 }

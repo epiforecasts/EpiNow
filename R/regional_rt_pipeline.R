@@ -26,6 +26,8 @@
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = "results", 
                                  regional_delay = FALSE, merge_onsets = FALSE,
                                  case_limit = 40, onset_modifier = NULL,
+                                 bootstraps = 1, 
+                                 bootstrap_samples = 100,
                                  regions_in_parallel = TRUE,
                                  verbose = FALSE,
                                  samples = 1000, ...) {
@@ -74,7 +76,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     ## Fit the delay distribution
     report_delay_fns <- 
       EpiNow::get_delay_sample_fn(linelist = linelist[, delay_confirmatin := report_delay],
-                                  samples = samples)  
+                                  samples = samples, bootstraps = bootstraps, 
+                                  bootstrap_samples = bootstrap_samples)  
     
   }else{
     report_delay_fns <- NULL
@@ -94,7 +97,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   run_region <- function(target_region) { 
     message("Running Rt pipeline for ", target_region)
     
-    
+   
     regional_cases <- cases[regions %in% target_region]
     
     if (regional_delay) {
@@ -123,7 +126,12 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   if (regions_in_parallel) {
     out <- furrr::future_map(regions, run_region, .progress = TRUE,
-                             .options = furrr::future_options(scheduling = Inf))
+                             .options = furrr::future_options(scheduling = Inf,
+                                                              globals = c("region_rt", "target_date",
+                                                                          "merge_onsets", "samples", 
+                                                                          "report_delay_fns", "verbose",
+                                                                          "cases", "linelist", "onset_modifier",
+                                                                          "regions", "target_folder")))
   }else{
     out <- purrr::map(regions, run_region)
   }

@@ -58,6 +58,8 @@ epi_measures_pipeline <- function(nowcast = NULL,
                                  .options = furrr::future_options(packages = c("EpiNow", "data.table"),
                                                                   scheduling = 20))
   
+  rm(data_list)
+  
   ## Clean up NULL rt estimates and bind together
   R0_estimates <- data.table::rbindlist(
     purrr::map(estimates, ~ .$rts)
@@ -105,6 +107,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
   cases_forecast <- purrr::map(estimates, ~ .$cases)
 
     
+  rm(estimates)
     
   if (!(is.null(cases_forecast) | length(cases_forecast) == 0)) {
     
@@ -141,6 +144,8 @@ epi_measures_pipeline <- function(nowcast = NULL,
     nowcast <- nowcast[date >= (min_est_date - lubridate::days(rate_window))]
   }
 
+  rm(nowcast)
+  
   ## Sum across cases and imports
   nowcast <- nowcast[, .(cases = sum(cases, na.rm = TRUE)), 
                      by = c("type", "sample", "date")]
@@ -158,6 +163,8 @@ epi_measures_pipeline <- function(nowcast = NULL,
   nowcast <- split(nowcast, by = "type")
 
 
+  rm(little_r_estimates)
+  
   ## Estimate overall
   little_r <- little_r[, overall_little_r := furrr::future_map(nowcast,
                                                                ~ EpiNow::estimate_r_in_window(.$data), 
@@ -184,6 +191,8 @@ epi_measures_pipeline <- function(nowcast = NULL,
     out$raw_case_forecast <- cases_forecast
 
   }
+  
+  rm(list = setdiff(ls(), "out"))
   
   return(out)
 }
