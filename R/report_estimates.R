@@ -9,14 +9,11 @@
 #' @param target_date Character string, in the form "2020-01-01". Date to cast.
 #' @param report_forecast Logical, defaults to `FALSE`. Should the forecast be reported.
 #' @param save_plots Logical, defaults to `TRUE`. Should plots be saved.
-#' @importFrom dplyr rename filter mutate count group_by ungroup mutate_at pull select case_when bind_rows left_join bind_rows
-#' @importFrom tidyr drop_na unnest
-#' @importFrom tibble tibble
 #' @importFrom purrr map pmap
 #' @importFrom ggplot2 ggsave theme labs coord_cartesian scale_x_date geom_hline geom_vline
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_layout
-#' @importFrom data.table rbindlist copy
+#' @importFrom data.table rbindlist copy as.data.table
 #' @inheritParams summarise_cast
 #' @return
 #' @export
@@ -31,7 +28,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
                              save_plots = TRUE) {
   
   
-
+ 
 # Detect NULL arguments ---------------------------------------------------
 
   if (is.null(case_forecast)) {
@@ -60,14 +57,14 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   
   
   ## Count cumulative cases
-  all_cases <- data.table::rbindlist(summarised_cast, reported_cases)
+  all_cases <- data.table::rbindlist(list(summarised_cast, reported_cases), fill = TRUE)
   
   ## Save combined data
   saveRDS(all_cases,  paste0(target_folder, "/summarised_nowcast.rds"))
   
   ## Extract latest cases
   current_cases <- all_cases[type %in% "nowcast"][
-    date == max(date)][, .(range = purrr::pmap(
+    date == max(date)][, .(date, range = purrr::pmap(
       list(mean, bottom, top),
       function(mean, bottom, top) {
         list(point = mean,
@@ -96,7 +93,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
                                         legend = ifelse(report_forecast,
                                                         "bottom", "none")) +
     ggplot2::labs(y = "Daily cases", x = "Date") +
-    ggplot2::geom_vline(xintercept = as.Date(target_date), linetype = 2)
+    ggplot2::geom_vline(xintercept = as.Date(target_date), linetype = 2) 
   
   
   if (report_forecast) {
@@ -133,7 +130,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   case_confidence <- data.table::copy(all_cases)[, .(type, confidence, date = date_onset)]
   
   ## Join confidence onto R estimates
-  bigr_estimates <- all_cases[bigr_estimates, on = c("type", "date")][
+  bigr_estimates <- case_confidence[bigr_estimates, on = c("type", "date")][
     !is.na(confidence)][, date_onset := date][, date := date - incubation_period]
 
   saveRDS(bigr_estimates,
@@ -178,11 +175,11 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     ggplot2::labs(y = "Effective Reproduction no.", x = "Date") +
     ggplot2::geom_hline(yintercept = 1, linetype = 2) +
     ggplot2::expand_limits(y = 0) +
-    ggplot2::geom_vline(xintercept = as.Date(target_date), linetype = 2)
+    ggplot2::geom_vline(xintercept = as.Date(target_date), linetype = 2) 
   
   if (report_forecast) {
     
-    effr_forecast <-  reff_estimates[rt_type %in% "forecast"][, 
+    effr_forecast <- reff_estimates[rt_type %in% "forecast"][, 
               date := date - lubridate::days(incubation_period)]
       
     plot_bigr <- 
@@ -207,119 +204,106 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
 
   # Pull out and plot little R ----------------------------------------------
   
+  case_confidence <- case_confidence[type %in% "nowcast"]
+  
   littler_estimates$time_varying_r[[1]] <- 
-    dplyr::left_join( littler_estimates$time_varying_r[[1]],
-                      dplyr::select(all_cases, type, confidence, date_onset) %>% 
-                        dplyr::filter(type %in% "nowcast"),
-                      by = c("date" = "date_onset")
-    ) %>%
-    dplyr::filter(!is.na(confidence)) %>% 
-    dplyr::mutate(date_onset = date) %>%
-    dplyr::mutate(date = date - incubation_period) %>% 
-    dplyr::select(-type)
+    case_confidence[littler_estimates$time_varying_r[[1]], on = "date"][
+      !is.na(confidence)][, date_onset := date][, 
+            date := date - incubation_period][, type := NULL]
   
   saveRDS(littler_estimates,
           paste0(target_folder, "/rate_spread_estimates.rds"))
   
   ## get overall estimates
-  report_overall <-
-    dplyr::mutate(littler_estimates,
-                   report_overall = purrr::map(overall_little_r,
-                                               ~ purrr::map_dfr(., function(estimate) {
-                                                 paste0(
-                                                   signif(estimate$mean, 2), " (",
-                                                   signif(estimate$bottom, 2), " -- ", signif(estimate$top, 2),
-                                                   ")")
-                                               }))) %>%
-    tidyr::unnest("report_overall") %>%
-    dplyr::select(Data = type,
-                  `Rate of growth` = little_r,
-                  `Doubling/halving time (days)` = doubling_time,
-                  `Adjusted R-squared` = goodness_of_fit
-    )
+  report_overall <- data.table::copy(littler_estimates)[,
+    .(report_overall = purrr::map(overall_little_r,
+                                  ~ purrr::map_dfr(., function(estimate) {
+                                    paste0(
+                                      signif(estimate$mean, 2), " (",
+                                      signif(estimate$bottom, 2), " -- ", signif(estimate$top, 2),
+                                      ")")
+                                  })), type)][, .(data.table::as.data.table(type),
+                                                  data.table::rbindlist(report_overall))]
   
-  
+  report_overall <- report_overall[, .(Data = type,
+                                     `Rate of growth` = little_r,
+                                     `Doubling/halving time (days)` = doubling_time,
+                                     `Adjusted R-squared` = goodness_of_fit)]
+
   saveRDS(report_overall,
           paste0(target_folder, "/rate_spread_overall_summary.rds"))
   
   clean_double <- function(var, type) {
     var <- signif(var, 2)
-    
     return(var)
   }
   
   ## get latest estimates
-  report_latest <-  littler_estimates %>%
-    dplyr::mutate(report_latest = purrr::map(time_varying_r, function(estimate) {
-      estimate <- dplyr::filter(estimate, date == max(date))
+  report_latest <-  littler_estimates[, .(type,
+    latest = purrr::map(time_varying_r, function(estimate) {
+      estimate <- estimate[date == max(date)]
       
       estimate$bottom <- clean_double(estimate$bottom, type = estimate$vars[1])
       estimate$top <- clean_double(estimate$top, type = estimate$vars[1])
       estimate$mean <- clean_double(estimate$mean, type = estimate$vars[1])
       
-      out <- tibble::tibble(
-        vars = estimate$vars,
+      out <- data.table::data.table(
+        vars = estimate$var,
         range = paste0(estimate$mean, " (",
                        estimate$bottom, " -- ", estimate$top,
                        ")")
       )
       
       return(out)
-    })) %>%
-    tidyr::unnest("report_latest") %>%
-    dplyr::select(type, vars, range) %>%
-    tidyr::spread(key = "vars", value = "range") %>%
-    dplyr::select(Data = type,
-                  `Rate of growth` = little_r,
-                  `Doubling/halving time (days)` = doubling_time,
-                  `Adjusted R-squared` = goodness_of_fit
-    )
+    }))] 
   
+  report_latest <- report_latest[, .(data.table::as.data.table(type),
+                                     data.table::rbindlist(latest))][,
+                                    .(type, vars, range)]
+  
+  report_latest <- data.table::dcast(report_latest, type ~ vars, value.vars = "range")
+
+  report_latest <- report_latest[, .(Data = type,
+                                     `Rate of growth` = little_r,
+                                     `Doubling/halving time (days)` = doubling_time,
+                                     `Adjusted R-squared` = goodness_of_fit)]
   
   saveRDS(report_latest,
           paste0(target_folder, "/rate_spread_latest_summary.rds"))
   
   
   ## Get individual estimates
-  rate_spread_latest <- report_latest %>%
-    dplyr::filter(Data == "nowcast") %>%
-    dplyr::pull(`Rate of growth`)
+  rate_spread_latest <- report_latest[Data == "nowcast"]$`Rate of growth`
   
   
   saveRDS(rate_spread_latest,
           paste0(target_folder, "/rate_spread_latest.rds"))
   
-  doubling_time_latest <- report_latest %>%
-    dplyr::filter(Data == "nowcast") %>%
-    dplyr::pull(`Doubling/halving time (days)`)
+  doubling_time_latest <- report_latest[Data == "nowcast"]$`Doubling/halving time (days)`
   
   saveRDS(doubling_time_latest,
           paste0(target_folder, "/doubling_time_latest.rds"))
   
-  adjusted_r_latest <- report_latest %>%
-    dplyr::filter(Data == "nowcast") %>%
-    dplyr::pull(`Adjusted R-squared`)
+  adjusted_r_latest <- report_latest[Data == "nowcast"]$`Adjusted R-squared`
   
   saveRDS(adjusted_r_latest,
           paste0(target_folder, "/adjusted_r_latest.rds"))
   
   ## Prepare data for plotting
-  plot_littler_data <-
-    tidyr::unnest(littler_estimates, "time_varying_r") %>%
-    dplyr::filter(date >= min_plot_date) %>% 
-    dplyr::select(-overall_little_r) %>%
-    dplyr::mutate(vars = vars %>%
-                    factor(levels = c("little_r", "doubling_time", "goodness_of_fit"),
+  plot_littler_data <- littler_estimates[type %in% "nowcast"][,
+                                .(data.table::as.data.table(type),
+                                  data.table::rbindlist(time_varying_r))][
+                                  date >= min_plot_date][,
+        var := factor(var, levels = c("little_r", "doubling_time", "goodness_of_fit"),
                            labels = c("Rate of growth",
                                       "Doubling/halving time (days)",
-                                      "Adjusted R-squared")
-                    ))
+                                      "Adjusted R-squared"))]
   
   ## Define generic plotting function
   plot_littler_fn <- function(littler_df, plot_var = "Rate of growth") {
-    plot_littler <- littler_df %>%
-      dplyr::filter(vars %in% plot_var) %>%
-      EpiNow::plot_confidence(plot_median = FALSE) +
+    plot_littler <- 
+      EpiNow::plot_confidence(littler_df[var %in% plot_var], 
+                              plot_median = FALSE) +
       ggplot2::geom_hline(yintercept = 0, linetype = 2) +
       ggplot2::theme(legend.position = "none") +
       ggplot2::labs(y = "", x = "Date")
@@ -328,8 +312,9 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   }
   
   ## Plot each measure
-  plot_littler <- plot_littler_data %>%
-    plot_littler_fn(plot_var = "Rate of growth") +
+  plot_littler <-  
+    plot_littler_fn(plot_littler_data, 
+                    plot_var = "Rate of growth") +
     ggplot2::coord_cartesian(ylim = c(-0.5, 0.5)) +
     ggplot2::labs(tag = "A")
   
@@ -368,8 +353,6 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   saveRDS(plot_littler_summary,
           paste0(target_folder, "/rate_spread_plot.rds"))
   
-  rm(littler_estimates, plot_littler_summary)
-  
   ## Summary plots
   cases <- plot_cases +
     ggplot2::labs("A") + 
@@ -407,28 +390,21 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   
   
   ## Regional summary
-  region_summary <- tibble::tibble(
+  region_summary <- data.table::data.table(
     measure = c("New confirmed cases by infection date",
                 "Expected change in daily cases",
                 "Effective reproduction no.",
                 "Doubling/halving time (days)",
                 "Adjusted R-squared"),
-    estimate = c(
-      current_cases %>% 
-        EpiNow::make_conf(),
-      prob_control %>% 
-        EpiNow::map_prob_change() %>% 
-        as.character(),
-      R_latest %>% 
-        EpiNow::make_conf(digits = 1),
+    estimate = c(EpiNow::make_conf(current_cases),
+      as.character(EpiNow::map_prob_change(prob_control)),
+      EpiNow::make_conf(R_latest, digits = 1),
       doubling_time_latest,
       adjusted_r_latest
     )
   )
   
   saveRDS(region_summary, paste0(target_folder, '/region_summary.rds'))
-  
-  rm(list = ls())
   
 return(invisible(NULL)) 
 }
