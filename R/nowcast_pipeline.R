@@ -11,6 +11,10 @@
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
 #' @param nowcast_lag Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.
 #' @param report_delay_fns List of functions as produced by `EpiNow::get_delay_sample_fn`
+#' @param delay_sub_samples Numeric, defaults to 1. When set to 1 all data is used to fit a single delay
+##' distribution where uncertainty is only propagated in the uncertainty of the fit. If set to more than one
+##' the supplied delay data is sampled this many times (with samples equalling the overall number of samples divided 
+##' by the number of sub samples each time).
 #' @param onset_modifier data.frame containing a `date` variable and a function `modifier` variable. This is used 
 #' to modify estimated cases by onset date. `modifier` must be a function that returns a proportion when called 
 #' (enables inclusion of uncertainty) and takes the following arguments: `n` (samples to return) and `status` ("local" or "import").
@@ -38,6 +42,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              verbose = FALSE,
                              samples = 1,
                              report_delay_fns = NULL,
+                             bootstraps = 1, bootstrap_samples = 1000,
                              nowcast_lag = 4,
                              onset_modifier = NULL) {
    
@@ -64,7 +69,9 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                     date_confirmation <= date_to_cast)
     
     ## Fit the delay distribution and draw posterior samples
-    fitted_delay_fn <- EpiNow::get_delay_sample_fn(filtered_linelist, samples = samples)
+    fitted_delay_fn <- EpiNow::get_delay_sample_fn(filtered_linelist, samples = samples,
+                                                   bootstraps = bootstraps, 
+                                                   bootstrap_samples = bootstrap_samples)
     
   }else{
     fitted_delay_fn <- report_delay_fns

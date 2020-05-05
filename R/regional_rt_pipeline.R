@@ -27,6 +27,8 @@
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = "results", 
                                  regional_delay = FALSE, merge_onsets = FALSE,
                                  case_limit = 40, onset_modifier = NULL,
+                                 bootstraps = 1, 
+                                 bootstrap_samples = 100,
                                  regions_in_parallel = TRUE,
                                  verbose = FALSE,
                                  samples = 1000, ...) {
@@ -72,7 +74,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     ## Fit the delay distribution
     report_delay_fns <-  linelist %>%
       dplyr::rename(delay_confirmation = report_delay) %>% 
-      EpiNow::get_delay_sample_fn(samples = samples)  
+      EpiNow::get_delay_sample_fn(samples = samples, bootstraps = bootstraps, 
+                                  bootstrap_samples = bootstrap_samples)  
     
   }else{
     report_delay_fns <- NULL
@@ -93,20 +96,22 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     message("Running Rt pipeline for ", target_region)
     
     
-    regional_cases <- cases %>% 
-      dplyr::filter(region %in% target_region)
+    regional_cases <- 
+      dplyr::filter(cases, region %in% target_region)
     
     if (regional_delay) {
-      regional_linelist <- linelist %>% 
-        dplyr::filter(region %in% target_region)
+      regional_linelist <- 
+        dplyr::filter(linelist, region %in% target_region)
     }else{
       regional_linelist <- linelist
     }
     
     if (!is.null(onset_modifier)) {
-      region_onset_modifier <- onset_modifier %>% 
-        dplyr::filter(region %in% target_region) %>% 
-        dplyr::select(-region)
+      region_onset_modifier <-
+        dplyr::filter(onset_modifier, region %in% target_region)
+
+      region_onset_modifier <- 
+        dplyr::select(region_onset_modifier, -region)
   
     }else{
       region_onset_modifier <- NULL
@@ -125,7 +130,12 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   if (regions_in_parallel) {
     out <- furrr::future_map(regions, run_region, .progress = TRUE,
-                             .options = furrr::future_options(scheduling = Inf))
+                             .options = furrr::future_options(scheduling = Inf,
+                                                              globals = c("region_rt", "target_date",
+                                                                          "merge_onsets", "samples", 
+                                                                          "report_delay_fns", "verbose",
+                                                                          "cases", "linelist", "onset_modifier",
+                                                                          "regions", "target_folder")))
   }else{
     out <- purrr::map(regions, run_region)
   }
