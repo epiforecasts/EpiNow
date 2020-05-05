@@ -111,7 +111,6 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
 
   # Run a nowcast -----------------------------------------------------------
 
-
   nowcast <- EpiNow::nowcast_pipeline(
     reported_cases = cases, linelist = linelist,
     date_to_cast = target_date,  date_to_cutoff_delay = delay_cutoff_date,
@@ -125,7 +124,6 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
 
   saveRDS(nowcast,  paste0(target_folder, "/nowcast.rds"))
 
-  rm(formatted_linelist, report_delay_fns, linelist)
   # Estimate time-varying parameters ----------------------------------------
 
   epi_estimates <-
