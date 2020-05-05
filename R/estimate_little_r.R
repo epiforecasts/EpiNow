@@ -1,24 +1,23 @@
 #' Estimate r
 #'
-#' @param sample A dataframe containing a numeric cases variable.
+#' @param sample A datatable containing a numeric cases variable.
 #' @param min_time Numeric, minimum time to use to fit the model.
 #' @param max_time Numeric, maximum time to use to fit the model.
 #'
-#' @return A dataframe containing an estimate of r, its standard deviation and a
+#' @return A datatable containing an estimate of r, its standard deviation and a
 #' measure of the goodness of fit.
 #' @export
 #' @importFrom dplyr filter mutate select
 #' @importFrom tibble tibble
 #' @examples
 #'
+#' cases <- data.table::setDT(EpiSoon::example_obs_cases)[, 
+#'                           cases := as.integer(cases)]
 #'
+#' estimate_little_r(cases)
 estimate_little_r <- function(sample, min_time = NULL, max_time = NULL) {
-  ## Replace for 0 values
-  zero_replace <- log(1e-10)
   ## Add time var
-  sample <- sample %>%
-    dplyr::mutate(time = 1:length(cases)) %>%
-    dplyr::mutate(cases = ifelse(cases == 0, zero_replace, log(cases)))
+  sample <- sample[, time := 1:length(cases)]
 
   ## Add all data if time windows are not given
   if (is.null(min_time)) {
@@ -30,18 +29,17 @@ estimate_little_r <- function(sample, min_time = NULL, max_time = NULL) {
   }
 
   ## Limit data based on time window supplied
-  sample <- sample %>%
-    dplyr::filter(time >= min_time, time <= max_time)
+  sample <- sample[time >= min_time][time <= max_time]
 
-  ## Fit log model
-  model <- lm(sample$cases ~ sample$time)
+  ## Fit log model - adapted from the R0 package
+  model <- glm(cases ~ time, family = poisson(), data = sample)
 
   model_sum <- summary(model)
 
   ## Extract little r and summary measures
   result <- tibble::tibble(r = model_sum$coefficients[2, 1],
                            sd = model_sum$coefficients[2, 2],
-                           fit_meas = model_sum$adj.r.squared)
-
+                           fit_meas = (model$null.deviance - model$deviance) /
+                             (model$null.deviance))
   return(result)
 }
