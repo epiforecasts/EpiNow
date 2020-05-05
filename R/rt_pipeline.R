@@ -130,7 +130,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
 
   epi_estimates <-
     EpiNow::epi_measures_pipeline(
-          count_linelist = nowcast[type == "nowcast"],
+          nowcast = nowcast[type == "nowcast"],
           min_est_date = min_plot_date + lubridate::days(incubation_period),
           serial_intervals = serial_intervals,
           si_samples = si_samples, rt_samples = rt_samples,

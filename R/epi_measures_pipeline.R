@@ -7,6 +7,7 @@
 #' @param verbose Logical, defaults to `TRUE`. Should progress messages be shown.
 #' @inheritParams estimate_R0
 #' @return
+#' @export
 #' @importFrom purrr safely map_dbl map pmap
 #' @importFrom HDInterval hdi
 #' @importFrom furrr future_map future_options
@@ -58,8 +59,6 @@ epi_measures_pipeline <- function(nowcast = NULL,
                                  .options = furrr::future_options(packages = c("EpiNow", "data.table"),
                                                                   scheduling = 20))
   
-  rm(data_list)
-  
   ## Clean up NULL rt estimates and bind together
   R0_estimates <- data.table::rbindlist(
     purrr::map(estimates, ~ .$rts)
@@ -85,7 +84,9 @@ epi_measures_pipeline <- function(nowcast = NULL,
     std = sd(R, na.rm = TRUE),
     prob_control = (sum(R < 1) / .N),
     mean_window = mean(window), 
-    sd_window = sd(window)),
+    sd_window = sd(window),
+    mean_crps = mean(crps),
+    sd_crps = sd(crps)),
     by = .(type, date, rt_type)
     ][, R0_range := purrr::pmap(
       list(mean, bottom, top, lower, upper),
@@ -105,9 +106,6 @@ epi_measures_pipeline <- function(nowcast = NULL,
   }
   
   cases_forecast <- purrr::map(estimates, ~ .$cases)
-
-    
-  rm(estimates)
     
   if (!(is.null(cases_forecast) | length(cases_forecast) == 0)) {
     
@@ -144,8 +142,6 @@ epi_measures_pipeline <- function(nowcast = NULL,
     nowcast <- nowcast[date >= (min_est_date - lubridate::days(rate_window))]
   }
 
-  rm(nowcast)
-  
   ## Sum across cases and imports
   nowcast <- nowcast[, .(cases = sum(cases, na.rm = TRUE)), 
                      by = c("type", "sample", "date")]
@@ -191,8 +187,6 @@ epi_measures_pipeline <- function(nowcast = NULL,
     out$raw_case_forecast <- cases_forecast
 
   }
-  
-  rm(list = setdiff(ls(), "out"))
   
   return(out)
 }
