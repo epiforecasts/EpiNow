@@ -10,7 +10,7 @@
 #'
 #' @inheritParams theme_map
 #' @importFrom rnaturalearth ne_countries
-#' @importFrom dplyr left_join select filter
+#' @importFrom dplyr left_join 
 #' @importFrom countrycode countrycode
 #' @importFrom ggplot2 ggplot aes geom_sf theme_minimal theme labs waiver coord_sf
 #' @importFrom rlang .data

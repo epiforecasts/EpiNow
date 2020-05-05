@@ -10,7 +10,7 @@
 #' @importFrom purrr safely map_dbl map pmap
 #' @importFrom HDInterval hdi
 #' @importFrom furrr future_map future_options
-#' @importFrom data.table setDT setorder rblindlist copy
+#' @importFrom data.table setDT setorder rbindlist copy
 #' @examples 
 #'
 epi_measures_pipeline <- function(nowcast = NULL,

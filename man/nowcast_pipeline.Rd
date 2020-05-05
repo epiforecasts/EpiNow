@@ -35,7 +35,7 @@ allowed onset.}
 Should linelist onset dates be used where available?}
 
 \item{approx_delay}{Logical, defaults to \code{FALSE}. Should delay sampling be approximated using case counts. Not appropriate
-when case numbers are low.}
+when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.}
 
 \item{delay_only}{Logical, defaults to \code{FALSE}. Should estimates be made based on estimated onset dates without nowcasting.}
 
@@ -49,7 +49,7 @@ when case numbers are low.}
 
 \item{onset_modifier}{data.frame containing a \code{date} variable and a function \code{modifier} variable. This is used
 to modify estimated cases by onset date. \code{modifier} must be a function that returns a proportion when called
-(enables inclusion of uncertainty).}
+(enables inclusion of uncertainty) and takes the following arguments: \code{n} (samples to return) and \code{status} ("local" or "import").}
 
 \item{date_to_case}{A data indicating when to cast up to.}
 }

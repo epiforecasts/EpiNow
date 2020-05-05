@@ -5,7 +5,6 @@
 ##' @param resample Logical, defaults to `FALSE`. Should the supplied delays be resampled.
 ##' @return A list of function that takes one parameter, `n`, the number of reporting
 ##'   delays to randomly sample
-##' @importFrom dplyr filter
 ##' @importFrom purrr map map2
 ##' @importFrom rstan extract
 ##' @importFrom loo loo relative_eff extract_log_lik

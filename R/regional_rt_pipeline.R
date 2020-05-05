@@ -18,8 +18,7 @@
 #' @return NULL
 #' @export
 #' @importFrom furrr future_map future_options
-#' @importFrom tidyr complete drop_na
-#' @importFrom dplyr count filter rename filter group_by pull ungroup
+#' @importFrom data.table as.data.table setDT copy setorder
 #' @examples
 #' 
 #' ## Code
@@ -31,6 +30,9 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
                                  verbose = FALSE,
                                  samples = 1000, ...) {
   
+  ## Set input to data.table
+  cases <- data.table::as.data.table(cases)
+  linelist <- data.table::as.data.table(linelist)
   
   ## Control parameters
   target_date <- as.character(max(cases$date))
@@ -39,28 +41,28 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   
   ## Check for regions more than required cases
-  eval_regions <- cases %>% 
-    dplyr::group_by(region, date) %>% 
-    dplyr::count(wt = cases) %>% 
-    dplyr::filter(n >= case_limit) %>% 
-    dplyr::pull(region) %>% 
-    unique
+  eval_regions <- data.table::copy(cases)[.(cases = sum(cases, na.rm = TRUE)), 
+                                          by = c("region", "date")][
+                      cases >= case_limit]$region
+  
+  eval_regions <- unique(eval_regions)
   
   ## Exclude zero regions
-  cases <- cases %>% 
-    tidyr::drop_na(region) %>% 
-    dplyr::filter(region %in% eval_regions)
+  cases <- cases[!is.na(region)][region %in% eval_regions]
+  
+  
   message("Running the pipeline for: ",
           paste(eval_regions, collapse = ", "))
   
   ## Make sure all dates have cases numbers
-  cases <- cases %>% 
-    group_by(region) %>% 
-    tidyr::complete(date = seq(min(date), max(date), by = "day"),
-                    import_status = c("imported", "local"),
-                    fill = list(cases = 0)) %>% 
-    dplyr::ungroup()
+  cases_grid <- cases[,.(date = seq(min(date), max(date), by = "days"), 
+                         import_status = list(list("local", "imported"))),
+                      by = "region"][,
+                       .(import_status = unlist(import_status)), 
+                       by = c("date", "region")]
   
+  cases <- cases[cases_grid, on = c("date", "region", "import_status")][is.na(cases), cases := 0]
+  cases <- data.table::setorder(cases, region, import_status, date)
 
   ## regional pipelines
   regions <- unique(cases$region)
@@ -70,9 +72,9 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     merge_onsets <- FALSE
     
     ## Fit the delay distribution
-    report_delay_fns <-  linelist %>%
-      dplyr::rename(delay_confirmation = report_delay) %>% 
-      EpiNow::get_delay_sample_fn(samples = samples)  
+    report_delay_fns <- 
+      EpiNow::get_delay_sample_fn(linelist = linelist[, delay_confirmatin := report_delay],
+                                  samples = samples)  
     
   }else{
     report_delay_fns <- NULL
@@ -93,21 +95,17 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     message("Running Rt pipeline for ", target_region)
     
     
-    regional_cases <- cases %>% 
-      dplyr::filter(region %in% target_region)
+    regional_cases <- cases[regions %in% target_region]
     
     if (regional_delay) {
-      regional_linelist <- linelist %>% 
-        dplyr::filter(region %in% target_region)
+      regional_linelist <- linelist[region %in% target_region]
     }else{
       regional_linelist <- linelist
     }
     
     if (!is.null(onset_modifier)) {
-      region_onset_modifier <- onset_modifier %>% 
-        dplyr::filter(region %in% target_region) %>% 
-        dplyr::select(-region)
-  
+      region_onset_modifier <- data.table::setDT(onset_modifier)[region %in% target_region]
+      region_onset_modifier <- region_onset_modifier[,region := NULL]
     }else{
       region_onset_modifier <- NULL
     }

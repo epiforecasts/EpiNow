@@ -18,7 +18,7 @@
 #' @importFrom EpiEstim estimate_R make_config
 #' @importFrom purrr map2 map2_dbl safely map
 #' @importFrom EpiSoon predict_current_cases forecast_rt forecast_cases score_case_forecast
-#' @importFrom data.table setDT rbindlist .SD data.table::dcast.data.table copy
+#' @importFrom data.table setDT rbindlist .SD dcast copy
 #' @examples
 #'
 #' ## Nowcast Rts                  
@@ -75,7 +75,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                      is.na(cases), cases := 0]
     
     ## Spread to wide and fill in missing combinations
-    incid <- data.table::dcast.data.table(incid, date ~ import_status, 
+    incid <- data.table::dcast(incid, date ~ import_status, 
                                  value.var = "cases", fill = 0)
  
     ## Predict cases forward in time using just local cases

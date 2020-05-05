@@ -8,7 +8,8 @@ sample_approx_delay(
   reported_cases = NULL,
   delay_fn = NULL,
   max_delay = 120,
-  earliest_allowed_onset = NULL
+  earliest_allowed_onset = NULL,
+  direction = "onset"
 )
 }
 \arguments{
@@ -22,6 +23,9 @@ numeric samples this long.}
 
 \item{earliest_allowed_onset}{A character string in the form of a date ("2020-01-01") indiciating the earliest
 allowed onset.}
+
+\item{direction}{Character string, defato "onset". Direction in which to map cases. Supports
+either from report to onset ("onset") or from onset to report ("report")}
 }
 \value{
 A \code{data.table} of cases by date of onset
@@ -39,5 +43,9 @@ delay_fn <- function(n, dist, cum) {
 
 onsets <- sample_approx_delay(reported_cases = cases,
                               delay_fn = delay_fn)
+                              
+reports <- sample_approx_delay(reported_cases = cases,
+                              delay_fn = delay_fn,
+                              direction = "report")
 
 }

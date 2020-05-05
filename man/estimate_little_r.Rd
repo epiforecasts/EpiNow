@@ -7,14 +7,14 @@
 estimate_little_r(sample, min_time = NULL, max_time = NULL)
 }
 \arguments{
-\item{sample}{A dataframe containing a numeric cases variable.}
+\item{sample}{A datatable containing a numeric cases variable.}
 
 \item{min_time}{Numeric, minimum time to use to fit the model.}
 
 \item{max_time}{Numeric, maximum time to use to fit the model.}
 }
 \value{
-A dataframe containing an estimate of r, its standard deviation and a
+A datatable containing an estimate of r, its standard deviation and a
 measure of the goodness of fit.
 }
 \description{
@@ -22,5 +22,8 @@ Estimate r
 }
 \examples{
 
+cases <- data.table::setDT(EpiSoon::example_obs_cases)[, 
+                          cases := as.integer(cases)]
 
+estimate_little_r(cases)
 }

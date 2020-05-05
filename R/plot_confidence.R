@@ -11,14 +11,14 @@
 #'
 #' @importFrom ggplot2 ggplot aes geom_line scale_x_date geom_ribbon theme element_text scale_fill_manual theme labs guide_legend guides
 #' @importFrom cowplot theme_cowplot
-#' @importFrom dplyr filter slice
+#' @importFrom data.table setDT copy .N rbindlist
 #' @examples
 #'
 plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2,
                             plot_median = TRUE, legend = "none") {
 
-  plot <- data %>%
-    ggplot2::ggplot(ggplot2::aes(x = date,
+  plot <-
+    ggplot2::ggplot(data, ggplot2::aes(x = date,
                                  y = median,
                                  group = type))
 
@@ -39,8 +39,8 @@ plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2,
 
 
   ## Confident ribbons
-  conf_data <- data %>%
-    dplyr::filter(confidence == 1, type %in% "nowcast")
+  data <- data.table::setDT(data)
+  conf_data <- data.table::copy(data)[confidence == 1][type %in% "nowcast"]
 
   if (nrow(conf_data) > 0) {
     plot <- plot +
@@ -54,13 +54,8 @@ plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2,
   }
 
   ## Not confident ribbons
-  varying_conf_data <- conf_data %>%
-    dplyr::slice(., nrow(.)) %>%
-    dplyr::bind_rows(
-      data %>%
-        dplyr::filter(confidence != 1)
-    )
-
+  varying_conf_data <- data.table::rbindlist(conf_data[.N],
+                                             data[confidence != 1])
 
   if (nrow(varying_conf_data) > 1) {
     for (i in seq(2, nrow(varying_conf_data))) {
