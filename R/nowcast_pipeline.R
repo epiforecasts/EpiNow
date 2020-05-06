@@ -26,7 +26,7 @@
 #' @export
 #' @importFrom lubridate days
 #' @importFrom purrr map safely map_dfr map_lgl compact map2_dbl
-#' @importFrom furrr future_map future_options
+#' @importFrom future.apply future_lapply
 #' @importFrom data.table .N as.data.table := setDT rbindlist
 #' @examples
 #' 
@@ -292,10 +292,12 @@ if (!is.null(onset_modifier)) {
     message("Nowcasting using fitted delay distributions")
   }
 
-  out <- furrr::future_map(fitted_delay_fn,
-                              ~ nowcast_inner(sample_delay_fn = ., verbose = FALSE),
-                               .progress = verbose,
-                               .options = furrr::future_options(scheduling = 20))
+  out <- future.apply::future_lapply(fitted_delay_fn,
+                                     nowcast_inner, 
+                                     verbose = FALSE,
+                                     future.scheduling = 20,
+                                     future.packages = c("EpiNow", "data.table"))
+    
   
   out <- data.table::rbindlist(out, idcol = "sample")
   

@@ -10,7 +10,7 @@
 #' @export
 #' @importFrom purrr safely map_dbl map pmap
 #' @importFrom HDInterval hdi
-#' @importFrom furrr future_map future_options
+#' @importFrom future.apply future_lapply
 #' @importFrom data.table setDT setorder rbindlist copy
 #' @examples 
 #'
@@ -52,12 +52,11 @@ epi_measures_pipeline <- function(nowcast = NULL,
   if (verbose) {
     message("Estimate time-varying R0")
   }
-
-  estimates <- furrr::future_map(split(nowcast, by = c("type", "sample")), 
-                                 process_R0, 
-                                 .progress = verbose,
-                                 .options = furrr::future_options(packages = c("EpiNow", "data.table"),
-                                                                  scheduling = 20))
+  
+  estimates <-  future.apply::future_lapply(split(nowcast, by = c("type", "sample")), 
+                                 process_R0,
+                                 future.scheduling = 20,
+                                 future.packages = c("EpiNow", "data.table"))
   
   ## Clean up NULL rt estimates and bind together
   R0_estimates <- data.table::rbindlist(
@@ -158,21 +157,17 @@ epi_measures_pipeline <- function(nowcast = NULL,
   ## Break nowcast into list
   nowcast <- split(nowcast, by = "type")
   
-  ## Estimate overall
-  little_r <- little_r[, overall_little_r := furrr::future_map(nowcast,
-                                                               ~ EpiNow::estimate_r_in_window(.$data), 
-                                                               .options = furrr::future_options(packages = "EpiNow",
-                                                                                                scheduling = 10),
-                                                               .progress = verbose)]
+  ## Estimate overall  
+  little_r <- little_r[, overall_little_r := future.apply::future_lapply(nowcast,
+                                  function(est){EpiNow::estimate_r_in_window(est$data)},
+                                  future.scheduling = 10,
+                                  future.packages = c("EpiNow"))]
 
   ## Estimate time-varying
-  little_r <- little_r[, time_varying_r := furrr::future_map(nowcast,
-                                                             ~ EpiNow::estimate_time_varying_r(.$data,
-                                                                                               window = rate_window),
-                                                             .options = furrr::future_options(globals = c("rate_window"),
-                                                                                              packages = "EpiNow",
-                                                                                              scheduling = 10),
-                                                             .progress = verbose)]
+  little_r <- little_r[, time_varying_r := future.apply::future_lapply(nowcast,
+                                                                       function(est){EpiNow::estimate_time_varying_r(est$data)},
+                                                                       future.scheduling = 10,
+                                                                       future.packages = c("EpiNow"))]
 
 
   out <- list(R0_estimates_sum, little_r, R0_estimates)

@@ -7,7 +7,7 @@
 #' @return A dataframe of r estimates over time summarisd across samples.
 #' @export
 #' @importFrom purrr safely
-#' @importFrom furrr future_map2 future_options
+#' @importFrom future.apply future_lapply
 #' @examples
 #'
 estimate_time_varying_r <- function(onsets, window = 7) {
@@ -28,11 +28,12 @@ estimate_time_varying_r <- function(onsets, window = 7) {
   ## Estimate little r
   windowed_r <- windowed_r[, 
        .(date, min_time, max_time,
-         estimates = furrr::future_map2(min_time, max_time,
-            ~ suppressMessages(safe_estimate_r_window(onsets, 
-                                                      min_time = .x,
-                                                      max_time = .y)[[1]]),
-            .progress = TRUE))][, var := list(names(estimates[[1]]))]
+         estimates = future.apply::future_lapply(1:length(min_time),
+               function(index){suppressMessages(safe_estimate_r_window(onsets, 
+                                                                       min_time = min_time[index],
+                                                                       max_time = max_time[index])[[1]])},
+               future.scheduling = 10, future.packages = c("EpiNow", "purrr")))][,
+       var := list(names(estimates[[1]]))]
   
   ## Remove first nesting layer
   windowed_r <- windowed_r[, .(estimates = purrr::flatten(estimates),

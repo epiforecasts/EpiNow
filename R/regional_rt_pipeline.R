@@ -17,7 +17,7 @@
 #' @inheritParams rt_pipeline
 #' @return NULL
 #' @export
-#' @importFrom furrr future_map future_options
+#' @importFrom future.apply future_lapply
 #' @importFrom data.table as.data.table setDT copy setorder
 #' @examples
 #' 
@@ -125,15 +125,18 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   }
   
   if (regions_in_parallel) {
-    out <- furrr::future_map(regions, run_region, .progress = TRUE,
-                             .options = furrr::future_options(scheduling = Inf,
-                                                              globals = c("region_rt", "target_date",
-                                                                          "merge_onsets", "samples", 
-                                                                          "report_delay_fns", "verbose",
-                                                                          "cases", "linelist", "onset_modifier",
-                                                                          "regions", "target_folder")))
+    
+    future.apply::future_lapply(regions, run_region,
+                                future.scheduling = 3,
+                                future.packages = c("EpiNow", "data.table"),
+                                future.globals = c("region_rt", "target_date",
+                                                   "merge_onsets", "samples", 
+                                                   "report_delay_fns", "verbose",
+                                                   "cases", "linelist", "onset_modifier",
+                                                   "regions", "target_folder"))
+
   }else{
-    out <- purrr::map(regions, run_region)
+    purrr::map(regions, run_region)
   }
   
     
