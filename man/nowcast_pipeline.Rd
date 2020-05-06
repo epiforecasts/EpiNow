@@ -17,6 +17,8 @@ nowcast_pipeline(
   verbose = FALSE,
   samples = 1,
   report_delay_fns = NULL,
+  bootstraps = 1,
+  bootstrap_samples = 1000,
   nowcast_lag = 4,
   onset_modifier = NULL
 )
@@ -52,6 +54,11 @@ to modify estimated cases by onset date. \code{modifier} must be a function that
 (enables inclusion of uncertainty) and takes the following arguments: \code{n} (samples to return) and \code{status} ("local" or "import").}
 
 \item{date_to_case}{A data indicating when to cast up to.}
+
+\item{delay_sub_samples}{Numeric, defaults to 1. When set to 1 all data is used to fit a single delay
+distribution where uncertainty is only propagated in the uncertainty of the fit. If set to more than one
+the supplied delay data is sampled this many times (with samples equalling the overall number of samples divided
+by the number of sub samples each time).}
 }
 \value{
 

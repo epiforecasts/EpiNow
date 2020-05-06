@@ -54,8 +54,8 @@ plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2,
   }
 
   ## Not confident ribbons
-  varying_conf_data <- data.table::rbindlist(conf_data[.N],
-                                             data[confidence != 1])
+  varying_conf_data <- data.table::rbindlist(list(conf_data[.N],
+                                             data[confidence != 1]), fill = TRUE)
 
   if (nrow(varying_conf_data) > 1) {
     for (i in seq(2, nrow(varying_conf_data))) {

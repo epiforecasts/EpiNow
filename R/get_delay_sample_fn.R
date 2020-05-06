@@ -9,7 +9,7 @@
 ##' @return A list of function that takes one parameter, `n`, the number of reporting
 ##'   delays to randomly sample
 ##' @importFrom purrr map map2 flatten
-##' @importFrom furrr future_map
+##' @importFrom future.apply future_lapply
 ##' @importFrom rstan extract
 ##' @importFrom loo loo relative_eff extract_log_lik
 ##' @author Sebastian Funk <sebastian.funk@lshtm.ac.uk>
@@ -26,7 +26,7 @@
 ##' ## Code
 ##' get_delay_sample_fn
 get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
-                                bootstraps = 1, bootstrap_samples = 100) {
+                                bootstraps = 1, bootstrap_samples = 250) {
 
   ## Confirmation delays
   delays <- linelist %>%
@@ -140,12 +140,13 @@ get_delay_sample_fn <- function(linelist, verbose = FALSE, samples = 1,
     truncated_sample_functions <- get_single_delay_fn(delays, samples = samples)
   }else{
     ## Fit each sub sample
-    truncated_sample_functions <- furrr::future_map(1:bootstraps,
-                                             ~ get_single_delay_fn(sample(delays, 
-                                                                          min(length(delays), bootstrap_samples),
-                                                                          replace = TRUE),
-                                                                   samples = ceiling(samples / bootstraps)),
-                                             .progress = FALSE)
+    truncated_sample_functions <- future.apply::future_lapply(1:bootstraps,
+                   function(boot){get_single_delay_fn(sample(delays, 
+                                                             min(length(delays), bootstrap_samples),
+                                                             replace = TRUE),
+                                                      samples = ceiling(samples / bootstraps))},
+                   future.scheduling = 10)
+                                         
      ## Bind together in a list of functions                                        
     truncated_sample_functions <- purrr::flatten(truncated_sample_functions)
     

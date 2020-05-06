@@ -26,10 +26,10 @@
 #' @export
 #' @importFrom lubridate days
 #' @importFrom purrr map safely map_dfr map_lgl compact map2_dbl
-#' @importFrom furrr future_map future_options
+#' @importFrom future.apply future_lapply
 #' @importFrom data.table .N as.data.table := setDT rbindlist
 #' @examples
-#'
+#' 
 #' 
 nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              date_to_cast = NULL, date_to_cutoff_delay = NULL,
@@ -44,11 +44,9 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              bootstraps = 1, bootstrap_samples = 1000,
                              nowcast_lag = 4,
                              onset_modifier = NULL) {
-   
- 
+  
 # Fit delay distribution --------------------------------------------------
  
-  
   if (is.null(report_delay_fns)) {
     
     ## Get the distribution of reporting delays
@@ -113,7 +111,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
   reported_cases <- data.table::setDT(reported_cases)
   
   ## Filter reported cases based on the nowcasting date
-  reported_cases <- reported_cases[date <= date_to_case]
+  reported_cases <- reported_cases[date <= date_to_cast]
 
   ## Split cases into local and imported
   local_cases <- data.table::copy(reported_cases)[import_status == "local"]
@@ -294,15 +292,17 @@ if (!is.null(onset_modifier)) {
     message("Nowcasting using fitted delay distributions")
   }
 
-  out <- furrr::future_map(fitted_delay_fn,
-                              ~ nowcast_inner(sample_delay_fn = ., verbose = FALSE),
-                               .progress = verbose,
-                               .options = furrr::future_options(scheduling = 20))
+  out <- future.apply::future_lapply(fitted_delay_fn,
+                                     nowcast_inner, 
+                                     verbose = FALSE,
+                                     future.scheduling = 20,
+                                     future.packages = c("EpiNow", "data.table"))
+    
   
   out <- data.table::rbindlist(out, idcol = "sample")
   
   ## Add a nowcast lag across samples
-  out <- out[data <=  (max(date, na.rm = TRUE) - lubridate::days(nowcast_lag))]
+  out <- out[date <= (max(date, na.rm = TRUE) - lubridate::days(nowcast_lag))]
 
   return(out)
 }

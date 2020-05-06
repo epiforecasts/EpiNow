@@ -37,7 +37,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         horizon = 0, report_forecast = FALSE, report_delay_fns = NULL,
                         onset_modifier = NULL, min_forecast_cases = 200) {
  
-
+ 
 # Convert input to DT -----------------------------------------------------
 
   cases <- data.table::setDT(cases)
@@ -68,13 +68,12 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
     if (verbose) {
       message("Using default Rt prior of 2.6 (2)")
     }
-
     rt_prior <- list(
       mean_prior = 2.6,
       std_prior = 2)
   }
  
-
+ 
 # Control errors by changing options --------------------------------------
 
  ##Define the minimum number of recent cases required for a forecast to be run
@@ -104,13 +103,13 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
   ## Reformat linelist for use in nowcast_pipeline
   linelist <- linelist[, .(date_onset_symptoms = date_onset, 
                            date_confirmation = date_confirm,
-                           delay_confirmation = report_delay)]
+                           delay_confirmation = report_delay,
+                           import_status)]
 
   ##Reformat cases
   cases <- cases[, confirm := cases][,cases := NULL]
 
   # Run a nowcast -----------------------------------------------------------
-
 
   nowcast <- EpiNow::nowcast_pipeline(
     reported_cases = cases, linelist = linelist,
@@ -125,12 +124,11 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
 
   saveRDS(nowcast,  paste0(target_folder, "/nowcast.rds"))
 
-  rm(formatted_linelist, report_delay_fns, linelist)
   # Estimate time-varying parameters ----------------------------------------
 
   epi_estimates <-
     EpiNow::epi_measures_pipeline(
-          count_linelist = nowcast[type == "nowcast"],
+          nowcast = nowcast[type == "nowcast"],
           min_est_date = min_plot_date + lubridate::days(incubation_period),
           serial_intervals = serial_intervals,
           si_samples = si_samples, rt_samples = rt_samples,

@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -37,7 +41,6 @@
 
 <meta property="og:title" content="Estimate the time varying R0 - using EpiEstim — estimate_R0" />
 <meta property="og:description" content="Estimate the time varying R0 - using EpiEstim" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -55,7 +58,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -116,9 +119,12 @@
   <span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>serial_intervals</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>window</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>windows</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>si_samples</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>100</span>
+  <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>min_est_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>forecast_model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>horizon</span> <span class='kw'>=</span> <span class='fl'>0</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -138,8 +144,9 @@ that day.</p></td>
       <td><p>A list defining the reproduction number prior containing the mean (<code>mean_prior</code>) and standard deviation (<code>std_prior</code>)</p></td>
     </tr>
     <tr>
-      <th>window</th>
-      <td><p>Numeric, the window over which to estimate time-varying R</p></td>
+      <th>windows</th>
+      <td><p>Numeric vector, windows over which to estimate time-varying R. The best performing window will be
+selected per serial interval sample by default (based on which window best forecasts current cases).</p></td>
     </tr>
     <tr>
       <th>si_samples</th>
@@ -149,6 +156,19 @@ that day.</p></td>
       <th>rt_samples</th>
       <td><p>Numeric, the number of samples to take from the estimated R distribution for each time point.</p></td>
     </tr>
+    <tr>
+      <th>min_est_date</th>
+      <td><p>Date to begin estimation.</p></td>
+    </tr>
+    <tr>
+      <th>forecast_model</th>
+      <td><p>An uninitialised bsts model passed to <code><a href='https://rdrr.io/pkg/EpiSoon/man/forecast_rt.html'>EpiSoon::forecast_rt</a></code> to be used for forecasting
+future Rt values. An example of the required structure is: <code>function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)}</code>.</p></td>
+    </tr>
+    <tr>
+      <th>horizon</th>
+      <td><p>Numeric, defaults to 0. The horizon over which to forecast Rts and cases.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -157,17 +177,68 @@ that day.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
+<span class='co'>## Nowcast Rts                  </span>
+<span class='no'>estimates</span> <span class='kw'>&lt;-</span> <span class='fu'>estimate_R0</span>(<span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>,
+                         <span class='kw'>serial_intervals</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_serial_intervals</span>[,<span class='fl'>1</span>]),
+                         <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mean_prior</span> <span class='kw'>=</span> <span class='fl'>2.6</span>, <span class='kw'>std_prior</span> <span class='kw'>=</span> <span class='fl'>2</span>),
+                         <span class='kw'>windows</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>si_samples</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+                         <span class='kw'>min_est_date</span> <span class='kw'>=</span>  <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='st'>"2020-02-18"</span>))
 
-</div></pre>
+
+<span class='no'>estimates</span>$<span class='no'>rts</span></div><div class='output co'>#&gt;            date   mean_R      sd_R sample_R sample   crps window rt_type
+#&gt;   1: 2020-02-18 1.978006 0.9174621 1.391506      1   0.41      1 nowcast
+#&gt;   2: 2020-02-18 1.978006 0.9174621 1.548251      2   0.41      1 nowcast
+#&gt;   3: 2020-02-18 1.978006 0.9174621 1.755762      3   0.41      1 nowcast
+#&gt;   4: 2020-02-18 1.978006 0.9174621 1.885418      4   0.41      1 nowcast
+#&gt;   5: 2020-02-18 1.978006 0.9174621 2.134518      5   0.41      1 nowcast
+#&gt;  ---                                                                    
+#&gt; 676: 2020-03-22 1.535392 0.0480993 1.530371     12 134.34      1 nowcast
+#&gt; 677: 2020-03-22 1.535392 0.0480993 1.558433     14 134.34      1 nowcast
+#&gt; 678: 2020-03-22 1.535392 0.0480993 1.567507     16 134.34      1 nowcast
+#&gt; 679: 2020-03-22 1.535392 0.0480993 1.589609     18 134.34      1 nowcast
+#&gt; 680: 2020-03-22 1.535392 0.0480993 1.613158     20 134.34      1 nowcast</div><div class='input'>
+<span class='co'>## Nowcast Rts, forecast Rts and the forecast cases</span>
+<span class='no'>estimates</span> <span class='kw'>&lt;-</span> <span class='fu'>estimate_R0</span>(<span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>,
+                         <span class='kw'>serial_intervals</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_serial_intervals</span>[,<span class='fl'>1</span>]),
+                         <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mean_prior</span> <span class='kw'>=</span> <span class='fl'>2.6</span>, <span class='kw'>std_prior</span> <span class='kw'>=</span> <span class='fl'>2</span>),
+                         <span class='kw'>windows</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>si_samples</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+                         <span class='kw'>min_est_date</span> <span class='kw'>=</span>  <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='st'>"2020-02-18"</span>),
+                         <span class='kw'>forecast_model</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>...</span>){<span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/EpiSoon/man/fable_model.html'>fable_model</a></span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='kw pkg'>fable</span><span class='kw ns'>::</span><span class='fu'><a href='https://fable.tidyverts.org/reference/ETS.html'>ETS</a></span>(<span class='no'>y</span> ~ <span class='fu'>trend</span>(<span class='st'>"A"</span>)), <span class='no'>...</span>)},
+                         <span class='kw'>horizon</span> <span class='kw'>=</span> <span class='fl'>7</span>)
+
+<span class='co'>## Rt estimates and forecasts</span>
+<span class='no'>estimates</span>$<span class='no'>rts</span></div><div class='output co'>#&gt;            date         R sample crps window  rt_type
+#&gt;   1: 2020-02-18 1.2233900      1  0.1      1  nowcast
+#&gt;   2: 2020-02-18 1.3214026      2  0.1      1  nowcast
+#&gt;   3: 2020-02-18 1.5212960      3  0.1      1  nowcast
+#&gt;   4: 2020-02-18 1.5583118      4  0.1      1  nowcast
+#&gt;   5: 2020-02-18 1.8295691      5  0.1      1  nowcast
+#&gt;  ---                                                 
+#&gt; 826: 2020-03-29 1.7060402     12   NA     NA forecast
+#&gt; 827: 2020-03-29 1.9297857     14   NA     NA forecast
+#&gt; 828: 2020-03-29 1.9798116     16   NA     NA forecast
+#&gt; 829: 2020-03-29 1.2602452     18   NA     NA forecast
+#&gt; 830: 2020-03-29 0.7835643     20   NA     NA forecast</div><div class='input'>
+
+
+<span class='co'>## Case forecasts</span>
+<span class='no'>estimates</span>$<span class='no'>cases</span></div><div class='output co'>#&gt;      sample       date cases horizon  rt_type
+#&gt;   1:      1 2020-03-23   583       1 forecast
+#&gt;   2:      1 2020-03-24   796       2 forecast
+#&gt;   3:      1 2020-03-25   554       3 forecast
+#&gt;   4:      1 2020-03-26   799       4 forecast
+#&gt;   5:      1 2020-03-27   784       5 forecast
+#&gt;  ---                                         
+#&gt; 136:     20 2020-03-25   645       3 forecast
+#&gt; 137:     20 2020-03-26   545       4 forecast
+#&gt; 138:     20 2020-03-27   853       5 forecast
+#&gt; 139:     20 2020-03-28   851       6 forecast
+#&gt; 140:     20 2020-03-29   468       7 forecast</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -178,7 +249,7 @@ that day.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
 </div>
 
       </footer>
