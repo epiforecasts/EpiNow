@@ -173,7 +173,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
   out <- list(R0_estimates_sum, little_r, R0_estimates)
   names(out) <- c("R0", "rate_of_spread", "raw_R0")
 
-  if (!(is.null(cases_forecast) | length(cases_forecast) == 0)) {
+  if (any(purrr::map_lgl(cases_forecast, ~ !is.null(.)))) {
     
     out$case_forecast <- sum_cases_forecast
     out$raw_case_forecast <- cases_forecast
