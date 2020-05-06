@@ -1,8 +1,19 @@
-
-eenb_fit <- function(country) {
+#' Fit the negative binomial version of EpiEstim
+#'
+#' @param nowcast_dir The directory of the nowcast to fit to
+#'
+#' @return
+#' @export
+#' @importFrom dplyr group_by ungroup
+#' @importFrom tidyr complete
+#' @importFrom rstan sampling extract
+#'
+#' @examples
+#' 
+eenb_fit <- function(nowcast_dir) {
   
-  country <- "Austria"
-  nowcast <- readRDS(here::here("/covid/national",country,"/latest/nowcast.rds"))
+  message("Reading nowcast...")
+  nowcast <- readRDS(nowcast_dir)
   processed_nowcast <- nowcast %>%
     dplyr::group_by(sample) %>%
     tidyr::complete(date = seq.Date(to = max(nowcast$date),
@@ -23,10 +34,12 @@ eenb_fit <- function(country) {
                           nrow = dat$t,
                           ncol = dat$k)
   
-  dat$obs_local <- processed_nowcast$cases
+  # dat$obs_local <- processed_nowcast$cases # For sharded versions
+  dat$obs_local <- obs_local_mat
   
   obs_imported_mat <- matrix(0, nrow = dat$t, ncol = dat$k)
-  dat$obs_imported <- rep(0, dat$t * dat$k)
+  # dat$obs_imported <- rep(0, dat$t * dat$k) # For sharded versions
+  # dat$obs_imported <- obs_imported_mat
   
   dat$tau <- 5
   
@@ -34,6 +47,7 @@ eenb_fit <- function(country) {
   
   dat$q <- 10
   
+  message("Creating infectiousness matrix...")
   infectiousness_mat <- matrix(0, nrow = dat$t, ncol = dat$k)
   # Calculate infectiousness at each timestep
   for(j in 1:dat$k) {
@@ -45,14 +59,23 @@ eenb_fit <- function(country) {
       }
     }
   }
-  dat$infectiousness <- as.vector(infectiousness_mat)
-  dat$infectiousness <- ifelse(dat$infectiousness == 0, 1E-06, dat$infectiousness)
+  # dat$infectiousness <- as.vector(infectiousness_mat) # for sharding
+  dat$infectiousness <- infectiousness_mat
+  
+  for(i in 1:nrow(dat$infectiousness)) {
+    for(j in 1:ncol(dat$infectiousness)) {
+      dat$infectiousness[i, j] <- ifelse(dat$infectiousness[i, j] == 0, 1E-06, dat$infectiousness[i, j])
+    }
+  }
   
   
   init_fun <- function() {list(R = rgamma(n = dat$t, shape = 1, scale = 5), 
                                phi = runif(1, 0, 1))}
   
   mod <- stanmodels$ee_negbinom
+  
+  message(paste0("Running for ",dat$k," SI & nowcast samples"))
+  message(paste0("and ",dat$t," time steps..."))
   
   fit <- rstan::sampling(mod,
                          data = dat,

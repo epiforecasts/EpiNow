@@ -1,28 +1,11 @@
 data {
   int t; // number of time steps
-  int k;
-  int n;
-  int <lower = 0> obs_imported[t, k]; // imported cases
+  int k; // number of serial interval and delay samples
+  int n; // length of serial interval distributions
   int <lower = 0> obs_local[t, k]; // local cases
+  real <lower = 0> infectiousness[t, k]; // back-calculated infectiousness
   int tau; // length of window
-  matrix[n, k] w;
-}
-
-transformed data{
-  matrix[t, k] infectiousness;
-
- infectiousness[1,] = rep_row_vector(0, k);
-
- for(h in 1:k) {
-  // Calculate infectiousness at each timestep
-  for (s in 2:t){
-    infectiousness[s, k] = 0;
-    for (i in 1:(s - 1)){
-      infectiousness[s, k] += (obs_imported[i, k] + obs_local[i, k]) * w[s - i, k];
-    }
-  }
- }
-
+  matrix[n, k] w; // matrix of different serial interval distributions
 }
 
 parameters{
