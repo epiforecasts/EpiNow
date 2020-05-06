@@ -41,13 +41,15 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   ## Set input to data.table
   cases <- data.table::as.data.table(cases)
-  linelist <- data.table::as.data.table(linelist)
+  if (!is.null(linelist)) {
+    linelist <- data.table::as.data.table(linelist)
+  }
   
   ## Control parameters
   target_date <- as.character(max(cases$date))
   
   message("Running pipeline for ", target_date)
-  
+   
   
   ## Check for regions more than required cases
   eval_regions <- data.table::copy(cases)[,.(cases = sum(cases, na.rm = TRUE)), 
@@ -100,7 +102,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     
     regional_cases <- cases[region %in% target_region][, region := NULL]
     
-    if (regional_delay) {
+    if (regional_delay & !is.null(linelist)) {
       regional_linelist <- linelist[region %in% target_region][, region := NULL]
     }else{
       regional_linelist <- linelist

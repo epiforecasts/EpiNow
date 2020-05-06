@@ -44,7 +44,10 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
   data.table::setDTthreads(threads = dt_threads)
   cases <- data.table::setDT(cases)
   imported_cases <- data.table::setDT(imported_cases)
-  linelist <- data.table::setDT(linelist)
+  if (!is.null(linelist)) {
+    linelist <- data.table::setDT(linelist)
+  }
+
   
  # Set up folders ----------------------------------------------------------
 
@@ -54,7 +57,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
   if (!dir.exists(target_folder)) {
     dir.create(target_folder, recursive = TRUE)
   }
-
+ 
  # Default input -----------------------------------------------------------
 
   if (is.null(serial_intervals)) {
