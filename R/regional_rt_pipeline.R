@@ -65,7 +65,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   cases <- cases[cases_grid, on = c("date", "region", "import_status")][is.na(cases), cases := 0]
   cases <- data.table::setorder(cases, region, import_status, date)
-
+ 
   ## regional pipelines
   regions <- unique(cases$region)
   
@@ -85,21 +85,11 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   
   message("Running pipelines by region")
   
-  region_rt <- purrr::partial(EpiNow::rt_pipeline,
-                              target_date = target_date, 
-                              merge_actual_onsets = merge_onsets, 
-                              samples = samples, 
-                              report_delay_fns = report_delay_fns,
-                              verbose = verbose,
-                              bootstraps = bootstraps,
-                              bootstrap_samples = bootstrap_samples,
-                              ...)
   
   ## Function to run the pipeline in a region
-  run_region <- function(target_region) { 
+  run_region <- function(target_region, ...) { 
     message("Running Rt pipeline for ", target_region)
     
-   
     regional_cases <- cases[region %in% target_region][, region := NULL]
     
     if (regional_delay) {
@@ -115,25 +105,27 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
       region_onset_modifier <- NULL
     }
     
-    region_rt(cases = regional_cases,
-              linelist = regional_linelist,
-              onset_modifier = region_onset_modifier,
-              target_folder = file.path(target_folder, target_region))
+    EpiNow::rt_pipeline(
+      cases = regional_cases,
+      linelist = regional_linelist,
+      onset_modifier = region_onset_modifier,
+      target_folder = file.path(target_folder, target_region),
+      target_date = target_date, 
+      merge_actual_onsets = merge_onsets, 
+      samples = samples, 
+      report_delay_fns = report_delay_fns,
+      verbose = verbose,
+      bootstraps = bootstraps,
+      bootstrap_samples = bootstrap_samples,
+      ...)
     
-    return(invisible(NULL))
-    
-  }
+    return(invisible(NULL))}
   
   if (regions_in_parallel) {
     
     future.apply::future_lapply(regions, run_region,
-                                future.scheduling = 3,
-                                future.packages = c("EpiNow", "data.table"),
-                                future.globals = c("region_rt", "target_date",
-                                                   "merge_onsets", "samples", 
-                                                   "report_delay_fns", "verbose",
-                                                   "cases", "linelist", "onset_modifier",
-                                                   "regions", "target_folder"))
+                                ...,
+                                future.scheduling = Inf)
 
   }else{
     purrr::map(regions, run_region)
