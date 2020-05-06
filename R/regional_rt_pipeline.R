@@ -28,9 +28,16 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
                                  case_limit = 40, onset_modifier = NULL,
                                  bootstraps = 1, 
                                  bootstrap_samples = 100,
+                                 report_delay_fns = NULL,
                                  regions_in_parallel = TRUE,
                                  verbose = FALSE,
                                  samples = 1000, ...) {
+  
+  #reset samples if report delays are passed in
+  if (!is.null(report_delay_fns)) {
+    sample <- length(report_delay_fns)
+    message("Report delays have been specified so samples is ignored")
+  }
   
   ## Set input to data.table
   cases <- data.table::as.data.table(cases)
@@ -69,7 +76,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   ## regional pipelines
   regions <- unique(cases$region)
   
-  if (!regional_delay) {
+  if (!regional_delay & is.null(report_delay_fns)) {
     message("Using a national linelist so not merging onsets and fitting a single reporting delay")
     merge_onsets <- FALSE
     

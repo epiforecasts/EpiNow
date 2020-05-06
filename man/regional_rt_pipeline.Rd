@@ -14,6 +14,7 @@ regional_rt_pipeline(
   onset_modifier = NULL,
   bootstraps = 1,
   bootstrap_samples = 100,
+  report_delay_fns = NULL,
   regions_in_parallel = TRUE,
   verbose = FALSE,
   samples = 1000,
@@ -39,6 +40,8 @@ set to \code{FALSE} this should also be \code{FALSE}}
 \item{onset_modifier}{data.frame containing a \code{date} variable and a function \code{modifier} variable. This is used
 to modify estimated cases by onset date. \code{modifier} must be a function that returns a proportion when called
 (enables inclusion of uncertainty) and takes the following arguments: \code{n} (samples to return) and \code{status} ("local" or "import").}
+
+\item{report_delay_fns}{List of functions as produced by \code{EpiNow::get_delay_sample_fn}}
 
 \item{regions_in_parallel}{Logical, should regions be run in parallel or sequentially (allowing for)
 within pipeline parallisation. Defaults to \code{TRUE}.}
