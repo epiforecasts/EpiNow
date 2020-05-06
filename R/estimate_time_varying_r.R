@@ -6,7 +6,7 @@
 #' @inheritParams estimate_r_in_window
 #' @return A dataframe of r estimates over time summarisd across samples.
 #' @export
-#' @importFrom purrr safely
+#' @importFrom purrr safely map_lgl
 #' @importFrom future.apply future_lapply
 #' @examples
 #'
@@ -36,8 +36,8 @@ estimate_time_varying_r <- function(onsets, window = 7) {
        var := list(names(estimates[[1]]))]
   
   ## Remove first nesting layer
-  windowed_r <- windowed_r[, .(estimates = purrr::flatten(estimates),
-                               var = unlist(var)),
+  windowed_r <- windowed_r[!purrr::map_lgl(estimates, is.null)][,
+              .(estimates = purrr::flatten(estimates), var = unlist(var)),
                            by = c("date", "min_time", "max_time")]
   
   windowed_r <- windowed_r[, .(windowed_r[, .(date, var)],
