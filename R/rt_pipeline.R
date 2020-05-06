@@ -102,11 +102,16 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
  
   # Format input ------------------------------------------------------------
 
-  ## Reformat linelist for use in nowcast_pipeline
-  linelist <- linelist[, .(date_onset_symptoms = date_onset, 
-                           date_confirmation = date_confirm,
-                           delay_confirmation = report_delay,
-                           import_status)]
+ if (!is.null(linelist)) {
+   ## Reformat linelist for use in nowcast_pipeline
+   linelist <- linelist[, .(date_onset_symptoms = date_onset, 
+                            date_confirmation = date_confirm,
+                            delay_confirmation = report_delay,
+                            import_status)]
+ }else{
+   merge_actual_onsets <- FALSE
+ }
+
 
   ##Reformat cases
   cases <- cases[, confirm := cases][,cases := NULL]
