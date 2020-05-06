@@ -47,7 +47,7 @@ eenb_fit <- function(nowcast_dir) {
   
   dat$q <- 10
   
-  message("Creating infectiousness matrix...")
+  message("\nCreating infectiousness matrix...")
   infectiousness_mat <- matrix(0, nrow = dat$t, ncol = dat$k)
   # Calculate infectiousness at each timestep
   for(j in 1:dat$k) {
