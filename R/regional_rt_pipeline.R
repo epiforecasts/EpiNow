@@ -76,7 +76,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   ## regional pipelines
   regions <- unique(cases$region)
   
-  if (!regional_delay & is.null(report_delay_fns)) {
+  if (!regional_delay | is.null(report_delay_fns)) {
     message("Using a national linelist so not merging onsets and fitting a single reporting delay")
     merge_onsets <- FALSE
     
