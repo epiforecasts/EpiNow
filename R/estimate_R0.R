@@ -244,7 +244,8 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
       }else{
         
         ## Return just nowcast if no forecast has been run
-        est_r <- est_r[, rt_type := "nowcast"]
+        est_r <- est_r[, .(date, R = sample_R, 
+                           crps, window, rt_type = "nowcast")]
           
         return(list(rts = est_r))
       }
