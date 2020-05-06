@@ -35,7 +35,8 @@ rt_pipeline(
   report_forecast = FALSE,
   report_delay_fns = NULL,
   onset_modifier = NULL,
-  min_forecast_cases = 200
+  min_forecast_cases = 200,
+  dt_threads = 1
 )
 }
 \arguments{
@@ -99,6 +100,9 @@ to modify estimated cases by onset date. \code{modifier} must be a function that
 
 \item{min_forecast_cases}{Numeric, defaults to 200. The minimum number of cases required in the last 7 days
 of data in order for a forecast to be run. This prevents spurious forecasts based on highly uncertain Rt estimates.}
+
+\item{dt_threads}{Numeric, the number of data.table threads to use. Set internally to avoid issue when running in parallel.
+Defaults to 1 thread.}
 }
 \description{
 Combine fitting a delay distribution, constructing a set of

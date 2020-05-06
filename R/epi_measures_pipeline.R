@@ -8,7 +8,7 @@
 #' @inheritParams estimate_R0
 #' @return
 #' @export
-#' @importFrom purrr safely map_dbl map pmap
+#' @importFrom purrr safely map_dbl map pmap map_lgl
 #' @importFrom HDInterval hdi
 #' @importFrom future.apply future_lapply
 #' @importFrom data.table setDT setorder rbindlist copy
@@ -21,7 +21,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
                                   rt_windows = 7, rate_window = 7,
                                   rt_prior = NULL, forecast_model = NULL,
                                   horizon = NULL, verbose = TRUE) {
-
+ 
   ## Estimate time-varying R0
   safe_R0 <- purrr::safely(EpiNow::estimate_R0)
   
@@ -106,7 +106,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
   
   cases_forecast <- purrr::map(estimates, ~ .$cases)
     
-  if (!(is.null(cases_forecast) | length(cases_forecast) == 0)) {
+  if (any(purrr::map_lgl(cases_forecast, ~ !is.null(.)))) {
     
     ## Clean up case forecasts
     cases_forecast <-  data.table::rbindlist(cases_forecast)

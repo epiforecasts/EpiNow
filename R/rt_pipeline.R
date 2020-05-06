@@ -15,6 +15,8 @@
 #' @param min_forecast_cases Numeric, defaults to 200. The minimum number of cases required in the last 7 days
 #' of data in order for a forecast to be run. This prevents spurious forecasts based on highly uncertain Rt estimates.
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
+#' @param dt_threads Numeric, the number of data.table threads to use. Set internally to avoid issue when running in parallel.
+#' Defaults to 1 thread.
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
 #' @return NULL
 #' @export
@@ -35,11 +37,11 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         max_delay = 120, verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, 
                         save_plots = TRUE, nowcast_lag = 4, incubation_period = 5, forecast_model = NULL,
                         horizon = 0, report_forecast = FALSE, report_delay_fns = NULL,
-                        onset_modifier = NULL, min_forecast_cases = 200) {
+                        onset_modifier = NULL, min_forecast_cases = 200, dt_threads = 1) {
  
  
 # Convert input to DT -----------------------------------------------------
-
+  data.table::setDTthreads(threads = dt_threads)
   cases <- data.table::setDT(cases)
   imported_cases <- data.table::setDT(imported_cases)
   linelist <- data.table::setDT(linelist)
