@@ -6,19 +6,23 @@
 #'
 #' @return A character variable.
 #' @export
-#' @importFrom dplyr case_when
 #' @examples
 #' 
 #' var <- seq(0.01, 1, 0.01)
 #' 
+#' var
+#'  
 #' map_prob_change(var)
 map_prob_change <- function(var) {
   
-  dplyr::case_when(var < 0.05 ~ "Increasing",
-                   var < 0.2 ~  "Likely increasing", 
-                   var < 0.8 ~ "Unsure", 
-                   var < 0.95 ~ "Likely decreasing",
-                   var <= 1 ~ "Decreasing") %>% 
-    factor(levels = c("Increasing", "Likely increasing", "Unsure", 
-                      "Likely decreasing", "Decreasing"))
+  var <- ifelse(var < 0.05, "Increasing",
+                 ifelse(var < 0.2, "Likely increasing",
+                         ifelse(var < 0.8, "Unsure",
+                                ifelse(var < 0.95, "Likely decreasing",
+                                       "Decreasing"))))
+  
+  var <- factor(var, levels = c("Increasing", "Likely increasing", "Unsure", 
+                                "Likely decreasing", "Decreasing"))
+
+  return(var)
 }

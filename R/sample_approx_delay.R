@@ -39,7 +39,9 @@
 #'                    delay_fn = delay_fn)$cases))) 
 #'                    
 #' total_onsets
-#'                        
+#'  
+#'                    
+#' ## Map from onset cases to reported                  
 #' reports <- sample_approx_delay(reported_cases = cases,
 #'                               delay_fn = delay_fn,
 #'                               direction = "report")
