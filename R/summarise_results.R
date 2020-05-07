@@ -28,8 +28,6 @@ summarise_results <- function(regions = NULL,
                                date = target_date, result_dir = results_dir)
    
 
-
-   
    ## Make reporting table
   estimates <- data.table::data.table(
     Region = names(regions),

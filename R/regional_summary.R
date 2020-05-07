@@ -19,19 +19,13 @@
 #' 
 #' \dontrun{
 #' 
-#'## Example asssumes that CovidGlobalNow (github.com/cmmid/CovidGlobalNow) is  
+#'## Example asssumes that CovidGlobalNow (github.com/epiforecasts/covid-global) is  
 #'## in the directory above the root.
-#' regional_summary(results_dir = "../CovidGlobalNow/results",
-#'                  summary_dir = "../CovidGlobalNow/summary",
+#' regional_summary(results_dir = "../covid-global/national",
+#'                  summary_dir = "../covid-global/national-summary",
 #'                  target_date = "2020-03-19",
-#'                  region_scale = "Country/Region")
+#'                  region_scale = "Country")
 #'
-#'## Example asssumes that CovidItalyNow (github.com/cmmid/CovidItalyNow) is  
-#'## in the directory above the root.
-#' regional_summary(results_dir = "../CovidItalyNow/results",
-#'                  summary_dir = "../CovidItalyNow/summary",
-#'                  target_date = "2020-03-19",
-#'                  region_scale = "Region")
 #' }
 #' 
 
