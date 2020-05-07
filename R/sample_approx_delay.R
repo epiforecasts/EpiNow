@@ -15,14 +15,31 @@
 #' 
 #' cases <- data.table::as.data.table(EpiSoon::example_obs_cases) 
 #' 
-#' cases <- cases[, confirm := cases] 
+#' cases <- cases[, confirm := as.integer(cases)] 
+#' 
+#' ## Reported case distribution
+#' print(cases)
+#' 
+#' ## Total cases
+#' sum(cases$confirm)
 #' 
 #' delay_fn <- function(n, dist, cum) {
-#'    dgamma(n, 2, 1)}
+#'    pgamma(n + 0.5, 2, 1) - pgamma(n - 0.49999, 2, 1)}
 #' 
 #' onsets <- sample_approx_delay(reported_cases = cases,
 #'                               delay_fn = delay_fn)
-#'                               
+#'    
+#' ## Estimated onset distribution
+#' print(onsets)
+#'   
+#' ## Check that sum is equal to reported cases
+#' total_onsets <- median(
+#'    purrr::map_dbl(1:100, 
+#'                   ~ sum(sample_approx_delay(reported_cases = cases,
+#'                    delay_fn = delay_fn)$cases))) 
+#'                    
+#' total_onsets
+#'                        
 #' reports <- sample_approx_delay(reported_cases = cases,
 #'                               delay_fn = delay_fn,
 #'                               direction = "report")
@@ -62,12 +79,17 @@ sample_approx_delay <- function(reported_cases = NULL,
                                                              by = "days")
   }
   
+  ## Summarises movements and sample for placement of non-integer cases
+  case_sum <- direction_fn(rowSums(onset_cases))
+  floor_case_sum <- floor(case_sum)
+  sample_cases <- floor_cases_sum + 
+    data.table::fifelse((runif(1:length(case_sum)) < (case_sum - floor_case_sum)),
+                        1, 0)
+  
   ## Summarise imputed onsets and build output data.table
   onset_cases <- data.table::data.table(
     date = dates,
-    ## This step will round to zero days when cases < 0 on average
-    ## This can lead to a slight reduction in case count early on
-    cases = as.integer(direction_fn(rowSums(onset_cases)))
+    cases = sample_cases
   )
   
   ## Filter out all zero cases until first recorded case

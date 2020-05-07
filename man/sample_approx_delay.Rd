@@ -37,14 +37,31 @@ Approximate Sampling Reporting Delays using Reported Case Counts
 
 cases <- data.table::as.data.table(EpiSoon::example_obs_cases) 
 
-cases <- cases[, confirm := cases] 
+cases <- cases[, confirm := as.integer(cases)] 
+
+## Reported case distribution
+print(cases)
+
+## Total cases
+sum(cases$confirm)
 
 delay_fn <- function(n, dist, cum) {
-   dgamma(n, 2, 1)}
+   pgamma(n + 0.5, 2, 1) - pgamma(n - 0.49999, 2, 1)}
 
 onsets <- sample_approx_delay(reported_cases = cases,
                               delay_fn = delay_fn)
-                              
+   
+## Estimated onset distribution
+print(onsets)
+  
+## Check that sum is equal to reported cases
+total_onsets <- median(
+   purrr::map_dbl(1:100, 
+                  ~ sum(sample_approx_delay(reported_cases = cases,
+                   delay_fn = delay_fn)$cases))) 
+                   
+total_onsets
+                       
 reports <- sample_approx_delay(reported_cases = cases,
                               delay_fn = delay_fn,
                               direction = "report")
