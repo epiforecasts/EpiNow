@@ -13,8 +13,9 @@
 #' @importFrom data.table data.table setorder
 #' @examples
 #' 
-#' cases <- EpiSoon::example_obs_cases %>% 
-#' dplyr::rename(confirm = cases)
+#' cases <- data.table::as.data.table(EpiSoon::example_obs_cases) 
+#' 
+#' cases <- cases[, confirm := cases] 
 #' 
 #' delay_fn <- function(n, dist, cum) {
 #'    dgamma(n, 2, 1)}

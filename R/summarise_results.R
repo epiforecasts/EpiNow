@@ -8,9 +8,7 @@
 #' for this date.
 #' 
 #' @importFrom purrr partial map_chr map_dbl map_chr
-#' @importFrom dplyr select mutate pull arrange desc rename_at
-#' @importFrom tidyr gather
-#' @importFrom tibble tibble
+#' @importFrom data.table setorderv melt
 #' @importFrom stringr str_split
 #' @return
 #' @export
@@ -33,69 +31,68 @@ summarise_results <- function(regions = NULL,
 
    
    ## Make reporting table
-  estimates <- tibble::tibble(
+  estimates <- data.table::data.table(
     Region = names(regions),
-    `New confirmed cases by infection date` = regions %>% 
-      purrr::map(~ load_data("current_cases.rds", .)),
-    `Expected change in daily cases` = regions %>% 
-      purrr::map_dbl(~ load_data("prob_control_latest.rds", .)) %>% 
-      map_prob_change(),
-    `Effective reproduction no.` =  regions %>% 
-      purrr::map(~ load_data("bigr_eff_latest.rds", .)),
-    `Doubling/halving time (days)` = regions %>% 
-      purrr::map_chr(~ load_data("doubling_time_latest.rds", .))) 
+    `New confirmed cases by infection date` = 
+      purrr::map(regions, ~ load_data("current_cases.rds", .)),
+    `Expected change in daily cases` = map_prob_change(
+      purrr::map_dbl(regions, ~ load_data("prob_control_latest.rds", .))
+      ),
+    `Effective reproduction no.` =
+      purrr::map(regions, ~ load_data("bigr_eff_latest.rds", .)),
+    `Doubling/halving time (days)` = 
+      purrr::map_chr(regions, ~ load_data("doubling_time_latest.rds", .))) 
    
   
   ## Make estimates numeric
-  numeric_estimates <- estimates %>% 
-    dplyr::select(region = Region, 
-                  `New confirmed cases by infection date`, 
-                  `Effective reproduction no.`, 
-                  `Expected change in daily cases`) %>% 
-    tidyr::gather(value = "value", key = "metric", -region, 
-                  -`Expected change in daily cases`) %>% 
-    dplyr::mutate(
-      lower = purrr::map_dbl(value, ~ .[[1]]$lower),
-      upper = purrr::map_dbl(value, ~ .[[1]]$upper),
-      mid_lower = purrr::map_dbl(value, ~ .[[1]]$mid_lower),
-      mid_upper = purrr::map_dbl(value, ~ .[[1]]$mid_upper)) %>% 
-    dplyr::mutate(metric = metric %>% 
-                    factor(levels = c("New confirmed cases by infection date",
-                                      "Effective reproduction no.")))
+  numeric_estimates <- estimates[,
+                                 .(
+                                   region = Region, 
+                                   `New confirmed cases by infection date`, 
+                                   `Effective reproduction no.`, 
+                                   `Expected change in daily cases`  
+                                 )] 
+  
+  numeric_estimates <- 
+    data.table::melt(numeric_estimates,
+                     measure.vars = c("New confirmed cases by infection date",
+                                      "Effective reproduction no."),
+                     variable.name = "metric", value.name = "value")
 
-  
-  numeric_estimates <- numeric_estimates %>% 
-    dplyr::mutate(
-      region = region  %>% 
-        factor(levels = numeric_estimates %>% 
-                 dplyr::arrange(desc(upper)) %>% 
-                 dplyr::pull(region) %>% 
-                 unique())
-    )
-  
-  
-  estimates <- estimates %>% 
-    dplyr::mutate(
-      `New confirmed cases by infection date` =
-        `New confirmed cases by infection date` %>% 
-        purrr::map(~ .[[1]]) %>% 
-        EpiNow::make_conf(digits = 0),
-      `Effective reproduction no.` = 
-        `Effective reproduction no.` %>% 
-        purrr::map(~ .[[1]]) %>% 
-        EpiNow::make_conf(digits = 1)
-    )
+  numeric_estimates  <-  numeric_estimates[,
+     `:=`(
+       lower = purrr::map_dbl(value, ~ .[[1]]$lower),
+       upper = purrr::map_dbl(value, ~ .[[1]]$upper),
+       mid_lower = purrr::map_dbl(value, ~ .[[1]]$mid_lower),
+       mid_upper = purrr::map_dbl(value, ~ .[[1]]$mid_upper)
+     )][,
+       metric := metric %>% 
+         factor(levels = c("New confirmed cases by infection date",
+                           "Effective reproduction no."))]
   
   ## Rank countries by incidence countires
-  high_inc_regions <- numeric_estimates %>% 
-    dplyr::arrange(dplyr::desc(upper)) %>% 
-    dplyr::pull(region) %>% 
-    unique() %>% 
-    as.character() 
+  high_inc_regions <- unique(
+    data.table::setorderv(numeric_estimates, 
+                         cols = "upper", order = -1)$region)
+    
+  numeric_estimates <- numeric_estimates[,
+                          region :=  
+                            factor(region, levels = high_inc_regions)]
+  
+  estimates <- 
+    estimates[,
+              `:=`(
+                   `New confirmed cases by infection date` = EpiNow::make_conf(
+                     purrr::map(`New confirmed cases by infection date`, ~ .[[1]]),
+                     digits = 0),
+                   `Effective reproduction no.` = EpiNow::make_conf(
+                     purrr::map(`Effective reproduction no.`, ~ .[[1]]),
+                      digits = 1))]
   
   
-  estimates <- estimates %>% 
-    dplyr::rename_at(.vars = "Region", ~ region_scale)
+  
+  estimates <- 
+    estimates[, (region_scale) := "Region"]
   
   out <- list(estimates, numeric_estimates, high_inc_regions)
   

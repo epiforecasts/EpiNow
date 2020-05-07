@@ -8,15 +8,15 @@
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_line geom_ribbon geom_vline xlab ylab expand_limits
 #' @importFrom cowplot theme_cowplot
-#' @importFrom dplyr filter
+#' @importFrom data.table as.data.table
 #' @examples
 #'
 #'
 plot_report_delay <- function(linelist, cutoff, drop_from_plot) {
 
-  linelist <- linelist %>%
-    dplyr::filter(date_confirm >= drop_from_plot)
-
+  linelist <-
+    data.table::as.data.table(linelist)[date_confirm >= drop_from_plot]
+    
   ## distribution of delays over time
   p <- ggplot(linelist, aes(x = date_confirm, y = report_delay)) +
     geom_jitter(width = 0.2, alpha = 0.4) +

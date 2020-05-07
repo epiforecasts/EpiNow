@@ -9,7 +9,6 @@
 #' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme guides labs expand_limits guide_legend element_blank scale_color_manual .data
 #' @importFrom cowplot theme_cowplot panel_border
 #' @importFrom patchwork plot_layout
-#' @importFrom dplyr filter
 #'
 #' @examples
 #' 
@@ -19,8 +18,8 @@ plot_summary <- function(summary_results, x_lab = "Region", log_cases = FALSE) {
   
   ## generic plotting function
   inner_plot <- function(df) {
-    df %>% 
-      ggplot2::ggplot(ggplot2::aes(x = region, col = `Expected change in daily cases`)) +
+      ggplot2::ggplot(df, ggplot2::aes(x = region, 
+                                       col = `Expected change in daily cases`)) +
       ggplot2::geom_linerange(aes(ymin = lower, ymax = upper), size = 4, alpha = 0.7) +
       ggplot2::geom_linerange(aes(ymin = mid_lower, ymax = mid_upper), size = 4, alpha = 1) +
       ggplot2::geom_hline(yintercept = 1, linetype = 2) +
@@ -36,9 +35,8 @@ plot_summary <- function(summary_results, x_lab = "Region", log_cases = FALSE) {
   }
   
   ## cases plot
-  cases_plot <- summary_results %>% 
-    dplyr::filter(metric %in% "New confirmed cases by infection date") %>% 
-    inner_plot() +
+  cases_plot <-  
+    inner_plot(summary_results[metric %in% "New confirmed cases by infection date"]) +
     ggplot2::labs(x = x_lab, y = "") +
     ggplot2::expand_limits(y = 0) +
     ggplot2::theme(axis.title.x = ggplot2::element_blank(),
@@ -51,17 +49,15 @@ plot_summary <- function(summary_results, x_lab = "Region", log_cases = FALSE) {
  }
     
   ## rt plot
-  rt_plot <- summary_results %>% 
-    dplyr::filter(metric %in% "Effective reproduction no.") %>% 
-    {
-      inner_plot(.) +
+  rt_data <- summary_results[metric %in% "Effective reproduction no."] 
+  rt_plot <- 
+    inner_plot(rt_data) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
         ggplot2::theme(legend.position = "bottom") +
         ggplot2::guides(col = ggplot2::guide_legend(nrow = 2)) +
         ggplot2::labs(x = x_lab, y = "") +
-        ggplot2::expand_limits(y = c(0, min(max(.$upper), 3)))
-      
-    }
+        ggplot2::expand_limits(y = c(0, min(max(rt_data$upper), 3)))
+
 
   ##join plots together
   plot <- cases_plot + rt_plot + patchwork::plot_layout(ncol = 1)

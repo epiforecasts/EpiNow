@@ -12,9 +12,7 @@
 #' @inheritParams summarise_results
 #' @inheritParams plot_summary
 #' @inheritParams summarise_to_csv
-#' @importFrom stringr str_replace_all str_to_title
-#' @importFrom purrr partial map_chr
-#' @importFrom dplyr rename
+#' @importFrom purrr map_chr
 #' @importFrom ggplot2 coord_cartesian guides guide_legend ggsave ggplot_build
 #' @importFrom cowplot get_legend
 #' @examples
@@ -62,8 +60,8 @@ if (target_date %in% "latest") {
 }
 
 ## Get latest date
-latest_date <- regions %>% 
-  purrr::map_chr(~ as.character(
+latest_date <- 
+  purrr::map_chr(regions, ~ as.character(
     EpiNow::load_nowcast_result("latest_date.rds", region = .,
                                 target_date, results_dir))) %>% 
   as.Date() %>% 
@@ -81,18 +79,15 @@ results <- EpiNow::summarise_results(regions, results_dir,
 message("Saving results summary table")
 
 force_factor <- function(df) {
-  df %>% 
-    dplyr::mutate(`Expected change in daily cases` =
-                    factor(`Expected change in daily cases`,
-                           levels = c("Increasing", "Likely increasing", "Unsure", 
-                                      "Likely decreasing", "Decreasing")))
+  df[,`Expected change in daily cases` :=
+                     factor(`Expected change in daily cases`,
+                            levels = c("Increasing", "Likely increasing", "Unsure", 
+                                       "Likely decreasing", "Decreasing"))] 
   
 }
-results$table <- results$table %>% 
-  force_factor()
+results$table <- force_factor(results$table)
 
-results$data <- results$data %>% 
-  force_factor()
+results$data <- force_factor(results$data)
 
 saveRDS(results$table, file.path(summary_dir, "summary_table.rds"))
 saveRDS(results$data, file.path(summary_dir, "summary_data.rds"))
@@ -102,15 +97,19 @@ saveRDS(results$data, file.path(summary_dir, "summary_data.rds"))
 message("Saving Rt and case csvs")
 
 
-EpiNow::summarise_to_csv(results_dir = results_dir, summary_dir = summary_dir, 
-                         type = csv_region_label, incubation_shift = incubation_shift, 
+EpiNow::summarise_to_csv(results_dir = results_dir, 
+                         summary_dir = summary_dir, 
+                         type = csv_region_label,
+                         incubation_shift = incubation_shift, 
                          date = target_date) 
 
 
 message("Plotting results summary")
 
 ## Summarise cases and Rts
-summary_plot <- EpiNow::plot_summary(results$data, x_lab = region_scale, log_cases = log_cases)
+summary_plot <- EpiNow::plot_summary(results$data,
+                                     x_lab = region_scale, 
+                                     log_cases = log_cases)
 
 
 suppressWarnings(
@@ -128,8 +127,8 @@ message("Plotting summary Rt and case plots")
 ## Plot highest incidence countries
 high_cases_rt_plot <- suppressWarnings(
   suppressMessages(
-    regions[names(regions) %in% results$regions_by_inc[1:6]] %>%
-      plot_grid(plot_object = "bigr_eff_plot.rds",
+      plot_grid(regions[names(regions) %in% results$regions_by_inc[1:6]], 
+                plot_object = "bigr_eff_plot.rds",
                 results_dir, target_date = target_date, ncol = 2))
 )
 
@@ -165,8 +164,8 @@ suppressWarnings(
 
 high_cases_plot <- suppressWarnings(
   suppressMessages(
-    regions[names(regions) %in% results$regions_by_inc[1:6]] %>%
-  EpiNow::plot_grid(plot_object = "plot_cases.rds",
+  EpiNow::plot_grid(regions[names(regions) %in% results$regions_by_inc[1:6]],
+                    plot_object = "plot_cases.rds",
             results_dir, target_date = target_date, ncol = 2) &
   ggplot2::scale_x_date(date_breaks = "1 week",
                                  date_labels = "%b %d",
@@ -190,8 +189,7 @@ plots_per_row <- ifelse(length(regions) < 60, 3, 5)
 ## Plot all countries
 rt_plot <- suppressWarnings(
   suppressMessages(
-    regions %>%
-      EpiNow::plot_grid(plot_object = "bigr_eff_plot.rds",
+      EpiNow::plot_grid(regions, plot_object = "bigr_eff_plot.rds",
                         results_dir, target_date = target_date, ncol = plots_per_row) &
       ggplot2::coord_cartesian(ylim = c(0, 3)) &
       ggplot2::scale_x_date(date_breaks = "1 week",
@@ -207,8 +205,8 @@ suppressWarnings(
   
 ))
 
-cases_plot <- regions %>%
-  plot_grid(plot_object = "plot_cases.rds",
+cases_plot <- 
+  plot_grid(regions, plot_object = "plot_cases.rds",
             results_dir, target_date = target_date, ncol = plots_per_row) &
   ggplot2::theme(legend.position = ifelse(legend, "bottom", "none"))
 
