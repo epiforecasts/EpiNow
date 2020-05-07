@@ -25,11 +25,15 @@
 #'
 #'
 #' ## Example with gamma and a larger sample
-#' delays <- rgamma(50, 1, 2)
+#' delays <- rgamma(100, 4, 1)
 #'
-#' get_delay_dist(delays, sample = 10, bootstraps = 2)
+#' out <- get_delay_dist(delays, sample = 10, bootstraps = 2)
 #'
-#'
+#' ## Inspect
+#' out
+#' 
+#' ## Inspect one parameter
+#' out$params[[1]]
 get_delay_dist <- function(delays, verbose = FALSE, samples = 1,
                                 bootstraps = 1, bootstrap_samples = 250) {
 
@@ -91,8 +95,9 @@ get_delay_dist <- function(delays, verbose = FALSE, samples = 1,
       delay_alpha <- sample(rstan::extract(fit_gam)$alpha, samples)
       delay_beta <- sample(rstan::extract(fit_gam)$beta, samples)
       
-      out <- out[, params := purrr::map2(delay_alpha, delay_beta, ~ list(alpha = .x, beta = .y))]
-    }
+      out <- out[, params := list(purrr::map2(delay_alpha, delay_beta,
+                                         ~ list(alpha = .x, beta = .y)))]
+    } 
     
     ## Unnest parameter lists
     out <- out[, .(params = purrr::flatten(params)),

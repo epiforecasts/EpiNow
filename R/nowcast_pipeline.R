@@ -67,7 +67,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
     ][date_confirmation <= date_to_cast]
     
     ## Fit the delay distribution and draw posterior samples
-    delay_defs <- EpiNow::get_delay_dist(filtered_linelist$delay_confirmation, 
+    delay_defs <- EpiNow::get_delay_dist(delays = filtered_linelist$delay_confirmation, 
                                          samples = samples,
                                          bootstraps = bootstraps, 
                                          bootstrap_samples = bootstrap_samples)
@@ -92,7 +92,6 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
       ## Filter out imported cases and repeat linelist step
       imported_linelist <- data.table::copy(linelist)[import_status == "imported"]
 
-      
       
       if (nrow(imported_linelist) > 0) {
         imported_linelist_by_day <- EpiNow::split_linelist_by_day(imported_linelist)

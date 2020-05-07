@@ -13,7 +13,8 @@
 #' @examples
 #'
 #'
-sample_delay <- function(linelist = NULL, delay_fn = NULL, earliest_allowed_onset = NULL) {
+sample_delay <- function(linelist = NULL, delay_fn = NULL,
+                         earliest_allowed_onset = NULL) {
 
 
 ## Sample onsets for all data at once

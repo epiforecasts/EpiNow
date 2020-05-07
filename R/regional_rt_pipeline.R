@@ -32,10 +32,10 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
                                  regions_in_parallel = TRUE,
                                  verbose = FALSE,
                                  samples = 1000, ...) {
-  
+   
   #reset samples if report delays are passed in
-  if (!is.null(report_delay_fns)) {
-    sample <- length(report_delay_fns)
+  if (!is.null(delay_defs)) {
+    sample <- length(delay_defs)
     message("Report delays have been specified so samples is ignored")
   }
   
@@ -85,9 +85,9 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
       
       ## Fit the delay distribution
       delay_defs <- 
-        EpiNow::get_delay_sample_fn(linelist = linelist$report_delay,
-                                    samples = samples, bootstraps = bootstraps, 
-                                    bootstrap_samples = bootstrap_samples)  
+        EpiNow::get_delay_dist(delays = linelist$report_delay,
+                               samples = samples, bootstraps = bootstraps, 
+                               bootstrap_samples = bootstrap_samples)  
       
     }
     
