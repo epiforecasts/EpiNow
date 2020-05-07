@@ -84,7 +84,7 @@ sample_approx_delay <- function(reported_cases = NULL,
   ## Summarises movements and sample for placement of non-integer cases
   case_sum <- direction_fn(rowSums(onset_cases))
   floor_case_sum <- floor(case_sum)
-  sample_cases <- floor_cases_sum + 
+  sample_cases <- floor_case_sum + 
     data.table::fifelse((runif(1:length(case_sum)) < (case_sum - floor_case_sum)),
                         1, 0)
   
