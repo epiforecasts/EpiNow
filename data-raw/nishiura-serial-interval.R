@@ -1,5 +1,5 @@
 ## Traces as here: https://github.com/aakhmetz/nCoVSerialInterval2020/blob/master/scripts/A1.%20Stan%20simulations.ipynb
-traces <- readr::read_csv("data-raw/nishiura-lognormal-truncated.csv")
+traces <- data.table::fread("data-raw/nishiura-lognormal-truncated.csv")
 
 
 ## Reparam traces as here: https://github.com/aakhmetz/nCoVSerialInterval2020/blob/master/scripts/A1.%20Stan%20simulations.ipynb

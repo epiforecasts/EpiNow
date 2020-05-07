@@ -49,8 +49,7 @@ Imports:
     rnaturalearth,
     HDInterval,
     loo,
-    stringr,
-    readr
+    stringr
 Suggests:
     knitr,
     kableExtra,

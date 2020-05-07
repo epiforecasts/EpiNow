@@ -8,8 +8,7 @@
 #' @inheritParams get_timeseries
 #' @return Nothing is returned
 #' @export
-#' @importFrom data.table as.data.table setnames
-#' @importFrom readr write_csv
+#' @importFrom data.table as.data.table setnames fwrite
 #' @examples
 #' 
 #' 
@@ -32,7 +31,7 @@ summarise_to_csv <- function(results_dir = NULL, summary_dir = NULL,
   data.table::setnames(rt, "region", type)
   
   
-  readr::write_csv(rt, paste0(summary_dir, "/rt.csv"))
+  data.table::fwrite(rt, paste0(summary_dir, "/rt.csv"))
   
   ## Clean and save case estimates
   cases <- data.table::as.data.table(timeseries$incidence)[type %in% "nowcast", 
@@ -45,7 +44,7 @@ summarise_to_csv <- function(results_dir = NULL, summary_dir = NULL,
   data.table::setnames(cases, "region", type)
   
   
-  readr::write_csv(cases, paste0(summary_dir, "/cases.csv"))
+  data.table::fwrite(cases, paste0(summary_dir, "/cases.csv"))
   
   return(invisible(NULL))
 }
