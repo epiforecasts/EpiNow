@@ -28,7 +28,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
                                  case_limit = 40, onset_modifier = NULL,
                                  bootstraps = 1, 
                                  bootstrap_samples = 100,
-                                 report_delay_fns = NULL,
+                                 delay_defs = NULL,
                                  regions_in_parallel = TRUE,
                                  verbose = FALSE,
                                  samples = 1000, ...) {
@@ -78,14 +78,14 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   ## regional pipelines
   regions <- unique(cases$region)
   
-  if (is.null(report_delay_fns)) {
+  if (is.null(delay_defs)) {
     if (!regional_delay) {
-      message("Using a national linelist so not merging onsets and fitting a single reporting delay")
+      message("Fitting an overall reporting delay")
       merge_onsets <- FALSE
       
       ## Fit the delay distribution
-      report_delay_fns <- 
-        EpiNow::get_delay_sample_fn(linelist = linelist[, delay_confirmation := report_delay],
+      delay_defs <- 
+        EpiNow::get_delay_sample_fn(linelist = linelist$report_delay,
                                     samples = samples, bootstraps = bootstraps, 
                                     bootstrap_samples = bootstrap_samples)  
       
@@ -94,7 +94,6 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   }
 
   message("Running pipelines by region")
-  
   
   ## Function to run the pipeline in a region
   run_region <- function(target_region, ...) { 
@@ -123,7 +122,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
       target_date = target_date, 
       merge_actual_onsets = merge_onsets, 
       samples = samples, 
-      report_delay_fns = report_delay_fns,
+      delay_defs = delay_defs,
       verbose = verbose,
       bootstraps = bootstraps,
       bootstrap_samples = bootstrap_samples,

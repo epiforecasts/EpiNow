@@ -25,7 +25,7 @@ sample_delay <- function(linelist = NULL, delay_fn = NULL, earliest_allowed_onse
       is.na(date_onset), date_onset := date_onset_sample][,list(date_onset, date_report)]
                                                                                 
   if (!is.null(earliest_allowed_onset)) {
-    out <-out[date_onset >= as.Date(earliest_allowed_onset)]
+    out <- out[date_onset >= as.Date(earliest_allowed_onset)]
 
   }
 

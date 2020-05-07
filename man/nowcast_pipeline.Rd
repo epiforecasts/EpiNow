@@ -16,7 +16,7 @@ nowcast_pipeline(
   delay_only = FALSE,
   verbose = FALSE,
   samples = 1,
-  report_delay_fns = NULL,
+  delay_defs = NULL,
   bootstraps = 1,
   bootstrap_samples = 1000,
   nowcast_lag = 4,
@@ -45,7 +45,8 @@ when case numbers are low. Useful for high cases counts as decouples run time an
 
 \item{samples}{Numeric, the number of samples to take.}
 
-\item{report_delay_fns}{List of functions as produced by \code{EpiNow::get_delay_sample_fn}}
+\item{delay_defs}{A data.table that defines the delay distributions (model, parameters and maximum delay for each model).
+See \code{get_delay_dist} for an example of the structure.}
 
 \item{nowcast_lag}{Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.}
 

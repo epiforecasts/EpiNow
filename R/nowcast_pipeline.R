@@ -10,7 +10,8 @@
 #' @param delay_only Logical, defaults to `FALSE`. Should estimates be made based on estimated onset dates without nowcasting.
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
 #' @param nowcast_lag Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.
-#' @param report_delay_fns List of functions as produced by `EpiNow::get_delay_sample_fn`
+#' @param delay_defs A data.table that defines the delay distributions (model, parameters and maximum delay for each model). 
+#' See `get_delay_dist` for an example of the structure.
 #' @param delay_sub_samples Numeric, defaults to 1. When set to 1 all data is used to fit a single delay
 ##' distribution where uncertainty is only propagated in the uncertainty of the fit. If set to more than one
 ##' the supplied delay data is sampled this many times (with samples equalling the overall number of samples divided 
@@ -40,14 +41,14 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              delay_only = FALSE,
                              verbose = FALSE,
                              samples = 1,
-                             report_delay_fns = NULL,
+                             delay_defs = NULL,
                              bootstraps = 1, bootstrap_samples = 1000,
                              nowcast_lag = 4,
                              onset_modifier = NULL) {
   
 # Fit delay distribution --------------------------------------------------
  
-  if (is.null(report_delay_fns)) {
+  if (is.null(delay_defs)) {
     
     ## Get the distribution of reporting delays
     ## Look at reporting delays over the two weeks
@@ -66,12 +67,12 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
     ][date_confirmation <= date_to_cast]
     
     ## Fit the delay distribution and draw posterior samples
-    fitted_delay_fn <- EpiNow::get_delay_sample_fn(filtered_linelist, samples = samples,
-                                                   bootstraps = bootstraps, 
-                                                   bootstrap_samples = bootstrap_samples)
+    delay_defs <- EpiNow::get_delay_dist(filtered_linelist$delay_confirmation, 
+                                         samples = samples,
+                                         bootstraps = bootstraps, 
+                                         bootstrap_samples = bootstrap_samples)
     
   }else{
-    fitted_delay_fn <- report_delay_fns
     merge_actual_onsets <- FALSE
   }
 
@@ -148,8 +149,17 @@ if (!is.null(onset_modifier)) {
  
 # Nowcasting for each samples or vector of samples ------------------------
 
-  nowcast_inner <- function(sample_delay_fn = NULL, verbose = NULL) {
+  nowcast_inner <- function(delay_def = NULL, verbose = NULL) {
     
+    ## Define sample delay fn
+    sample_delay_fn <- function(n, ...) {
+      EpiNow::delay_dist_skel(n = n, 
+                              model = delay_def$model, 
+                              params = delay_def$params,
+                              max_delay = delay_def$max_delay, 
+                              ...)
+      }
+  
     if (!approx_delay) {
       ## Sample onset dates using reporting delays
       if (verbose) {
@@ -292,7 +302,7 @@ if (!is.null(onset_modifier)) {
     message("Nowcasting using fitted delay distributions")
   }
 
-  out <- future.apply::future_lapply(fitted_delay_fn,
+  out <- future.apply::future_lapply(split(delay_defs[, index := 1:.N], by = "index"),
                                      nowcast_inner, 
                                      verbose = FALSE,
                                      future.scheduling = 20,

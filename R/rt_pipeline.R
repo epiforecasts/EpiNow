@@ -36,7 +36,7 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         approx_delay = FALSE, bootstraps = 1, bootstrap_samples = 100,
                         max_delay = 120, verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, 
                         save_plots = TRUE, nowcast_lag = 4, incubation_period = 5, forecast_model = NULL,
-                        horizon = 0, report_forecast = FALSE, report_delay_fns = NULL,
+                        horizon = 0, report_forecast = FALSE, delay_defs = NULL,
                         onset_modifier = NULL, min_forecast_cases = 200, dt_threads = 1) {
  
  
@@ -127,13 +127,14 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
     earliest_allowed_onset = earliest_allowed_onset,
     merge_actual_onsets = merge_actual_onsets, samples = samples,
     delay_only = delay_only, nowcast_lag = nowcast_lag,
-    verbose = verbose, report_delay_fns = report_delay_fns,
+    verbose = verbose, delay_defs = delay_defs,
     bootstraps = bootstraps, bootstrap_samples = bootstrap_samples,
     onset_modifier = onset_modifier, approx_delay = approx_delay,
     max_delay = max_delay)
 
   saveRDS(nowcast,  paste0(target_folder, "/nowcast.rds"))
-
+  saveRDS(delay_defs, paste0(target_folder, "/delays.rds"))
+  
   # Estimate time-varying parameters ----------------------------------------
 
   epi_estimates <-

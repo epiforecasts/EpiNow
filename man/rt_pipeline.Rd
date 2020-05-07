@@ -33,7 +33,7 @@ rt_pipeline(
   forecast_model = NULL,
   horizon = 0,
   report_forecast = FALSE,
-  report_delay_fns = NULL,
+  delay_defs = NULL,
   onset_modifier = NULL,
   min_forecast_cases = 200,
   dt_threads = 1
@@ -92,7 +92,8 @@ future Rt values. An example of the required structure is: \code{function(ss, y)
 
 \item{report_forecast}{Logical, defaults to \code{FALSE}. Should the forecast be reported.}
 
-\item{report_delay_fns}{List of functions as produced by \code{EpiNow::get_delay_sample_fn}}
+\item{delay_defs}{A data.table that defines the delay distributions (model, parameters and maximum delay for each model).
+See \code{get_delay_dist} for an example of the structure.}
 
 \item{onset_modifier}{data.frame containing a \code{date} variable and a function \code{modifier} variable. This is used
 to modify estimated cases by onset date. \code{modifier} must be a function that returns a proportion when called
