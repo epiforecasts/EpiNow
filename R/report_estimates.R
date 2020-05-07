@@ -139,30 +139,28 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   # Pull out and plot big R -------------------------------------------------
   
   extract_bigr_values <- function(max_var, sel_var) {
-    max_var <- dplyr::enquo(max_var)
-    sel_var <- dplyr::enquo(sel_var)
     
-    out <- EpiNow::pull_max_var(bigr_estimates, !!max_var,
-                                !!sel_var, type_selected = "nowcast")
+    out <- EpiNow::pull_max_var(bigr_estimates, max_var,
+                                sel_var, type_selected = "nowcast")
     
     return(out)
   }
   
   ## Pull summary measures
-  R_max_estimate <- extract_bigr_values(median, R0_range)
+  R_max_estimate <- extract_bigr_values("median", "R0_range")
   
   
   saveRDS(R_max_estimate,
           paste0(target_folder, "/bigr_eff_max_estimate.rds"))
   
-  R_latest <- extract_bigr_values(date, R0_range)
+  R_latest <- extract_bigr_values("date", "R0_range")
   
   saveRDS(R_latest,
           paste0(target_folder, "/bigr_eff_latest.rds"))
   
   ## Pull out probability of control
-  prob_control <- extract_bigr_values(date, prob_control) %>%
-    signif(2)
+  prob_control <- extract_bigr_values("date", "prob_control")
+  prob_control <-  signif( prob_control, 2)
   
   saveRDS(prob_control,
           paste0(target_folder, "/prob_control_latest.rds"))
@@ -318,13 +316,15 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     ggplot2::coord_cartesian(ylim = c(-0.5, 0.5)) +
     ggplot2::labs(tag = "A")
   
-  plot_doublingtime <- plot_littler_data %>%
-    plot_littler_fn(plot_var = "Doubling/halving time (days)") +
+  plot_doublingtime <-
+    plot_littler_fn(plot_littler_data, 
+                    plot_var = "Doubling/halving time (days)") +
     ggplot2::coord_cartesian(ylim=c(-40, 40)) +
     ggplot2::labs(tag = "B")
   
-  plot_fit <- plot_littler_data %>%
-    plot_littler_fn(plot_var = "Adjusted R-squared") +
+  plot_fit <-  
+    plot_littler_fn(plot_littler_data, 
+                    plot_var = "Adjusted R-squared") +
     ggplot2::labs(tag = "C")
   
   ## Combine plots

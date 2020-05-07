@@ -34,9 +34,12 @@ A \code{ggplot2} object containing a global map.
 }
 \description{
 This general purpose function can be used to generate a global map for a single variable. It has few defaults but
-the data supplied must contain a \code{country} variable for linking to mapping data.
+the data supplied must contain a \code{country} variable for linking to mapping data. This function requires the
+installation of the \code{rnaturalearth} package.
 }
 \examples{
 
+df <- data.table::data.table(variable = "Increasing", country = "France") 
 
+global_map(df, variable = "variable")
 }

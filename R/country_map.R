@@ -2,7 +2,8 @@
 #'
 #'
 #' @description This general purpose function can be used to generate a country map for a single variable. It has few defaults but
-#' the data supplied must contain a \code{region_code} variable for linking to mapping data.
+#' the data supplied must contain a \code{region_code} variable for linking to mapping data. This function requires 
+#' the installation of the `rnaturalearth` package.
 #' @param data Dataframe containing variables to be mapped. Must contain a \code{region_code} variable.
 #' 
 #' @inheritParams global_map
@@ -10,10 +11,8 @@
 #' @export
 #'
 #' @importFrom rnaturalearth ne_countries ne_states
-#' @importFrom dplyr left_join 
 #' @importFrom countrycode countrycode
-#' @importFrom ggplot2 ggplot aes geom_sf theme_minimal theme labs waiver
-#' @importFrom rlang .data
+#' @importFrom ggplot2 ggplot aes geom_sf theme_minimal theme labs waiver .data
 #'
 #' @examples
 #'
@@ -44,9 +43,12 @@ country_map <- function(data = NULL, country = NULL,
   regions <- rnaturalearth::ne_states(country, returnclass = "sf")
   
   
+  ## Update linking code
+  data <- data.table::as.data.table(date)[, provnum_ne := region_code]
+  
   regions_with_data <-  
-    dplyr::left_join(regions, data,
-                     by = c("provnum_ne" = "region_code"))
+    merge(regions, data,
+          by = c("provnum_ne"), all.x = TRUE)
 
 
   
@@ -58,8 +60,8 @@ country_map <- function(data = NULL, country = NULL,
 
 # Make map ----------------------------------------------------------------
 
-  map <- regions_with_data %>% 
-    ggplot() + 
+  map <-  
+    ggplot(regions_with_data) + 
     ggplot2::geom_sf(aes(fill = .data[[variable]]), col = "white", alpha = 0.8, size = 0.2) +
     ggplot2::geom_sf(data = country, col = "darkgrey", fill = NA, alpha = 1, size = 0.4)
   

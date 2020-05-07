@@ -6,6 +6,7 @@
 #'
 #' @return A datatable containing an estimate of r, its standard deviation and a
 #' measure of the goodness of fit.
+#' @importFrom data.table data.table
 #' @export
 #' @examples
 #'
@@ -35,7 +36,7 @@ estimate_little_r <- function(sample, min_time = NULL, max_time = NULL) {
   model_sum <- summary(model)
 
   ## Extract little r and summary measures
-  result <- tibble::tibble(r = model_sum$coefficients[2, 1],
+  result <- data.table::data.table(r = model_sum$coefficients[2, 1],
                            sd = model_sum$coefficients[2, 2],
                            fit_meas = (model$null.deviance - model$deviance) /
                              (model$null.deviance))

@@ -142,8 +142,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                           ## Take samples from the assumed gamma distribution
                           R <- R[, .(date = EpiNow::add_dates(incid$date, .N), mean_R = `Mean(R)`,
                                      sd_R = `Std(R)`, sample_R = purrr::map2(`Mean(R)`, `Std(R)`, 
-                                                                       ~ mean_rgamma(rt_samples, .x, .y) %>% 
-                                                                         sort()),
+                                                                       ~ sort(mean_rgamma(rt_samples, .x, .y))),
                                      sample = list(1:rt_samples))]
                           
                           R <- R[, .(sample_R = unlist(sample_R), sample = unlist(sample)), 

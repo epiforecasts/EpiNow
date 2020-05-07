@@ -64,8 +64,8 @@ summarise_results <- function(regions = NULL,
        mid_lower = purrr::map_dbl(value, ~ .[[1]]$mid_lower),
        mid_upper = purrr::map_dbl(value, ~ .[[1]]$mid_upper)
      )][,
-       metric := metric %>% 
-         factor(levels = c("New confirmed cases by infection date",
+       metric :=  
+         factor(metric, levels = c("New confirmed cases by infection date",
                            "Effective reproduction no."))]
   
   ## Rank countries by incidence countires

@@ -2,7 +2,8 @@
 #'
 #'
 #' @description This general purpose function can be used to generate a global map for a single variable. It has few defaults but
-#' the data supplied must contain a \code{country} variable for linking to mapping data.
+#' the data supplied must contain a \code{country} variable for linking to mapping data. This function requires the 
+#' installation of the `rnaturalearth` package.
 #' @param data Dataframe containing variables to be mapped. Must contain a \code{country} variable.
 #' @param variable A character string indicating the variable to map data for. This must be supplied.
 #' @return A \code{ggplot2} object containing a global map.
@@ -10,14 +11,14 @@
 #'
 #' @inheritParams theme_map
 #' @importFrom rnaturalearth ne_countries
-#' @importFrom dplyr left_join 
 #' @importFrom countrycode countrycode
-#' @importFrom ggplot2 ggplot aes geom_sf theme_minimal theme labs waiver coord_sf
-#' @importFrom rlang .data
+#' @importFrom ggplot2 ggplot aes geom_sf theme_minimal theme labs waiver coord_sf .data
 #'
 #' @examples
 #'
+#'df <- data.table::data.table(variable = "Increasing", country = "France") 
 #'
+#'global_map(df, variable = "variable")
 global_map <- function(data = NULL, variable = NULL,
                        variable_label = NULL,
                        trans = "identity",
@@ -54,10 +55,10 @@ global_map <- function(data = NULL, variable = NULL,
 
 # Get countrywide ---------------------------------------------------------
 
-  data <- data %>%
-    mutate(country_code = countrycode::countrycode(country,
+  data <- data.table::as.data.table(data)[, 
+                 country_code := countrycode::countrycode(country,
                                                    origin = "country.name",
-                                                   destination = "iso3c"))
+                                                   destination = "iso3c")]
 
   # Get shape file ----------------------------------------------------------
 
@@ -72,15 +73,11 @@ global_map <- function(data = NULL, variable = NULL,
   # Link data and shape file ------------------------------------------------
 
   world_with_data <- suppressWarnings(
-    world %>%
-      dplyr::left_join(data %>%
-                         dplyr::select(-country),
-                       by = c("iso_a3" = "country_code"))
+      merge(world, data[, `:=`(iso_a3 = country_code, country = NULL)],
+                       by = c("iso_a3"), all.x = TRUE)
   )
 
   # Make map ----------------------------------------------------------------
-
-
   map <- ggplot2::ggplot(world_with_data) +
     ggplot2::geom_sf(ggplot2::aes(fill = .data[[variable]]), col = "white", size = 0.2) +
     ggplot2::geom_sf(data = continents, col = "darkgrey", alpha = 0.6, size = 0.2) +

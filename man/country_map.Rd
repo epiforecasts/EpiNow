@@ -35,7 +35,8 @@ A \code{ggplot2} object containing a country map.
 }
 \description{
 This general purpose function can be used to generate a country map for a single variable. It has few defaults but
-the data supplied must contain a \code{region_code} variable for linking to mapping data.
+the data supplied must contain a \code{region_code} variable for linking to mapping data. This function requires
+the installation of the \code{rnaturalearth} package.
 }
 \examples{
 

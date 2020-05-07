@@ -7,7 +7,7 @@
 pull_max_var(df, max_var = NULL, sel_var = NULL, type_selected = NULL)
 }
 \arguments{
-\item{df}{Dataframe with the following variables: \code{type} and \code{si_dist}}
+\item{df}{Datatable with the following variables: \code{type} and \code{si_dist}}
 
 \item{type_selected}{The nowcast type to extract.}
 
@@ -21,4 +21,9 @@ Pull out maximum variables values based on a variable
 }
 \examples{
 
+df <- data.table::data.table(type = c("nowcast", "other"),
+                             var = c(1:10),
+                             sel = "test")
+                             
+pull_max_var(df, max_var = "var", sel_var = "var", type_selected = "nowcast")
 }

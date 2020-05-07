@@ -25,9 +25,9 @@ plot_grid <- function(regions = NULL, plot_object = "bigr_eff_plot.rds",
   load_plot <- function(region) {
     plot <- EpiNow::load_nowcast_result(plot_object, region, 
                                         date = target_date, results_dir) +
-      ggplot2::labs(title = region %>% 
-                      stringr::str_replace("-", " ") %>% 
-                      stringr::str_to_title()) +
+      ggplot2::labs(title = stringr::str_to_title(
+                      stringr::str_replace(region, "-", " ")
+                      )) +
       ggplot2::scale_x_date(date_breaks = "1 week", date_labels = "%b %d")
     
     return(plot)
@@ -39,8 +39,8 @@ plot_grid <- function(regions = NULL, plot_object = "bigr_eff_plot.rds",
 plots <- suppressMessages(
   purrr::map(regions, ~ safe_load_plot(.)[[1]]))
 
-plots[-1] <- plots[-1] %>% 
-  purrr::map(function(plot){
+plots[-1] <- 
+  purrr::map(plots[-1], function(plot){
     plot <- plot +
       ggplot2::guides(fill = FALSE)
     
