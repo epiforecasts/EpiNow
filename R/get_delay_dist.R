@@ -27,7 +27,7 @@
 #' ## Example with gamma and a larger sample
 #' delays <- rgamma(100, 4, 1)
 #'
-#' out <- get_delay_dist(delays, sample = 10, bootstraps = 2)
+#' out <- get_delay_dist(delays, samples = 2, bootstraps = 2)
 #'
 #' ## Inspect
 #' out
@@ -37,6 +37,9 @@
 get_delay_dist <- function(delays, verbose = FALSE, samples = 1,
                                 bootstraps = 1, bootstrap_samples = 250) {
 
+  if (samples < bootstraps) {
+    samples <- bootstraps
+  }
   ## Make delays integer if not
   delays <- as.integer(delays)
   ## Remove NA delays
@@ -100,8 +103,10 @@ get_delay_dist <- function(delays, verbose = FALSE, samples = 1,
     } 
     
     ## Unnest parameter lists
-    out <- out[, .(params = purrr::flatten(params)),
-               by = c("model", "max_delay")]
+    if (samples != 1) {
+      out <- out[, .(params = purrr::flatten(params)),
+                 by = c("model", "max_delay")]
+    }
    
  return(out)
   }

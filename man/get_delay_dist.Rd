@@ -38,11 +38,15 @@ get_delay_dist(delays, samples = 10, verbose = TRUE)
 
 
 ## Example with gamma and a larger sample
-delays <- rgamma(50, 1, 2)
+delays <- rgamma(100, 4, 1)
 
-get_delay_dist(delays, sample = 10, bootstraps = 2)
+out <- get_delay_dist(delays, samples = 2, bootstraps = 2)
 
+## Inspect
+out
 
+## Inspect one parameter
+out$params[[1]]
 }
 \author{
 Sebastian Funk \href{mailto:sebastian.funk@lshtm.ac.uk}{sebastian.funk@lshtm.ac.uk}

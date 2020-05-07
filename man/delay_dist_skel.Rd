@@ -57,4 +57,5 @@ delay_dist_skel(0:10, model = "gamma", dist = TRUE,
 ## Probability density
 delay_dist_skel(0:10, model = "gamma", dist = TRUE, 
                 cum = FALSE, params = list(alpha = 2, beta = 2))
+    
 }
