@@ -42,7 +42,8 @@ Imports:
     lubridate,
     ggplot2,
     cowplot,
-    patchwork
+    patchwork,
+    R.devices
 Suggests:
     knitr,
     kableExtra,

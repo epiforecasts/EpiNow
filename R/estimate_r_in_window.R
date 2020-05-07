@@ -11,7 +11,7 @@
 #' @export
 #' @importFrom purrr map map_dbl
 #' @importFrom HDInterval hdi
-#' @importFrom data.table rbindlist copy setDT
+#' @importFrom data.table setDTthreads rbindlist copy setDT
 #'
 #' @examples
 #'
@@ -20,6 +20,9 @@ estimate_r_in_window <- function(onsets = NULL,
                                  min_time = NULL,
                                  max_time = NULL,
                                  bootstrap_samples = 1000) {
+  
+  data.table::setDTthreads(1)
+  
   r <- 
     purrr::map(
       onsets, 

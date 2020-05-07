@@ -53,7 +53,6 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                         min_est_date = NULL, forecast_model = NULL, 
                         horizon = 0) {
   
-
   ##Generic mean gamma sampler
   mean_rgamma <- function(samples, mean, sd) {
       theta <- sd^2/mean

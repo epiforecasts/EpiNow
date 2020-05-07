@@ -14,6 +14,7 @@
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_layout
 #' @importFrom data.table rbindlist copy as.data.table
+#' @importFrom R.devices suppressGraphics
 #' @inheritParams summarise_cast
 #' @return
 #' @export
@@ -109,11 +110,13 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   if (save_plots) {
     suppressWarnings(
       suppressMessages(
-        ggplot2::ggsave(paste0(target_folder, "/cases_plot.png"),
-                        plot_cases,
-                        width = 12,
-                        height = 3,
-                        dpi = 320)
+        R.devices::suppressGraphics({
+          ggplot2::ggsave(paste0(target_folder, "/cases_plot.png"),
+                          plot_cases,
+                          width = 12,
+                          height = 3,
+                          dpi = 320)
+        })
       ))
     
   }
@@ -189,11 +192,12 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     ## Save plot
     suppressWarnings(
       suppressMessages(
+        R.devices::suppressGraphics({
         ggplot2::ggsave(paste0(target_folder, "/bigr_eff_plot.png"),
                         plot_bigr,
                         width = 12,
                         height = 6,
-                        dpi = 320)
+                        dpi = 320)})
       ))
   }
   
@@ -340,11 +344,12 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     ## Save plot
     suppressWarnings(
       suppressMessages(
+        R.devices::suppressGraphics({
         ggplot2::ggsave(paste0(target_folder, "/rate_spread_plot.png"),
                         plot_littler_summary,
                         width = 12,
                         height = 14,
-                        dpi = 320)
+                        dpi = 320)})
       ))
     
     
@@ -377,11 +382,12 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
     ## Save plot
     suppressWarnings(
       suppressMessages(
+        R.devices::suppressGraphics({
         ggplot2::ggsave(paste0(target_folder, "/rt_cases_plot.png"),
                         rt_cases_plot,
                         width = 12,
                         height = 8,
-                        dpi = 320)
+                        dpi = 320)})
       ))
   }
   

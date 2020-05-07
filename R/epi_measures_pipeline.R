@@ -11,7 +11,7 @@
 #' @importFrom purrr safely map_dbl map pmap map_lgl
 #' @importFrom HDInterval hdi
 #' @importFrom future.apply future_lapply
-#' @importFrom data.table setDT setorder rbindlist copy
+#' @importFrom data.table setDT setorder rbindlist copy setDTthreads
 #' @examples 
 #'
 epi_measures_pipeline <- function(nowcast = NULL,
@@ -26,6 +26,8 @@ epi_measures_pipeline <- function(nowcast = NULL,
   safe_R0 <- purrr::safely(EpiNow::estimate_R0)
   
   process_R0 <- function(data) {
+    data.table::setDTthreads(1)
+    
     estimates <- safe_R0(cases = data,
                          serial_intervals = serial_intervals,
                          rt_prior = rt_prior,

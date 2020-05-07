@@ -10,7 +10,7 @@
 #' @importFrom purrr map map2 flatten
 #' @importFrom future.apply future_lapply
 #' @importFrom rstan extract
-#' @importFrom data.table data.table rbindlist
+#' @importFrom data.table data.table rbindlist setDTthreads
 #' @importFrom loo loo relative_eff extract_log_lik
 #' @author Sebastian Funk <sebastian.funk@lshtm.ac.uk>
 #'
@@ -54,6 +54,8 @@ get_delay_dist <- function(delays, verbose = FALSE, samples = 1,
   delays <- delays[delays >= 0]
   
   get_single_delay <- function(delays = NULL, samples = 1) {
+    
+    data.table::setDTthreads(1)
     
     ## Delay structure
     out <- data.table::data.table(
