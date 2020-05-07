@@ -34,6 +34,12 @@
 #' 
 #' ## Inspect one parameter
 #' out$params[[1]]
+#' 
+#' 
+#' ## Load into delay skeleton and sample with truncation
+#' EpiNow::delay_dist_skel(10, model = out$model[[1]],
+#'                         params = out$params[[1]],
+#'                         max_delay = out$max_delay[[1]])
 get_delay_dist <- function(delays, verbose = FALSE, samples = 1,
                                 bootstraps = 1, bootstrap_samples = 250) {
 
