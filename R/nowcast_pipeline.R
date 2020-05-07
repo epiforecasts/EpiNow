@@ -153,9 +153,9 @@ if (!is.null(onset_modifier)) {
     ## Define sample delay fn
     sample_delay_fn <- function(n, ...) {
       EpiNow::delay_dist_skel(n = n, 
-                              model = delay_def$model, 
-                              params = delay_def$params,
-                              max_delay = delay_def$max_delay, 
+                              model = delay_def$model[[1]], 
+                              params = delay_def$params[[1]],
+                              max_delay = delay_def$max_delay[[1]], 
                               ...)
       }
   
