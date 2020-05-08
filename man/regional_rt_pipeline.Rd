@@ -16,6 +16,7 @@ regional_rt_pipeline(
   bootstrap_samples = 100,
   delay_defs = NULL,
   regions_in_parallel = TRUE,
+  dt_threads = 1,
   verbose = FALSE,
   samples = 1000,
   ...
@@ -46,6 +47,9 @@ See \code{get_delay_dist} for an example of the structure.}
 
 \item{regions_in_parallel}{Logical, should regions be run in parallel or sequentially (allowing for)
 within pipeline parallisation. Defaults to \code{TRUE}.}
+
+\item{dt_threads}{Numeric, the number of data.table threads to use. Set internally to avoid issue when running in parallel.
+Defaults to 1 thread.}
 
 \item{verbose}{Logical, defaults to \code{FALSE}. Should progress messages be shown for each reigon?}
 

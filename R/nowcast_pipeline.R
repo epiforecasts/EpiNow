@@ -28,7 +28,7 @@
 #' @importFrom lubridate days
 #' @importFrom purrr map safely map_dfr map_lgl compact map2_dbl
 #' @importFrom future.apply future_lapply
-#' @importFrom data.table .N as.data.table := setDT rbindlist
+#' @importFrom data.table .N as.data.table := rbindlist setDT
 #' @examples
 #' 
 #' 
@@ -83,7 +83,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
     ## Split linelist into day chunks
     ## Used to merge actuals with estimated onsets
     if (merge_actual_onsets) {
-      linelist <- data.table::setDT(linelist)
+      linelist <- data.table::as.data.table(linelist)
       ## Group linelists by day
       linelist_by_day <- EpiNow::split_linelist_by_day(
         data.table::copy(linelist)[import_status == "local"]
@@ -108,7 +108,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 
 # Organise input case counts ----------------------------------------------
 
-  reported_cases <- data.table::setDT(reported_cases)
+  reported_cases <- data.table::as.data.table(reported_cases)
   
   ## Filter reported cases based on the nowcasting date
   reported_cases <- reported_cases[date <= date_to_cast]
@@ -143,7 +143,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 # Argument conversion -----------------------------------------------------
 
 if (!is.null(onset_modifier)) {
-  onset_modifier <- data.table::setDT(onset_modifier)
+  onset_modifier <- data.table::as.data.table(onset_modifier)
 }
  
 # Nowcasting for each samples or vector of samples ------------------------

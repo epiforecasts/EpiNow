@@ -11,7 +11,7 @@
 #' @importFrom purrr safely map_dbl map pmap map_lgl
 #' @importFrom HDInterval hdi
 #' @importFrom future.apply future_lapply
-#' @importFrom data.table setDT setorder rbindlist copy setDTthreads
+#' @importFrom data.table setorder rbindlist copy setDTthreads
 #' @examples 
 #'
 epi_measures_pipeline <- function(nowcast = NULL,

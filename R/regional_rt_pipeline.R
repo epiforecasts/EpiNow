@@ -30,6 +30,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
                                  bootstrap_samples = 100,
                                  delay_defs = NULL,
                                  regions_in_parallel = TRUE,
+                                 dt_threads = 1,
                                  verbose = FALSE,
                                  samples = 1000, ...) {
    
@@ -43,6 +44,10 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   cases <- data.table::as.data.table(cases)
   if (!is.null(linelist)) {
     linelist <- data.table::as.data.table(linelist)
+  }
+  
+  if (!is.null(onset_modifier)) {
+    onset_modifier <- data.table::as.data.table(onset_modifier)
   }
   
   ## Control parameters
@@ -98,18 +103,26 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
   ## Function to run the pipeline in a region
   run_region <- function(target_region, ...) { 
     message("Running Rt pipeline for ", target_region)
+    data.table::setDTthreads(threads = dt_threads)
     
-    regional_cases <- cases[region %in% target_region][, region := NULL]
-    
+    regional_cases <- data.table::copy(cases)[region %in% target_region][, region := NULL]
+    ## Get rid of all cases
+    rm(cases)
     if (regional_delay & !is.null(linelist)) {
-      regional_linelist <- linelist[region %in% target_region][, region := NULL]
+      regional_linelist <- data.table::copy(linelist)[region %in% target_region][, 
+                                                      region := NULL]
     }else{
       regional_linelist <- linelist
     }
+    ## Get rid of the linelist
+    rm(linelist)
     
     if (!is.null(onset_modifier)) {
-      region_onset_modifier <- data.table::setDT(onset_modifier)[region %in% target_region]
+      region_onset_modifier <- data.table::copy(onset_modifier)[region %in% target_region]
       region_onset_modifier <- region_onset_modifier[,region := NULL]
+      
+      ## Get rid of the onset modification
+      rm(onset_modifier)
     }else{
       region_onset_modifier <- NULL
     }

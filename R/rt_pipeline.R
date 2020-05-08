@@ -23,7 +23,7 @@
 #' @inheritParams epi_measures_pipeline
 #' @inheritParams report_estimates
 #' @inheritParams nowcast_pipeline
-#' @importFrom data.table setDT
+#' @importFrom data.table as.data.table
 #' @importFrom lubridate days
 #' 
 #' @examples
@@ -40,12 +40,12 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         onset_modifier = NULL, min_forecast_cases = 200, dt_threads = 1) {
  
  
-# Convert input to DT -----------------------------------------------------
+ # Convert input to DT -----------------------------------------------------
   data.table::setDTthreads(threads = dt_threads)
-  cases <- data.table::setDT(cases)
-  imported_cases <- data.table::setDT(imported_cases)
+  cases <- data.table::as.data.table(cases)
+  imported_cases <- data.table::as.data.table(imported_cases)
   if (!is.null(linelist)) {
-    linelist <- data.table::setDT(linelist)
+    linelist <- data.table::as.data.table(linelist)
   }
 
   
@@ -64,7 +64,6 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
     if (verbose) {
       message("Using default sample of serial intervals with mean (sd) of 4.7 (2.9)")
     }
-
     serial_intervals <- EpiNow::covid_serial_intervals
   }
 

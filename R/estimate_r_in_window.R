@@ -11,7 +11,7 @@
 #' @export
 #' @importFrom purrr map map_dbl
 #' @importFrom HDInterval hdi
-#' @importFrom data.table setDTthreads rbindlist copy setDT
+#' @importFrom data.table setDTthreads rbindlist copy
 #'
 #' @examples
 #'
@@ -26,9 +26,9 @@ estimate_r_in_window <- function(onsets = NULL,
   r <- 
     purrr::map(
       onsets, 
-      ~ data.table::setDT(EpiNow::estimate_little_r(.,
+      ~ EpiNow::estimate_little_r(.,
                                   min_time = min_time,
-                                  max_time = max_time))[,
+                                  max_time = max_time)[,
             sampled_r := list(stats::rnorm(bootstrap_samples, r, sd))]
         )
   

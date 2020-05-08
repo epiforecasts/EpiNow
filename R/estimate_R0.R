@@ -133,10 +133,8 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                           )
                           
                           ## Filter out NA values, choose columns and make into data.table
-                          R <- data.table::setDT(R)[!is.na(`Mean(R)`),
-                                                            .(t_start, t_end, `Mean(R)`, `Std(R)`)]
-                          
-                          R <- R[!is.na(R$`Mean(R)`)]
+                          R <- data.table::setDT(R)
+                          R <- R[!is.na(`Mean(R)`), .(t_start, t_end, `Mean(R)`, `Std(R)`)]
                           
                           ## Take samples from the assumed gamma distribution
                           R <- R[, .(date = EpiNow::add_dates(incid$date, .N), mean_R = `Mean(R)`,

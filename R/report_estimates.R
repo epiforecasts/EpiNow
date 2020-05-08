@@ -323,7 +323,7 @@ report_estimates <- function(cases = NULL, nowcast = NULL,
   plot_doublingtime <-
     plot_littler_fn(plot_littler_data, 
                     plot_var = "Doubling/halving time (days)") +
-    ggplot2::coord_cartesian(ylim=c(-40, 40)) +
+    ggplot2::coord_cartesian(ylim = c(-40, 40)) +
     ggplot2::labs(tag = "B")
   
   plot_fit <-  
