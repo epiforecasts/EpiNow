@@ -10,6 +10,8 @@
 #' @param samples Numeric, the number of pseudo linelists to generate. Defaults to 1000.
 #' @param earliest_allowed_onset A character string in the form of a date ("2020-01-01") indiciating the earliest
 #' allowed onset.
+#' @param approx_thresold Numeric, defaults to 10,000. Threshold of cases below which explicit sampling of onsets
+#' always occurs.
 #' @param serial_intervals A matrix with columns representing samples and rows representing the probability of the serial intervel being on
 #' that day. Defaults to `EpiNow::covid_serial_intervals`.
 #' @param min_forecast_cases Numeric, defaults to 200. The minimum number of cases required in the last 7 days
@@ -30,16 +32,15 @@
 #' 
 rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         target_folder = NULL, target_date = NULL, delay_cutoff_date = NULL,
-                        predict_lag = 0, samples = 1000,si_samples = 1, rt_samples = 5,
+                        predict_lag = 0, samples = 1000, si_samples = 1, rt_samples = 5,
                         rt_windows = 1:7, rate_window = 7, earliest_allowed_onset = NULL,
-                        merge_actual_onsets = TRUE, delay_only = FALSE, 
-                        approx_delay = FALSE, approx_threshold = 10000,
-                        bootstraps = 1, bootstrap_samples = 100, max_delay = 120,
-                        verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, 
-                        save_plots = TRUE, nowcast_lag = 4, incubation_period = 5, 
-                        forecast_model = NULL,
+                        merge_actual_onsets = TRUE, approx_delay = FALSE, 
+                        approx_threshold = 10000, max_delay = 120, verbose = FALSE,
+                        serial_intervals = NULL, rt_prior = NULL,  save_plots = TRUE, 
+                        nowcast_lag = 4, forecast_model = NULL,
                         horizon = 0, report_forecast = FALSE, delay_defs = NULL,
-                        onset_modifier = NULL, min_forecast_cases = 200, dt_threads = 1) {
+                        incubation_defs = NULL, onset_modifier = NULL, 
+                        min_forecast_cases = 200, dt_threads = 1) {
  
  
  # Convert input to DT -----------------------------------------------------
@@ -49,7 +50,6 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
   if (!is.null(linelist)) {
     linelist <- data.table::as.data.table(linelist)
   }
-
   
  # Set up folders ----------------------------------------------------------
 
@@ -135,14 +135,17 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
   # Run a nowcast -----------------------------------------------------------
 
   nowcast <- EpiNow::nowcast_pipeline(
-    reported_cases = cases, linelist = linelist,
-    date_to_cast = target_date,  date_to_cutoff_delay = delay_cutoff_date,
+    reported_cases = cases, 
+    linelist = linelist,
+    date_to_cast = target_date, 
     earliest_allowed_onset = earliest_allowed_onset,
-    merge_actual_onsets = merge_actual_onsets, samples = samples,
-    delay_only = delay_only, nowcast_lag = nowcast_lag,
-    verbose = verbose, delay_defs = delay_defs,
-    bootstraps = bootstraps, bootstrap_samples = bootstrap_samples,
-    onset_modifier = onset_modifier, approx_delay = approx_delay,
+    merge_actual_onsets = merge_actual_onsets,
+    nowcast_lag = nowcast_lag, 
+    verbose = verbose,
+    delay_defs = delay_defs,
+    incubation_defs = incubation_defs,
+    onset_modifier = onset_modifier, 
+    approx_delay = approx_delay,
     max_delay = max_delay)
 
   saveRDS(nowcast,  paste0(target_folder, "/nowcast.rds"))
