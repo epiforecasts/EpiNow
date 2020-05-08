@@ -33,9 +33,11 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
                         predict_lag = 0, samples = 1000,si_samples = 1, rt_samples = 5,
                         rt_windows = 1:7, rate_window = 7, earliest_allowed_onset = NULL,
                         merge_actual_onsets = TRUE, delay_only = FALSE, 
-                        approx_delay = FALSE, bootstraps = 1, bootstrap_samples = 100,
-                        max_delay = 120, verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, 
-                        save_plots = TRUE, nowcast_lag = 4, incubation_period = 5, forecast_model = NULL,
+                        approx_delay = FALSE, approx_threshold = 10000,
+                        bootstraps = 1, bootstrap_samples = 100, max_delay = 120,
+                        verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, 
+                        save_plots = TRUE, nowcast_lag = 4, incubation_period = 5, 
+                        forecast_model = NULL,
                         horizon = 0, report_forecast = FALSE, delay_defs = NULL,
                         onset_modifier = NULL, min_forecast_cases = 200, dt_threads = 1) {
  
@@ -95,6 +97,18 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
    }
  }
  
+ if (approx_delay) {
+   total_cases <- data.table::copy(cases)[date <= max(date)][,
+                        .(cases = sum(cases, na.rm = TRUE))]$cases
+   
+   if (total_cases <= approx_threshold) {
+     approx_delay <- FALSE
+     if (verbose){
+       message("Explicitly sampling delays as case count is below thresold (", approx_threshold, ")
+               Use approx_thresold to alter this behaviour")
+     }
+   }
+ }
  
  ## Define the min plotting (and estimate date as the first date that
  ## at least 5 local cases were reported minus the incubation period
