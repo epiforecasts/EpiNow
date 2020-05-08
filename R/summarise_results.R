@@ -90,7 +90,10 @@ summarise_results <- function(regions = NULL,
   
   
   estimates <- 
-    estimates[, (region_scale) := "Region"]
+    estimates[, (region_scale) := Region][, Region := NULL]
+  
+  estimates <- estimates[, c((region_scale), 
+                             colnames(estimates)[-ncol(estimates)]), with = FALSE]
   
   out <- list(estimates, numeric_estimates, high_inc_regions)
   
