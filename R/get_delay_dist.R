@@ -129,7 +129,10 @@ get_delay_dist <- function(delays, verbose = FALSE, samples = 1,
                                                              min(length(delays), bootstrap_samples),
                                                              replace = TRUE),
                                                       samples = ceiling(samples / bootstraps))},
-                   future.scheduling = 10)
+                   future.scheduling = 10,
+                   future.globals = c("delays", "bootstraps", "samples",
+                                      "bootstrap_samples", "get_single_delay"),
+                   future.packages = "data.table")
            
     ## Bind distributions together               
     delay_defs <- data.table::rbindlist(delay_defs)

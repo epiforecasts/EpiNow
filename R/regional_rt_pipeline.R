@@ -141,6 +141,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
       bootstrap_samples = bootstrap_samples,
       ...)
     
+    rm(list = ls())
+    
     return(invisible(NULL))}
   
   if (regions_in_parallel) {
