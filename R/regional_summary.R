@@ -57,11 +57,9 @@ if (target_date %in% "latest") {
 latest_date <- 
   purrr::map_chr(regions, ~ as.character(
     EpiNow::load_nowcast_result("latest_date.rds", region = .,
-                                target_date, results_dir))) %>% 
-  as.Date() %>% 
-  max(na.rm = TRUE)
-  
-
+                                target_date, results_dir)))
+latest_date <- as.Date(latest_date)
+latest_date <- max(latest_date, na.rm = TRUE)
 
 saveRDS(latest_date, file.path(summary_dir, "latest_date.rds"))
 

@@ -1,3 +1,5 @@
+library(magrittr)
+
 ## Traces as here: https://github.com/aakhmetz/nCoVSerialInterval2020/blob/master/scripts/A1.%20Stan%20simulations.ipynb
 traces <- data.table::fread("data-raw/nishiura-lognormal-truncated.csv")
 
