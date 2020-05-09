@@ -191,6 +191,7 @@ balance_dfs <- function(df1, df2) {
   
   saveRDS(nowcast,  paste0(target_folder, "/nowcast.rds"))
   saveRDS(delay_defs, paste0(target_folder, "/delays.rds"))
+  saveRDS(incubation_defs, paste0(target_folder, "/incubation.rds"))
   
   # Estimate time-varying parameters ----------------------------------------
 
