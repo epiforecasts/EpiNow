@@ -32,7 +32,7 @@
 #' 
 #' ## Save everything to a temporary directory 
 #' ## Change this to inspect locally
-#' target_dir <- "../test" 
+#' target_dir <- tempdir() 
 #' 
 #' ## Construct example distributions
 #' ## reporting delay dist
@@ -71,6 +71,22 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
     linelist <- data.table::as.data.table(linelist)
   }
   
+
+# Make sure incubation and delays have the same number of samples ---------
+
+balance_dfs <- function(df1, df2) {
+  if (nrow(df1) > nrow(df2)) {
+    df2 <- data.table::rbindlist(list(
+      df2,
+      df2[sample(1:nrow(df2), (nrow(df1) - nrow(df2)), replace = TRUE), ]
+    ))
+  }
+  return(df2)
+}
+  
+  incubation_defs <- balance_dfs(delay_defs, incubation_defs)
+  delay_defs <- balance_dfs(incubation_defs, delay_defs)
+
  # Set up folders ----------------------------------------------------------
 
  latest_folder <- file.path(target_folder, "latest")

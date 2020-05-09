@@ -5,12 +5,9 @@
 #' @param linelist A dataframe of of cases (by row) containing the following variables:
 #' `import_status` (values "local" and "imported"), `date_onset`, `date_confirm`, `report_delay`, and `region`. If a national linelist is not available a proxy linelist may be 
 #' used but in this case `merge_onsets` should be set to `FALSE`.
-#' @param regional_delay Logical defaults to `FALSE`. Should reporting delays be estimated by region.
 #' @param merge_onsets Logical defaults to `FALSE`. Should available onset data be used. Typically if `regional_delay` is
 #' @param case_limit Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 10.
 #' set to `FALSE` this should also be `FALSE`
-#' @param regions_in_parallel Logical, should regions be run in parallel or sequentially (allowing for)
-#' within pipeline parallisation. Defaults to `TRUE`.
 #' @param verbose Logical, defaults to `FALSE`. Should progress messages be shown for each reigon?
 #' @param ... 
 #' @inheritParams rt_pipeline
@@ -20,24 +17,40 @@
 #' @importFrom data.table as.data.table setDT copy setorder
 #' @examples
 #' 
-#' ## Code
-#' regional_rt_pipeline
-regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = "results", 
-                                 regional_delay = FALSE, merge_onsets = FALSE,
-                                 case_limit = 40, onset_modifier = NULL,
-                                 bootstraps = 1, 
-                                 bootstrap_samples = 100,
-                                 delay_defs = NULL,
-                                 regions_in_parallel = TRUE,
+#' ## Save everything to a temporary directory 
+#' ## Change this to inspect locally
+#' target_dir <- "../test" 
+#' 
+#' ## Construct example distributions
+#' ## reporting delay dist
+#' delay_dist <- suppressWarnings(
+#'                EpiNow::get_dist_def(rexp(25, 1/10), 
+#'                                     samples = 1, bootstraps = 1))
+#' ## incubation delay dist
+#' incubation_dist <- delay_dist
+#' 
+#' ## Uses example case vector from EpiSoon
+#' cases <- data.table::setDT(EpiSoon::example_obs_cases)
+#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
+#' 
+#' cases <- rbindlist(list(
+#'   data.table::copy(cases)[, region := "testland"],
+#'   cases[, region := "realland"]))
+#'   
+#' ## Run basic nowcasting pipeline
+#' regional_rt_pipeline(cases = cases,
+#'             delay_defs = delay_dist,
+#'             incubation_defs = incubation_dist,
+#'             target_folder = target_dir)
+regional_rt_pipeline <- function(cases = NULL, linelist = NULL, 
+                                 delay_defs = NULL, incubation_defs = NULL,
+                                 target_folder = "results", 
+                                 merge_onsets = FALSE,
+                                 case_limit = 40,
+                                 onset_modifier = NULL,
                                  dt_threads = 1,
                                  verbose = FALSE,
-                                 samples = 1000, ...) {
-   
-  #reset samples if report delays are passed in
-  if (!is.null(delay_defs)) {
-    sample <- length(delay_defs)
-    message("Report delays have been specified so samples is ignored")
-  }
+                                 ...) {
   
   ## Set input to data.table
   cases <- data.table::as.data.table(cases)
@@ -81,21 +94,6 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
  
   ## regional pipelines
   regions <- unique(cases$region)
-  
-  if (is.null(delay_defs)) {
-    if (!regional_delay) {
-      message("Fitting an overall reporting delay")
-      merge_onsets <- FALSE
-      
-      ## Fit the delay distribution
-      delay_defs <- 
-        EpiNow::get_delay_dist(delays = linelist$report_delay,
-                               samples = samples, bootstraps = bootstraps, 
-                               bootstrap_samples = bootstrap_samples)  
-      
-    }
-    
-  }
 
   message("Running pipelines by region")
   
@@ -107,7 +105,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
     regional_cases <- data.table::copy(cases)[region %in% target_region][, region := NULL]
     ## Get rid of all cases
     rm(cases)
-    if (regional_delay & !is.null(linelist)) {
+    
+    if (!is.null(linelist) & merge_onsets) {
       regional_linelist <- data.table::copy(linelist)[region %in% target_region][, 
                                                       region := NULL]
     }else{
@@ -133,27 +132,19 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL, target_folder = 
       target_folder = file.path(target_folder, target_region),
       target_date = target_date, 
       merge_actual_onsets = merge_onsets, 
-      samples = samples, 
       delay_defs = delay_defs,
+      incubation_defs = incubation_defs,
       verbose = verbose,
-      bootstraps = bootstraps,
-      bootstrap_samples = bootstrap_samples,
       ...)
-    
-    rm(list = ls())
     
     return(invisible(NULL))}
   
-  if (regions_in_parallel) {
-    
-    future.apply::future_lapply(regions, run_region,
-                                ...,
-                                future.scheduling = Inf)
 
-  }else{
-    purrr::map(regions, run_region)
-  }
-  
+  ## Run regions (make parallel using future::plan)
+  future.apply::future_lapply(regions, run_region,
+                              ...,
+                              future.scheduling = Inf)
+
     
   return(invisible(NULL))
 }

@@ -103,13 +103,13 @@ the time-varying effective reproduction number and rate of spread.
 
 ## Save everything to a temporary directory 
 ## Change this to inspect locally
-target_dir <- "../test" 
+target_dir <- tempdir() 
 
 ## Construct example distributions
 ## reporting delay dist
 delay_dist <- suppressWarnings(
                EpiNow::get_dist_def(rexp(25, 1/10), 
-                                    samples = 2, bootstraps = 1))
+                                    samples = 1, bootstraps = 1))
 ## incubation delay dist
 incubation_dist <- delay_dist
 

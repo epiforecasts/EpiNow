@@ -6,6 +6,7 @@
 * Refactored code base.
 * Added mapping from onset cases to infection with upscaling to account for additional truncation.
 * Added minimal example to all functions
+* Added an approximate mapping for reporting delay that has an adaptive case threshold.
 
 # EpiNow 0.1.0
 
