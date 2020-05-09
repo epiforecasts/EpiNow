@@ -20,7 +20,7 @@ rt_pipeline(
   max_delay = 120,
   serial_intervals = NULL,
   rt_prior = NULL,
-  nowcast_lag = 6,
+  nowcast_lag = 8,
   forecast_model = NULL,
   horizon = 0,
   report_forecast = FALSE,
@@ -101,14 +101,15 @@ the time-varying effective reproduction number and rate of spread.
 }
 \examples{
 
-## Save everything to a temporary directory
-target_dir <- tempdir()
+## Save everything to a temporary directory 
+## Change this to inspect locally
+target_dir <- "../test" 
 
 ## Construct example distributions
 ## reporting delay dist
 delay_dist <- suppressWarnings(
                EpiNow::get_dist_def(rexp(25, 1/10), 
-                                    samples = 1, bootstraps = 1))
+                                    samples = 2, bootstraps = 1))
 ## incubation delay dist
 incubation_dist <- delay_dist
 

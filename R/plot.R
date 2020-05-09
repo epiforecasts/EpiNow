@@ -289,7 +289,7 @@ plot_pipeline <- function(target_date = NULL, target_folder = NULL,
         ggplot2::scale_x_date(date_breaks = "1 week",
                               date_labels = "%b %d",
                               limits = c(min_plot_date,
-                                         ifelse(!report_forecast, max(cases$data$date), 
+                                         ifelse(!report_forecast, max(cases$data$date) + 1, 
                                                 NA)))
     ))
   

@@ -1,7 +1,7 @@
 Package: EpiNow
 Type: Package
 Title: Estimate Realtime Case Counts and Time-varying Epidemiological Parameters 
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
     person(given = "Sam Abbott",
            role = c("aut", "cre"),

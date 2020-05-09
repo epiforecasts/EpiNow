@@ -16,7 +16,7 @@ nowcast_pipeline(
   samples = 1,
   delay_defs = NULL,
   incubation_defs = NULL,
-  nowcast_lag = 6,
+  nowcast_lag = 8,
   onset_modifier = NULL
 )
 }
