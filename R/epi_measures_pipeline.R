@@ -17,7 +17,7 @@
 epi_measures_pipeline <- function(nowcast = NULL,
                                   serial_intervals = NULL,
                                   min_est_date = NULL,
-                                  si_samples = NULL, rt_samples = NULL,
+                                  si_samples = 1, rt_samples = 5,
                                   rt_windows = 7, rate_window = 7,
                                   rt_prior = NULL, forecast_model = NULL,
                                   horizon = NULL, verbose = TRUE) {

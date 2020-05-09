@@ -53,13 +53,10 @@ Defaults to 1 thread.}
 
 \item{verbose}{Logical, defaults to \code{FALSE}. Should progress messages be shown for each reigon?}
 
-\item{samples}{Numeric, the number of pseudo linelists to generate. Defaults to 1000.}
-
 \item{...}{}
 }
 \description{
-Runs a national realtime pipeline followed by a pipeline for each
-individual region.
+Runs a pipeline by region.
 }
 \examples{
 

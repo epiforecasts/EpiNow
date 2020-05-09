@@ -1,3 +1,18 @@
+##' Draw with an offset from a negative binomial distribution
+##'
+##' @description Samples size (the number of trials) of a binomial distribution
+##'  copied from https://github.com/sbfnk/bpmodels/blob/master/R/utils.r
+##' @param n Numeric, number of samples to draw
+##' @param x Numeric, offset.
+##' @param prob Numeric, probability of successful trial
+##' @export
+rbinom_size <- function(n, x, prob) {
+  x <- ifelse(is.na(x), 0, x + stats::rnbinom(n, x + 1, prob))
+  
+  return(x)
+}
+
+
 #' Adjust Case Counts for Truncation
 #'
 #' @param cases Numeric vector of cases
@@ -14,10 +29,10 @@
 #'
 adjust_for_truncation <- function(cases, cum_freq, dates, 
                                   confidence_adjustment, samples) {
-
-
+  
+  
   out <- purrr::map(seq_len(samples), function(sample) {
-
+    
     ## Sample cases
     x_cases <- cases
     x_cases[length(cases):(length(cases) - (length(cum_freq) - 1))] <-
@@ -25,12 +40,12 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
         length(cum_freq),
         cases[length(cases):(length(cases) - (length(cum_freq) - 1))],
         cum_freq)
-
+    
     ## Add confidence based on the cumulative frequency
     confidence <- rep(1, length(x_cases))
     
     conf_meas <- cum_freq
-
+    
     if (!missing(confidence_adjustment)){
       if (length(conf_meas) > length(confidence_adjustment)){
         confidence_adjustment <- c(confidence_adjustment,
@@ -45,11 +60,11 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
     }
     
     confidence[length(confidence):(length(confidence) - (length(cum_freq) - 1))] <- conf_meas
-
+    
     return(data.table::data.table(date = dates,
                                   cases = x_cases,
                                   confidence = confidence))
   })
-
- return(out)
+  
+  return(out)
 }

@@ -1,7 +1,6 @@
 #' Regional Realtime Pipeline
 #'
-#' @description Runs a national realtime pipeline followed by a pipeline for each 
-#' individual region.
+#' @description Runs a pipeline by region.
 #' @param cases A dataframe of cases (`confirm`) by date of confirmation (`date`), import status (`import_status`; ("imp)), and region (`region`).
 #' @param linelist A dataframe of of cases (by row) containing the following variables:
 #' `import_status` (values "local" and "imported"), `date_onset`, `date_confirm`, `report_delay`, and `region`. If a national linelist is not available a proxy linelist may be 
