@@ -16,7 +16,7 @@
 #' estimate_little_r(cases)
 estimate_little_r <- function(sample, min_time = NULL, max_time = NULL) {
   ## Add time var
-  sample <- sample[, time := 1:length(cases)]
+  sample <- data.table::copy(sample)[, time := 1:length(cases)]
   
   ## Add all data if time windows are not given
   if (is.null(min_time)) {

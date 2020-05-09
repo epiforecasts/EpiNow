@@ -107,14 +107,14 @@ target_dir <- tempdir()
 ## Construct example distributions
 ## reporting delay dist
 delay_dist <- suppressWarnings(
-               EpiNow::get_dist_def(rexp(25, 2), 
+               EpiNow::get_dist_def(rexp(25, 1/10), 
                                     samples = 1, bootstraps = 1))
 ## incubation delay dist
 incubation_dist <- delay_dist
 
 ## Uses example case vector from EpiSoon
 cases <- data.table::setDT(EpiSoon::example_obs_cases)
-cases <- cases[, cases := as.integer(cases), import_status = "local"]
+cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
 
 ## Run basic nowcasting pipeline
 rt_pipeline(cases = cases,

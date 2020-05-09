@@ -55,7 +55,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              samples = 1,
                              delay_defs = NULL,
                              incubation_defs = NULL,
-                             nowcast_lag = 6,
+                             nowcast_lag = 8,
                              onset_modifier = NULL) {
 
 # Organise inputted linelist ----------------------------------------------
@@ -189,17 +189,17 @@ if (!is.null(onset_modifier)) {
       }
     }else{
       ## Apply to local cases 
-      cases_by_onset <- sample_approx_dist(reported_cases = local_cases, 
+      cases_by_onset <- sample_approx_dist(cases = local_cases[, cases := confirm], 
                                            dist_fn = sample_delay_fn,
                                            max_value = max_delay,
-                                           earliest_allowed_onset = earliest_allowed_onset)
+                                           earliest_allowed_mapped = earliest_allowed_onset)
       
       ## Apply to imported cases if present
       if (sum(imported_cases$confirm) > 0) {
-        imported_cases_by_onset <- sample_approx_dist(reported_cases = imported_cases, 
+        imported_cases_by_onset <- sample_approx_dist(cases = imported_cases[, cases := confirm], 
                                                       dist_fn = sample_delay_fn,
                                                       max_value = max_delay,
-                                                      earliest_allowed_onset = earliest_allowed_onset)
+                                                      earliest_allowed_mapped = earliest_allowed_onset)
       }
       
       
@@ -259,7 +259,7 @@ if (!is.null(onset_modifier)) {
     
     ## Scale cases from onset to infection and upscale
     cases_by_infection <- sample_approx_dist(
-      reported_cases = cases_by_onset_upscaled[, confirm := cases],
+      cases = cases_by_onset_upscaled,
       dist_fn = sample_incubation_fn,
       max_value = max_delay
       )[, `:=`(type = "infection", import_status = "local")]
@@ -276,7 +276,7 @@ if (!is.null(onset_modifier)) {
     ## Apply to imported cases if present
     if (sum(imported_cases$confirm) > 0) {
       imported_cases_by_infection <- sample_approx_dist(
-        reported_cases = imported_cases_by_onset_upscaled[, confirm := cases], 
+        cases = imported_cases_by_onset_upscaled, 
         dist_fn = sample_incubation_fn,
         max_value = max_delay)[, `:=`(type = "infection", import_status = "imported")]
       

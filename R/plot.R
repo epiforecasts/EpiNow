@@ -137,9 +137,8 @@ plot_pipeline <- function(target_date = NULL, target_folder = NULL,
   
   summarised_nowcast <- readRDS(paste0(target_folder, "/summarised_nowcast.rds"))
   case_forecast <- readRDS(paste0(target_folder, "/case_forecast.rds"))
-  summarised_reff <- readRDS(paste0(target_folder, "/summarised_reff.rds"))
-  reff_nowcast <- summarised_reff[type %in% "nowcast"][rt_type %in% "nowcast"]
-  reff_forecast <- reff_estimates[rt_type %in% "forecast"]
+  reff_nowcast <- readRDS(paste0(target_folder, "/bigr_estimates.rds"))[type %in% "nowcast"]
+  reff_forecast <- readRDS(paste0(target_folder, "/summarised_reff.rds"))[rt_type %in% "forecast"]
   time_varying_littler <- readRDS(paste0(target_folder, "/time_varying_littler.rds"))
   
   # Detect NULL arguments ---------------------------------------------------
@@ -213,7 +212,7 @@ plot_pipeline <- function(target_date = NULL, target_folder = NULL,
                         height = 6,
                         dpi = 320)})
     ))
-  
+   
   
   saveRDS(plot_bigr,
           paste0(target_folder, "/bigr_eff_plot.rds"))

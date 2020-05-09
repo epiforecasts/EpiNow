@@ -30,20 +30,21 @@
 #' 
 #' @examples
 #' 
-#' ## Save everything to a temporary directory
-#' target_dir <- tempdir()
+#' ## Save everything to a temporary directory 
+#' ## Change this to inspect locally
+#' target_dir <- "../test"
 #' 
 #' ## Construct example distributions
 #' ## reporting delay dist
 #' delay_dist <- suppressWarnings(
-#'                EpiNow::get_dist_def(rexp(25, 2), 
-#'                                     samples = 1, bootstraps = 1))
+#'                EpiNow::get_dist_def(rexp(25, 1/10), 
+#'                                     samples = 10, bootstraps = 1))
 #' ## incubation delay dist
 #' incubation_dist <- delay_dist
 #' 
 #' ## Uses example case vector from EpiSoon
 #' cases <- data.table::setDT(EpiSoon::example_obs_cases)
-#' cases <- cases[, cases := as.integer(cases), import_status = "local"]
+#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
 #' 
 #' ## Run basic nowcasting pipeline
 #' rt_pipeline(cases = cases,
@@ -56,7 +57,7 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
                         delay_cutoff_date = NULL, rt_samples = 5, rt_windows = 1:7, 
                         rate_window = 7,earliest_allowed_onset = NULL, merge_actual_onsets = TRUE, 
                         approx_delay = FALSE,  approx_threshold = 10000, max_delay = 120, 
-                        serial_intervals = NULL, rt_prior = NULL, nowcast_lag = 6,
+                        serial_intervals = NULL, rt_prior = NULL, nowcast_lag = 8,
                         forecast_model = NULL, horizon = 0, report_forecast = FALSE,  
                         onset_modifier = NULL, min_forecast_cases = 200, 
                         target_folder = NULL, target_date = NULL, 
@@ -147,16 +148,16 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
    merge_actual_onsets <- FALSE
  }
 
-
+ 
   ##Reformat cases
-  cases <- cases[, confirm := cases][,cases := NULL]
+  cases <- cases[, confirm := cases][, cases := NULL]
 
   # Run a nowcast -----------------------------------------------------------
 
   nowcast <- EpiNow::nowcast_pipeline(
     reported_cases = cases, 
     linelist = linelist,
-    date_to_cast = target_date, 
+    target_date = target_date, 
     earliest_allowed_onset = earliest_allowed_onset,
     merge_actual_onsets = merge_actual_onsets,
     nowcast_lag = nowcast_lag, 
@@ -180,7 +181,7 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
   epi_estimates <-
     EpiNow::epi_measures_pipeline(
           nowcast = nowcast[type == "infection_upscaled"][, type := "nowcast"],
-          min_est_date = min_plot_date + lubridate::days(incubation_period),
+          min_est_date = min_plot_date,
           serial_intervals = serial_intervals,
           si_samples = 1, rt_samples = rt_samples,
           rate_window = rate_window, rt_windows = rt_windows,
@@ -193,7 +194,7 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
   saveRDS(epi_estimates$rate_of_spread, paste0(target_folder, "/summarised_littler.rds"))
   
   ## Remove everything except folder and reporting arguments
-  rm(list=setdiff(ls(), c("target_folder", "target-date", "min_plot_date",
+  rm(list=setdiff(ls(), c("target_folder", "target_date", "min_plot_date",
                   "report_forecast", "latest_folder")))
 # Report estimates --------------------------------------------------------
 

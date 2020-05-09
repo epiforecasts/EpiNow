@@ -22,7 +22,7 @@ summarise_cast <- function(nowcast) {
   }
   
   ## Make an explict copy
-  summarised_cast <- data.table::copy(cast)
+  summarised_cast <- data.table::copy(nowcast)
   
   ## SUmmarises cases by reference across sample, data and type
   summarised_cast <- summarised_cast[

@@ -317,12 +317,13 @@ get_dist_def <- function(values, verbose = FALSE, samples = 1,
 
 #' Approximate Sampling a Distribution using Counts
 #'
-#' @param reported_cases A dataframe of reported cases (in date order) with the following variables:
-#' `date` and `confirm`. 
-#' @param max_delay Numeric, maximum delay to allow. Defaults to 120 days
-#' @inheritParams sample_delay
-#' @param direction Character string, defato "onset". Direction in which to map cases. Supports
-#' either from report to onset ("onset") or from onset to report ("report")
+#' @param cases A dataframe of cases (in date order) with the following variables:
+#' `date` and `cases`. 
+#' @param max_value Numeric, maximum value to allow. Defaults to 120 days
+#' @param direction Character string, defato "backwards". Direction in which to map cases. Supports
+#' either "backwards" or "forwards".
+#' @param earliest_allowed_mapped A character string representing a date ("2020-01-01"). Indicates 
+#' the earlies allowed mapped value.
 #' @return A `data.table` of cases by date of onset
 #' @export
 #' @importFrom purrr map_dfc
@@ -331,18 +332,18 @@ get_dist_def <- function(values, verbose = FALSE, samples = 1,
 #' 
 #' cases <- data.table::as.data.table(EpiSoon::example_obs_cases) 
 #' 
-#' cases <- cases[, confirm := as.integer(cases)] 
+#' cases <- cases[, cases := as.integer(cases)] 
 #' 
 #' ## Reported case distribution
 #' print(cases)
 #' 
 #' ## Total cases
-#' sum(cases$confirm)
+#' sum(cases$cases)
 #' 
 #' delay_fn <- function(n, dist, cum) {
 #'    pgamma(n + 0.9999, 2, 1) - pgamma(n - 1e-5, 2, 1)}
 #' 
-#' onsets <- sample_approx_dist(reported_cases = cases,
+#' onsets <- sample_approx_dist(cases = cases,
 #'                              dist_fn = delay_fn)
 #'    
 #' ## Estimated onset distribution
@@ -351,77 +352,78 @@ get_dist_def <- function(values, verbose = FALSE, samples = 1,
 #' ## Check that sum is equal to reported cases
 #' total_onsets <- median(
 #'    purrr::map_dbl(1:100, 
-#'                   ~ sum(sample_approx_dist(reported_cases = cases,
+#'                   ~ sum(sample_approx_dist(cases = cases,
 #'                   dist_fn = delay_fn)$cases))) 
 #'                    
 #' total_onsets
 #'  
 #'                    
 #' ## Map from onset cases to reported                  
-#' reports <- sample_approx_dist(reported_cases = cases,
+#' reports <- sample_approx_dist(cases = cases,
 #'                               dist_fn = delay_fn,
-#'                               direction = "report")
+#'                               direction = "forwards")
 #' 
-sample_approx_dist <- function(reported_cases = NULL, 
+sample_approx_dist <- function(cases = NULL, 
                                dist_fn = NULL,
                                max_value = 120, 
-                               earliest_allowed_onset = NULL,
-                               direction = "onset") {
+                               earliest_allowed_mapped = NULL,
+                               direction = "backwards") {
   
-  if (direction %in% "onset") {
+  if (direction %in% "backwards") {
     direction_fn <- rev
-  }else if (direction %in% "report") {
+  }else if (direction %in% "forwards") {
     direction_fn <- function(x){x}
   }
   ## Reverse cases so starts with current first
-  reversed_cases <- direction_fn(reported_cases$confirm)
+  reversed_cases <- direction_fn(cases$cases)
   
   ## Draw from the density fn of the dist
   draw <- dist_fn(0:max_value, dist = TRUE, cum = FALSE)
   
-  ## Approximate onset cases
-  onset_cases <- purrr::map_dfc(1:length(reversed_cases), 
-                                ~ c(rep(0, . - 1), 
-                                    reversed_cases[.] * 
+  ## Approximate cases
+  mapped_cases <- purrr::map_dfc(1:length(reversed_cases), 
+                              ~ c(rep(0, . - 1), 
+                                  reversed_cases[.] * 
                                       draw,
                                     rep(0, length(reversed_cases) - .)))
   
   
   ## Set dates order based on direction mapping
-  if (direction %in% "onset") {
-    dates <- seq(min(reported_cases$date) - lubridate::days(length(draw) - 1),
-                 max(reported_cases$date), by = "days")
-  }else if (direction %in% "report") {
-    dates <- seq(min(reported_cases$date),
-                 max(reported_cases$date)  + lubridate::days(length(draw) - 1),
+  if (direction %in% "backwards") {
+    dates <- seq(min(cases$date) - lubridate::days(length(draw) - 1),
+                 max(cases$date), by = "days")
+  }else if (direction %in% "forwards") {
+    dates <- seq(min(cases$date),
+                 max(cases$date)  + lubridate::days(length(draw) - 1),
                  by = "days")
   }
   
   ## Summarises movements and sample for placement of non-integer cases
-  case_sum <- direction_fn(rowSums(onset_cases))
+  case_sum <- direction_fn(rowSums(mapped_cases))
   floor_case_sum <- floor(case_sum)
   sample_cases <- floor_case_sum + 
     data.table::fifelse((runif(1:length(case_sum)) < (case_sum - floor_case_sum)),
                         1, 0)
   
   ## Summarise imputed onsets and build output data.table
-  onset_cases <- data.table::data.table(
+  mapped_cases <- data.table::data.table(
     date = dates,
     cases = sample_cases
   )
   
   ## Filter out all zero cases until first recorded case
-  onset_cases <- data.table::setorder(onset_cases, date)
-  onset_cases <- onset_cases[,cum_cases := cumsum(cases)][cum_cases != 0][,cum_cases := NULL]
+  mapped_cases <- data.table::setorder(mapped_cases, date)
+  mapped_cases <- mapped_cases[,cum_cases := cumsum(cases)][cum_cases != 0][,cum_cases := NULL]
   
-  if (!is.null(earliest_allowed_onset)) {
-    onset_cases <- onset_cases[date >= as.Date(earliest_allowed_onset)]
+  if (!is.null(earliest_allowed_mapped)) {
+    mapped_cases <- mapped_cases[date >= as.Date(earliest_allowed_mapped)]
   }
   
-  ## Filter out future cases that have yet to report
-  if (direction %in% "report") {
-    onset_cases <- onset_cases[date <= max(reported_cases$date)]
+  ## Filter out future cases
+  if (direction %in% "forwards") {
+    max_date <- max(cases$date)
+    mapped_cases <- mapped_cases[date <= max_date]
   }
   
-  return(onset_cases)
+  return(mapped_cases)
 }

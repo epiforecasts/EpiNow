@@ -5,24 +5,24 @@
 \title{Approximate Sampling a Distribution using Counts}
 \usage{
 sample_approx_dist(
-  reported_cases = NULL,
+  cases = NULL,
   dist_fn = NULL,
   max_value = 120,
-  earliest_allowed_onset = NULL,
-  direction = "onset"
+  earliest_allowed_mapped = NULL,
+  direction = "backwards"
 )
 }
 \arguments{
-\item{reported_cases}{A dataframe of reported cases (in date order) with the following variables:
-\code{date} and \code{confirm}.}
+\item{cases}{A dataframe of cases (in date order) with the following variables:
+\code{date} and \code{cases}.}
 
-\item{earliest_allowed_onset}{A character string in the form of a date ("2020-01-01") indiciating the earliest
-allowed onset.}
+\item{max_value}{Numeric, maximum value to allow. Defaults to 120 days}
 
-\item{direction}{Character string, defato "onset". Direction in which to map cases. Supports
-either from report to onset ("onset") or from onset to report ("report")}
+\item{earliest_allowed_mapped}{A character string representing a date ("2020-01-01"). Indicates
+the earlies allowed mapped value.}
 
-\item{max_delay}{Numeric, maximum delay to allow. Defaults to 120 days}
+\item{direction}{Character string, defato "backwards". Direction in which to map cases. Supports
+either "backwards" or "forwards".}
 }
 \value{
 A \code{data.table} of cases by date of onset
@@ -34,18 +34,18 @@ Approximate Sampling a Distribution using Counts
 
 cases <- data.table::as.data.table(EpiSoon::example_obs_cases) 
 
-cases <- cases[, confirm := as.integer(cases)] 
+cases <- cases[, cases := as.integer(cases)] 
 
 ## Reported case distribution
 print(cases)
 
 ## Total cases
-sum(cases$confirm)
+sum(cases$cases)
 
 delay_fn <- function(n, dist, cum) {
    pgamma(n + 0.9999, 2, 1) - pgamma(n - 1e-5, 2, 1)}
 
-onsets <- sample_approx_dist(reported_cases = cases,
+onsets <- sample_approx_dist(cases = cases,
                              dist_fn = delay_fn)
    
 ## Estimated onset distribution
@@ -54,15 +54,15 @@ print(onsets)
 ## Check that sum is equal to reported cases
 total_onsets <- median(
    purrr::map_dbl(1:100, 
-                  ~ sum(sample_approx_dist(reported_cases = cases,
+                  ~ sum(sample_approx_dist(cases = cases,
                   dist_fn = delay_fn)$cases))) 
                    
 total_onsets
  
                    
 ## Map from onset cases to reported                  
-reports <- sample_approx_dist(reported_cases = cases,
+reports <- sample_approx_dist(cases = cases,
                               dist_fn = delay_fn,
-                              direction = "report")
+                              direction = "forwards")
 
 }

@@ -17,11 +17,9 @@
 report_nowcast <- function(nowcast, reported_cases, 
                             target, target_folder) {
   
-  
   ## Summarise nowcast
   summarised_cast <- EpiNow::summarise_cast(
-    nowcast[import_status %in% "local"][type %in% target][,
-                                                          type := "nowcast"]
+    nowcast[import_status %in% "local"][type %in% target][, type := "nowcast"]
   )
   
   ## Combine nowcast with observed cases by onset and report
@@ -75,11 +73,11 @@ report_reff <- function(target_folder) {
   summarised_nowcast <- readRDS(paste0(target_folder, "/summarised_nowcast.rds"))
   
   ## Pull out R estimates
-  reff_estimates <- readRDS(paste0(target_folder, "summarised_reff.rds"))
+  reff_estimates <- readRDS(paste0(target_folder, "/summarised_reff.rds"))
   bigr_estimates <- reff_estimates[rt_type %in% "nowcast"]
   
   ## Data.table of confidence estimates
-  case_confidence <- summarised_nowcast[, .(type, confidence, date = date_onset)]
+  case_confidence <- summarised_nowcast[, .(type, confidence, date)]
   
   ## Join confidence onto R estimates
   bigr_estimates <- case_confidence[bigr_estimates, on = c("type", "date")][
@@ -133,7 +131,7 @@ report_littler <- function(target_folder) {
   
   ## Data.table of confidence estimates
   summarised_nowcast <- readRDS(paste0(target_folder, "/summarised_nowcast.rds"))
-  case_confidence <- summarised_nowcast[, .(type, confidence, date = date_onset)]
+  case_confidence <- summarised_nowcast[, .(type, confidence, date)]
   case_confidence <- case_confidence[type %in% "nowcast"]
   
   ## Merge in case confidence
