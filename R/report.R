@@ -14,7 +14,7 @@
 #' @examples
 #' 
 #' 
-report_nowcast <- function(nowcast, reported_cases, 
+report_nowcast <- function(nowcast, cases, 
                             target, target_folder) {
   
   ## Summarise nowcast

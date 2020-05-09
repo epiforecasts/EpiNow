@@ -11,7 +11,7 @@
 #'
 #' @importFrom ggplot2 ggplot aes geom_line scale_x_date geom_ribbon theme element_text scale_fill_manual theme labs guide_legend guides
 #' @importFrom cowplot theme_cowplot
-#' @importFrom data.table setDT copy .N rbindlist
+#' @importFrom data.table as.data.table copy .N rbindlist
 #' @examples
 #'
 plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2,
@@ -39,7 +39,7 @@ plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2,
   
   
   ## Confident ribbons
-  data <- data.table::setDT(data)
+  data <- data.table::as.data.table(data)
   conf_data <- data.table::copy(data)[confidence == 1][type %in% "nowcast"]
   
   if (nrow(conf_data) > 0) {

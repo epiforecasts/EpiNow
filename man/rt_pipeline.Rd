@@ -33,6 +33,9 @@ rt_pipeline(
 )
 }
 \arguments{
+\item{cases}{A dataframe of cases (in date order) with the following variables:
+\code{date} and \code{cases}.}
+
 \item{linelist}{A dataframe of of cases (by row) containing the following variables:
 \code{import_status} (values "local" and "imported"), \code{date_onset}, \code{date_confirm}, \code{report_delay}.}
 

@@ -19,7 +19,7 @@
 #' 
 #' ## Save everything to a temporary directory 
 #' ## Change this to inspect locally
-#' target_dir <- tempdir() 
+#' target_dir <- "../test" tempdir() 
 #' 
 #' ## Construct example distributions
 #' ## reporting delay dist
@@ -97,7 +97,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
   regions <- unique(cases$region)
 
   message("Running pipelines by region")
-  
+   
   ## Function to run the pipeline in a region
   run_region <- function(target_region, ...) { 
     message("Running Rt pipeline for ", target_region)
