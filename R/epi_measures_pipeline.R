@@ -40,12 +40,12 @@ epi_measures_pipeline <- function(nowcast = NULL,
     
     if (!is.null(estimates$rts)) {
       estimates$rts <-  estimates$rts[[1]][,
-                `:=`(type = data$type[1], sample = data$sample[1])]
+                `:=`(type = data$type[1], sample = as.numeric(data$sample[1]))]
     }
     
     if (!is.null(estimates$cases)) {
       estimates$cases <- estimates$cases[[1]][, `:=`(type = data$type[1],
-                                                     sample = data$sample[1])]
+                                                     sample = as.numeric(data$sample[1]))]
     }
     
     return(estimates)

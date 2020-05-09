@@ -104,8 +104,6 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
     data.table::setDTthreads(threads = dt_threads)
     
     regional_cases <- data.table::copy(cases)[region %in% target_region][, region := NULL]
-    ## Get rid of all cases
-    rm(cases)
     
     if (!is.null(linelist) & merge_onsets) {
       regional_linelist <- data.table::copy(linelist)[region %in% target_region][, 
@@ -113,15 +111,11 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
     }else{
       regional_linelist <- linelist
     }
-    ## Get rid of the linelist
-    rm(linelist)
     
     if (!is.null(onset_modifier)) {
       region_onset_modifier <- data.table::copy(onset_modifier)[region %in% target_region]
       region_onset_modifier <- region_onset_modifier[,region := NULL]
       
-      ## Get rid of the onset modification
-      rm(onset_modifier)
     }else{
       region_onset_modifier <- NULL
     }
