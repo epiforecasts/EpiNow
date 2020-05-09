@@ -68,7 +68,8 @@ incubation_dist <- delay_dist
 
 ## Uses example case vector from EpiSoon
 cases <- data.table::setDT(EpiSoon::example_obs_cases)
-cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
+cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")][,
+                  cases := NULL]
 
 cases <- rbindlist(list(
   data.table::copy(cases)[, region := "testland"],

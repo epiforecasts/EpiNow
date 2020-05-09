@@ -44,7 +44,8 @@
 #' 
 #' ## Uses example case vector from EpiSoon
 #' cases <- data.table::setDT(EpiSoon::example_obs_cases)
-#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
+#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")][,
+#'                   cases := NULL]
 #' 
 #' ## Run basic nowcasting pipeline
 #' rt_pipeline(cases = cases,
@@ -122,7 +123,7 @@ balance_dfs <- function(df1, df2) {
  if (!is.null(min_forecast_cases)) {
    current_cases <- data.table::copy(cases)[date <= max(date)][
      date >= (max(date) - lubridate::days(7))
-   ][, .(cases = sum(cases, na.rm = TRUE))]$cases
+   ][, .(cases = sum(confirm, na.rm = TRUE))]$cases
 
    
    ## If cases in the last week are fewer than this number then turn off forecasting.
@@ -135,7 +136,7 @@ balance_dfs <- function(df1, df2) {
  
  if (approx_delay) {
    total_cases <- data.table::copy(cases)[date <= max(date)][,
-                        .(cases = sum(cases, na.rm = TRUE))]$cases
+                        .(cases = sum(confirm, na.rm = TRUE))]$cases
    
    if (total_cases <= approx_threshold) {
      approx_delay <- FALSE
@@ -149,7 +150,7 @@ balance_dfs <- function(df1, df2) {
  ## Define the min plotting (and estimate date as the first date that
  ## at least 5 local cases were reported
  min_plot_date <- data.table::copy(cases)[
-   import_status %in% "local"][cases >= 5][
+   import_status %in% "local"][confirm >= 5][
      ,.(date = min(date, na.rm = TRUE))]$date
  
   # Format input ------------------------------------------------------------
@@ -163,11 +164,7 @@ balance_dfs <- function(df1, df2) {
  }else{
    merge_actual_onsets <- FALSE
  }
-
  
-  ##Reformat cases
-  cases <- cases[, confirm := cases][, cases := NULL]
-
   # Run a nowcast -----------------------------------------------------------
 
   nowcast <- EpiNow::nowcast_pipeline(

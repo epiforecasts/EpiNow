@@ -31,7 +31,8 @@
 #' 
 #' ## Uses example case vector from EpiSoon
 #' cases <- data.table::setDT(EpiSoon::example_obs_cases)
-#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
+#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")][,
+#'                   cases := NULL]
 #' 
 #' cases <- rbindlist(list(
 #'   data.table::copy(cases)[, region := "testland"],
@@ -69,9 +70,9 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
    
   
   ## Check for regions more than required cases
-  eval_regions <- data.table::copy(cases)[,.(cases = sum(cases, na.rm = TRUE)), 
+  eval_regions <- data.table::copy(cases)[,.(confirm = sum(confirm, na.rm = TRUE)), 
                                           by = c("region", "date")][
-                      cases >= case_limit]$region
+                      confirm >= case_limit]$region
   
   eval_regions <- unique(eval_regions)
   
@@ -89,7 +90,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
                        .(import_status = unlist(import_status)), 
                        by = c("date", "region")]
   
-  cases <- cases[cases_grid, on = c("date", "region", "import_status")][is.na(cases), cases := 0]
+  cases <- cases[cases_grid, on = c("date", "region", "import_status")][is.na(confirm), confirm := 0]
   cases <- data.table::setorder(cases, region, import_status, date)
  
   ## regional pipelines
