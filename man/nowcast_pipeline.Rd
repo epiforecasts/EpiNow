@@ -2,12 +2,12 @@
 % Please edit documentation in R/nowcast_pipeline.R
 \name{nowcast_pipeline}
 \alias{nowcast_pipeline}
-\title{Run a complete nowcast}
+\title{Impute Cases Date of Infection}
 \usage{
 nowcast_pipeline(
   reported_cases = NULL,
   linelist = NULL,
-  date_to_cast = NULL,
+  target_date = NULL,
   earliest_allowed_onset = NULL,
   merge_actual_onsets = FALSE,
   approx_delay = FALSE,
@@ -24,8 +24,6 @@ nowcast_pipeline(
 \item{reported_cases}{A dataframe of reported cases}
 
 \item{linelist}{A linelist of report dates and onset dates}
-
-\item{date_to_cast}{A data indicating when to cast up to.}
 
 \item{earliest_allowed_onset}{A character string in the form of a date ("2020-01-01") indiciating the earliest
 allowed onset.}
@@ -54,26 +52,26 @@ to modify estimated cases by onset date. \code{modifier} must be a function that
 
 }
 \description{
-Run a complete nowcast
+Impute Cases Date of Infection
 }
 \examples{
 ## Construct example distributions
 ## reporting delay dist
 delay_dist <- suppressWarnings(
-               EpiNow::get_dist_def(rexp(25, 2), 
+               EpiNow::get_dist_def(rexp(25, 1 / 10), 
                                     samples = 1, bootstraps = 1))
 ## incubation delay dist
 incubation_dist <- delay_dist
 
 ## Uses example case vector from EpiSoon
 cases <- data.table::setDT(EpiSoon::example_obs_cases)
-cases <- cases[, cases := as.integer(cases), import_status = "local"]
+cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
 
 ## Basic nowcast
-nowcast <- nowcast_pipeline(cases, 
-                            date_to_cast = max(cases$date),
+nowcast <- nowcast_pipeline(reported_cases = cases, 
+                            target_date = max(cases$date),
                             delay_defs = delay_dist,
-                            incubatin_defs = incubation_dist)
+                            incubation_defs = incubation_dist)
                             
 nowcast
 

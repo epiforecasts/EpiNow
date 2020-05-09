@@ -4,7 +4,13 @@
 \alias{adjust_for_truncation}
 \title{Adjust Case Counts for Truncation}
 \usage{
-adjust_for_truncation(cases, cum_freq, dates, confidence_adjustment, samples)
+adjust_for_truncation(
+  cases,
+  cum_freq,
+  dates,
+  confidence_adjustment = NULL,
+  samples
+)
 }
 \arguments{
 \item{cases}{Numeric vector of cases}

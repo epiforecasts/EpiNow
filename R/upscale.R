@@ -28,7 +28,8 @@ rbinom_size <- function(n, x, prob) {
 #'
 #'
 adjust_for_truncation <- function(cases, cum_freq, dates, 
-                                  confidence_adjustment, samples) {
+                                  confidence_adjustment = NULL,
+                                  samples) {
   
   
   out <- purrr::map(seq_len(samples), function(sample) {
@@ -46,17 +47,17 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
     
     conf_meas <- cum_freq
     
-    if (!missing(confidence_adjustment)){
+    if (!is.null(confidence_adjustment)){
       if (length(conf_meas) > length(confidence_adjustment)){
         confidence_adjustment <- c(confidence_adjustment,
-                                   rep(1, length(conf_meas) - length(confidence_adjustment)))
+                                   rep(1, (length(conf_meas) - length(confidence_adjustment))))
       }
       
       if (length(conf_meas) < length(confidence_adjustment)){
         conf_meas <- c(conf_meas, 
                        rep(1, length(confidence_adjustment) - length(conf_meas)))
       }
-      conf_meas <- conf_meas * confidence_adjusmtent
+      conf_meas <- conf_meas * confidence_adjustment
     }
     
     confidence[length(confidence):(length(confidence) - (length(cum_freq) - 1))] <- conf_meas

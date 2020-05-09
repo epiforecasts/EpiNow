@@ -1,8 +1,7 @@
-#' Run a complete nowcast
+#' Impute Cases Date of Infection
 #'
 #' @param reported_cases A dataframe of reported cases
 #' @param linelist A linelist of report dates and onset dates
-#' @param date_to_cast A data indicating when to cast up to.
 #' @param merge_actual_onsets Logical, defaults to `TRUE`.
 #'  Should linelist onset dates be used where available?
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
@@ -18,6 +17,7 @@
 #' when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.
 #' @inheritParams generate_pseudo_linelist
 #' @inheritParams sample_delay
+#' @inheritParams report_nowcast
 #' @return
 #' @export
 #' @importFrom lubridate days
@@ -28,25 +28,25 @@
 #' ## Construct example distributions
 #' ## reporting delay dist
 #' delay_dist <- suppressWarnings(
-#'                EpiNow::get_dist_def(rexp(25, 2), 
+#'                EpiNow::get_dist_def(rexp(25, 1 / 10), 
 #'                                     samples = 1, bootstraps = 1))
 #' ## incubation delay dist
 #' incubation_dist <- delay_dist
 #' 
 #' ## Uses example case vector from EpiSoon
 #' cases <- data.table::setDT(EpiSoon::example_obs_cases)
-#' cases <- cases[, cases := as.integer(cases), import_status = "local"]
+#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
 #' 
 #' ## Basic nowcast
-#' nowcast <- nowcast_pipeline(cases, 
-#'                             date_to_cast = max(cases$date),
+#' nowcast <- nowcast_pipeline(reported_cases = cases, 
+#'                             target_date = max(cases$date),
 #'                             delay_defs = delay_dist,
-#'                             incubatin_defs = incubation_dist)
+#'                             incubation_defs = incubation_dist)
 #'                             
 #' nowcast
 #' 
 nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
-                             date_to_cast = NULL,
+                             target_date = NULL,
                              earliest_allowed_onset = NULL,
                              merge_actual_onsets = FALSE,
                              approx_delay = FALSE,
@@ -63,7 +63,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
   if (!approx_delay) {
     ## Split linelist into day chunks
     ## Used to merge actuals with estimated onsets
-    if (merge_actual_onsets | is.null(linelist)) {
+    if (merge_actual_onsets & !is.null(linelist)) {
       linelist <- data.table::as.data.table(linelist)
       ## Group linelists by day
       linelist_by_day <- EpiNow::split_linelist_by_day(
@@ -92,7 +92,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
   reported_cases <- data.table::as.data.table(reported_cases)
   
   ## Filter reported cases based on the nowcasting date
-  reported_cases <- reported_cases[date <= date_to_cast]
+  reported_cases <- reported_cases[date <= target_date]
 
   ## Split cases into local and imported
   local_cases <- data.table::copy(reported_cases)[import_status == "local"]
@@ -129,10 +129,10 @@ if (!is.null(onset_modifier)) {
  
 # Nowcasting for each samples or vector of samples ------------------------
 
-  nowcast_inner <- function(dist_defs = NULL, verbose = NULL) {
+  nowcast_inner <- function(dist_def = NULL, verbose = NULL) {
     
-    delay_def <- dist_defs$delay
-    incubation_def <- dist_defs$incubation
+    delay_def <- dist_def$delay
+    incubation_def <- dist_def$incubation
     
     ## Define sample delay fn
     sample_delay_fn <- function(n, ...) {
@@ -236,20 +236,18 @@ if (!is.null(onset_modifier)) {
 
     ## Upscale
     cases_by_onset_upscaled <- data.table::setDT(EpiNow::adjust_for_truncation(
-      onsets = cases_by_onset$cases,
+      cases = cases_by_onset$cases,
       dates = cases_by_onset$date,
       cum_freq = sample_delay_fn(1:nrow(cases_by_onset), dist = TRUE),
-      report_delay = 0,
       samples = 1
     )[[1]])[, `:=`(type = "onset_upscaled", import_status = "local")]
 
     if (sum(imported_cases$confirm) > 0) {
       ## Upscale
       imported_cases_by_onset_upscaled <- data.table::setDT(EpiNow::adjust_for_truncation(
-        onsets = imported_cases_by_onset$cases,
+        cases = imported_cases_by_onset$cases,
         dates = imported_cases_by_onset$date,
         cum_freq = sample_delay_fn(1:nrow(imported_cases_by_onset), dist = TRUE),
-        report_delay = 0,
         samples = 1
       )[[1]])[, `:=`(type = "onset_upscaled", import_status = "imported")]
     }
@@ -261,34 +259,32 @@ if (!is.null(onset_modifier)) {
     
     ## Scale cases from onset to infection and upscale
     cases_by_infection <- sample_approx_dist(
-      reported_cases = cases_by_onset_upscaled, 
+      reported_cases = cases_by_onset_upscaled[, confirm := cases],
       dist_fn = sample_incubation_fn,
       max_value = max_delay
       )[, `:=`(type = "infection", import_status = "local")]
     
     
     cases_by_infection_upscaled <- data.table::setDT(EpiNow::adjust_for_truncation(
-      onsets =  cases_by_infection$cases,
+      cases =  cases_by_infection$cases,
       dates =  cases_by_infection$date,
       cum_freq = sample_incubation_fn(1:nrow(cases_by_infection), dist = TRUE),
       confidence_adjustment = sample_delay_fn(1:nrow(cases_by_infection), dist = TRUE),
-      report_delay = 0,
       samples = 1
     )[[1]])[, `:=`(type = "infection_upscaled", import_status = "local")]
     
     ## Apply to imported cases if present
     if (sum(imported_cases$confirm) > 0) {
       imported_cases_by_infection <- sample_approx_dist(
-        reported_cases = imported_cases_by_onset_upscaled, 
+        reported_cases = imported_cases_by_onset_upscaled[, confirm := cases], 
         dist_fn = sample_incubation_fn,
         max_value = max_delay)[, `:=`(type = "infection", import_status = "imported")]
       
       imported_cases_by_infection_upscaled <- data.table::setDT(EpiNow::adjust_for_truncation(
-        onsets = imported_cases_by_infection$cases,
+        cases = imported_cases_by_infection$cases,
         dates = imported_cases_by_infection$date,
         cum_freq = sample_incubation_fn(1:nrow(imported_cases_by_infection), dist = TRUE),
         confidence_adjustment = sample_delay_fn(1:nrow(imported_cases_by_infection), dist = TRUE),
-        report_delay = 0,
         samples = 1
       )[[1]])[, `:=`(type = "infection_upscaled", import_status = "imported")]
       
@@ -301,7 +297,7 @@ if (!is.null(onset_modifier)) {
       cases_by_onset_upscaled,
       cases_by_infection,
       cases_by_infection_upscaled
-    ))
+    ), fill = TRUE)
 
     ## Add in imported cases for nowcast if present
     if (sum(imported_cases$confirm) > 0) {
@@ -313,7 +309,7 @@ if (!is.null(onset_modifier)) {
         imported_cases_by_onset_upscaled,
         imported_cases_by_infection,
         imported_cases_by_infection_upscaled
-      ))
+      ), fill = TRUE)
       
     }
 

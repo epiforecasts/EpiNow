@@ -43,7 +43,7 @@ print(cases)
 sum(cases$confirm)
 
 delay_fn <- function(n, dist, cum) {
-   pgamma(n + 0.9999, 2, 1) - pgamma(n, 2, 1)}
+   pgamma(n + 0.9999, 2, 1) - pgamma(n - 1e-5, 2, 1)}
 
 onsets <- sample_approx_dist(reported_cases = cases,
                              dist_fn = delay_fn)

@@ -53,13 +53,13 @@ dist_skel <- function(n, dist = FALSE, cum = TRUE, model,
     rdist <- function(n) {rexp(n, params$rate)}
     pdist <- function(n) {pexp(n, params$rate)}
     ddist <- function(n) {pexp(n + 0.9999, params$rate) -
-        pexp(n, params$rate)}
+        pexp(n - 1e-5, params$rate)}
   }else if (model %in% "gamma") {
     rdist <- function(n) {rgamma(n, params$alpha, params$beta)}
     pdist <- function(n) {pgamma(n, params$alpha, params$beta)}
     ddist <- function(n) {
       pgamma(n + 0.9999, params$alpha, params$beta) -
-        pgamma(n, params$alpha, params$beta)}
+        pgamma(n - 1e-5, params$alpha, params$beta)}
   }
   
   ## Define internal sampling function
@@ -340,7 +340,7 @@ get_dist_def <- function(values, verbose = FALSE, samples = 1,
 #' sum(cases$confirm)
 #' 
 #' delay_fn <- function(n, dist, cum) {
-#'    pgamma(n + 0.9999, 2, 1) - pgamma(n, 2, 1)}
+#'    pgamma(n + 0.9999, 2, 1) - pgamma(n - 1e-5, 2, 1)}
 #' 
 #' onsets <- sample_approx_dist(reported_cases = cases,
 #'                              dist_fn = delay_fn)
