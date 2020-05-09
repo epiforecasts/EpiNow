@@ -1,8 +1,6 @@
 #' Summarise a nowcast
 #'
 #' @param cast A dataframe as produced by `nowcast_pipeline`
-#' @param incubation_shift Numeric defaults to 5. 
-#' The number of days to use to shift the incubation period
 #' @return A summarised dataframe
 #' @export
 #' @importFrom data.table copy setorder
@@ -12,7 +10,7 @@
 #' @examples
 #'
 #'
-summarise_cast <- function(cast, incubation_period = 5) {
+summarise_cast <- function(cast) {
   
   get_conf <- function(conf, import_status) {
     if(length(conf) == 2) {
@@ -40,7 +38,7 @@ summarise_cast <- function(cast, incubation_period = 5) {
     median = as.numeric(median(cases, na.rm = TRUE)),
     mean = as.numeric(mean(cases, na.rm = TRUE)),
     confidence = as.numeric(mean(confidence, na.rm = TRUE))
-  ), by = .(date, type)][, date_onset := date][, date := date - lubridate::days(incubation_period)]
+  ), by = .(date, type)]
 
   data.table::setorder(summarised_cast, date)  
   

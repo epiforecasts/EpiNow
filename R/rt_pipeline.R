@@ -111,10 +111,10 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
  }
  
  ## Define the min plotting (and estimate date as the first date that
- ## at least 5 local cases were reported minus the incubation period
+ ## at least 5 local cases were reported
  min_plot_date <- data.table::copy(cases)[
    import_status %in% "local"][cases >= 5][
-     ,.(date = min(date, na.rm = TRUE) - lubridate::days(incubation_period))]$date
+     ,.(date = min(date, na.rm = TRUE))]$date
  
   # Format input ------------------------------------------------------------
 
@@ -148,8 +148,14 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
     approx_delay = approx_delay,
     max_delay = max_delay)
 
+# Report nowcast estimates ------------------------------------------------
+  summarised_nowcast <- EpiNow::report_nowcasts(nowcast, cases,
+                                                target_folder)
+  
   saveRDS(nowcast,  paste0(target_folder, "/nowcast.rds"))
   saveRDS(delay_defs, paste0(target_folder, "/delays.rds"))
+  
+  rm(nowcast)
   
   # Estimate time-varying parameters ----------------------------------------
 
@@ -169,15 +175,42 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
   epi_estimates$raw_R0 <- NULL
   epi_estimates$raw_case_forecast <- NULL
   
- # Summarise results -------------------------------------------------------
 
+# Report estimates --------------------------------------------------------
+
+  EpiNow::report_reff(reff_estimates = epi_estimates$R0, 
+                      summarised_nowcast = summarised_nowcast,
+                      target_folder)  
+  
+  epi_estimates$R0 <- NULL
+  
+  summarised_littler <- report_littler(littler_estimates = epi_estimates$rate_of_spread,
+                                       summarised_nowcast = summarised_nowcast,
+                                       target_folder
+                                       )
+  epi_estimates$rate_of_spread <- NULL
+  
+ # Summarise  -------------------------------------------------------
+
+ EpiNow::summarise_pipeline(target_folder)
+  
+
+
+ # Plot --------------------------------------------------------------------
+
+ EpiNow::plot_pipeline(target_folder = target_folder,                       
+                       target_date = target_date,
+                       min_plot_date = min_plot_date,
+                       save_plots = save_plots, 
+                       report_forecast = report_forecast)
+  
+  
  EpiNow::report_estimates(cases = cases, nowcast = nowcast, 
-                          reff_estimates = epi_estimates$R0,
-                          littler_estimates = epi_estimates$rate_of_spread,
                           case_forecast = epi_estimates$case_forecast,
-                          incubation_period = incubation_period,
-                          target_folder = target_folder, target_date = target_date,
-                          min_plot_date = min_plot_date, save_plots = save_plots, 
+                          target_folder = target_folder, 
+                          target_date = target_date,
+                          min_plot_date = min_plot_date,
+                          save_plots = save_plots, 
                           report_forecast = report_forecast)  
 
  # Copy all results to latest folder ---------------------------------------
