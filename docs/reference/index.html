@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">EpiNow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -133,7 +133,13 @@
         <td>
           <p><code><a href="add_dates.html">add_dates()</a></code> </p>
         </td>
-        <td><p>Add dates from data</p></td>
+        <td><p>Add Dates from Daata</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="adjust_for_truncation.html">adjust_for_truncation()</a></code> </p>
+        </td>
+        <td><p>Adjust Case Counts for Truncation</p></td>
       </tr><tr>
         
         <td>
@@ -152,6 +158,12 @@
           <p><code><a href="dist_fit.html">dist_fit()</a></code> </p>
         </td>
         <td><p>Fit an integer adjusted exponential or gamma distribution</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="dist_skel.html">dist_skel()</a></code> </p>
+        </td>
+        <td><p>Distribution Skeleton</p></td>
       </tr><tr>
         
         <td>
@@ -191,15 +203,21 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="gamma_dist_def.html">gamma_dist_def()</a></code> </p>
+        </td>
+        <td><p>Generate a Gamma Distribution Definition Based on Parameter Estimates</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="generate_pseudo_linelist.html">generate_pseudo_linelist()</a></code> </p>
         </td>
         <td><p>Generate a sample linelist from the observed linelist and sampled linelists</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="get_delay_sample_fn.html">get_delay_sample_fn()</a></code> </p>
+          <p><code><a href="get_dist_def.html">get_dist_def()</a></code> </p>
         </td>
-        <td><p>Get a sampling function for reporting delays</p></td>
+        <td><p>Get a Parameters that Define a Discrete Distribution</p></td>
       </tr><tr>
         
         <td>
@@ -239,21 +257,27 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="lognorm_dist_def.html">lognorm_dist_def()</a></code> </p>
+        </td>
+        <td><p>Generate a Log Normal Distribution Definition Based on Parameter Estimates</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="make_conf.html">make_conf()</a></code> </p>
         </td>
-        <td><p>Format output for reporting</p></td>
+        <td><p>Format Credible Intervals</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="map_prob_change.html">map_prob_change()</a></code> </p>
         </td>
-        <td><p>Categorise a Probability</p></td>
+        <td><p>Categorise the Probability of Change for Rt</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="nowcast_pipeline.html">nowcast_pipeline()</a></code> </p>
         </td>
-        <td><p>Run a complete nowcast</p></td>
+        <td><p>Impute Cases Date of Infection</p></td>
       </tr><tr>
         
         <td>
@@ -275,9 +299,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="plot_report_delay.html">plot_report_delay()</a></code> </p>
+          <p><code><a href="plot_pipeline.html">plot_pipeline()</a></code> </p>
         </td>
-        <td><p>Plot report delay</p></td>
+        <td><p>Plot Pipeline Results</p></td>
       </tr><tr>
         
         <td>
@@ -289,7 +313,7 @@
         <td>
           <p><code><a href="pull_max_var.html">pull_max_var()</a></code> </p>
         </td>
-        <td><p>Pull out maximum variables values based on a variable</p></td>
+        <td><p>Extract a the Maximum Value of a Variable Based on a Filter</p></td>
       </tr><tr>
         
         <td>
@@ -311,9 +335,27 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="report_estimates.html">report_estimates()</a></code> </p>
+          <p><code><a href="report_littler.html">report_littler()</a></code> </p>
         </td>
-        <td><p>Report on Estimates</p></td>
+        <td><p>Report Rate of Growth Estimates</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="report_nowcast.html">report_nowcast()</a></code> </p>
+        </td>
+        <td><p>Report Case Nowcast Estimates</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="report_reff.html">report_reff()</a></code> </p>
+        </td>
+        <td><p>Report Effective Reproduction Number Estimates</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="report_summary.html">report_summary()</a></code> </p>
+        </td>
+        <td><p>Provide Summary Statistics on an Rt Pipeline</p></td>
       </tr><tr>
         
         <td>
@@ -323,21 +365,15 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="sample_approx_delay.html">sample_approx_delay()</a></code> </p>
+          <p><code><a href="sample_approx_dist.html">sample_approx_dist()</a></code> </p>
         </td>
-        <td><p>Approximate Sampling Reporting Delays using Reported Case Counts</p></td>
+        <td><p>Approximate Sampling a Distribution using Counts</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="sample_delay.html">sample_delay()</a></code> </p>
         </td>
         <td><p>Sample Onset Dates for Cases missing them</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="sample_onsets.html">sample_onsets()</a></code> </p>
-        </td>
-        <td><p>Sample onset times</p></td>
       </tr><tr>
         
         <td>

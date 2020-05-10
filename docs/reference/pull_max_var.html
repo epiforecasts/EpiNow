@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Pull out maximum variables values based on a variable — pull_max_var • EpiNow</title>
+<title>Extract a the Maximum Value of a Variable Based on a Filter — pull_max_var • EpiNow</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Pull out maximum variables values based on a variable — pull_max_var" />
-<meta property="og:description" content="Pull out maximum variables values based on a variable" />
+<meta property="og:title" content="Extract a the Maximum Value of a Variable Based on a Filter — pull_max_var" />
+<meta property="og:description" content="Extract a the Maximum Value of a Variable Based on a Filter" />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">EpiNow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -106,13 +106,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Pull out maximum variables values based on a variable</h1>
+    <h1>Extract a the Maximum Value of a Variable Based on a Filter</h1>
     
     <div class="hidden name"><code>pull_max_var.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Pull out maximum variables values based on a variable</p>
+    <p>Extract a the Maximum Value of a Variable Based on a Filter</p>
     </div>
 
     <pre class="usage"><span class='fu'>pull_max_var</span>(<span class='no'>df</span>, <span class='kw'>max_var</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sel_var</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>type_selected</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
@@ -122,7 +122,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p>Dataframe with the following variables: <code>type</code> and <code>si_dist</code></p></td>
+      <td><p>Datatable with the following variables: <code>type</code> and <code>si_dist</code></p></td>
     </tr>
     <tr>
       <th>type_selected</th>
@@ -140,7 +140,11 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-</div></pre>
+<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"nowcast"</span>, <span class='st'>"other"</span>),
+                             <span class='kw'>var</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>),
+                             <span class='kw'>sel</span> <span class='kw'>=</span> <span class='st'>"test"</span>)
+
+<span class='fu'>pull_max_var</span>(<span class='no'>df</span>, <span class='kw'>max_var</span> <span class='kw'>=</span> <span class='st'>"var"</span>, <span class='kw'>sel_var</span> <span class='kw'>=</span> <span class='st'>"var"</span>, <span class='kw'>type_selected</span> <span class='kw'>=</span> <span class='st'>"nowcast"</span>)</div><div class='output co'>#&gt; [1] 9</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

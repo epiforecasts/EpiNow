@@ -74,7 +74,7 @@ the time-varying effective reproduction number and rate of spread." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">EpiNow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -121,36 +121,30 @@ the time-varying effective reproduction number and rate of spread.</p>
 
     <pre class="usage"><span class='fu'>rt_pipeline</span>(
   <span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>imported_cases</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>linelist</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>target_folder</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>delay_cutoff_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>predict_lag</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-  <span class='kw'>si_samples</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>5</span>,
   <span class='kw'>rt_windows</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>7</span>,
   <span class='kw'>rate_window</span> <span class='kw'>=</span> <span class='fl'>7</span>,
   <span class='kw'>earliest_allowed_onset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>merge_actual_onsets</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>delay_only</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>approx_delay</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>bootstraps</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>bootstrap_samples</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>approx_threshold</span> <span class='kw'>=</span> <span class='fl'>10000</span>,
   <span class='kw'>max_delay</span> <span class='kw'>=</span> <span class='fl'>120</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>serial_intervals</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>save_plots</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>nowcast_lag</span> <span class='kw'>=</span> <span class='fl'>4</span>,
-  <span class='kw'>incubation_period</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+  <span class='kw'>nowcast_lag</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>forecast_model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>horizon</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>report_forecast</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>report_delay_fns</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>onset_modifier</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>min_forecast_cases</span> <span class='kw'>=</span> <span class='fl'>200</span>
+  <span class='kw'>min_forecast_cases</span> <span class='kw'>=</span> <span class='fl'>200</span>,
+  <span class='kw'>target_folder</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>dt_threads</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -158,7 +152,8 @@ the time-varying effective reproduction number and rate of spread.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>cases</th>
-      <td><p>A dataframe of cases (<code>confirm</code>) by date of confirmation (<code>date</code>) and import status (<code>import_status</code>)</p></td>
+      <td><p>A dataframe of cases (in date order) with the following variables:
+<code>date</code> and <code>cases</code>.</p></td>
     </tr>
     <tr>
       <th>linelist</th>
@@ -166,25 +161,19 @@ the time-varying effective reproduction number and rate of spread.</p>
 <code>import_status</code> (values "local" and "imported"), <code>date_onset</code>, <code>date_confirm</code>, <code>report_delay</code>.</p></td>
     </tr>
     <tr>
-      <th>target_folder</th>
-      <td><p>Character string, name of the folder in which to save the results.</p></td>
+      <th>delay_defs</th>
+      <td><p>A data.table that defines the delay distributions (model, parameters and maximum delay for each model).
+See <code>get_delay_dist</code> for an example of the structure.</p></td>
     </tr>
     <tr>
-      <th>target_date</th>
-      <td><p>Character string, in the form "2020-01-01". Date to cast.</p></td>
+      <th>incubation_defs</th>
+      <td><p>A data.table that defines the incubation distributions (model, parameters and maximum delay for each model).
+See <code>get_delay_dist</code> for an example of the structure.</p></td>
     </tr>
     <tr>
       <th>delay_cutoff_date</th>
       <td><p>Character string, in the form "2020-01-01". Cutoff date to use
 to estimate the delay distribution.</p></td>
-    </tr>
-    <tr>
-      <th>samples</th>
-      <td><p>Numeric, the number of pseudo linelists to generate. Defaults to 1000.</p></td>
-    </tr>
-    <tr>
-      <th>si_samples</th>
-      <td><p>Numeric, the number of samples to take from the serial intervals supplied</p></td>
     </tr>
     <tr>
       <th>rt_samples</th>
@@ -210,30 +199,18 @@ allowed onset.</p></td>
 Should linelist onset dates be used where available?</p></td>
     </tr>
     <tr>
-      <th>delay_only</th>
-      <td><p>Logical, defaults to <code>FALSE</code>. Should estimates be made based on estimated onset dates without nowcasting.</p></td>
-    </tr>
-    <tr>
       <th>approx_delay</th>
       <td><p>Logical, defaults to <code>FALSE</code>. Should delay sampling be approximated using case counts. Not appropriate
 when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.</p></td>
     </tr>
     <tr>
-      <th>verbose</th>
-      <td><p>Logical, defaults to <code>FALSE</code>. Should internal nowcasting progress messages be returned.</p></td>
-    </tr>
-    <tr>
-      <th>serial_intervals</th>
+      <th>generation_times</th>
       <td><p>A matrix with columns representing samples and rows representing the probability of the serial intervel being on
-that day. Defaults to <code>EpiNow::covid_serial_intervals</code>.</p></td>
+that day. Defaults to <code>EpiNow::covid_generation_times</code>.</p></td>
     </tr>
     <tr>
       <th>rt_prior</th>
       <td><p>A list defining the reproduction number prior containing the mean (<code>mean_prior</code>) and standard deviation (<code>std_prior</code>)</p></td>
-    </tr>
-    <tr>
-      <th>save_plots</th>
-      <td><p>Logical, defaults to <code>TRUE</code>. Should plots be saved.</p></td>
     </tr>
     <tr>
       <th>nowcast_lag</th>
@@ -253,10 +230,6 @@ future Rt values. An example of the required structure is: <code>function(ss, y)
       <td><p>Logical, defaults to <code>FALSE</code>. Should the forecast be reported.</p></td>
     </tr>
     <tr>
-      <th>report_delay_fns</th>
-      <td><p>List of functions as produced by <code><a href='get_delay_sample_fn.html'>EpiNow::get_delay_sample_fn</a></code></p></td>
-    </tr>
-    <tr>
       <th>onset_modifier</th>
       <td><p>data.frame containing a <code>date</code> variable and a function <code>modifier</code> variable. This is used
 to modify estimated cases by onset date. <code>modifier</code> must be a function that returns a proportion when called
@@ -267,12 +240,53 @@ to modify estimated cases by onset date. <code>modifier</code> must be a functio
       <td><p>Numeric, defaults to 200. The minimum number of cases required in the last 7 days
 of data in order for a forecast to be run. This prevents spurious forecasts based on highly uncertain Rt estimates.</p></td>
     </tr>
+    <tr>
+      <th>target_folder</th>
+      <td><p>Character string, name of the folder in which to save the results.</p></td>
+    </tr>
+    <tr>
+      <th>target_date</th>
+      <td><p>Character string, in the form "2020-01-01". Date to cast.</p></td>
+    </tr>
+    <tr>
+      <th>dt_threads</th>
+      <td><p>Numeric, the number of data.table threads to use. Set internally to avoid issue when running in parallel.
+Defaults to 1 thread.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>Logical, defaults to <code>FALSE</code>. Should internal nowcasting progress messages be returned.</p></td>
+    </tr>
+    <tr>
+      <th>approx_thresold</th>
+      <td><p>Numeric, defaults to 10,000. Threshold of cases below which explicit sampling of onsets
+always occurs.</p></td>
+    </tr>
     </table>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-</div></pre>
+<span class='co'>## Save everything to a temporary directory </span>
+<span class='co'>## Change this to inspect locally</span>
+<span class='no'>target_dir</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>()
+
+<span class='co'>## Construct example distributions</span>
+<span class='co'>## reporting delay dist</span>
+<span class='no'>delay_dist</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span>(
+               <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='get_dist_def.html'>get_dist_def</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Exponential.html'>rexp</a></span>(<span class='fl'>25</span>, <span class='fl'>1</span>/<span class='fl'>10</span>),
+                                    <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>bootstraps</span> <span class='kw'>=</span> <span class='fl'>1</span>))
+
+<span class='co'>## Uses example case vector from EpiSoon</span>
+<span class='no'>cases</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/setDT.html'>setDT</a></span>(<span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>)
+<span class='no'>cases</span> <span class='kw'>&lt;-</span> <span class='no'>cases</span>[, <span class='fu'>`:=`</span>(<span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span>(<span class='no'>cases</span>), <span class='kw'>import_status</span> <span class='kw'>=</span> <span class='st'>"local"</span>)][,
+                  <span class='no'>cases</span> <span class='kw'>:=</span> <span class='kw'>NULL</span>]
+
+<span class='co'>## Run basic nowcasting pipeline</span>
+<span class='fu'>rt_pipeline</span>(<span class='kw'>cases</span> <span class='kw'>=</span> <span class='no'>cases</span>,
+            <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='no'>delay_dist</span>,
+            <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='no'>cases</span>$<span class='no'>date</span>),
+            <span class='kw'>target_folder</span> <span class='kw'>=</span> <span class='no'>target_dir</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

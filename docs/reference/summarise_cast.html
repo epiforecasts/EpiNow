@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">EpiNow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -115,19 +115,14 @@
     <p>Summarise a nowcast</p>
     </div>
 
-    <pre class="usage"><span class='fu'>summarise_cast</span>(<span class='no'>cast</span>, <span class='kw'>incubation_period</span> <span class='kw'>=</span> <span class='fl'>5</span>)</pre>
+    <pre class="usage"><span class='fu'>summarise_cast</span>(<span class='no'>nowcast</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>cast</th>
+      <th>nowcast</th>
       <td><p>A dataframe as produced by <code>nowcast_pipeline</code></p></td>
-    </tr>
-    <tr>
-      <th>incubation_shift</th>
-      <td><p>Numeric defaults to 5.
-The number of days to use to shift the incubation period</p></td>
     </tr>
     </table>
 

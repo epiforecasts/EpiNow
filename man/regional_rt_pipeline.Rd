@@ -56,7 +56,7 @@ Runs a pipeline by region.
 
 ## Save everything to a temporary directory 
 ## Change this to inspect locally
-target_dir <- "../test" #tempdir() 
+target_dir <- tempdir() 
 
 ## Construct example distributions
 ## reporting delay dist

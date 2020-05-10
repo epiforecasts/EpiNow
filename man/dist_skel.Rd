@@ -63,7 +63,7 @@ dist_skel(0:10, model = "gamma", dist = TRUE,
 dist_skel(10, model = "lognorm", params = list(mean = log(5), sd = log(2)))
 
 ## Cumulative prob density
-dist_skel(0:10, model = "lognorm", dist = TRUE
+dist_skel(0:10, model = "lognorm", dist = TRUE,
           params = list(mean = log(5), sd = log(2)))
 
 ## Probability density

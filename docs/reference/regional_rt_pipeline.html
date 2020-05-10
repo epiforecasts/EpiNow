@@ -40,8 +40,7 @@
 
 
 <meta property="og:title" content="Regional Realtime Pipeline — regional_rt_pipeline" />
-<meta property="og:description" content="Runs a national realtime pipeline followed by a pipeline for each
-individual region." />
+<meta property="og:description" content="Runs a pipeline by region." />
 
 
 
@@ -73,7 +72,7 @@ individual region." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">EpiNow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -113,23 +112,20 @@ individual region." />
     </div>
 
     <div class="ref-description">
-    <p>Runs a national realtime pipeline followed by a pipeline for each
-individual region.</p>
+    <p>Runs a pipeline by region.</p>
     </div>
 
     <pre class="usage"><span class='fu'>regional_rt_pipeline</span>(
   <span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>linelist</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>target_folder</span> <span class='kw'>=</span> <span class='st'>"results"</span>,
-  <span class='kw'>regional_delay</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>merge_onsets</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>case_limit</span> <span class='kw'>=</span> <span class='fl'>40</span>,
   <span class='kw'>onset_modifier</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>bootstraps</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>bootstrap_samples</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>regions_in_parallel</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>dt_threads</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
   <span class='no'>...</span>
 )</pre>
 
@@ -147,12 +143,18 @@ individual region.</p>
 used but in this case <code>merge_onsets</code> should be set to <code>FALSE</code>.</p></td>
     </tr>
     <tr>
-      <th>target_folder</th>
-      <td><p>Character string, name of the folder in which to save the results.</p></td>
+      <th>delay_defs</th>
+      <td><p>A data.table that defines the delay distributions (model, parameters and maximum delay for each model).
+See <code>get_delay_dist</code> for an example of the structure.</p></td>
     </tr>
     <tr>
-      <th>regional_delay</th>
-      <td><p>Logical defaults to <code>FALSE</code>. Should reporting delays be estimated by region.</p></td>
+      <th>incubation_defs</th>
+      <td><p>A data.table that defines the incubation distributions (model, parameters and maximum delay for each model).
+See <code>get_delay_dist</code> for an example of the structure.</p></td>
+    </tr>
+    <tr>
+      <th>target_folder</th>
+      <td><p>Character string, name of the folder in which to save the results.</p></td>
     </tr>
     <tr>
       <th>merge_onsets</th>
@@ -170,17 +172,13 @@ to modify estimated cases by onset date. <code>modifier</code> must be a functio
 (enables inclusion of uncertainty) and takes the following arguments: <code>n</code> (samples to return) and <code>status</code> ("local" or "import").</p></td>
     </tr>
     <tr>
-      <th>regions_in_parallel</th>
-      <td><p>Logical, should regions be run in parallel or sequentially (allowing for)
-within pipeline parallisation. Defaults to <code>TRUE</code>.</p></td>
+      <th>dt_threads</th>
+      <td><p>Numeric, the number of data.table threads to use. Set internally to avoid issue when running in parallel.
+Defaults to 1 thread.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
       <td><p>Logical, defaults to <code>FALSE</code>. Should progress messages be shown for each reigon?</p></td>
-    </tr>
-    <tr>
-      <th>samples</th>
-      <td><p>Numeric, the number of pseudo linelists to generate. Defaults to 1000.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -191,85 +189,32 @@ within pipeline parallisation. Defaults to <code>TRUE</code>.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='co'>## Code</span>
-<span class='no'>regional_rt_pipeline</span></div><div class='output co'>#&gt; function (cases = NULL, linelist = NULL, target_folder = "results", 
-#&gt;     regional_delay = FALSE, merge_onsets = FALSE, case_limit = 40, 
-#&gt;     onset_modifier = NULL, bootstraps = 1, bootstrap_samples = 100, 
-#&gt;     regions_in_parallel = TRUE, verbose = FALSE, samples = 1000, 
-#&gt;     ...) 
-#&gt; {
-#&gt;     cases &lt;- data.table::as.data.table(cases)
-#&gt;     linelist &lt;- data.table::as.data.table(linelist)
-#&gt;     target_date &lt;- as.character(max(cases$date))
-#&gt;     message("Running pipeline for ", target_date)
-#&gt;     eval_regions &lt;- data.table::copy(cases)[.(cases = sum(cases, 
-#&gt;         na.rm = TRUE)), by = c("region", "date")][cases &gt;= case_limit]$region
-#&gt;     eval_regions &lt;- unique(eval_regions)
-#&gt;     cases &lt;- cases[!is.na(region)][region %in% eval_regions]
-#&gt;     message("Running the pipeline for: ", paste(eval_regions, 
-#&gt;         collapse = ", "))
-#&gt;     cases_grid &lt;- cases[, .(date = seq(min(date), max(date), 
-#&gt;         by = "days"), import_status = list(list("local", "imported"))), 
-#&gt;         by = "region"][, .(import_status = unlist(import_status)), 
-#&gt;         by = c("date", "region")]
-#&gt;     cases &lt;- cases[cases_grid, on = c("date", "region", "import_status")][is.na(cases), 
-#&gt;         `:=`(cases, 0)]
-#&gt;     cases &lt;- data.table::setorder(cases, region, import_status, 
-#&gt;         date)
-#&gt;     regions &lt;- unique(cases$region)
-#&gt;     if (!regional_delay) {
-#&gt;         message("Using a national linelist so not merging onsets and fitting a single reporting delay")
-#&gt;         merge_onsets &lt;- FALSE
-#&gt;         report_delay_fns &lt;- EpiNow::get_delay_sample_fn(linelist = linelist[, 
-#&gt;             `:=`(delay_confirmatin, report_delay)], samples = samples, 
-#&gt;             bootstraps = bootstraps, bootstrap_samples = bootstrap_samples)
-#&gt;     }
-#&gt;     else {
-#&gt;         report_delay_fns &lt;- NULL
-#&gt;     }
-#&gt;     message("Running pipelines by region")
-#&gt;     region_rt &lt;- purrr::partial(EpiNow::rt_pipeline, target_date = target_date, 
-#&gt;         merge_actual_onsets = merge_onsets, samples = samples, 
-#&gt;         report_delay_fns = report_delay_fns, verbose = verbose, 
-#&gt;         ...)
-#&gt;     run_region &lt;- function(target_region) {
-#&gt;         message("Running Rt pipeline for ", target_region)
-#&gt;         regional_cases &lt;- cases[regions %in% target_region]
-#&gt;         if (regional_delay) {
-#&gt;             regional_linelist &lt;- linelist[region %in% target_region]
-#&gt;         }
-#&gt;         else {
-#&gt;             regional_linelist &lt;- linelist
-#&gt;         }
-#&gt;         if (!is.null(onset_modifier)) {
-#&gt;             region_onset_modifier &lt;- data.table::setDT(onset_modifier)[region %in% 
-#&gt;                 target_region]
-#&gt;             region_onset_modifier &lt;- region_onset_modifier[, 
-#&gt;                 `:=`(region, NULL)]
-#&gt;         }
-#&gt;         else {
-#&gt;             region_onset_modifier &lt;- NULL
-#&gt;         }
-#&gt;         region_rt(cases = regional_cases, linelist = regional_linelist, 
-#&gt;             onset_modifier = region_onset_modifier, target_folder = file.path(target_folder, 
-#&gt;                 target_region))
-#&gt;         rm(list = ls())
-#&gt;         return(invisible(NULL))
-#&gt;     }
-#&gt;     if (regions_in_parallel) {
-#&gt;         out &lt;- furrr::future_map(regions, run_region, .progress = TRUE, 
-#&gt;             .options = furrr::future_options(scheduling = Inf, 
-#&gt;                 globals = c("region_rt", "target_date", "merge_onsets", 
-#&gt;                   "samples", "report_delay_fns", "verbose", "cases", 
-#&gt;                   "linelist", "onset_modifier", "regions", "target_folder")))
-#&gt;     }
-#&gt;     else {
-#&gt;         out &lt;- purrr::map(regions, run_region)
-#&gt;     }
-#&gt;     return(invisible(NULL))
-#&gt; }
-#&gt; &lt;bytecode: 0x559f7f66b3e8&gt;
-#&gt; &lt;environment: namespace:EpiNow&gt;</div></pre>
+<span class='co'>## Save everything to a temporary directory </span>
+<span class='co'>## Change this to inspect locally</span>
+<span class='no'>target_dir</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>()
+
+<span class='co'>## Construct example distributions</span>
+<span class='co'>## reporting delay dist</span>
+<span class='no'>delay_dist</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span>(
+               <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='get_dist_def.html'>get_dist_def</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Exponential.html'>rexp</a></span>(<span class='fl'>25</span>, <span class='fl'>1</span>/<span class='fl'>10</span>),
+                                    <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>bootstraps</span> <span class='kw'>=</span> <span class='fl'>1</span>))
+
+<span class='co'>## Uses example case vector from EpiSoon</span>
+<span class='no'>cases</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/setDT.html'>setDT</a></span>(<span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>)
+<span class='no'>cases</span> <span class='kw'>&lt;-</span> <span class='no'>cases</span>[, <span class='fu'>`:=`</span>(<span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span>(<span class='no'>cases</span>), <span class='kw'>import_status</span> <span class='kw'>=</span> <span class='st'>"local"</span>)][,
+                  <span class='no'>cases</span> <span class='kw'>:=</span> <span class='kw'>NULL</span>]
+
+<span class='no'>cases</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/rbindlist.html'>rbindlist</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
+  <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/copy.html'>copy</a></span>(<span class='no'>cases</span>)[, <span class='no'>region</span> <span class='kw'>:=</span> <span class='st'>"testland"</span>],
+  <span class='no'>cases</span>[, <span class='no'>region</span> <span class='kw'>:=</span> <span class='st'>"realland"</span>]))
+
+<span class='co'>## Run basic nowcasting pipeline</span>
+<span class='fu'>regional_rt_pipeline</span>(<span class='kw'>cases</span> <span class='kw'>=</span> <span class='no'>cases</span>,
+            <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='no'>delay_dist</span>,
+            <span class='kw'>target_folder</span> <span class='kw'>=</span> <span class='no'>target_dir</span>)</div><div class='output co'>#&gt; <span class='message'>Running pipeline for 2020-03-22</span></div><div class='output co'>#&gt; <span class='message'>Running the pipeline for: testland, realland</span></div><div class='output co'>#&gt; <span class='message'>Running pipelines by region</span></div><div class='output co'>#&gt; <span class='message'>Running Rt pipeline for realland</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Attaching package: ‘purrr’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:data.table’:</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    transpose</span></div><div class='output co'>#&gt; <span class='message'>Running Rt pipeline for testland</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

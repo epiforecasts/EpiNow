@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">EpiNow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -117,10 +117,10 @@
 
     <pre class="usage"><span class='fu'>estimate_R0</span>(
   <span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>serial_intervals</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>windows</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>si_samples</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>gt_samples</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>min_est_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>forecast_model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -135,8 +135,8 @@
       <td><p>A dataframe containing a list of local cases with the following variables: <code>date</code>, <code>cases</code>, and <code>import_status</code></p></td>
     </tr>
     <tr>
-      <th>serial_intervals</th>
-      <td><p>A matrix with columns representing samples and rows representing the probability of the serial intervel being on
+      <th>generation_times</th>
+      <td><p>A matrix with columns representing samples and rows representing the probability of the generation timebeing on
 that day.</p></td>
     </tr>
     <tr>
@@ -149,8 +149,8 @@ that day.</p></td>
 selected per serial interval sample by default (based on which window best forecasts current cases).</p></td>
     </tr>
     <tr>
-      <th>si_samples</th>
-      <td><p>Numeric, the number of samples to take from the serial intervals supplied</p></td>
+      <th>gt_samples</th>
+      <td><p>Numeric, the number of samples to take from the generaiton times supplied</p></td>
     </tr>
     <tr>
       <th>rt_samples</th>
@@ -179,61 +179,61 @@ future Rt values. An example of the required structure is: <code>function(ss, y)
     <pre class="examples"><div class='input'>
 <span class='co'>## Nowcast Rts                  </span>
 <span class='no'>estimates</span> <span class='kw'>&lt;-</span> <span class='fu'>estimate_R0</span>(<span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>,
-                         <span class='kw'>serial_intervals</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_serial_intervals</span>[,<span class='fl'>1</span>]),
+                         <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_generation_times</span>[,<span class='fl'>2</span>]),
                          <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mean_prior</span> <span class='kw'>=</span> <span class='fl'>2.6</span>, <span class='kw'>std_prior</span> <span class='kw'>=</span> <span class='fl'>2</span>),
-                         <span class='kw'>windows</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>si_samples</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+                         <span class='kw'>windows</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>gt_samples</span> <span class='kw'>=</span> <span class='fl'>2</span>,
                          <span class='kw'>min_est_date</span> <span class='kw'>=</span>  <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='st'>"2020-02-18"</span>))
 
 
-<span class='no'>estimates</span>$<span class='no'>rts</span></div><div class='output co'>#&gt;            date   mean_R      sd_R sample_R sample   crps window rt_type
-#&gt;   1: 2020-02-18 1.978006 0.9174621 1.391506      1   0.41      1 nowcast
-#&gt;   2: 2020-02-18 1.978006 0.9174621 1.548251      2   0.41      1 nowcast
-#&gt;   3: 2020-02-18 1.978006 0.9174621 1.755762      3   0.41      1 nowcast
-#&gt;   4: 2020-02-18 1.978006 0.9174621 1.885418      4   0.41      1 nowcast
-#&gt;   5: 2020-02-18 1.978006 0.9174621 2.134518      5   0.41      1 nowcast
-#&gt;  ---                                                                    
-#&gt; 676: 2020-03-22 1.535392 0.0480993 1.530371     12 134.34      1 nowcast
-#&gt; 677: 2020-03-22 1.535392 0.0480993 1.558433     14 134.34      1 nowcast
-#&gt; 678: 2020-03-22 1.535392 0.0480993 1.567507     16 134.34      1 nowcast
-#&gt; 679: 2020-03-22 1.535392 0.0480993 1.589609     18 134.34      1 nowcast
-#&gt; 680: 2020-03-22 1.535392 0.0480993 1.613158     20 134.34      1 nowcast</div><div class='input'>
+<span class='no'>estimates</span>$<span class='no'>rts</span></div><div class='output co'>#&gt;            date         R sample   crps window rt_type
+#&gt;   1: 2020-02-18 0.8660468      1   0.21      3 nowcast
+#&gt;   2: 2020-02-18 1.1586639      2   0.21      3 nowcast
+#&gt;   3: 2020-02-18 1.1777688      3   0.21      3 nowcast
+#&gt;   4: 2020-02-18 1.4778703      4   0.21      3 nowcast
+#&gt;   5: 2020-02-18 1.8766432      5   0.21      3 nowcast
+#&gt;  ---                                                  
+#&gt; 686: 2020-03-22 1.3970775     12 165.58      1 nowcast
+#&gt; 687: 2020-03-22 1.3995913     14 165.58      1 nowcast
+#&gt; 688: 2020-03-22 1.4154107     16 165.58      1 nowcast
+#&gt; 689: 2020-03-22 1.4272942     18 165.58      1 nowcast
+#&gt; 690: 2020-03-22 1.4550747     20 165.58      1 nowcast</div><div class='input'>
 <span class='co'>## Nowcast Rts, forecast Rts and the forecast cases</span>
 <span class='no'>estimates</span> <span class='kw'>&lt;-</span> <span class='fu'>estimate_R0</span>(<span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>,
-                         <span class='kw'>serial_intervals</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_serial_intervals</span>[,<span class='fl'>1</span>]),
+                         <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_generation_times</span>[,<span class='fl'>1</span>]),
                          <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mean_prior</span> <span class='kw'>=</span> <span class='fl'>2.6</span>, <span class='kw'>std_prior</span> <span class='kw'>=</span> <span class='fl'>2</span>),
-                         <span class='kw'>windows</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>si_samples</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+                         <span class='kw'>windows</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>gt_samples</span> <span class='kw'>=</span> <span class='fl'>2</span>,
                          <span class='kw'>min_est_date</span> <span class='kw'>=</span>  <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='st'>"2020-02-18"</span>),
                          <span class='kw'>forecast_model</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>...</span>){<span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/EpiSoon/man/fable_model.html'>fable_model</a></span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='kw pkg'>fable</span><span class='kw ns'>::</span><span class='fu'><a href='https://fable.tidyverts.org/reference/ETS.html'>ETS</a></span>(<span class='no'>y</span> ~ <span class='fu'>trend</span>(<span class='st'>"A"</span>)), <span class='no'>...</span>)},
                          <span class='kw'>horizon</span> <span class='kw'>=</span> <span class='fl'>7</span>)
 
 <span class='co'>## Rt estimates and forecasts</span>
 <span class='no'>estimates</span>$<span class='no'>rts</span></div><div class='output co'>#&gt;            date         R sample crps window  rt_type
-#&gt;   1: 2020-02-18 1.2233900      1  0.1      1  nowcast
-#&gt;   2: 2020-02-18 1.3214026      2  0.1      1  nowcast
-#&gt;   3: 2020-02-18 1.5212960      3  0.1      1  nowcast
-#&gt;   4: 2020-02-18 1.5583118      4  0.1      1  nowcast
-#&gt;   5: 2020-02-18 1.8295691      5  0.1      1  nowcast
+#&gt;   1: 2020-02-18 0.9172282      1 0.25      7  nowcast
+#&gt;   2: 2020-02-18 1.0822154      2 0.25      7  nowcast
+#&gt;   3: 2020-02-18 1.2976365      3 0.25      7  nowcast
+#&gt;   4: 2020-02-18 1.3400988      4 0.25      7  nowcast
+#&gt;   5: 2020-02-18 1.3567841      5 0.25      7  nowcast
 #&gt;  ---                                                 
-#&gt; 826: 2020-03-29 1.7060402     12   NA     NA forecast
-#&gt; 827: 2020-03-29 1.9297857     14   NA     NA forecast
-#&gt; 828: 2020-03-29 1.9798116     16   NA     NA forecast
-#&gt; 829: 2020-03-29 1.2602452     18   NA     NA forecast
-#&gt; 830: 2020-03-29 0.7835643     20   NA     NA forecast</div><div class='input'>
+#&gt; 816: 2020-03-29 1.6563804     12   NA     NA forecast
+#&gt; 817: 2020-03-29 2.1935595     14   NA     NA forecast
+#&gt; 818: 2020-03-29 1.4503716     16   NA     NA forecast
+#&gt; 819: 2020-03-29 1.3547133     18   NA     NA forecast
+#&gt; 820: 2020-03-29 1.5227681     20   NA     NA forecast</div><div class='input'>
 
 
 <span class='co'>## Case forecasts</span>
 <span class='no'>estimates</span>$<span class='no'>cases</span></div><div class='output co'>#&gt;      sample       date cases horizon  rt_type
-#&gt;   1:      1 2020-03-23   583       1 forecast
-#&gt;   2:      1 2020-03-24   796       2 forecast
-#&gt;   3:      1 2020-03-25   554       3 forecast
-#&gt;   4:      1 2020-03-26   799       4 forecast
-#&gt;   5:      1 2020-03-27   784       5 forecast
+#&gt;   1:      1 2020-03-23   562       1 forecast
+#&gt;   2:      1 2020-03-24   678       2 forecast
+#&gt;   3:      1 2020-03-25   681       3 forecast
+#&gt;   4:      1 2020-03-26   656       4 forecast
+#&gt;   5:      1 2020-03-27   769       5 forecast
 #&gt;  ---                                         
-#&gt; 136:     20 2020-03-25   645       3 forecast
-#&gt; 137:     20 2020-03-26   545       4 forecast
-#&gt; 138:     20 2020-03-27   853       5 forecast
-#&gt; 139:     20 2020-03-28   851       6 forecast
-#&gt; 140:     20 2020-03-29   468       7 forecast</div></pre>
+#&gt; 136:     20 2020-03-25   609       3 forecast
+#&gt; 137:     20 2020-03-26   898       4 forecast
+#&gt; 138:     20 2020-03-27   922       5 forecast
+#&gt; 139:     20 2020-03-28  1689       6 forecast
+#&gt; 140:     20 2020-03-29  1264       7 forecast</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
