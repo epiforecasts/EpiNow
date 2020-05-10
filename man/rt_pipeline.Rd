@@ -18,7 +18,7 @@ rt_pipeline(
   approx_delay = FALSE,
   approx_threshold = 10000,
   max_delay = 120,
-  serial_intervals = NULL,
+  generation_times = NULL,
   rt_prior = NULL,
   nowcast_lag = 8,
   forecast_model = NULL,
@@ -64,8 +64,8 @@ Should linelist onset dates be used where available?}
 \item{approx_delay}{Logical, defaults to \code{FALSE}. Should delay sampling be approximated using case counts. Not appropriate
 when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.}
 
-\item{serial_intervals}{A matrix with columns representing samples and rows representing the probability of the serial intervel being on
-that day. Defaults to \code{EpiNow::covid_serial_intervals}.}
+\item{generation_times}{A matrix with columns representing samples and rows representing the probability of the serial intervel being on
+that day. Defaults to \code{EpiNow::covid_generation_times}.}
 
 \item{rt_prior}{A list defining the reproduction number prior containing the mean (\code{mean_prior}) and standard deviation (\code{std_prior})}
 
@@ -113,8 +113,6 @@ target_dir <- tempdir()
 delay_dist <- suppressWarnings(
                EpiNow::get_dist_def(rexp(25, 1/10), 
                                     samples = 1, bootstraps = 1))
-## incubation delay dist
-incubation_dist <- delay_dist
 
 ## Uses example case vector from EpiSoon
 cases <- data.table::setDT(EpiSoon::example_obs_cases)
@@ -124,7 +122,6 @@ cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")][,
 ## Run basic nowcasting pipeline
 rt_pipeline(cases = cases,
             delay_defs = delay_dist,
-            incubation_defs = incubation_dist,
             target_date = max(cases$date),
             target_folder = target_dir)
 }

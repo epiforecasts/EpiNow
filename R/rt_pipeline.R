@@ -63,7 +63,7 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
  
  
  # Convert input to DT -----------------------------------------------------
-  data.table::setDTthreads(threads = dt_threads)
+  suppressMessages(data.table::setDTthreads(threads = dt_threads))
   cases <- data.table::as.data.table(cases)
   if (!is.null(linelist)) {
     linelist <- data.table::as.data.table(linelist)
@@ -206,7 +206,7 @@ balance_dfs <- function(df1, df2) {
           nowcast = nowcast[type == "infection_upscaled"][, type := "nowcast"],
           min_est_date = min_plot_date,
           generation_times = generation_times,
-          si_samples = 1, rt_samples = rt_samples,
+          rt_samples = rt_samples,
           rate_window = rate_window, rt_windows = rt_windows,
           rt_prior = rt_prior, forecast_model = forecast_model, 
           horizon = horizon, verbose = verbose)

@@ -7,7 +7,7 @@
 #' @param rt_prior A list defining the reproduction number prior containing the mean (`mean_prior`) and standard deviation (`std_prior`)
 #' @param windows Numeric vector, windows over which to estimate time-varying R. The best performing window will be 
 #' selected per serial interval sample by default (based on which window best forecasts current cases). 
-#' @param si_samples Numeric, the number of samples to take from the serial intervals supplied
+#' @param gt_samples Numeric, the number of samples to take from the generaiton times supplied
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
 #' @param min_est_date Date to begin estimation.
 #' @param forecast_model An uninitialised bsts model passed to `EpiSoon::forecast_rt` to be used for forecasting
@@ -23,9 +23,9 @@
 #'
 #' ## Nowcast Rts                  
 #' estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
-#'                          generation_times = as.matrix(EpiNow::covid_generation_times[,1]), 
+#'                          generation_times = as.matrix(EpiNow::covid_generation_times[,2]), 
 #'                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
-#'                          windows = c(1, 3, 7), rt_samples = 10, si_samples = 2,
+#'                          windows = c(1, 3, 7), rt_samples = 10, gt_samples = 2,
 #'                          min_est_date =  as.Date("2020-02-18"))
 #'                          
 #'                          
@@ -35,7 +35,7 @@
 #' estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
 #'                          generation_times = as.matrix(EpiNow::covid_generation_times[,1]), 
 #'                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
-#'                          windows = c(1, 3, 7), rt_samples = 10, si_samples = 2,
+#'                          windows = c(1, 3, 7), rt_samples = 10, gt_samples = 2,
 #'                          min_est_date =  as.Date("2020-02-18"),
 #'                          forecast_model = function(...){EpiSoon::fable_model(model = fable::ETS(y ~ trend("A")), ...)},
 #'                          horizon = 7)
@@ -47,9 +47,9 @@
 #' 
 #' ## Case forecasts
 #' estimates$cases
-estimate_R0 <- function(cases = NULL, generation_time = NULL,
+estimate_R0 <- function(cases = NULL, generation_times = NULL,
                         rt_prior = NULL, windows = NULL, 
-                        si_samples = 100, rt_samples = 100,
+                        gt_samples = 100, rt_samples = 100,
                         min_est_date = NULL, forecast_model = NULL, 
                         horizon = 0) {
   
@@ -102,8 +102,8 @@ estimate_R0 <- function(cases = NULL, generation_time = NULL,
   
   ## Sample serial intervals
   generation_times_index <- sample(1:ncol(generation_times),
-                             si_samples,
-                             replace = ncol(generation_times) < si_samples)
+                             gt_samples,
+                             replace = ncol(generation_times) < gt_samples)
 
    
   ### Estimate R across serial interval samples
@@ -240,7 +240,7 @@ estimate_R0 <- function(cases = NULL, generation_time = NULL,
       }else{
         
         ## Return just nowcast if no forecast has been run
-        est_r <- est_r[, .(date, R = sample_R, 
+        est_r <- est_r[, .(date, R = sample_R, sample,
                            crps, window, rt_type = "nowcast")]
           
         return(list(rts = est_r))
@@ -252,24 +252,24 @@ estimate_R0 <- function(cases = NULL, generation_time = NULL,
     estimates <- purrr::transpose(estimates)
   
   ## Organise returns to have a unique sample ID
-  if (si_samples == 1) {
+  if (gt_samples == 1) {
     return(estimates)
   }else{
     
     ## Function to bind si sample outputs
-    join_si_samples <- function(df) {
-      df <- data.table::rbindlist(df, idcol = "si_sample")
+    join_gt_samples <- function(df) {
+      df <- data.table::rbindlist(df, idcol = "gt_sample")
       
-      df <- df[, sample := sample * as.numeric(si_sample)][,
-               si_sample := NULL]
+      df <- df[, sample := as.numeric(sample) * as.numeric(gt_sample)][,
+               gt_sample := NULL]
     }
     
     ## Make sample unique for Rts
-    estimates$rts <- join_si_samples(estimates$rts)
+    estimates$rts <- join_gt_samples(estimates$rts)
     
     ## If forecast has been run do the same for cases
    if (horizon > 0 & !is.null(forecast_model)) {
-      estimates$cases <- join_si_samples(estimates$cases)
+      estimates$cases <- join_gt_samples(estimates$cases)
     }
 
     return(estimates)

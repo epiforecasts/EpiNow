@@ -6,10 +6,10 @@
 \usage{
 estimate_R0(
   cases = NULL,
-  serial_intervals = NULL,
+  generation_times = NULL,
   rt_prior = NULL,
   windows = NULL,
-  si_samples = 100,
+  gt_samples = 100,
   rt_samples = 100,
   min_est_date = NULL,
   forecast_model = NULL,
@@ -19,7 +19,7 @@ estimate_R0(
 \arguments{
 \item{cases}{A dataframe containing a list of local cases with the following variables: \code{date}, \code{cases}, and \code{import_status}}
 
-\item{serial_intervals}{A matrix with columns representing samples and rows representing the probability of the serial intervel being on
+\item{generation_times}{A matrix with columns representing samples and rows representing the probability of the generation timebeing on
 that day.}
 
 \item{rt_prior}{A list defining the reproduction number prior containing the mean (\code{mean_prior}) and standard deviation (\code{std_prior})}
@@ -27,7 +27,7 @@ that day.}
 \item{windows}{Numeric vector, windows over which to estimate time-varying R. The best performing window will be
 selected per serial interval sample by default (based on which window best forecasts current cases).}
 
-\item{si_samples}{Numeric, the number of samples to take from the serial intervals supplied}
+\item{gt_samples}{Numeric, the number of samples to take from the generaiton times supplied}
 
 \item{rt_samples}{Numeric, the number of samples to take from the estimated R distribution for each time point.}
 
@@ -48,9 +48,9 @@ Estimate the time varying R0 - using EpiEstim
 
 ## Nowcast Rts                  
 estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
-                         serial_intervals = as.matrix(EpiNow::covid_serial_intervals[,1]), 
+                         generation_times = as.matrix(EpiNow::covid_generation_times[,2]), 
                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
-                         windows = c(1, 3, 7), rt_samples = 10, si_samples = 2,
+                         windows = c(1, 3, 7), rt_samples = 10, gt_samples = 2,
                          min_est_date =  as.Date("2020-02-18"))
                          
                          
@@ -58,9 +58,9 @@ estimates$rts
   
 ## Nowcast Rts, forecast Rts and the forecast cases
 estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
-                         serial_intervals = as.matrix(EpiNow::covid_serial_intervals[,1]), 
+                         generation_times = as.matrix(EpiNow::covid_generation_times[,1]), 
                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
-                         windows = c(1, 3, 7), rt_samples = 10, si_samples = 2,
+                         windows = c(1, 3, 7), rt_samples = 10, gt_samples = 2,
                          min_est_date =  as.Date("2020-02-18"),
                          forecast_model = function(...){EpiSoon::fable_model(model = fable::ETS(y ~ trend("A")), ...)},
                          horizon = 7)

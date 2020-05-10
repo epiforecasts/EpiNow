@@ -6,9 +6,9 @@
 \usage{
 epi_measures_pipeline(
   nowcast = NULL,
-  serial_intervals = NULL,
+  generation_times = NULL,
   min_est_date = NULL,
-  si_samples = 1,
+  gt_samples = 1,
   rt_samples = 5,
   rt_windows = 7,
   rate_window = 7,
@@ -21,12 +21,12 @@ epi_measures_pipeline(
 \arguments{
 \item{nowcast}{A nowcast as produced by \code{nowcast_pipeline}}
 
-\item{serial_intervals}{A matrix with columns representing samples and rows representing the probability of the serial intervel being on
+\item{generation_times}{A matrix with columns representing samples and rows representing the probability of the generation timebeing on
 that day.}
 
 \item{min_est_date}{Date to begin estimation.}
 
-\item{si_samples}{Numeric, the number of samples to take from the serial intervals supplied}
+\item{gt_samples}{Numeric, the number of samples to take from the generaiton times supplied}
 
 \item{rt_samples}{Numeric, the number of samples to take from the estimated R distribution for each time point.}
 
