@@ -23,9 +23,9 @@ mean_rgamma <- function(samples, mean, sd) {
 }
 
 samples <- purrr::map2(gi$mean, gi$sd, ~ mean_rgamma(1000, .x, .y)) %>%
-  purrr::map( ~ c(0, round(.) %>%
-                    table %>%
-                    {. / sum(.)}))
+  purrr::map( ~ c(round(.) %>%
+                  table %>%
+                  {. / sum(.)}))
 
 
 max_sample_length <- samples %>%
