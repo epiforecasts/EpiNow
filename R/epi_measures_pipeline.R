@@ -11,13 +11,13 @@
 #' @importFrom purrr safely map_dbl map pmap map_lgl
 #' @importFrom HDInterval hdi
 #' @importFrom future.apply future_lapply
-#' @importFrom data.table setDT setorder rbindlist copy
+#' @importFrom data.table setorder rbindlist copy setDTthreads
 #' @examples 
 #'
 epi_measures_pipeline <- function(nowcast = NULL,
-                                  serial_intervals = NULL,
+                                  generation_times = NULL,
                                   min_est_date = NULL,
-                                  si_samples = NULL, rt_samples = NULL,
+                                  gt_samples = 1, rt_samples = 5,
                                   rt_windows = 7, rate_window = 7,
                                   rt_prior = NULL, forecast_model = NULL,
                                   horizon = NULL, verbose = TRUE) {
@@ -26,10 +26,12 @@ epi_measures_pipeline <- function(nowcast = NULL,
   safe_R0 <- purrr::safely(EpiNow::estimate_R0)
   
   process_R0 <- function(data) {
+    data.table::setDTthreads(1)
+    
     estimates <- safe_R0(cases = data,
-                         serial_intervals = serial_intervals,
+                         generation_times = generation_times,
                          rt_prior = rt_prior,
-                         si_samples = si_samples,
+                         gt_samples = gt_samples,
                          rt_samples = rt_samples,
                          windows = rt_windows,
                          min_est_date = min_est_date, 
@@ -38,12 +40,12 @@ epi_measures_pipeline <- function(nowcast = NULL,
     
     if (!is.null(estimates$rts)) {
       estimates$rts <-  estimates$rts[[1]][,
-                `:=`(type = data$type[1], sample = data$sample[1])]
+                `:=`(type = data$type[1], sample = as.numeric(data$sample[1]))]
     }
     
     if (!is.null(estimates$cases)) {
       estimates$cases <- estimates$cases[[1]][, `:=`(type = data$type[1],
-                                                     sample = data$sample[1])]
+                                                     sample = as.numeric(data$sample[1]))]
     }
     
     return(estimates)

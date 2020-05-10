@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">EpiNow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -117,10 +117,10 @@
 
     <pre class="usage"><span class='fu'>epi_measures_pipeline</span>(
   <span class='kw'>nowcast</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>serial_intervals</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>min_est_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>si_samples</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>gt_samples</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>5</span>,
   <span class='kw'>rt_windows</span> <span class='kw'>=</span> <span class='fl'>7</span>,
   <span class='kw'>rate_window</span> <span class='kw'>=</span> <span class='fl'>7</span>,
   <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -137,8 +137,8 @@
       <td><p>A nowcast as produced by <code>nowcast_pipeline</code></p></td>
     </tr>
     <tr>
-      <th>serial_intervals</th>
-      <td><p>A matrix with columns representing samples and rows representing the probability of the serial intervel being on
+      <th>generation_times</th>
+      <td><p>A matrix with columns representing samples and rows representing the probability of the generation timebeing on
 that day.</p></td>
     </tr>
     <tr>
@@ -146,8 +146,8 @@ that day.</p></td>
       <td><p>Date to begin estimation.</p></td>
     </tr>
     <tr>
-      <th>si_samples</th>
-      <td><p>Numeric, the number of samples to take from the serial intervals supplied</p></td>
+      <th>gt_samples</th>
+      <td><p>Numeric, the number of samples to take from the generaiton times supplied</p></td>
     </tr>
     <tr>
       <th>rt_samples</th>

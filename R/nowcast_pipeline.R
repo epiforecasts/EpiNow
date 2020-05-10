@@ -1,20 +1,15 @@
-#' Run a complete nowcast
+#' Impute Cases Date of Infection
 #'
 #' @param reported_cases A dataframe of reported cases
 #' @param linelist A linelist of report dates and onset dates
-#' @param date_to_cutoff_delay A character
-#' @param date_to_case A data indicating when to cast up to.
-#' @param samples Numeric, the number of samples to take.
 #' @param merge_actual_onsets Logical, defaults to `TRUE`.
 #'  Should linelist onset dates be used where available?
-#' @param delay_only Logical, defaults to `FALSE`. Should estimates be made based on estimated onset dates without nowcasting.
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
 #' @param nowcast_lag Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.
-#' @param report_delay_fns List of functions as produced by `EpiNow::get_delay_sample_fn`
-#' @param delay_sub_samples Numeric, defaults to 1. When set to 1 all data is used to fit a single delay
-##' distribution where uncertainty is only propagated in the uncertainty of the fit. If set to more than one
-##' the supplied delay data is sampled this many times (with samples equalling the overall number of samples divided 
-##' by the number of sub samples each time).
+#' @param delay_defs A data.table that defines the delay distributions (model, parameters and maximum delay for each model). 
+#' See `get_delay_dist` for an example of the structure.
+#' @param incubation_defs A data.table that defines the incubation distributions (model, parameters and maximum delay for each model). 
+#' See `get_delay_dist` for an example of the structure.
 #' @param onset_modifier data.frame containing a `date` variable and a function `modifier` variable. This is used 
 #' to modify estimated cases by onset date. `modifier` must be a function that returns a proportion when called 
 #' (enables inclusion of uncertainty) and takes the following arguments: `n` (samples to return) and `status` ("local" or "import").
@@ -22,67 +17,54 @@
 #' when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.
 #' @inheritParams generate_pseudo_linelist
 #' @inheritParams sample_delay
+#' @inheritParams report_nowcast
 #' @return
 #' @export
 #' @importFrom lubridate days
-#' @importFrom purrr map safely map_dfr map_lgl compact map2_dbl
+#' @importFrom purrr map safely map_dfr map_lgl compact map2_dbl transpose
 #' @importFrom future.apply future_lapply
-#' @importFrom data.table .N as.data.table := setDT rbindlist
+#' @importFrom data.table .N as.data.table := rbindlist setDT
 #' @examples
+#' ## Construct example distributions
+#' ## reporting delay dist
+#' delay_dist <- suppressWarnings(
+#'                EpiNow::get_dist_def(rexp(25, 1 / 10), 
+#'                                     samples = 1, bootstraps = 1))
+#' ## incubation delay dist
+#' incubation_dist <- delay_dist
 #' 
+#' ## Uses example case vector from EpiSoon
+#' cases <- data.table::setDT(EpiSoon::example_obs_cases)
+#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
+#' 
+#' ## Basic nowcast
+#' nowcast <- nowcast_pipeline(reported_cases = cases, 
+#'                             target_date = max(cases$date),
+#'                             delay_defs = delay_dist,
+#'                             incubation_defs = incubation_dist)
+#'                             
+#' nowcast
 #' 
 nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
-                             date_to_cast = NULL, date_to_cutoff_delay = NULL,
+                             target_date = NULL,
                              earliest_allowed_onset = NULL,
-                             merge_actual_onsets = TRUE,
+                             merge_actual_onsets = FALSE,
                              approx_delay = FALSE,
                              max_delay = 120,
-                             delay_only = FALSE,
                              verbose = FALSE,
                              samples = 1,
-                             report_delay_fns = NULL,
-                             bootstraps = 1, bootstrap_samples = 1000,
-                             nowcast_lag = 4,
+                             delay_defs = NULL,
+                             incubation_defs = NULL,
+                             nowcast_lag = 8,
                              onset_modifier = NULL) {
-  
-# Fit delay distribution --------------------------------------------------
- 
-  if (is.null(report_delay_fns)) {
-    
-    ## Get the distribution of reporting delays
-    ## Look at reporting delays over the two weeks
-    if (is.null(date_to_cutoff_delay)) {
-      date_to_cutoff_delay <- min(linelist$date_confirmation, na.rm = TRUE)
-    }
-    
-    if (verbose) {
-      message("Fitting reporting delay between the ", date_to_cutoff_delay, " and the ", date_to_cast)
-    }
-
-    ## Filter linelist for target delay distribution dates
-    filtered_linelist <- data.table::as.data.table(linelist)[
-      date_confirmation >= date_to_cutoff_delay][
-      !is.na(delay_confirmation)
-    ][date_confirmation <= date_to_cast]
-    
-    ## Fit the delay distribution and draw posterior samples
-    fitted_delay_fn <- EpiNow::get_delay_sample_fn(filtered_linelist, samples = samples,
-                                                   bootstraps = bootstraps, 
-                                                   bootstrap_samples = bootstrap_samples)
-    
-  }else{
-    fitted_delay_fn <- report_delay_fns
-    merge_actual_onsets <- FALSE
-  }
-
 
 # Organise inputted linelist ----------------------------------------------
 
   if (!approx_delay) {
     ## Split linelist into day chunks
     ## Used to merge actuals with estimated onsets
-    if (merge_actual_onsets) {
-      linelist <- data.table::setDT(linelist)
+    if (merge_actual_onsets & !is.null(linelist)) {
+      linelist <- data.table::as.data.table(linelist)
       ## Group linelists by day
       linelist_by_day <- EpiNow::split_linelist_by_day(
         data.table::copy(linelist)[import_status == "local"]
@@ -91,7 +73,6 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
       ## Filter out imported cases and repeat linelist step
       imported_linelist <- data.table::copy(linelist)[import_status == "imported"]
 
-      
       
       if (nrow(imported_linelist) > 0) {
         imported_linelist_by_day <- EpiNow::split_linelist_by_day(imported_linelist)
@@ -108,10 +89,10 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 
 # Organise input case counts ----------------------------------------------
 
-  reported_cases <- data.table::setDT(reported_cases)
+  reported_cases <- data.table::as.data.table(reported_cases)
   
   ## Filter reported cases based on the nowcasting date
-  reported_cases <- reported_cases[date <= date_to_cast]
+  reported_cases <- reported_cases[date <= target_date]
 
   ## Split cases into local and imported
   local_cases <- data.table::copy(reported_cases)[import_status == "local"]
@@ -143,13 +124,34 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
 # Argument conversion -----------------------------------------------------
 
 if (!is.null(onset_modifier)) {
-  onset_modifier <- data.table::setDT(onset_modifier)
+  onset_modifier <- data.table::as.data.table(onset_modifier)
 }
  
 # Nowcasting for each samples or vector of samples ------------------------
 
-  nowcast_inner <- function(sample_delay_fn = NULL, verbose = NULL) {
+  nowcast_inner <- function(dist_def = NULL, verbose = NULL) {
     
+    delay_def <- dist_def$delay
+    incubation_def <- dist_def$incubation
+    
+    ## Define sample delay fn
+    sample_delay_fn <- function(n, ...) {
+      EpiNow::dist_skel(n = n, 
+                        model = delay_def$model[[1]], 
+                        params = delay_def$params[[1]],
+                        max_value = delay_def$max_value[[1]], 
+                        ...)
+    }
+    
+    ## Define an incubation fn
+    sample_incubation_fn <- function(n, ...) {
+      EpiNow::dist_skel(n = n, 
+                        model = incubation_def$model[[1]], 
+                        params = incubation_def$params[[1]],
+                        max_value = incubation_def$max_value[[1]], 
+                        ...)
+    }
+  
     if (!approx_delay) {
       ## Sample onset dates using reporting delays
       if (verbose) {
@@ -187,17 +189,17 @@ if (!is.null(onset_modifier)) {
       }
     }else{
       ## Apply to local cases 
-      cases_by_onset <- sample_approx_delay(reported_cases = local_cases, 
-                                            delay_fn = sample_delay_fn,
-                                            max_delay = max_delay,
-                                            earliest_allowed_onset = earliest_allowed_onset)
+      cases_by_onset <- sample_approx_dist(cases = local_cases[, cases := confirm], 
+                                           dist_fn = sample_delay_fn,
+                                           max_value = max_delay,
+                                           earliest_allowed_mapped = earliest_allowed_onset)
       
       ## Apply to imported cases if present
       if (sum(imported_cases$confirm) > 0) {
-        imported_cases_by_onset <- sample_approx_delay(reported_cases = imported_cases, 
-                                                       delay_fn = sample_delay_fn,
-                                                       max_delay = max_delay,
-                                                       earliest_allowed_onset = earliest_allowed_onset)
+        imported_cases_by_onset <- sample_approx_dist(cases = imported_cases[, cases := confirm], 
+                                                      dist_fn = sample_delay_fn,
+                                                      max_value = max_delay,
+                                                      earliest_allowed_mapped = earliest_allowed_onset)
       }
       
       
@@ -207,18 +209,18 @@ if (!is.null(onset_modifier)) {
 
     
     ## Add in type variables and modify by onset if needed
-    cases_by_onset <- cases_by_onset[, `:=`(type = "from_delay", import_status = "local")]
+    cases_by_onset <- cases_by_onset[, `:=`(type = "onset", import_status = "local")]
     
     ## Adjusted onset cases based on proportion if supplied
     if (!is.null(onset_modifier)) {
       cases_by_onset <- cases_by_onset[onset_modifier, on = 'date'][!is.na(cases)][,
-                cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * .y(n = 1, status = "local")))][,modifier := NULL]
+                cases := as.integer(purrr::map2_dbl(cases, modifier, ~ .x * .y(n = 1, status = "local")))][, modifier := NULL]
       
     }
     
     ## Add in variable type and modify if needed for imported cases
     if (sum(imported_cases$confirm) > 0) {
-      imported_cases_by_onset <- imported_cases_by_onset[, `:=`(type = "from_delay",
+      imported_cases_by_onset <- imported_cases_by_onset[, `:=`(type = "onset",
                                                                 import_status = "imported")]
       
       if (!is.null(onset_modifier)) {
@@ -228,58 +230,90 @@ if (!is.null(onset_modifier)) {
     }
       
     
-    ## Sample using  binomial
     if (verbose) {
-      message("Running nowcast")
+      message("Upscaling onsets")
     }
 
-    ## sample neg bin
-    sample_bin <- data.table::setDT(EpiNow::sample_onsets(
-      onsets = cases_by_onset$cases,
+    ## Upscale
+    cases_by_onset_upscaled <- data.table::setDT(EpiNow::adjust_for_truncation(
+      cases = cases_by_onset$cases,
       dates = cases_by_onset$date,
       cum_freq = sample_delay_fn(1:nrow(cases_by_onset), dist = TRUE),
-      report_delay = 0,
       samples = 1
-    )[[1]])
-    
-    sample_bin <- sample_bin[, `:=`(type = "nowcast", import_status = "local")]
+    )[[1]])[, `:=`(type = "onset_upscaled", import_status = "local")]
 
     if (sum(imported_cases$confirm) > 0) {
-      ## sample neg bin
-      imported_sample_bin <- data.table::setDT(EpiNow::sample_onsets(
-        onsets = imported_cases_by_onset$cases,
+      ## Upscale
+      imported_cases_by_onset_upscaled <- data.table::setDT(EpiNow::adjust_for_truncation(
+        cases = imported_cases_by_onset$cases,
         dates = imported_cases_by_onset$date,
         cum_freq = sample_delay_fn(1:nrow(imported_cases_by_onset), dist = TRUE),
-        report_delay = 0,
         samples = 1
-      )[[1]])
+      )[[1]])[, `:=`(type = "onset_upscaled", import_status = "imported")]
+    }
+    
+    
+    if (verbose) {
+      message("Upscaling infections")
+    }
+    
+    ## Scale cases from onset to infection and upscale
+    cases_by_infection <- sample_approx_dist(
+      cases = cases_by_onset_upscaled,
+      dist_fn = sample_incubation_fn,
+      max_value = max_delay
+      )[, `:=`(type = "infection", import_status = "local")]
+    
+    
+    cases_by_infection_upscaled <- data.table::setDT(EpiNow::adjust_for_truncation(
+      cases =  cases_by_infection$cases,
+      dates =  cases_by_infection$date,
+      cum_freq = sample_incubation_fn(1:nrow(cases_by_infection), dist = TRUE),
+      confidence_adjustment = sample_delay_fn(1:nrow(cases_by_infection), dist = TRUE),
+      samples = 1
+    )[[1]])[, `:=`(type = "infection_upscaled", import_status = "local")]
+    
+    ## Apply to imported cases if present
+    if (sum(imported_cases$confirm) > 0) {
+      imported_cases_by_infection <- sample_approx_dist(
+        cases = imported_cases_by_onset_upscaled, 
+        dist_fn = sample_incubation_fn,
+        max_value = max_delay)[, `:=`(type = "infection", import_status = "imported")]
       
-      imported_sample_bin <- imported_sample_bin[, `:=`(type = "nowcast", 
-                                                        import_status = "imported")]
+      imported_cases_by_infection_upscaled <- data.table::setDT(EpiNow::adjust_for_truncation(
+        cases = imported_cases_by_infection$cases,
+        dates = imported_cases_by_infection$date,
+        cum_freq = sample_incubation_fn(1:nrow(imported_cases_by_infection), dist = TRUE),
+        confidence_adjustment = sample_delay_fn(1:nrow(imported_cases_by_infection), dist = TRUE),
+        samples = 1
+      )[[1]])[, `:=`(type = "infection_upscaled", import_status = "imported")]
       
     }
-
-    ## Add in delay only estimates
-    if (delay_only) {
-      if (verbose) {
-        message("Joining nowcasts and preparing output")
-      }
-
-      out <- data.table::rbindlist(sample_bin, cases_by_onset)
-
-      if (nrow(imported_cases) > 0) {
-        out <- data.table::rbindlist(out, imported_cases_by_onset)
-      }
-    }else{
-        out <- sample_bin
-    }
+    
+  
+    ## Combine output
+    out <- rbindlist(list(
+      cases_by_onset,
+      cases_by_onset_upscaled,
+      cases_by_infection,
+      cases_by_infection_upscaled
+    ), fill = TRUE)
 
     ## Add in imported cases for nowcast if present
     if (sum(imported_cases$confirm) > 0) {
-      out <- data.table::rbindlist(out, imported_sample_bin) 
+      
+      ## Combine output
+      out <- rbindlist(list(
+        out,
+        imported_cases_by_onset,
+        imported_cases_by_onset_upscaled,
+        imported_cases_by_infection,
+        imported_cases_by_infection_upscaled
+      ), fill = TRUE)
+      
     }
 
-    ## Add confidence if missing and filter by lag
+    ## Add confidence if missing
     out[is.na(confidence), confidence := 1]
     
     return(out)
@@ -291,8 +325,13 @@ if (!is.null(onset_modifier)) {
   if (verbose) {
     message("Nowcasting using fitted delay distributions")
   }
+  
+  dist_defs <- list(delay = split(delay_defs[, index := 1:.N], by = "index"),
+                    incubation = split(incubation_defs[, index := 1:.N], by = "index"))
+  
+  dist_defs <- purrr::transpose(dist_defs)
 
-  out <- future.apply::future_lapply(fitted_delay_fn,
+  out <- future.apply::future_lapply(dist_defs,
                                      nowcast_inner, 
                                      verbose = FALSE,
                                      future.scheduling = 20,

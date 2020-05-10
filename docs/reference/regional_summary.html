@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">EpiNow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -121,7 +121,6 @@
   <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>region_scale</span> <span class='kw'>=</span> <span class='st'>"Region"</span>,
   <span class='kw'>csv_region_label</span> <span class='kw'>=</span> <span class='st'>"region"</span>,
-  <span class='kw'>incubation_shift</span> <span class='kw'>=</span> <span class='fl'>5</span>,
   <span class='kw'>log_cases</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
@@ -144,8 +143,8 @@ in which to store summary of results.</p></td>
 (in the format "yyyy-mm-dd").</p></td>
     </tr>
     <tr>
-      <th>incubation_shift</th>
-      <td><p>Numeric, the incubation shift to apply to the estimates, defaults to 5 days.</p></td>
+      <th>region_scale</th>
+      <td><p>A character string indicating the name to give the regions being summarised.</p></td>
     </tr>
     <tr>
       <th>log_cases</th>
@@ -158,19 +157,13 @@ in which to store summary of results.</p></td>
     <pre class="examples"><div class='input'>
 <span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 
-<span class='co'>## Example asssumes that CovidGlobalNow (github.com/cmmid/CovidGlobalNow) is  </span>
+<span class='co'>## Example asssumes that CovidGlobalNow (github.com/epiforecasts/covid-global) is  </span>
 <span class='co'>## in the directory above the root.</span>
-<span class='fu'>regional_summary</span>(<span class='kw'>results_dir</span> <span class='kw'>=</span> <span class='st'>"../CovidGlobalNow/results"</span>,
-                 <span class='kw'>summary_dir</span> <span class='kw'>=</span> <span class='st'>"../CovidGlobalNow/summary"</span>,
+<span class='fu'>regional_summary</span>(<span class='kw'>results_dir</span> <span class='kw'>=</span> <span class='st'>"../covid-global/national"</span>,
+                 <span class='kw'>summary_dir</span> <span class='kw'>=</span> <span class='st'>"../covid-global/national-summary"</span>,
                  <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='st'>"2020-03-19"</span>,
-                 <span class='kw'>region_scale</span> <span class='kw'>=</span> <span class='st'>"Country/Region"</span>)
+                 <span class='kw'>region_scale</span> <span class='kw'>=</span> <span class='st'>"Country"</span>)
 
-<span class='co'>## Example asssumes that CovidItalyNow (github.com/cmmid/CovidItalyNow) is  </span>
-<span class='co'>## in the directory above the root.</span>
-<span class='fu'>regional_summary</span>(<span class='kw'>results_dir</span> <span class='kw'>=</span> <span class='st'>"../CovidItalyNow/results"</span>,
-                 <span class='kw'>summary_dir</span> <span class='kw'>=</span> <span class='st'>"../CovidItalyNow/summary"</span>,
-                 <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='st'>"2020-03-19"</span>,
-                 <span class='kw'>region_scale</span> <span class='kw'>=</span> <span class='st'>"Region"</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

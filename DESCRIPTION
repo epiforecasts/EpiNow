@@ -1,7 +1,7 @@
 Package: EpiNow
 Type: Package
 Title: Estimate Realtime Case Counts and Time-varying Epidemiological Parameters 
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
     person(given = "Sam Abbott",
            role = c("aut", "cre"),
@@ -30,30 +30,27 @@ Imports:
     EpiEstim,
     EpiSoon,
     data.table,
-    future.apply,
+    purrr,
     Rcpp (>= 0.12.0),
     rstan (>= 2.18.1),
     rstantools (>= 2.0.0),
-    dplyr,
-    rlang,
+    methods,
+    loo,
+    HDInterval,
+    future.apply,
+    stringr,
+    lubridate,
     ggplot2,
     cowplot,
-    lubridate,
-    magrittr,
-    methods,
-    purrr,
-    tibble,
-    tidyr,
     patchwork,
-    countrycode,
-    rnaturalearth,
-    HDInterval,
-    loo,
-    stringr,
-    readr
+    R.devices
 Suggests:
     knitr,
     kableExtra,
+    here,
+    magrittr,
+    countrycode,
+    rnaturalearth,
     rnaturalearthdata,
     rnaturalearthhires
 Remotes:

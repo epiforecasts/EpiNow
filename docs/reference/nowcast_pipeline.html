@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Run a complete nowcast — nowcast_pipeline • EpiNow</title>
+<title>Impute Cases Date of Infection — nowcast_pipeline • EpiNow</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Run a complete nowcast — nowcast_pipeline" />
-<meta property="og:description" content="Run a complete nowcast" />
+<meta property="og:title" content="Impute Cases Date of Infection — nowcast_pipeline" />
+<meta property="og:description" content="Impute Cases Date of Infection" />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">EpiNow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -106,31 +106,28 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Run a complete nowcast</h1>
+    <h1>Impute Cases Date of Infection</h1>
     
     <div class="hidden name"><code>nowcast_pipeline.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Run a complete nowcast</p>
+    <p>Impute Cases Date of Infection</p>
     </div>
 
     <pre class="usage"><span class='fu'>nowcast_pipeline</span>(
   <span class='kw'>reported_cases</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>linelist</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>date_to_cast</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>date_to_cutoff_delay</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>earliest_allowed_onset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>merge_actual_onsets</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>merge_actual_onsets</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>approx_delay</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>max_delay</span> <span class='kw'>=</span> <span class='fl'>120</span>,
-  <span class='kw'>delay_only</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>report_delay_fns</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>bootstraps</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>bootstrap_samples</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-  <span class='kw'>nowcast_lag</span> <span class='kw'>=</span> <span class='fl'>4</span>,
+  <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>nowcast_lag</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>onset_modifier</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
 
@@ -144,10 +141,6 @@
     <tr>
       <th>linelist</th>
       <td><p>A linelist of report dates and onset dates</p></td>
-    </tr>
-    <tr>
-      <th>date_to_cutoff_delay</th>
-      <td><p>A character</p></td>
     </tr>
     <tr>
       <th>earliest_allowed_onset</th>
@@ -165,20 +158,18 @@ Should linelist onset dates be used where available?</p></td>
 when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.</p></td>
     </tr>
     <tr>
-      <th>delay_only</th>
-      <td><p>Logical, defaults to <code>FALSE</code>. Should estimates be made based on estimated onset dates without nowcasting.</p></td>
-    </tr>
-    <tr>
       <th>verbose</th>
       <td><p>Logical, defaults to <code>FALSE</code>. Should internal nowcasting progress messages be returned.</p></td>
     </tr>
     <tr>
-      <th>samples</th>
-      <td><p>Numeric, the number of samples to take.</p></td>
+      <th>delay_defs</th>
+      <td><p>A data.table that defines the delay distributions (model, parameters and maximum delay for each model).
+See <code>get_delay_dist</code> for an example of the structure.</p></td>
     </tr>
     <tr>
-      <th>report_delay_fns</th>
-      <td><p>List of functions as produced by <code><a href='get_delay_sample_fn.html'>EpiNow::get_delay_sample_fn</a></code></p></td>
+      <th>incubation_defs</th>
+      <td><p>A data.table that defines the incubation distributions (model, parameters and maximum delay for each model).
+See <code>get_delay_dist</code> for an example of the structure.</p></td>
     </tr>
     <tr>
       <th>nowcast_lag</th>
@@ -190,17 +181,6 @@ when case numbers are low. Useful for high cases counts as decouples run time an
 to modify estimated cases by onset date. <code>modifier</code> must be a function that returns a proportion when called
 (enables inclusion of uncertainty) and takes the following arguments: <code>n</code> (samples to return) and <code>status</code> ("local" or "import").</p></td>
     </tr>
-    <tr>
-      <th>date_to_case</th>
-      <td><p>A data indicating when to cast up to.</p></td>
-    </tr>
-    <tr>
-      <th>delay_sub_samples</th>
-      <td><p>Numeric, defaults to 1. When set to 1 all data is used to fit a single delay
-distribution where uncertainty is only propagated in the uncertainty of the fit. If set to more than one
-the supplied delay data is sampled this many times (with samples equalling the overall number of samples divided
-by the number of sub samples each time).</p></td>
-    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -210,8 +190,36 @@ by the number of sub samples each time).</p></td>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
+    <pre class="examples"><div class='input'><span class='co'>## Construct example distributions</span>
+<span class='co'>## reporting delay dist</span>
+<span class='no'>delay_dist</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span>(
+               <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='get_dist_def.html'>get_dist_def</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Exponential.html'>rexp</a></span>(<span class='fl'>25</span>, <span class='fl'>1</span> / <span class='fl'>10</span>),
+                                    <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>bootstraps</span> <span class='kw'>=</span> <span class='fl'>1</span>))
+<span class='co'>## incubation delay dist</span>
+<span class='no'>incubation_dist</span> <span class='kw'>&lt;-</span> <span class='no'>delay_dist</span>
 
+<span class='co'>## Uses example case vector from EpiSoon</span>
+<span class='no'>cases</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/setDT.html'>setDT</a></span>(<span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>)
+<span class='no'>cases</span> <span class='kw'>&lt;-</span> <span class='no'>cases</span>[, <span class='fu'>`:=`</span>(<span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span>(<span class='no'>cases</span>), <span class='kw'>import_status</span> <span class='kw'>=</span> <span class='st'>"local"</span>)]
+
+<span class='co'>## Basic nowcast</span>
+<span class='no'>nowcast</span> <span class='kw'>&lt;-</span> <span class='fu'>nowcast_pipeline</span>(<span class='kw'>reported_cases</span> <span class='kw'>=</span> <span class='no'>cases</span>,
+                            <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='no'>cases</span>$<span class='no'>date</span>),
+                            <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='no'>delay_dist</span>,
+                            <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='no'>incubation_dist</span>)
+
+<span class='no'>nowcast</span></div><div class='output co'>#&gt;      sample       date cases               type import_status confidence
+#&gt;   1:      1 2020-01-20     3              onset         local  1.0000000
+#&gt;   2:      1 2020-01-21     0              onset         local  1.0000000
+#&gt;   3:      1 2020-01-22     0              onset         local  1.0000000
+#&gt;   4:      1 2020-01-23     0              onset         local  1.0000000
+#&gt;   5:      1 2020-01-24     0              onset         local  1.0000000
+#&gt;  ---                                                                    
+#&gt; 226:      1 2020-03-10   241 infection_upscaled         local  0.9172648
+#&gt; 227:      1 2020-03-11   255 infection_upscaled         local  0.8950949
+#&gt; 228:      1 2020-03-12   271 infection_upscaled         local  0.8672097
+#&gt; 229:      1 2020-03-13   267 infection_upscaled         local  0.8322812
+#&gt; 230:      1 2020-03-14   310 infection_upscaled         local  0.7887700</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
