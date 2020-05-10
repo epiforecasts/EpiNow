@@ -140,7 +140,7 @@ summarise_results <- function(regions = NULL,
   
   
   estimates <- 
-    estimates[, (region_scale) := Region][, region := NULL]
+    estimates[, (region_scale) := region][, region := NULL]
   
   estimates <- estimates[, c((region_scale), 
                              colnames(estimates)[-ncol(estimates)]), with = FALSE]
