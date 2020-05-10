@@ -56,7 +56,7 @@ Runs a pipeline by region.
 
 ## Save everything to a temporary directory 
 ## Change this to inspect locally
-target_dir <- "../test" tempdir() 
+target_dir <- "../test" #tempdir() 
 
 ## Construct example distributions
 ## reporting delay dist
@@ -71,7 +71,7 @@ cases <- data.table::setDT(EpiSoon::example_obs_cases)
 cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")][,
                   cases := NULL]
 
-cases <- rbindlist(list(
+cases <- data.table::rbindlist(list(
   data.table::copy(cases)[, region := "testland"],
   cases[, region := "realland"]))
   
