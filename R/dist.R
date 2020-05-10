@@ -254,7 +254,7 @@ lognorm_dist_def <- function(mean, mean_sd,
     model = rep("lognorm", samples),
     params = purrr::transpose(
       list(mean = rnorm(samples, mean, mean_sd),
-           sd = 1 / rnorm(samples, sd, sd_sd))),
+           sd = rnorm(samples, sd, sd_sd))),
     max_value = rep(max_value, samples)
   )
   
