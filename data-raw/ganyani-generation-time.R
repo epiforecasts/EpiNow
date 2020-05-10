@@ -35,12 +35,8 @@ max_sample_length <- samples %>%
 pad_samples <- samples %>%
   purrr::map(~ c(., rep(0, max_sample_length - length(.))))
 
-covid_generation_time <- matrix(unlist(pad_samples), ncol = length(pad_samples))
+covid_generation_times <- matrix(unlist(pad_samples), ncol = length(pad_samples))
 
-usethis::use_data(covid_generation_time, overwrite = TRUE)
+usethis::use_data(covid_generation_times, overwrite = TRUE)
 
-
-covid_generation_time <- 
-
-usethis::use_data(covid_generation_time, overwrite = TRUE)
 

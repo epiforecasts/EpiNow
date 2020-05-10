@@ -15,7 +15,7 @@
 #' @examples 
 #'
 epi_measures_pipeline <- function(nowcast = NULL,
-                                  serial_intervals = NULL,
+                                  generation_times = NULL,
                                   min_est_date = NULL,
                                   si_samples = 1, rt_samples = 5,
                                   rt_windows = 7, rate_window = 7,
@@ -29,7 +29,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
     data.table::setDTthreads(1)
     
     estimates <- safe_R0(cases = data,
-                         serial_intervals = serial_intervals,
+                         generation_times = generation_times,
                          rt_prior = rt_prior,
                          si_samples = si_samples,
                          rt_samples = rt_samples,

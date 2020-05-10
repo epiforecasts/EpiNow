@@ -11,8 +11,8 @@
 #' allowed onset.
 #' @param approx_thresold Numeric, defaults to 10,000. Threshold of cases below which explicit sampling of onsets
 #' always occurs.
-#' @param serial_intervals A matrix with columns representing samples and rows representing the probability of the serial intervel being on
-#' that day. Defaults to `EpiNow::covid_serial_intervals`.
+#' @param generation_times A matrix with columns representing samples and rows representing the probability of the serial intervel being on
+#' that day. Defaults to `EpiNow::covid_generation_times`.
 #' @param min_forecast_cases Numeric, defaults to 200. The minimum number of cases required in the last 7 days
 #' of data in order for a forecast to be run. This prevents spurious forecasts based on highly uncertain Rt estimates.
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
@@ -58,7 +58,7 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
                         delay_cutoff_date = NULL, rt_samples = 5, rt_windows = 1:7, 
                         rate_window = 7,earliest_allowed_onset = NULL, merge_actual_onsets = TRUE, 
                         approx_delay = FALSE,  approx_threshold = 10000, max_delay = 120, 
-                        serial_intervals = NULL, rt_prior = NULL, nowcast_lag = 8,
+                        generation_times = NULL, rt_prior = NULL, nowcast_lag = 8,
                         forecast_model = NULL, horizon = 0, report_forecast = FALSE,  
                         onset_modifier = NULL, min_forecast_cases = 200, 
                         target_folder = NULL, target_date = NULL, 
@@ -99,11 +99,11 @@ balance_dfs <- function(df1, df2) {
  
  # Default input -----------------------------------------------------------
 
-  if (is.null(serial_intervals)) {
+  if (is.null(generation_times)) {
     if (verbose) {
       message("Using default sample of serial intervals with mean (sd) of 4.7 (2.9)")
     }
-    serial_intervals <- EpiNow::covid_serial_intervals
+    generation_times <- EpiNow::covid_generation_times
   }
 
 
@@ -196,7 +196,7 @@ balance_dfs <- function(df1, df2) {
     EpiNow::epi_measures_pipeline(
           nowcast = nowcast[type == "infection_upscaled"][, type := "nowcast"],
           min_est_date = min_plot_date,
-          serial_intervals = serial_intervals,
+          generation_times = generation_times,
           si_samples = 1, rt_samples = rt_samples,
           rate_window = rate_window, rt_windows = rt_windows,
           rt_prior = rt_prior, forecast_model = forecast_model, 
