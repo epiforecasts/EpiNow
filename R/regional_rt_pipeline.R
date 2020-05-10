@@ -26,8 +26,6 @@
 #' delay_dist <- suppressWarnings(
 #'                EpiNow::get_dist_def(rexp(25, 1/10), 
 #'                                     samples = 1, bootstraps = 1))
-#' ## incubation delay dist
-#' incubation_dist <- delay_dist
 #' 
 #' ## Uses example case vector from EpiSoon
 #' cases <- data.table::setDT(EpiSoon::example_obs_cases)
@@ -41,7 +39,6 @@
 #' ## Run basic nowcasting pipeline
 #' regional_rt_pipeline(cases = cases,
 #'             delay_defs = delay_dist,
-#'             incubation_defs = incubation_dist,
 #'             target_folder = target_dir)
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, 
                                  delay_defs = NULL, incubation_defs = NULL,

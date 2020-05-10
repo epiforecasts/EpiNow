@@ -39,8 +39,6 @@
 #' delay_dist <- suppressWarnings(
 #'                EpiNow::get_dist_def(rexp(25, 1/10), 
 #'                                     samples = 1, bootstraps = 1))
-#' ## incubation delay dist
-#' incubation_dist <- delay_dist
 #' 
 #' ## Uses example case vector from EpiSoon
 #' cases <- data.table::setDT(EpiSoon::example_obs_cases)
@@ -50,7 +48,6 @@
 #' ## Run basic nowcasting pipeline
 #' rt_pipeline(cases = cases,
 #'             delay_defs = delay_dist,
-#'             incubation_defs = incubation_dist,
 #'             target_date = max(cases$date),
 #'             target_folder = target_dir)
 rt_pipeline <- function(cases = NULL, linelist = NULL,
@@ -75,6 +72,18 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
 
 # Make sure incubation and delays have the same number of samples ---------
 
+  if (is.null(incubation_defs)) {
+    if (verbose) {
+      message("Using default incubation period based on of:", 
+              EpiNow::covid_incubation_period[1, ]$as_reported)
+    }
+    incubation_defs <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_period[1, ]$mean,
+                                                mean_sd = EpiNow::covid_incubation_period[1, ]$mean_sd,
+                                                sd = EpiNow::covid_incubation_period[1, ]$sd,
+                                                sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
+                                                max_value = 30, samples = nrow(delay_defs))
+  }
+  
 balance_dfs <- function(df1, df2) {
   if (nrow(df1) > nrow(df2)) {
     df2 <- data.table::rbindlist(list(
@@ -101,7 +110,7 @@ balance_dfs <- function(df1, df2) {
 
   if (is.null(generation_times)) {
     if (verbose) {
-      message("Using default sample of serial intervals with mean (sd) of 4.7 (2.9)")
+      message("Using default sample of generation times with mean (sd) of 3.6 (3.1)")
     }
     generation_times <- EpiNow::covid_generation_times
   }
