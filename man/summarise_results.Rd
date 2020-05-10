@@ -8,7 +8,7 @@ summarise_results(
   regions = NULL,
   results_dir = "results",
   target_date = NULL,
-  region_scale = NULL
+  region_scale = "Region"
 )
 }
 \arguments{

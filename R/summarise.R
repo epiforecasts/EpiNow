@@ -71,7 +71,7 @@ summarise_cast <- function(nowcast) {
 summarise_results <- function(regions = NULL,
                               results_dir = "results",
                               target_date = NULL,
-                              region_scale = NULL) {
+                              region_scale = "Region") {
   
   ## Utility functions
   load_data <- purrr::partial(load_nowcast_result,
@@ -80,7 +80,7 @@ summarise_results <- function(regions = NULL,
   
   ## Make reporting table
   estimates <- data.table::data.table(
-    Region = names(regions),
+    region = names(regions),
     `New confirmed cases by infection date` = 
       purrr::map(regions, ~ load_data("current_cases.rds", .)),
     `Expected change in daily cases` = map_prob_change(
@@ -95,7 +95,7 @@ summarise_results <- function(regions = NULL,
   ## Make estimates numeric
   numeric_estimates <- estimates[,
                                  .(
-                                   region = Region, 
+                                   region,
                                    `New confirmed cases by infection date`, 
                                    `Effective reproduction no.`, 
                                    `Expected change in daily cases`  
@@ -140,7 +140,7 @@ summarise_results <- function(regions = NULL,
   
   
   estimates <- 
-    estimates[, (region_scale) := Region][, Region := NULL]
+    estimates[, (region_scale) := Region][, region := NULL]
   
   estimates <- estimates[, c((region_scale), 
                              colnames(estimates)[-ncol(estimates)]), with = FALSE]
