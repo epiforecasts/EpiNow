@@ -351,7 +351,7 @@ get_dist_def <- function(values, verbose = FALSE, samples = 1,
 #'   
 #' ## Check that sum is equal to reported cases
 #' total_onsets <- median(
-#'    purrr::map_dbl(1:100, 
+#'    purrr::map_dbl(1:1000, 
 #'                   ~ sum(sample_approx_dist(cases = cases,
 #'                   dist_fn = delay_fn)$cases))) 
 #'                    
@@ -383,8 +383,9 @@ sample_approx_dist <- function(cases = NULL,
   ## Approximate cases
   mapped_cases <- purrr::map_dfc(1:length(reversed_cases), 
                               ~ c(rep(0, . - 1), 
-                                  reversed_cases[.] * 
-                                      draw,
+                                  stats::rbinom(length(draw),
+                                                rep(reversed_cases[.], length(draw)),
+                                                draw),
                                     rep(0, length(reversed_cases) - .)))
   
   
