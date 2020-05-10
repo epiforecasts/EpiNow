@@ -23,7 +23,7 @@
 #' @importFrom lubridate days
 #' @importFrom purrr map safely map_dfr map_lgl compact map2_dbl transpose
 #' @importFrom future.apply future_lapply
-#' @importFrom data.table .N as.data.table := rbindlist setDT
+#' @importFrom data.table .N as.data.table := rbindlist setDT setDTthreads
 #' @examples
 #' ## Construct example distributions
 #' ## reporting delay dist
@@ -130,6 +130,8 @@ if (!is.null(onset_modifier)) {
 # Nowcasting for each samples or vector of samples ------------------------
 
   nowcast_inner <- function(dist_def = NULL, verbose = NULL) {
+    
+    suppressMessages(data.table::setDTthreads(threads = 1))
     
     delay_def <- dist_def$delay
     incubation_def <- dist_def$incubation
