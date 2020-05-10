@@ -60,7 +60,7 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
       conf_meas <- conf_meas * confidence_adjustment
     }
     
-    confidence[length(confidence):(length(confidence) - (length(cum_freq) - 1))] <- conf_meas[1:length(confidence)]
+    confidence[length(confidence):max(1, ((length(confidence) - (length(conf_meas) - 1))))] <- conf_meas[1:length(confidence)]
     
     return(data.table::data.table(date = dates,
                                   cases = x_cases,
