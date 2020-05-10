@@ -9,7 +9,7 @@
 #' @param cum Logical, defaults to `TRUE`. If `dist = TRUE` should the returned distribution be 
 #' cumulative.
 #' @param model Character string, defining the model to be used. Supported options are exponential 
-#' ("exp") and gamma ("gamma").
+#' ("exp"), gamma ("gamma"), and log normal ("lognorm")
 #' @param params A list of parameters values (by name) required for each model. For the exponential model
 #' this is a rate parameter and for the gamma model this is alpha and beta.
 #' @param max_value Numeric, the maximum value to allow. Defaults to 120. Samples outside 
@@ -43,7 +43,19 @@
 #' ## Probability density
 #' dist_skel(0:10, model = "gamma", dist = TRUE, 
 #'           cum = FALSE, params = list(alpha = 2, beta = 2))
-#'     
+#' 
+#' ## Log normal model
+#' 
+#' dist_skel(10, model = "lognorm", params = list(mean = log(5), sd = log(2)))
+#' 
+#' ## Cumulative prob density
+#' dist_skel(0:10, model = "lognorm", dist = TRUE
+#'           params = list(mean = log(5), sd = log(2)))
+#' 
+#' ## Probability density
+#' dist_skel(0:10, model = "lognorm", dist = TRUE, cum = FALSE,
+#'           params = list(mean = log(5), sd = log(2)))
+#'         
 
 dist_skel <- function(n, dist = FALSE, cum = TRUE, model,
                       params, max_value = 120) {
@@ -60,6 +72,12 @@ dist_skel <- function(n, dist = FALSE, cum = TRUE, model,
     ddist <- function(n) {
       pgamma(n + 0.9999, params$alpha, params$beta) -
         pgamma(n - 1e-5, params$alpha, params$beta)}
+  }else if (model %in% "lognorm") {
+    rdist <- function(n) {rlnorm(n, params$mean, params$sd)}
+    pdist <- function(n) {plnorm(n, params$mean, params$sd)}
+    ddist <- function(n) {
+      plnorm(n + 0.9999, params$mean, params$sd) -
+        plnorm(n - 1e-5, params$mean, params$sd)}
   }
   
   ## Define internal sampling function
@@ -166,6 +184,85 @@ dist_fit <- function(values = NULL, samples = NULL, dist = "exp") {
   return(fit)
 }
 
+
+#' Generate a Gamma Distribution Definition Based on Parameter Estimates
+#'
+#' @description Generates a distribution definition when only parameter estimates 
+#' are available for gamma distributed parameters. See `rgamma` for distribution information.
+#' @param shape Numeric, shape parameter of the gamma distribution.
+#' @param shape_sd Numeric, standard deviation of the shape parameter.
+#' @param scale Numeric, scale parameter of the gamma distribution.
+#' @param scale_sd  Numeric, standard deviation of the scale parameter.
+#' @param samples Numeric, number of sample distributions to generate.
+#'
+#' @return A data.table definining the distribution as used by `dist_skel`
+#' @export
+#' @inheritParams dist_skel
+#' @examples
+#' 
+#' 
+#' def <- gamma_dist_def(shape = 5.807, shape_sd = 0.2,
+#'                scale = 0.9, scale_sd = 0.05,
+#'                max_value = 20, samples = 10)
+#'                
+#'print(def)
+#'
+#'def$params[[1]]
+gamma_dist_def <- function(shape, shape_sd,
+                           scale, scale_sd, 
+                           max_value, samples) {
+  
+  dist <- data.table::data.table(
+    model = rep("gamma", samples),
+    params = purrr::transpose(
+      list(alpha = rnorm(samples, shape, shape_sd),
+           beta = 1 / rnorm(samples, scale, scale_sd))),
+    max_value = rep(max_value, samples)
+  )
+  
+  return(dist)
+}
+
+#' Generate a Log Normal Distribution Definition Based on Parameter Estimates
+#'
+#' @description Generates a distribution definition when only parameter estimates 
+#' are available for log normal distributed parameters. See `rlnorm` for distribution information.
+#' @param mean Numeric, log mean parameter of the gamma distribution.
+#' @param mean_sd Numeric, standard deviation of the log mean parameter.
+#' @param sd Numeric, log sd parameter of the gamma distribution.
+#' @param sd_sd  Numeric, standard deviation of the log sd parameter.
+#' @param samples Numeric, number of sample distributions to generate.
+#'
+#' @return A data.table definining the distribution as used by `dist_skel`
+#' @export
+#' @inheritParams dist_skel
+#' @examples
+#' 
+#' 
+#' def <- lognorm_dist_def(mean = 1.621, mean_sd = 0.0640,
+#'                         sd = 0.418, sd_sd = 0.0691,
+#'                         max_value = 20, samples = 10)
+#'                
+#'print(def)
+#'
+#'def$params[[1]]
+lognorm_dist_def <- function(mean, mean_sd,
+                             sd, sd_sd, 
+                             max_value, samples) {
+  
+  dist <- data.table::data.table(
+    model = rep("lognorm", samples),
+    params = purrr::transpose(
+      list(mean = rnorm(samples, mean, mean_sd),
+           sd = 1 / rnorm(samples, sd, sd_sd))),
+    max_value = rep(max_value, samples)
+  )
+  
+  return(dist)
+}
+
+
+  
 #' Get a Parameters that Define a Discrete Distribution
 #'
 #' @param values Numeric vector of integer values.

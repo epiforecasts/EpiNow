@@ -16,7 +16,7 @@ than a number of samples.}
 cumulative.}
 
 \item{model}{Character string, defining the model to be used. Supported options are exponential
-("exp") and gamma ("gamma").}
+("exp"), gamma ("gamma"), and log normal ("lognorm")}
 
 \item{params}{A list of parameters values (by name) required for each model. For the exponential model
 this is a rate parameter and for the gamma model this is alpha and beta.}
@@ -57,5 +57,17 @@ dist_skel(0:10, model = "gamma", dist = TRUE,
 ## Probability density
 dist_skel(0:10, model = "gamma", dist = TRUE, 
           cum = FALSE, params = list(alpha = 2, beta = 2))
-    
+
+## Log normal model
+
+dist_skel(10, model = "lognorm", params = list(mean = log(5), sd = log(2)))
+
+## Cumulative prob density
+dist_skel(0:10, model = "lognorm", dist = TRUE
+          params = list(mean = log(5), sd = log(2)))
+
+## Probability density
+dist_skel(0:10, model = "lognorm", dist = TRUE, cum = FALSE,
+          params = list(mean = log(5), sd = log(2)))
+        
 }
