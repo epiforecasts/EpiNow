@@ -106,13 +106,13 @@ the time-varying effective reproduction number and rate of spread.
 
 ## Save everything to a temporary directory 
 ## Change this to inspect locally
-target_dir <- tempdir() 
+target_dir <- "../test", #tempdir() 
 
 ## Construct example distributions
 ## reporting delay dist
 delay_dist <- suppressWarnings(
                EpiNow::get_dist_def(rexp(25, 1/10), 
-                                    samples = 200, bootstraps = 1))
+                                    samples = 10, bootstraps = 1))
 
 ## Uses example case vector from EpiSoon
 cases <- data.table::setDT(EpiSoon::example_obs_cases)

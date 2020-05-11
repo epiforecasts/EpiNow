@@ -25,7 +25,7 @@
 #' ## reporting delay dist
 #' delay_dist <- suppressWarnings(
 #'                EpiNow::get_dist_def(rexp(25, 1/10), 
-#'                                     samples = 40, bootstraps = 1))
+#'                                     samples = 10, bootstraps = 1))
 #' 
 #' ## Uses example case vector from EpiSoon
 #' cases <- data.table::setDT(EpiSoon::example_obs_cases)
@@ -132,7 +132,6 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
     
     rm(onset_modifier)
     
-    print(pryr::mem_used())
     EpiNow::rt_pipeline(
       cases = regional_cases,
       linelist = regional_linelist,
@@ -149,7 +148,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
     rm(list = ls())
     ## Manual force memory clean up 
     gc()
-    print(pryr::mem_used())
+
     return(invisible(NULL))}
   
 
