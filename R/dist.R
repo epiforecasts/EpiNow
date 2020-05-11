@@ -473,7 +473,7 @@ sample_approx_dist <- function(cases = NULL,
   }
   ## Reverse cases so starts with current first
   reversed_cases <- direction_fn(cases$cases)
-  
+  reversed_cases[is.na(reversed_cases)] <- 0 
   ## Draw from the density fn of the dist
   draw <- dist_fn(0:max_value, dist = TRUE, cum = FALSE)
   

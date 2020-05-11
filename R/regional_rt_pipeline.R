@@ -25,7 +25,7 @@
 #' ## reporting delay dist
 #' delay_dist <- suppressWarnings(
 #'                EpiNow::get_dist_def(rexp(25, 1/10), 
-#'                                     samples = 1, bootstraps = 1))
+#'                                     samples = 20, bootstraps = 1))
 #' 
 #' ## Uses example case vector from EpiSoon
 #' cases <- data.table::setDT(EpiSoon::example_obs_cases)
@@ -34,6 +34,9 @@
 #' 
 #' cases <- data.table::rbindlist(list(
 #'   data.table::copy(cases)[, region := "testland"],
+#'   data.table::copy(cases)[, region := "moretestland"],
+#'   data.table::copy(cases)[, region := "testville"],
+#'   data.table::copy(cases)[, region := "testtown"],
 #'   cases[, region := "realland"]))
 #'   
 #' ## Run basic nowcasting pipeline
@@ -79,7 +82,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
   
   message("Running the pipeline for: ",
           paste(eval_regions, collapse = ", "))
-   
+  
+  rm(eval_regions)
   ## Make sure all dates have cases numbers
   cases_grid <- cases[,.(date = seq(min(date), max(date), by = "days"), 
                          import_status = list(list("local", "imported"))),
@@ -90,33 +94,34 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
   cases <- cases[cases_grid, on = c("date", "region", "import_status")][is.na(confirm), confirm := 0]
   cases <- data.table::setorder(cases, region, import_status, date)
  
+  rm(cases_grid)
+  
   ## regional pipelines
   regions <- unique(cases$region)
 
   message("Running pipelines by region")
-   
   ## Function to run the pipeline in a region
   run_region <- function(target_region, ...) { 
     message("Running Rt pipeline for ", target_region)
     data.table::setDTthreads(threads = dt_threads)
     
-    regional_cases <- data.table::copy(cases)[region %in% target_region][, region := NULL]
+    regional_cases <- cases[region %in% target_region][, region := NULL]
     
     if (!is.null(linelist) & merge_onsets) {
-      regional_linelist <- data.table::copy(linelist)[region %in% target_region][, 
-                                                      region := NULL]
+      regional_linelist <- linelist[region %in% target_region][, 
+                                    region := NULL]
     }else{
       regional_linelist <- linelist
     }
     
     if (!is.null(onset_modifier)) {
-      region_onset_modifier <- data.table::copy(onset_modifier)[region %in% target_region]
+      region_onset_modifier <- onset_modifier[region %in% target_region]
       region_onset_modifier <- region_onset_modifier[,region := NULL]
       
     }else{
       region_onset_modifier <- NULL
     }
-    
+    print(pryr::mem_used())
     EpiNow::rt_pipeline(
       cases = regional_cases,
       linelist = regional_linelist,
@@ -129,6 +134,11 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
       verbose = verbose,
       ...)
     
+    ## Clean up used objects
+    rm(list = ls())
+    ## Manual force memory clean up 
+    gc()
+    print(pryr::mem_used())
     return(invisible(NULL))}
   
 
