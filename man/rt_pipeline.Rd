@@ -106,7 +106,7 @@ the time-varying effective reproduction number and rate of spread.
 
 ## Save everything to a temporary directory 
 ## Change this to inspect locally
-target_dir <- "../test", #tempdir() 
+target_dir <- "../test" #tempdir() 
 
 ## Construct example distributions
 ## reporting delay dist
