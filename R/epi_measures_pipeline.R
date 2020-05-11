@@ -48,6 +48,8 @@ epi_measures_pipeline <- function(nowcast = NULL,
                                                      sample = as.numeric(data$sample[1]))]
     }
     
+    rm(list = setdiff(ls(), "estimates"))
+    
     return(estimates)
   }
 
@@ -107,7 +109,9 @@ epi_measures_pipeline <- function(nowcast = NULL,
   }
   
   cases_forecast <- purrr::map(estimates, ~ .$cases)
-    
+  
+  rm(estimates)
+  
   if (any(purrr::map_lgl(cases_forecast, ~ !is.null(.)))) {
     
     ## Clean up case forecasts

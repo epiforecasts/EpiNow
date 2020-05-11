@@ -270,8 +270,8 @@ estimate_R0 <- function(cases = NULL, generation_times = NULL,
     ## If forecast has been run do the same for cases
    if (horizon > 0 & !is.null(forecast_model)) {
       estimates$cases <- join_gt_samples(estimates$cases)
-    }
-
+   }
+    
     return(estimates)
   }
 

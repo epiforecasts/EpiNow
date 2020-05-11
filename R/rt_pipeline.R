@@ -38,7 +38,7 @@
 #' ## reporting delay dist
 #' delay_dist <- suppressWarnings(
 #'                EpiNow::get_dist_def(rexp(25, 1/10), 
-#'                                     samples = 1, bootstraps = 1))
+#'                                     samples = 200, bootstraps = 1))
 #' 
 #' ## Uses example case vector from EpiSoon
 #' cases <- data.table::setDT(EpiSoon::example_obs_cases)
@@ -68,8 +68,8 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
   if (!is.null(linelist)) {
     linelist <- data.table::as.data.table(linelist)
   }
-  
-
+message("Initial usage")
+print(pryr::mem_used())
 # Make sure incubation and delays have the same number of samples ---------
 
   if (is.null(incubation_defs)) {
@@ -189,7 +189,9 @@ balance_dfs <- function(df1, df2) {
     onset_modifier = onset_modifier, 
     approx_delay = approx_delay,
     max_delay = max_delay)
-
+ 
+ message("Post nowcast usage")
+ print(pryr::mem_used())
 # Report nowcast estimates ------------------------------------------------
   EpiNow::report_nowcast(nowcast, cases,
                          target_folder = target_folder,
@@ -200,7 +202,10 @@ balance_dfs <- function(df1, df2) {
   saveRDS(incubation_defs, paste0(target_folder, "/incubation.rds"))
   
   # Estimate time-varying parameters ----------------------------------------
-
+  message("Pre-time-varying usage")
+  gc()
+  print(pryr::mem_used())
+  
   epi_estimates <-
     EpiNow::epi_measures_pipeline(
           nowcast = nowcast[type == "infection_upscaled"][, type := "nowcast"],
@@ -215,19 +220,30 @@ balance_dfs <- function(df1, df2) {
   saveRDS(epi_estimates$case_forecast, paste0(target_folder, "/case_forecast.rds"))
   saveRDS(epi_estimates$R0, paste0(target_folder, "/summarised_reff.rds"))
   saveRDS(epi_estimates$rate_of_spread, paste0(target_folder, "/summarised_littler.rds"))
-  
+
   ## Remove everything except folder and reporting arguments
   rm(list=setdiff(ls(), c("target_folder", "target_date", "min_plot_date",
                   "report_forecast", "latest_folder")))
+  
+  message("Post time-varying usage")
+  gc()
+  print(pryr::mem_used())
 # Report estimates --------------------------------------------------------
 
   EpiNow::report_reff(target_folder)  
   
   EpiNow::report_littler(target_folder)
   
+  message("Post R reporting usage")
+  gc()
+  print(pryr::mem_used())
  # Summarise  -------------------------------------------------------
 
   EpiNow::report_summary(target_folder)
+  
+  message("Post R summary usage")
+  gc()
+  print(pryr::mem_used())
   
  # Plot --------------------------------------------------------------------
 
@@ -236,7 +252,11 @@ balance_dfs <- function(df1, df2) {
                        min_plot_date = min_plot_date,
                        report_forecast = report_forecast)
   
-
+  message("Post report usage")
+  ## Remove everything folder targets
+  rm(list=setdiff(ls(), c("target_folder", "latest_folder")))
+  gc()
+  print(pryr::mem_used())
  # Copy all results to latest folder ---------------------------------------
   
   ## Save all results to a latest folder as well

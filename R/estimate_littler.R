@@ -176,7 +176,7 @@ estimate_time_varying_r <- function(onsets, window = 7) {
                                                                                                                              min_time = min_time[index],
                                                                                                                              max_time = max_time[index])[[1]])},
                                                                      future.scheduling = 10, future.packages = c("EpiNow", "purrr")))][,
-                                                                                                                                       var := list(names(estimates[[1]]))]
+                                                                           var := list(names(estimates[[1]]))]
   
   ## Remove first nesting layer
   windowed_r <- windowed_r[!purrr::map_lgl(estimates, is.null)][,
