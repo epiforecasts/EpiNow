@@ -25,7 +25,7 @@
 #' ## reporting delay dist
 #' delay_dist <- suppressWarnings(
 #'                EpiNow::get_dist_def(rexp(25, 1/10), 
-#'                                     samples = 20, bootstraps = 1))
+#'                                     samples = 40, bootstraps = 1))
 #' 
 #' ## Uses example case vector from EpiSoon
 #' cases <- data.table::setDT(EpiSoon::example_obs_cases)
@@ -101,11 +101,17 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
 
   message("Running pipelines by region")
   ## Function to run the pipeline in a region
-  run_region <- function(target_region, ...) { 
+  run_region <- function(target_region, 
+                         cases,
+                         linelist,
+                         onset_modifier,
+                         ...) { 
     message("Running Rt pipeline for ", target_region)
     data.table::setDTthreads(threads = dt_threads)
     
     regional_cases <- cases[region %in% target_region][, region := NULL]
+    
+    rm(cases)
     
     if (!is.null(linelist) & merge_onsets) {
       regional_linelist <- linelist[region %in% target_region][, 
@@ -114,6 +120,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
       regional_linelist <- linelist
     }
     
+    rm(linelist)
+    
     if (!is.null(onset_modifier)) {
       region_onset_modifier <- onset_modifier[region %in% target_region]
       region_onset_modifier <- region_onset_modifier[,region := NULL]
@@ -121,6 +129,9 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
     }else{
       region_onset_modifier <- NULL
     }
+    
+    rm(onset_modifier)
+    
     print(pryr::mem_used())
     EpiNow::rt_pipeline(
       cases = regional_cases,
@@ -144,6 +155,9 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
 
   ## Run regions (make parallel using future::plan)
   future.apply::future_lapply(regions, run_region,
+                              cases = cases,
+                              linelist = linelist,
+                              onset_modifier = onset_modifier,
                               ...,
                               future.scheduling = Inf)
 
