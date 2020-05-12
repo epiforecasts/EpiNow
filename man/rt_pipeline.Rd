@@ -6,52 +6,47 @@
 \usage{
 rt_pipeline(
   cases = NULL,
-  imported_cases = NULL,
   linelist = NULL,
-  target_folder = NULL,
-  target_date = NULL,
+  delay_defs = NULL,
+  incubation_defs = NULL,
   delay_cutoff_date = NULL,
-  predict_lag = 0,
-  samples = 1000,
-  si_samples = 1,
   rt_samples = 5,
   rt_windows = 1:7,
   rate_window = 7,
   earliest_allowed_onset = NULL,
   merge_actual_onsets = TRUE,
-  delay_only = FALSE,
   approx_delay = FALSE,
+  approx_threshold = 10000,
   max_delay = 120,
-  verbose = FALSE,
-  serial_intervals = NULL,
+  generation_times = NULL,
   rt_prior = NULL,
-  save_plots = TRUE,
-  nowcast_lag = 4,
-  incubation_period = 5,
+  nowcast_lag = 8,
   forecast_model = NULL,
   horizon = 0,
   report_forecast = FALSE,
-  report_delay_fns = NULL,
   onset_modifier = NULL,
-  min_forecast_cases = 200
+  min_forecast_cases = 200,
+  target_folder = NULL,
+  target_date = NULL,
+  dt_threads = 1,
+  verbose = FALSE
 )
 }
 \arguments{
-\item{cases}{A dataframe of cases (\code{confirm}) by date of confirmation (\code{date}) and import status (\code{import_status})}
+\item{cases}{A dataframe of cases (in date order) with the following variables:
+\code{date} and \code{cases}.}
 
 \item{linelist}{A dataframe of of cases (by row) containing the following variables:
 \code{import_status} (values "local" and "imported"), \code{date_onset}, \code{date_confirm}, \code{report_delay}.}
 
-\item{target_folder}{Character string, name of the folder in which to save the results.}
+\item{delay_defs}{A data.table that defines the delay distributions (model, parameters and maximum delay for each model).
+See \code{get_delay_dist} for an example of the structure.}
 
-\item{target_date}{Character string, in the form "2020-01-01". Date to cast.}
+\item{incubation_defs}{A data.table that defines the incubation distributions (model, parameters and maximum delay for each model).
+See \code{get_delay_dist} for an example of the structure.}
 
 \item{delay_cutoff_date}{Character string, in the form "2020-01-01". Cutoff date to use
 to estimate the delay distribution.}
-
-\item{samples}{Numeric, the number of pseudo linelists to generate. Defaults to 1000.}
-
-\item{si_samples}{Numeric, the number of samples to take from the serial intervals supplied}
 
 \item{rt_samples}{Numeric, the number of samples to take from the estimated R distribution for each time point.}
 
@@ -66,19 +61,13 @@ allowed onset.}
 \item{merge_actual_onsets}{Logical, defaults to \code{TRUE}.
 Should linelist onset dates be used where available?}
 
-\item{delay_only}{Logical, defaults to \code{FALSE}. Should estimates be made based on estimated onset dates without nowcasting.}
-
 \item{approx_delay}{Logical, defaults to \code{FALSE}. Should delay sampling be approximated using case counts. Not appropriate
 when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.}
 
-\item{verbose}{Logical, defaults to \code{FALSE}. Should internal nowcasting progress messages be returned.}
-
-\item{serial_intervals}{A matrix with columns representing samples and rows representing the probability of the serial intervel being on
-that day. Defaults to \code{EpiNow::covid_serial_intervals}.}
+\item{generation_times}{A matrix with columns representing samples and rows representing the probability of the serial intervel being on
+that day. Defaults to \code{EpiNow::covid_generation_times}.}
 
 \item{rt_prior}{A list defining the reproduction number prior containing the mean (\code{mean_prior}) and standard deviation (\code{std_prior})}
-
-\item{save_plots}{Logical, defaults to \code{TRUE}. Should plots be saved.}
 
 \item{nowcast_lag}{Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.}
 
@@ -89,14 +78,24 @@ future Rt values. An example of the required structure is: \code{function(ss, y)
 
 \item{report_forecast}{Logical, defaults to \code{FALSE}. Should the forecast be reported.}
 
-\item{report_delay_fns}{List of functions as produced by \code{EpiNow::get_delay_sample_fn}}
-
 \item{onset_modifier}{data.frame containing a \code{date} variable and a function \code{modifier} variable. This is used
 to modify estimated cases by onset date. \code{modifier} must be a function that returns a proportion when called
 (enables inclusion of uncertainty) and takes the following arguments: \code{n} (samples to return) and \code{status} ("local" or "import").}
 
 \item{min_forecast_cases}{Numeric, defaults to 200. The minimum number of cases required in the last 7 days
 of data in order for a forecast to be run. This prevents spurious forecasts based on highly uncertain Rt estimates.}
+
+\item{target_folder}{Character string, name of the folder in which to save the results.}
+
+\item{target_date}{Character string, in the form "2020-01-01". Date to cast.}
+
+\item{dt_threads}{Numeric, the number of data.table threads to use. Set internally to avoid issue when running in parallel.
+Defaults to 1 thread.}
+
+\item{verbose}{Logical, defaults to \code{FALSE}. Should internal nowcasting progress messages be returned.}
+
+\item{approx_thresold}{Numeric, defaults to 10,000. Threshold of cases below which explicit sampling of onsets
+always occurs.}
 }
 \description{
 Combine fitting a delay distribution, constructing a set of
@@ -105,4 +104,24 @@ the time-varying effective reproduction number and rate of spread.
 }
 \examples{
 
+## Save everything to a temporary directory 
+## Change this to inspect locally
+target_dir <- tempdir() 
+
+## Construct example distributions
+## reporting delay dist
+delay_dist <- suppressWarnings(
+               EpiNow::get_dist_def(rexp(25, 1/10), 
+                                    samples = 1, bootstraps = 1))
+
+## Uses example case vector from EpiSoon
+cases <- data.table::setDT(EpiSoon::example_obs_cases)
+cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")][,
+                  cases := NULL]
+
+## Run basic nowcasting pipeline
+rt_pipeline(cases = cases,
+            delay_defs = delay_dist,
+            target_date = max(cases$date),
+            target_folder = target_dir)
 }

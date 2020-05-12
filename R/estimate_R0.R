@@ -2,12 +2,12 @@
 #' Estimate the time varying R0 - using EpiEstim
 #'
 #' @param cases A dataframe containing a list of local cases with the following variables: `date`, `cases`, and `import_status`
-#' @param serial_intervals A matrix with columns representing samples and rows representing the probability of the serial intervel being on
+#' @param generation_times A matrix with columns representing samples and rows representing the probability of the generation timebeing on
 #' that day.
 #' @param rt_prior A list defining the reproduction number prior containing the mean (`mean_prior`) and standard deviation (`std_prior`)
 #' @param windows Numeric vector, windows over which to estimate time-varying R. The best performing window will be 
 #' selected per serial interval sample by default (based on which window best forecasts current cases). 
-#' @param si_samples Numeric, the number of samples to take from the serial intervals supplied
+#' @param gt_samples Numeric, the number of samples to take from the generaiton times supplied
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
 #' @param min_est_date Date to begin estimation.
 #' @param forecast_model An uninitialised bsts model passed to `EpiSoon::forecast_rt` to be used for forecasting
@@ -23,9 +23,9 @@
 #'
 #' ## Nowcast Rts                  
 #' estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
-#'                          serial_intervals = as.matrix(EpiNow::covid_serial_intervals[,1]), 
+#'                          generation_times = as.matrix(EpiNow::covid_generation_times[,2]), 
 #'                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
-#'                          windows = c(1, 3, 7), rt_samples = 10, si_samples = 2,
+#'                          windows = c(1, 3, 7), rt_samples = 10, gt_samples = 2,
 #'                          min_est_date =  as.Date("2020-02-18"))
 #'                          
 #'                          
@@ -33,9 +33,9 @@
 #'   
 #'## Nowcast Rts, forecast Rts and the forecast cases
 #' estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
-#'                          serial_intervals = as.matrix(EpiNow::covid_serial_intervals[,1]), 
+#'                          generation_times = as.matrix(EpiNow::covid_generation_times[,1]), 
 #'                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
-#'                          windows = c(1, 3, 7), rt_samples = 10, si_samples = 2,
+#'                          windows = c(1, 3, 7), rt_samples = 10, gt_samples = 2,
 #'                          min_est_date =  as.Date("2020-02-18"),
 #'                          forecast_model = function(...){EpiSoon::fable_model(model = fable::ETS(y ~ trend("A")), ...)},
 #'                          horizon = 7)
@@ -47,13 +47,12 @@
 #' 
 #' ## Case forecasts
 #' estimates$cases
-estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
+estimate_R0 <- function(cases = NULL, generation_times = NULL,
                         rt_prior = NULL, windows = NULL, 
-                        si_samples = 100, rt_samples = 100,
+                        gt_samples = 100, rt_samples = 100,
                         min_est_date = NULL, forecast_model = NULL, 
                         horizon = 0) {
   
-
   ##Generic mean gamma sampler
   mean_rgamma <- function(samples, mean, sd) {
       theta <- sd^2/mean
@@ -102,14 +101,14 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
   
   
   ## Sample serial intervals
-  serial_intervals_index <- sample(1:ncol(serial_intervals),
-                             si_samples,
-                             replace = ncol(serial_intervals) < si_samples)
+  generation_times_index <- sample(1:ncol(generation_times),
+                             gt_samples,
+                             replace = ncol(generation_times) < gt_samples)
 
    
   ### Estimate R across serial interval samples
   ### Forecast ahead if given a model and horizon for each sample
-  estimates <- purrr::map(serial_intervals_index, function(index) {
+  estimates <- purrr::map(generation_times_index, function(index) {
     
     ### Estimate and score R over multiple windows
     est_r <- purrr::map(windows, 
@@ -125,7 +124,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                           R <- suppressWarnings(
                             EpiEstim::estimate_R(incid,
                                                  method = "si_from_sample",
-                                                 si_sample = serial_intervals[, index],
+                                                 si_sample = generation_times[, index],
                                                  config = do.call(EpiEstim::make_config,
                                                                   c(rt_prior, 
                                                                     list(t_start = window_start,
@@ -134,16 +133,13 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                           )
                           
                           ## Filter out NA values, choose columns and make into data.table
-                          R <- data.table::setDT(R)[!is.na(`Mean(R)`),
-                                                            .(t_start, t_end, `Mean(R)`, `Std(R)`)]
-                          
-                          R <- R[!is.na(R$`Mean(R)`)]
+                          R <- data.table::setDT(R)
+                          R <- R[!is.na(`Mean(R)`), .(t_start, t_end, `Mean(R)`, `Std(R)`)]
                           
                           ## Take samples from the assumed gamma distribution
                           R <- R[, .(date = EpiNow::add_dates(incid$date, .N), mean_R = `Mean(R)`,
                                      sd_R = `Std(R)`, sample_R = purrr::map2(`Mean(R)`, `Std(R)`, 
-                                                                       ~ mean_rgamma(rt_samples, .x, .y) %>% 
-                                                                         sort()),
+                                                                       ~ sort(mean_rgamma(rt_samples, .x, .y))),
                                      sample = list(1:rt_samples))]
                           
                           R <- R[, .(sample_R = unlist(sample_R), sample = unlist(sample)), 
@@ -156,7 +152,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
                               ~ EpiSoon::predict_current_cases(
                                 rts = .[,.(date, rt = sample_R)], 
                                 cases = summed_cases,
-                                serial_interval = serial_intervals[, index]
+                                serial_interval = generation_times[, index]
                               ))
                           
                           preds <- data.table::rbindlist(preds, idcol = "sample")
@@ -225,7 +221,7 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
               cases = summed_cases,
               fit_samples = rt_forecasts,
               rdist = rpois,
-              serial_interval = serial_intervals[, index]
+              serial_interval = generation_times[, index]
             ) 
           )[,rt_type := "forecast"]
         
@@ -244,7 +240,8 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
       }else{
         
         ## Return just nowcast if no forecast has been run
-        est_r <- est_r[, rt_type := "nowcast"]
+        est_r <- est_r[, .(date, R = sample_R, sample,
+                           crps, window, rt_type = "nowcast")]
           
         return(list(rts = est_r))
       }
@@ -255,24 +252,24 @@ estimate_R0 <- function(cases = NULL, serial_intervals = NULL,
     estimates <- purrr::transpose(estimates)
   
   ## Organise returns to have a unique sample ID
-  if (si_samples == 1) {
+  if (gt_samples == 1) {
     return(estimates)
   }else{
     
     ## Function to bind si sample outputs
-    join_si_samples <- function(df) {
-      df <- data.table::rbindlist(df, idcol = "si_sample")
+    join_gt_samples <- function(df) {
+      df <- data.table::rbindlist(df, idcol = "gt_sample")
       
-      df <- df[, sample := sample * as.numeric(si_sample)][,
-               si_sample := NULL]
+      df <- df[, sample := as.numeric(sample) * as.numeric(gt_sample)][,
+               gt_sample := NULL]
     }
     
     ## Make sample unique for Rts
-    estimates$rts <- join_si_samples(estimates$rts)
+    estimates$rts <- join_gt_samples(estimates$rts)
     
     ## If forecast has been run do the same for cases
    if (horizon > 0 & !is.null(forecast_model)) {
-      estimates$cases <- join_si_samples(estimates$cases)
+      estimates$cases <- join_gt_samples(estimates$cases)
     }
 
     return(estimates)

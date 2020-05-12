@@ -2,22 +2,21 @@
 % Please edit documentation in R/nowcast_pipeline.R
 \name{nowcast_pipeline}
 \alias{nowcast_pipeline}
-\title{Run a complete nowcast}
+\title{Impute Cases Date of Infection}
 \usage{
 nowcast_pipeline(
   reported_cases = NULL,
   linelist = NULL,
-  date_to_cast = NULL,
-  date_to_cutoff_delay = NULL,
+  target_date = NULL,
   earliest_allowed_onset = NULL,
-  merge_actual_onsets = TRUE,
+  merge_actual_onsets = FALSE,
   approx_delay = FALSE,
   max_delay = 120,
-  delay_only = FALSE,
   verbose = FALSE,
   samples = 1,
-  report_delay_fns = NULL,
-  nowcast_lag = 4,
+  delay_defs = NULL,
+  incubation_defs = NULL,
+  nowcast_lag = 8,
   onset_modifier = NULL
 )
 }
@@ -25,8 +24,6 @@ nowcast_pipeline(
 \item{reported_cases}{A dataframe of reported cases}
 
 \item{linelist}{A linelist of report dates and onset dates}
-
-\item{date_to_cutoff_delay}{A character}
 
 \item{earliest_allowed_onset}{A character string in the form of a date ("2020-01-01") indiciating the earliest
 allowed onset.}
@@ -37,29 +34,45 @@ Should linelist onset dates be used where available?}
 \item{approx_delay}{Logical, defaults to \code{FALSE}. Should delay sampling be approximated using case counts. Not appropriate
 when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.}
 
-\item{delay_only}{Logical, defaults to \code{FALSE}. Should estimates be made based on estimated onset dates without nowcasting.}
-
 \item{verbose}{Logical, defaults to \code{FALSE}. Should internal nowcasting progress messages be returned.}
 
-\item{samples}{Numeric, the number of samples to take.}
+\item{delay_defs}{A data.table that defines the delay distributions (model, parameters and maximum delay for each model).
+See \code{get_delay_dist} for an example of the structure.}
 
-\item{report_delay_fns}{List of functions as produced by \code{EpiNow::get_delay_sample_fn}}
+\item{incubation_defs}{A data.table that defines the incubation distributions (model, parameters and maximum delay for each model).
+See \code{get_delay_dist} for an example of the structure.}
 
 \item{nowcast_lag}{Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.}
 
 \item{onset_modifier}{data.frame containing a \code{date} variable and a function \code{modifier} variable. This is used
 to modify estimated cases by onset date. \code{modifier} must be a function that returns a proportion when called
 (enables inclusion of uncertainty) and takes the following arguments: \code{n} (samples to return) and \code{status} ("local" or "import").}
-
-\item{date_to_case}{A data indicating when to cast up to.}
 }
 \value{
 
 }
 \description{
-Run a complete nowcast
+Impute Cases Date of Infection
 }
 \examples{
+## Construct example distributions
+## reporting delay dist
+delay_dist <- suppressWarnings(
+               EpiNow::get_dist_def(rexp(25, 1 / 10), 
+                                    samples = 1, bootstraps = 1))
+## incubation delay dist
+incubation_dist <- delay_dist
 
+## Uses example case vector from EpiSoon
+cases <- data.table::setDT(EpiSoon::example_obs_cases)
+cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
+
+## Basic nowcast
+nowcast <- nowcast_pipeline(reported_cases = cases, 
+                            target_date = max(cases$date),
+                            delay_defs = delay_dist,
+                            incubation_defs = incubation_dist)
+                            
+nowcast
 
 }

@@ -6,3 +6,5 @@
 ^Dockerfile$
 ^libs$
 ^inst/pkg-structure$
+rcppExports.cpp
+stanExports_*

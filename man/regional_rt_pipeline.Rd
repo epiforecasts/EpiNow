@@ -7,14 +7,14 @@
 regional_rt_pipeline(
   cases = NULL,
   linelist = NULL,
+  delay_defs = NULL,
+  incubation_defs = NULL,
   target_folder = "results",
-  regional_delay = FALSE,
   merge_onsets = FALSE,
   case_limit = 40,
   onset_modifier = NULL,
-  regions_in_parallel = TRUE,
+  dt_threads = 1,
   verbose = FALSE,
-  samples = 1000,
   ...
 )
 }
@@ -25,9 +25,13 @@ regional_rt_pipeline(
 \code{import_status} (values "local" and "imported"), \code{date_onset}, \code{date_confirm}, \code{report_delay}, and \code{region}. If a national linelist is not available a proxy linelist may be
 used but in this case \code{merge_onsets} should be set to \code{FALSE}.}
 
-\item{target_folder}{Character string, name of the folder in which to save the results.}
+\item{delay_defs}{A data.table that defines the delay distributions (model, parameters and maximum delay for each model).
+See \code{get_delay_dist} for an example of the structure.}
 
-\item{regional_delay}{Logical defaults to \code{FALSE}. Should reporting delays be estimated by region.}
+\item{incubation_defs}{A data.table that defines the incubation distributions (model, parameters and maximum delay for each model).
+See \code{get_delay_dist} for an example of the structure.}
+
+\item{target_folder}{Character string, name of the folder in which to save the results.}
 
 \item{merge_onsets}{Logical defaults to \code{FALSE}. Should available onset data be used. Typically if \code{regional_delay} is}
 
@@ -38,21 +42,39 @@ set to \code{FALSE} this should also be \code{FALSE}}
 to modify estimated cases by onset date. \code{modifier} must be a function that returns a proportion when called
 (enables inclusion of uncertainty) and takes the following arguments: \code{n} (samples to return) and \code{status} ("local" or "import").}
 
-\item{regions_in_parallel}{Logical, should regions be run in parallel or sequentially (allowing for)
-within pipeline parallisation. Defaults to \code{TRUE}.}
+\item{dt_threads}{Numeric, the number of data.table threads to use. Set internally to avoid issue when running in parallel.
+Defaults to 1 thread.}
 
 \item{verbose}{Logical, defaults to \code{FALSE}. Should progress messages be shown for each reigon?}
-
-\item{samples}{Numeric, the number of pseudo linelists to generate. Defaults to 1000.}
 
 \item{...}{}
 }
 \description{
-Runs a national realtime pipeline followed by a pipeline for each
-individual region.
+Runs a pipeline by region.
 }
 \examples{
 
-## Code
-regional_rt_pipeline
+## Save everything to a temporary directory 
+## Change this to inspect locally
+target_dir <- tempdir() 
+
+## Construct example distributions
+## reporting delay dist
+delay_dist <- suppressWarnings(
+               EpiNow::get_dist_def(rexp(25, 1/10), 
+                                    samples = 1, bootstraps = 1))
+
+## Uses example case vector from EpiSoon
+cases <- data.table::setDT(EpiSoon::example_obs_cases)
+cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")][,
+                  cases := NULL]
+
+cases <- data.table::rbindlist(list(
+  data.table::copy(cases)[, region := "testland"],
+  cases[, region := "realland"]))
+  
+## Run basic nowcasting pipeline
+regional_rt_pipeline(cases = cases,
+            delay_defs = delay_dist,
+            target_folder = target_dir)
 }

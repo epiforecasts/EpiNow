@@ -4,42 +4,51 @@
 #'
 #' @return
 #' @export
-#' @importFrom dplyr group_by ungroup
-#' @importFrom tidyr complete
 #' @importFrom rstan sampling extract
 #'
 #' @examples
 #' 
-eenb_fit <- function(nowcast_dir) {
+eenb_fit <- function(nowcast_dir, geration_times) {
   
   message("Reading nowcast...")
-  nowcast <- readRDS(nowcast_dir)
-  processed_nowcast <- nowcast %>%
-    dplyr::group_by(sample) %>%
-    tidyr::complete(date = seq.Date(to = max(nowcast$date),
-                                    from = min(nowcast$date),
-                                    by = "day"),
-                    fill = list(cases = 0)) %>%
-    dplyr::ungroup()
+  nowcast <- readRDS(nowcast_dir)[type %in% "infection_upscaled"][, type := NULL]
+  nowcast <- nowcast[, sample := as.numeric(sample)]
+  ## Make sure there are no missing dates
+  nowcast_grid <- data.table::copy(nowcast)[,
+       .(date = seq(min(date), max(date), by = "days"),
+         sample = list(1:max(sample)), 
+         import_status = list(list("local", "imported")))][,
+       .(sample = unlist(sample), import_status), by = c("date")][,
+       .(import_status = unlist(import_status)), by = c("date", "sample")]
   
-  dat <- list(t = length(unique(nowcast$date)),
-              k = max(as.numeric(processed_nowcast$sample)))
+  nowcast <-  merge(nowcast, nowcast_grid, 
+                    by = c("date", "sample", "import_status"))
+  
+  nowcast <-  nowcast[is.na(cases), cases := 0 ][,
+                      .(sample = as.numeric(sample), date = date, 
+                        cases, import_status)]
+  nowcast <- data.table::setorder(nowcast, import_status, sample, date)
+  
+  ## Split into local and imported cases
+  local_cases <- nowcast[import_status == "local"][, import_status := NULL]
+  imported_cases <- nowcast[import_status == "imported"][, import_status := NULL]
+  
+  dat <- list(t = length(unique(local_cases$date)),
+              k = length(unique(local_cases$sample)))
   
   
-  w <- EpiNow::covid_serial_intervals[,1:dat$k]
+  w <- EpiNow::covid_generation_times[,1:dat$k]
   dat$n <- dim(w)[1]
   
-  obs_local_mat <- matrix(processed_nowcast$cases,
+  obs_local_mat <- matrix(local_cases$cases,
                           byrow = FALSE,
                           nrow = dat$t,
                           ncol = dat$k)
-  
-  # dat$obs_local <- processed_nowcast$cases # For sharded versions
+
   dat$obs_local <- obs_local_mat
   
   obs_imported_mat <- matrix(0, nrow = dat$t, ncol = dat$k)
-  # dat$obs_imported <- rep(0, dat$t * dat$k) # For sharded versions
-  # dat$obs_imported <- obs_imported_mat
+  
   
   dat$tau <- 5
   
@@ -72,7 +81,7 @@ eenb_fit <- function(nowcast_dir) {
   init_fun <- function() {list(R = rgamma(n = dat$t, shape = 1, scale = 5), 
                                phi = runif(1, 0, 1))}
   
-  mod <- stanmodels$ee_negbinom
+  mod <- stanmodels$epistim
   
   message(paste0("Running for ",dat$k," SI & nowcast samples"))
   message(paste0("and ",dat$t," time steps..."))

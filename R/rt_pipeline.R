@@ -7,43 +7,96 @@
 #' `import_status` (values "local" and "imported"), `date_onset`, `date_confirm`, `report_delay`.
 #' @param delay_cutoff_date Character string, in the form "2020-01-01". Cutoff date to use
 #' to estimate the delay distribution.
-#' @param samples Numeric, the number of pseudo linelists to generate. Defaults to 1000.
 #' @param earliest_allowed_onset A character string in the form of a date ("2020-01-01") indiciating the earliest
 #' allowed onset.
-#' @param serial_intervals A matrix with columns representing samples and rows representing the probability of the serial intervel being on
-#' that day. Defaults to `EpiNow::covid_serial_intervals`.
+#' @param approx_thresold Numeric, defaults to 10,000. Threshold of cases below which explicit sampling of onsets
+#' always occurs.
+#' @param generation_times A matrix with columns representing samples and rows representing the probability of the serial intervel being on
+#' that day. Defaults to `EpiNow::covid_generation_times`.
 #' @param min_forecast_cases Numeric, defaults to 200. The minimum number of cases required in the last 7 days
 #' of data in order for a forecast to be run. This prevents spurious forecasts based on highly uncertain Rt estimates.
 #' @param rt_samples Numeric, the number of samples to take from the estimated R distribution for each time point.
+#' @param dt_threads Numeric, the number of data.table threads to use. Set internally to avoid issue when running in parallel.
+#' Defaults to 1 thread.
 #' @param verbose Logical, defaults to `FALSE`. Should internal nowcasting progress messages be returned.
 #' @return NULL
 #' @export
 #' @inheritParams epi_measures_pipeline
-#' @inheritParams report_estimates
+#' @inheritParams report_nowcast
+#' @inheritParams plot_pipeline
 #' @inheritParams nowcast_pipeline
-#' @importFrom data.table setDT
+#' @importFrom data.table as.data.table
 #' @importFrom lubridate days
 #' 
 #' @examples
 #' 
-rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
-                        target_folder = NULL, target_date = NULL, delay_cutoff_date = NULL,
-                        predict_lag = 0, samples = 1000,si_samples = 1, rt_samples = 5,
-                        rt_windows = 1:7, rate_window = 7, earliest_allowed_onset = NULL,
-                        merge_actual_onsets = TRUE, delay_only = FALSE, 
-                        approx_delay = FALSE, bootstraps = 1, bootstrap_samples = 100,
-                        max_delay = 120, verbose = FALSE, serial_intervals = NULL, rt_prior = NULL, 
-                        save_plots = TRUE, nowcast_lag = 4, incubation_period = 5, forecast_model = NULL,
-                        horizon = 0, report_forecast = FALSE, report_delay_fns = NULL,
-                        onset_modifier = NULL, min_forecast_cases = 200) {
+#' ## Save everything to a temporary directory 
+#' ## Change this to inspect locally
+#' target_dir <- tempdir() 
+#' 
+#' ## Construct example distributions
+#' ## reporting delay dist
+#' delay_dist <- suppressWarnings(
+#'                EpiNow::get_dist_def(rexp(25, 1/10), 
+#'                                     samples = 1, bootstraps = 1))
+#' 
+#' ## Uses example case vector from EpiSoon
+#' cases <- data.table::setDT(EpiSoon::example_obs_cases)
+#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")][,
+#'                   cases := NULL]
+#' 
+#' ## Run basic nowcasting pipeline
+#' rt_pipeline(cases = cases,
+#'             delay_defs = delay_dist,
+#'             target_date = max(cases$date),
+#'             target_folder = target_dir)
+rt_pipeline <- function(cases = NULL, linelist = NULL,
+                        delay_defs = NULL, incubation_defs = NULL,
+                        delay_cutoff_date = NULL, rt_samples = 5, rt_windows = 1:7, 
+                        rate_window = 7,earliest_allowed_onset = NULL, merge_actual_onsets = TRUE, 
+                        approx_delay = FALSE,  approx_threshold = 10000, max_delay = 120, 
+                        generation_times = NULL, rt_prior = NULL, nowcast_lag = 8,
+                        forecast_model = NULL, horizon = 0, report_forecast = FALSE,  
+                        onset_modifier = NULL, min_forecast_cases = 200, 
+                        target_folder = NULL, target_date = NULL, 
+                        dt_threads = 1, verbose = FALSE) {
  
-
-# Convert input to DT -----------------------------------------------------
-
-  cases <- data.table::setDT(cases)
-  imported_cases <- data.table::setDT(imported_cases)
-  linelist <- data.table::setDT(linelist)
+ 
+ # Convert input to DT -----------------------------------------------------
+  suppressMessages(data.table::setDTthreads(threads = dt_threads))
+  cases <- data.table::as.data.table(cases)
+  if (!is.null(linelist)) {
+    linelist <- data.table::as.data.table(linelist)
+  }
   
+
+# Make sure incubation and delays have the same number of samples ---------
+
+  if (is.null(incubation_defs)) {
+    if (verbose) {
+      message("Using default incubation period based on of:", 
+              EpiNow::covid_incubation_period[1, ]$as_reported)
+    }
+    incubation_defs <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_period[1, ]$mean,
+                                                mean_sd = EpiNow::covid_incubation_period[1, ]$mean_sd,
+                                                sd = EpiNow::covid_incubation_period[1, ]$sd,
+                                                sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
+                                                max_value = 30, samples = nrow(delay_defs))
+  }
+  
+balance_dfs <- function(df1, df2) {
+  if (nrow(df1) > nrow(df2)) {
+    df2 <- data.table::rbindlist(list(
+      df2,
+      df2[sample(1:nrow(df2), (nrow(df1) - nrow(df2)), replace = TRUE), ]
+    ))
+  }
+  return(df2)
+}
+  
+  incubation_defs <- balance_dfs(delay_defs, incubation_defs)
+  delay_defs <- balance_dfs(incubation_defs, delay_defs)
+
  # Set up folders ----------------------------------------------------------
 
  latest_folder <- file.path(target_folder, "latest")
@@ -52,15 +105,14 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
   if (!dir.exists(target_folder)) {
     dir.create(target_folder, recursive = TRUE)
   }
-
+ 
  # Default input -----------------------------------------------------------
 
-  if (is.null(serial_intervals)) {
+  if (is.null(generation_times)) {
     if (verbose) {
-      message("Using default sample of serial intervals with mean (sd) of 4.7 (2.9)")
+      message("Using default sample of generation times with mean (sd) of 3.6 (3.1)")
     }
-
-    serial_intervals <- EpiNow::covid_serial_intervals
+    generation_times <- EpiNow::covid_generation_times
   }
 
 
@@ -68,20 +120,19 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
     if (verbose) {
       message("Using default Rt prior of 2.6 (2)")
     }
-
     rt_prior <- list(
       mean_prior = 2.6,
       std_prior = 2)
   }
  
-
+ 
 # Control errors by changing options --------------------------------------
 
  ##Define the minimum number of recent cases required for a forecast to be run
  if (!is.null(min_forecast_cases)) {
    current_cases <- data.table::copy(cases)[date <= max(date)][
      date >= (max(date) - lubridate::days(7))
-   ][, .(cases = sum(cases, na.rm = TRUE))]$cases
+   ][, .(cases = sum(confirm, na.rm = TRUE))]$cases
 
    
    ## If cases in the last week are fewer than this number then turn off forecasting.
@@ -92,68 +143,99 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
    }
  }
  
+ if (approx_delay) {
+   total_cases <- data.table::copy(cases)[date <= max(date)][,
+                        .(cases = sum(confirm, na.rm = TRUE))]$cases
+   
+   if (total_cases <= approx_threshold) {
+     approx_delay <- FALSE
+     if (verbose){
+       message("Explicitly sampling delays as case count is below thresold (", approx_threshold, ")
+               Use approx_thresold to alter this behaviour")
+     }
+   }
+ }
  
  ## Define the min plotting (and estimate date as the first date that
- ## at least 5 local cases were reported minus the incubation period
+ ## at least 5 local cases were reported
  min_plot_date <- data.table::copy(cases)[
-   import_status %in% "local"][cases >= 5][
-     ,.(date = min(date, na.rm = TRUE) - lubridate::days(incubation_period))]$date
+   import_status %in% "local"][confirm >= 5][
+     ,.(date = min(date, na.rm = TRUE))]$date
  
   # Format input ------------------------------------------------------------
 
-  ## Reformat linelist for use in nowcast_pipeline
-  linelist <- linelist[, .(date_onset_symptoms = date_onset, 
-                           date_confirmation = date_confirm,
-                           delay_confirmation = report_delay)]
-
-  ##Reformat cases
-  cases <- cases[, confirm := cases][,cases := NULL]
-
+ if (!is.null(linelist)) {
+   ## Reformat linelist for use in nowcast_pipeline
+   linelist <- linelist[, .(date_onset_symptoms = date_onset, 
+                            date_confirmation = date_confirm,
+                            delay_confirmation = report_delay,
+                            import_status)]
+ }else{
+   merge_actual_onsets <- FALSE
+ }
+ 
   # Run a nowcast -----------------------------------------------------------
 
-
   nowcast <- EpiNow::nowcast_pipeline(
-    reported_cases = cases, linelist = linelist,
-    date_to_cast = target_date,  date_to_cutoff_delay = delay_cutoff_date,
+    reported_cases = cases, 
+    linelist = linelist,
+    target_date = target_date, 
     earliest_allowed_onset = earliest_allowed_onset,
-    merge_actual_onsets = merge_actual_onsets, samples = samples,
-    delay_only = delay_only, nowcast_lag = nowcast_lag,
-    verbose = verbose, report_delay_fns = report_delay_fns,
-    bootstraps = bootstraps, bootstrap_samples = bootstrap_samples,
-    onset_modifier = onset_modifier, approx_delay = approx_delay,
+    merge_actual_onsets = merge_actual_onsets,
+    nowcast_lag = nowcast_lag, 
+    verbose = verbose,
+    delay_defs = delay_defs,
+    incubation_defs = incubation_defs,
+    onset_modifier = onset_modifier, 
+    approx_delay = approx_delay,
     max_delay = max_delay)
 
+# Report nowcast estimates ------------------------------------------------
+  EpiNow::report_nowcast(nowcast, cases,
+                         target_folder = target_folder,
+                         target = "infection_upscaled")
+  
   saveRDS(nowcast,  paste0(target_folder, "/nowcast.rds"))
-
-  rm(formatted_linelist, report_delay_fns, linelist)
+  saveRDS(delay_defs, paste0(target_folder, "/delays.rds"))
+  saveRDS(incubation_defs, paste0(target_folder, "/incubation.rds"))
+  
   # Estimate time-varying parameters ----------------------------------------
 
   epi_estimates <-
     EpiNow::epi_measures_pipeline(
-          count_linelist = nowcast[type == "nowcast"],
-          min_est_date = min_plot_date + lubridate::days(incubation_period),
-          serial_intervals = serial_intervals,
-          si_samples = si_samples, rt_samples = rt_samples,
+          nowcast = nowcast[type == "infection_upscaled"][, type := "nowcast"],
+          min_est_date = min_plot_date,
+          generation_times = generation_times,
+          rt_samples = rt_samples,
           rate_window = rate_window, rt_windows = rt_windows,
           rt_prior = rt_prior, forecast_model = forecast_model, 
           horizon = horizon, verbose = verbose)
 
   saveRDS(epi_estimates,  paste0(target_folder, "/time_varying_params.rds"))
+  saveRDS(epi_estimates$case_forecast, paste0(target_folder, "/case_forecast.rds"))
+  saveRDS(epi_estimates$R0, paste0(target_folder, "/summarised_reff.rds"))
+  saveRDS(epi_estimates$rate_of_spread, paste0(target_folder, "/summarised_littler.rds"))
   
-  ##Remove raw estimates now saved
-  epi_estimates$raw_R0 <- NULL
-  epi_estimates$raw_case_forecast <- NULL
-  
- # Summarise results -------------------------------------------------------
+  ## Remove everything except folder and reporting arguments
+  rm(list=setdiff(ls(), c("target_folder", "target_date", "min_plot_date",
+                  "report_forecast", "latest_folder")))
+# Report estimates --------------------------------------------------------
 
- EpiNow::report_estimates(cases = cases, nowcast = nowcast, 
-                          reff_estimates = epi_estimates$R0,
-                          littler_estimates = epi_estimates$rate_of_spread,
-                          case_forecast = epi_estimates$case_forecast,
-                          incubation_period = incubation_period,
-                          target_folder = target_folder, target_date = target_date,
-                          min_plot_date = min_plot_date, save_plots = save_plots, 
-                          report_forecast = report_forecast)  
+  EpiNow::report_reff(target_folder)  
+  
+  EpiNow::report_littler(target_folder)
+  
+ # Summarise  -------------------------------------------------------
+
+  EpiNow::report_summary(target_folder)
+  
+ # Plot --------------------------------------------------------------------
+
+ EpiNow::plot_pipeline(target_folder = target_folder,                       
+                       target_date = target_date,
+                       min_plot_date = min_plot_date,
+                       report_forecast = report_forecast)
+  
 
  # Copy all results to latest folder ---------------------------------------
   
@@ -171,10 +253,6 @@ rt_pipeline <- function(cases = NULL, imported_cases = NULL, linelist = NULL,
     file.copy(file.path(target_folder, "."),
               latest_folder, recursive = TRUE)
   )
-
-
-  ## Clean everything not in use
-  rm(list = ls())
   
   return(invisible(NULL))
 }

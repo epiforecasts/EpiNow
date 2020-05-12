@@ -7,28 +7,31 @@
 #' @param verbose Logical, defaults to `TRUE`. Should progress messages be shown.
 #' @inheritParams estimate_R0
 #' @return
-#' @importFrom purrr safely map_dbl map pmap
+#' @export
+#' @importFrom purrr safely map_dbl map pmap map_lgl
 #' @importFrom HDInterval hdi
-#' @importFrom furrr future_map future_options
-#' @importFrom data.table setDT setorder rbindlist copy
+#' @importFrom future.apply future_lapply
+#' @importFrom data.table setorder rbindlist copy setDTthreads
 #' @examples 
 #'
 epi_measures_pipeline <- function(nowcast = NULL,
-                                  serial_intervals = NULL,
+                                  generation_times = NULL,
                                   min_est_date = NULL,
-                                  si_samples = NULL, rt_samples = NULL,
+                                  gt_samples = 1, rt_samples = 5,
                                   rt_windows = 7, rate_window = 7,
                                   rt_prior = NULL, forecast_model = NULL,
                                   horizon = NULL, verbose = TRUE) {
-
+ 
   ## Estimate time-varying R0
   safe_R0 <- purrr::safely(EpiNow::estimate_R0)
   
   process_R0 <- function(data) {
+    data.table::setDTthreads(1)
+    
     estimates <- safe_R0(cases = data,
-                         serial_intervals = serial_intervals,
+                         generation_times = generation_times,
                          rt_prior = rt_prior,
-                         si_samples = si_samples,
+                         gt_samples = gt_samples,
                          rt_samples = rt_samples,
                          windows = rt_windows,
                          min_est_date = min_est_date, 
@@ -37,12 +40,12 @@ epi_measures_pipeline <- function(nowcast = NULL,
     
     if (!is.null(estimates$rts)) {
       estimates$rts <-  estimates$rts[[1]][,
-                `:=`(type = data$type[1], sample = data$sample[1])]
+                `:=`(type = data$type[1], sample = as.numeric(data$sample[1]))]
     }
     
     if (!is.null(estimates$cases)) {
       estimates$cases <- estimates$cases[[1]][, `:=`(type = data$type[1],
-                                                     sample = data$sample[1])]
+                                                     sample = as.numeric(data$sample[1]))]
     }
     
     return(estimates)
@@ -51,14 +54,11 @@ epi_measures_pipeline <- function(nowcast = NULL,
   if (verbose) {
     message("Estimate time-varying R0")
   }
-
-  estimates <- furrr::future_map(split(nowcast, by = c("type", "sample")), 
-                                 process_R0, 
-                                 .progress = verbose,
-                                 .options = furrr::future_options(packages = c("EpiNow", "data.table"),
-                                                                  scheduling = 20))
   
-  rm(data_list)
+  estimates <-  future.apply::future_lapply(split(nowcast, by = c("type", "sample")), 
+                                 process_R0,
+                                 future.scheduling = 20,
+                                 future.packages = c("EpiNow", "data.table"))
   
   ## Clean up NULL rt estimates and bind together
   R0_estimates <- data.table::rbindlist(
@@ -85,7 +85,9 @@ epi_measures_pipeline <- function(nowcast = NULL,
     std = sd(R, na.rm = TRUE),
     prob_control = (sum(R < 1) / .N),
     mean_window = mean(window), 
-    sd_window = sd(window)),
+    sd_window = sd(window),
+    mean_crps = mean(crps),
+    sd_crps = sd(crps)),
     by = .(type, date, rt_type)
     ][, R0_range := purrr::pmap(
       list(mean, bottom, top, lower, upper),
@@ -105,11 +107,8 @@ epi_measures_pipeline <- function(nowcast = NULL,
   }
   
   cases_forecast <- purrr::map(estimates, ~ .$cases)
-
     
-  rm(estimates)
-    
-  if (!(is.null(cases_forecast) | length(cases_forecast) == 0)) {
+  if (any(purrr::map_lgl(cases_forecast, ~ !is.null(.)))) {
     
     ## Clean up case forecasts
     cases_forecast <-  data.table::rbindlist(cases_forecast)
@@ -144,8 +143,6 @@ epi_measures_pipeline <- function(nowcast = NULL,
     nowcast <- nowcast[date >= (min_est_date - lubridate::days(rate_window))]
   }
 
-  rm(nowcast)
-  
   ## Sum across cases and imports
   nowcast <- nowcast[, .(cases = sum(cases, na.rm = TRUE)), 
                      by = c("type", "sample", "date")]
@@ -161,38 +158,29 @@ epi_measures_pipeline <- function(nowcast = NULL,
   
   ## Break nowcast into list
   nowcast <- split(nowcast, by = "type")
-
-
-  rm(little_r_estimates)
   
-  ## Estimate overall
-  little_r <- little_r[, overall_little_r := furrr::future_map(nowcast,
-                                                               ~ EpiNow::estimate_r_in_window(.$data), 
-                                                               .options = furrr::future_options(packages = "EpiNow",
-                                                                                                scheduling = 10),
-                                                               .progress = verbose)]
+  ## Estimate overall  
+  little_r <- little_r[, overall_little_r := future.apply::future_lapply(nowcast,
+                                  function(est){EpiNow::estimate_r_in_window(est$data)},
+                                  future.scheduling = 10,
+                                  future.packages = c("EpiNow"))]
 
   ## Estimate time-varying
-  little_r <- little_r[, time_varying_r := furrr::future_map(nowcast,
-                                                             ~ EpiNow::estimate_time_varying_r(.$data,
-                                                                                               window = rate_window),
-                                                             .options = furrr::future_options(globals = c("rate_window"),
-                                                                                              packages = "EpiNow",
-                                                                                              scheduling = 10),
-                                                             .progress = verbose)]
+  little_r <- little_r[, time_varying_r := future.apply::future_lapply(nowcast,
+                                                                       function(est){EpiNow::estimate_time_varying_r(est$data)},
+                                                                       future.scheduling = 10,
+                                                                       future.packages = c("EpiNow"))]
 
 
   out <- list(R0_estimates_sum, little_r, R0_estimates)
   names(out) <- c("R0", "rate_of_spread", "raw_R0")
 
-  if (!(is.null(cases_forecast) | length(cases_forecast) == 0)) {
+  if (any(purrr::map_lgl(cases_forecast, ~ !is.null(.)))) {
     
     out$case_forecast <- sum_cases_forecast
     out$raw_case_forecast <- cases_forecast
 
   }
-  
-  rm(list = setdiff(ls(), "out"))
   
   return(out)
 }

@@ -33,7 +33,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_gamma_fit");
-    reader.add_event(29, 27, "end", "model_gamma_fit");
+    reader.add_event(34, 32, "end", "model_gamma_fit");
     return reader;
 }
 #include <stan_meta_header.hpp>
@@ -223,6 +223,7 @@ public:
         names__.push_back("alpha");
         names__.push_back("beta");
         names__.push_back("log_lik");
+        names__.push_back("samps");
     }
     void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
         dimss__.resize(0);
@@ -233,6 +234,9 @@ public:
         dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back(N);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(100);
         dimss__.push_back(dims__);
     }
     template <typename RNG>
@@ -268,20 +272,38 @@ public:
             Eigen::Matrix<double, Eigen::Dynamic, 1> log_lik(N);
             stan::math::initialize(log_lik, DUMMY_VAR__);
             stan::math::fill(log_lik, DUMMY_VAR__);
-            // generated quantities statements
             current_statement_begin__ = 24;
+            validate_non_negative_index("samps", "100", 100);
+            Eigen::Matrix<double, Eigen::Dynamic, 1> samps(100);
+            stan::math::initialize(samps, DUMMY_VAR__);
+            stan::math::fill(samps, DUMMY_VAR__);
+            // generated quantities statements
+            current_statement_begin__ = 25;
             for (int n = 1; n <= N; ++n) {
-                current_statement_begin__ = 25;
+                current_statement_begin__ = 26;
                 stan::model::assign(log_lik, 
                             stan::model::cons_list(stan::model::index_uni(n), stan::model::nil_index_list()), 
                             stan::math::log((gamma_cdf(get_base1(up, n, "up", 1), alpha, beta) - gamma_cdf(get_base1(low, n, "low", 1), alpha, beta))), 
                             "assigning variable log_lik");
+            }
+            current_statement_begin__ = 29;
+            for (int j = 1; j <= 100; ++j) {
+                current_statement_begin__ = 30;
+                stan::model::assign(samps, 
+                            stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list()), 
+                            gamma_rng(alpha, beta, base_rng__), 
+                            "assigning variable samps");
             }
             // validate, write generated quantities
             current_statement_begin__ = 23;
             size_t log_lik_j_1_max__ = N;
             for (size_t j_1__ = 0; j_1__ < log_lik_j_1_max__; ++j_1__) {
                 vars__.push_back(log_lik(j_1__));
+            }
+            current_statement_begin__ = 24;
+            size_t samps_j_1_max__ = 100;
+            for (size_t j_1__ = 0; j_1__ < samps_j_1_max__; ++j_1__) {
+                vars__.push_back(samps(j_1__));
             }
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
@@ -329,6 +351,12 @@ public:
             param_name_stream__ << "log_lik" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
+        size_t samps_j_1_max__ = 100;
+        for (size_t j_1__ = 0; j_1__ < samps_j_1_max__; ++j_1__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "samps" << '.' << j_1__ + 1;
+            param_names__.push_back(param_name_stream__.str());
+        }
     }
     void unconstrained_param_names(std::vector<std::string>& param_names__,
                                    bool include_tparams__ = true,
@@ -348,6 +376,12 @@ public:
         for (size_t j_1__ = 0; j_1__ < log_lik_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
             param_name_stream__ << "log_lik" << '.' << j_1__ + 1;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        size_t samps_j_1_max__ = 100;
+        for (size_t j_1__ = 0; j_1__ < samps_j_1_max__; ++j_1__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "samps" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
     }
