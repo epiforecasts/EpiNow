@@ -10,6 +10,7 @@ regional_rt_pipeline(
   delay_defs = NULL,
   incubation_defs = NULL,
   target_folder = "results",
+  target_date = NULL,
   merge_onsets = FALSE,
   case_limit = 40,
   onset_modifier = NULL,
@@ -32,6 +33,8 @@ See \code{get_delay_dist} for an example of the structure.}
 See \code{get_delay_dist} for an example of the structure.}
 
 \item{target_folder}{Character string, name of the folder in which to save the results.}
+
+\item{target_date}{Character string, in the form "2020-01-01". Date to cast.}
 
 \item{merge_onsets}{Logical defaults to \code{FALSE}. Should available onset data be used. Typically if \code{regional_delay} is}
 
