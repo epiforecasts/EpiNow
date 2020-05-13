@@ -23,10 +23,18 @@ epi_measures_pipeline <- function(nowcast = NULL,
                                   horizon = NULL, verbose = TRUE) {
  
   ## Estimate time-varying R0
-  safe_R0 <- purrr::safely(EpiNow::estimate_R0)
-  
-  process_R0 <- function(data) {
+  process_R0 <- function(data,
+                         generation_times,
+                         rt_prior,
+                         gt_samples, 
+                         rt_samples, 
+                         rt_windows,
+                         min_est_date,
+                         forecast_model,
+                         horizon){
     data.table::setDTthreads(1)
+
+    safe_R0 <- purrr::safely(EpiNow::estimate_R0)
     
     estimates <- safe_R0(cases = data,
                          generation_times = generation_times,
@@ -34,40 +42,45 @@ epi_measures_pipeline <- function(nowcast = NULL,
                          gt_samples = gt_samples,
                          rt_samples = rt_samples,
                          windows = rt_windows,
-                         min_est_date = min_est_date, 
+                         min_est_date = min_est_date,
                          forecast_model = forecast_model,
                          horizon = horizon)[[1]]
-    
+
     if (!is.null(estimates$rts)) {
-      estimates$rts <-  estimates$rts[[1]][,
+      estimates$rts <-  estimates$rts[,
                 `:=`(type = data$type[1], sample = as.numeric(data$sample[1]))]
     }
-    
+
     if (!is.null(estimates$cases)) {
-      estimates$cases <- estimates$cases[[1]][, `:=`(type = data$type[1],
-                                                     sample = as.numeric(data$sample[1]))]
+      estimates$cases <- estimates$cases[, `:=`(type = data$type[1],
+                                                sample = as.numeric(data$sample[1]))]
     }
-    
-    rm(list = setdiff(ls(), "estimates"))
-    
+
     return(estimates)
   }
 
   if (verbose) {
     message("Estimate time-varying R0")
   }
-  
-  estimates <-  future.apply::future_lapply(split(nowcast, by = c("type", "sample")), 
+
+  estimates <-  future.apply::future_lapply(split(nowcast, by = c("type", "sample")),
                                  process_R0,
-                                 future.scheduling = 20,
-                                 future.packages = c("EpiNow", "data.table"))
-  
+                                 generation_times = generation_times,
+                                 rt_prior = rt_prior,
+                                 gt_samples = gt_samples,
+                                 rt_samples = rt_samples,
+                                 rt_windows = rt_windows,
+                                 min_est_date = min_est_date,
+                                 forecast_model = forecast_model,
+                                 horizon = horizon,
+                                 future.scheduling = 1)
+
   ## Clean up NULL rt estimates and bind together
   R0_estimates <- data.table::rbindlist(
     purrr::map(estimates, ~ .$rts)
-  ) 
+  )
 
-  
+
   ## Generic HDI return function
   return_hdi <- function(vect = NULL, mass = NULL, index = NULL) {
     as.numeric(purrr::map_dbl(list(HDInterval::hdi(vect, credMass = mass)), ~ .[[index]]))
@@ -86,7 +99,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
     mean = mean(R, na.rm = TRUE),
     std = sd(R, na.rm = TRUE),
     prob_control = (sum(R < 1) / .N),
-    mean_window = mean(window), 
+    mean_window = mean(window),
     sd_window = sd(window),
     mean_crps = mean(crps),
     sd_crps = sd(crps)),
@@ -95,7 +108,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
       list(mean, bottom, top, lower, upper),
       function(mean, bottom, top, lower, upper) {
         list(point = mean,
-             lower = bottom, 
+             lower = bottom,
              upper = top,
              mid_lower = lower,
              mid_upper = upper)
@@ -107,16 +120,16 @@ epi_measures_pipeline <- function(nowcast = NULL,
   if (verbose) {
     message("Summarising forecast cases")
   }
-  
+
   cases_forecast <- purrr::map(estimates, ~ .$cases)
-  
+
   rm(estimates)
-  
+
   if (any(purrr::map_lgl(cases_forecast, ~ !is.null(.)))) {
-    
+
     ## Clean up case forecasts
     cases_forecast <-  data.table::rbindlist(cases_forecast)
-    
+
     ## Summarise case forecasts
     sum_cases_forecast <- data.table::copy(cases_forecast)[, .(
       bottom  = return_hdi(cases, 0.9, 1),
@@ -131,10 +144,10 @@ epi_measures_pipeline <- function(nowcast = NULL,
         list(mean, bottom, top),
         function(mean, bottom, top) {
           list(point = mean,
-               lower = bottom, 
+               lower = bottom,
                upper = top)
         }),]
-    
+
     sum_cases_forecast <- data.table::setorder(sum_cases_forecast, date)
   }
 
@@ -148,22 +161,22 @@ epi_measures_pipeline <- function(nowcast = NULL,
   }
 
   ## Sum across cases and imports
-  nowcast <- nowcast[, .(cases = sum(cases, na.rm = TRUE)), 
+  nowcast <- nowcast[, .(cases = sum(cases, na.rm = TRUE)),
                      by = c("type", "sample", "date")]
   nowcast <- na.omit(nowcast)
 
-  
+
   ## Nest by type and sample then split by type only
-  nowcast <- nowcast[, .(data = list(data.table::data.table(date, cases))), 
+  nowcast <- nowcast[, .(data = list(data.table::data.table(date, cases))),
                           by = c("type", "sample")]
-  
+
   ## Make results storage
   little_r <- data.table::data.table(type = unique(nowcast$type))
-  
+
   ## Break nowcast into list
   nowcast <- split(nowcast, by = "type")
-  
-  ## Estimate overall  
+
+  ## Estimate overall
   little_r <- little_r[, overall_little_r := future.apply::future_lapply(nowcast,
                                   function(est){EpiNow::estimate_r_in_window(est$data)},
                                   future.scheduling = 10,
@@ -180,7 +193,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
   names(out) <- c("R0", "rate_of_spread", "raw_R0")
 
   if (any(purrr::map_lgl(cases_forecast, ~ !is.null(.)))) {
-    
+
     out$case_forecast <- sum_cases_forecast
     out$raw_case_forecast <- cases_forecast
 

@@ -213,7 +213,7 @@ balance_dfs <- function(df1, df2) {
           generation_times = generation_times,
           rt_samples = rt_samples,
           rate_window = rate_window, rt_windows = rt_windows,
-          rt_prior = rt_prior, forecast_model = forecast_model, 
+          rt_prior = rt_prior, forecast_model = forecast_model,
           horizon = horizon, verbose = verbose)
 
   saveRDS(epi_estimates,  paste0(target_folder, "/time_varying_params.rds"))
@@ -224,60 +224,60 @@ balance_dfs <- function(df1, df2) {
   ## Remove everything except folder and reporting arguments
   rm(list = setdiff(ls(), c("target_folder", "target_date", "min_plot_date",
                   "report_forecast", "latest_folder")))
-  
+
   message("Post time-varying usage")
   gc()
   message(print(pryr::mem_used()))
 # Report estimates --------------------------------------------------------
 
-  ## Build an empty environment for reporting
-  empty_env <- new.env(parent = emptyenv())
-  assign("target_folder", target_folder, envir = empty_env)
-  assign("target_date", target_date, envir = empty_env)
-  assign("min_plot_date", min_plot_date, envir = empty_env)
-  assign("report_forecast", report_forecast, envir = empty_env)
-
-  empty_env$report_reff <- EpiNow::report_reff
-  empty_env$report_reff(empty_env$target_folder)
- # EpiNow::report_reff(target_folder)  
-  
-  empty_env$report_littler <- EpiNow::report_littler
-  empty_env$report_littler(empty_env$target_folder)
- # EpiNow::report_littler(target_folder)
-  
-  message("Post R reporting usage")
-  gc()
-  message(print(pryr::mem_used()))
- # Summarise  -------------------------------------------------------
-
-  empty_env$report_summary <- EpiNow::report_summary
-  empty_env$report_summary(empty_env$target_folder)
-  
-  #EpiNow::report_summary(target_folder)
-  
-  message("Post R summary usage")
-  gc()
-  message(print(pryr::mem_used()))
-  
- # Plot --------------------------------------------------------------------
-
-  empty_env$plot_pipeline <- EpiNow::plot_pipeline
-  empty_env$plot_pipeline(target_folder = empty_env$target_folder,                       
-                           target_date = empty_env$target_date,
-                           min_plot_date = empty_env$min_plot_date,
-                           report_forecast = empty_env$report_forecast)
-  
-  rm(empty_env)
- # EpiNow::plot_pipeline(target_folder = target_folder,                       
- #                       target_date = target_date,
- #                       min_plot_date = min_plot_date,
- #                       report_forecast = report_forecast)
-  
-  message("Post report usage")
-  ## Remove everything folder targets
+ #  ## Build an empty environment for reporting
+ #  empty_env <- new.env(parent = emptyenv())
+ #  assign("target_folder", target_folder, envir = empty_env)
+ #  assign("target_date", target_date, envir = empty_env)
+ #  assign("min_plot_date", min_plot_date, envir = empty_env)
+ #  assign("report_forecast", report_forecast, envir = empty_env)
+ # 
+ #  empty_env$report_reff <- EpiNow::report_reff
+ #  empty_env$report_reff(empty_env$target_folder)
+  EpiNow::report_reff(target_folder)  
+ #  
+ #  empty_env$report_littler <- EpiNow::report_littler
+ #  empty_env$report_littler(empty_env$target_folder)
+  EpiNow::report_littler(target_folder)
+ #  
+ #  message("Post R reporting usage")
+ #  gc()
+ #  message(print(pryr::mem_used()))
+ # # Summarise  -------------------------------------------------------
+ # 
+ #  empty_env$report_summary <- EpiNow::report_summary
+ #  empty_env$report_summary(empty_env$target_folder)
+ #  
+  EpiNow::report_summary(target_folder)
+ #  
+ #  message("Post R summary usage")
+ #  gc()
+ #  message(print(pryr::mem_used()))
+ #  
+ # # Plot --------------------------------------------------------------------
+ # 
+ #  empty_env$plot_pipeline <- EpiNow::plot_pipeline
+ #  empty_env$plot_pipeline(target_folder = empty_env$target_folder,                       
+ #                           target_date = empty_env$target_date,
+ #                           min_plot_date = empty_env$min_plot_date,
+ #                           report_forecast = empty_env$report_forecast)
+ #  
+ #  rm(empty_env)
+ EpiNow::plot_pipeline(target_folder = target_folder,
+                       target_date = target_date,
+                       min_plot_date = min_plot_date,
+                       report_forecast = report_forecast)
+ #  
+ #  message("Post report usage")
+  ## Remove everything but folder targets
   rm(list=setdiff(ls(), c("target_folder", "latest_folder")))
   gc()
-  message(print(pryr::mem_used()))
+ #  message(print(pryr::mem_used()))
  # Copy all results to latest folder ---------------------------------------
   
   ## Save all results to a latest folder as well
