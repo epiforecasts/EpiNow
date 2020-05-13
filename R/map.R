@@ -10,8 +10,6 @@
 #' @export
 #'
 #' @inheritParams theme_map
-#' @importFrom rnaturalearth ne_countries
-#' @importFrom countrycode countrycode
 #' @importFrom ggplot2 ggplot aes geom_sf theme_minimal theme labs waiver coord_sf .data
 #'
 #' @examples
@@ -109,8 +107,6 @@ global_map <- function(data = NULL, variable = NULL,
 #' @return A \code{ggplot2} object containing a country map.
 #' @export
 #'
-#' @importFrom rnaturalearth ne_countries ne_states
-#' @importFrom countrycode countrycode
 #' @importFrom ggplot2 ggplot aes geom_sf theme_minimal theme labs waiver .data
 #'
 #' @examples
