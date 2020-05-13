@@ -69,7 +69,6 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
     linelist <- data.table::as.data.table(linelist)
   }
   
-
 # Make sure incubation and delays have the same number of samples ---------
 
   if (is.null(incubation_defs)) {
