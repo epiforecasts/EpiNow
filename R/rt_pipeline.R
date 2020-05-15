@@ -68,8 +68,7 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
   if (!is.null(linelist)) {
     linelist <- data.table::as.data.table(linelist)
   }
-message("Initial usage")
-message(print(pryr::mem_used()))
+
 # Make sure incubation and delays have the same number of samples ---------
 
   if (is.null(incubation_defs)) {
