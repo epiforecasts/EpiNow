@@ -58,6 +58,23 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              nowcast_lag = 8,
                              onset_modifier = NULL) {
 
+  
+
+# Balance input delay and incubation samples ------------------------------
+
+  balance_dfs <- function(df1, df2) {
+    if (nrow(df1) > nrow(df2)) {
+      df2 <- data.table::rbindlist(list(
+        df2,
+        df2[sample(1:nrow(df2), (nrow(df1) - nrow(df2)), replace = TRUE), ]
+      ))
+    }
+    return(df2)
+  }
+  
+  incubation_defs <- balance_dfs(delay_defs, incubation_defs)
+  delay_defs <- balance_dfs(incubation_defs, delay_defs)
+  
 # Organise inputted linelist ----------------------------------------------
 
   if (!approx_delay) {

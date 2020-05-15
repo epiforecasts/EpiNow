@@ -65,7 +65,7 @@ target_dir <- tempdir()
 ## reporting delay dist
 delay_dist <- suppressWarnings(
                EpiNow::get_dist_def(rexp(25, 1/10), 
-                                    samples = 1, bootstraps = 1))
+                                    samples = 10, bootstraps = 1))
 
 ## Uses example case vector from EpiSoon
 cases <- data.table::setDT(EpiSoon::example_obs_cases)
@@ -74,6 +74,9 @@ cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")][,
 
 cases <- data.table::rbindlist(list(
   data.table::copy(cases)[, region := "testland"],
+  data.table::copy(cases)[, region := "moretestland"],
+  data.table::copy(cases)[, region := "testville"],
+  data.table::copy(cases)[, region := "testtown"],
   cases[, region := "realland"]))
   
 ## Run basic nowcasting pipeline
