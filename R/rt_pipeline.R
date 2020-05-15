@@ -129,6 +129,15 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
    }
  }
  
+
+# Make sure the horizon is as specified from the target date --------------
+
+ if (horizon != 0 & !is.null(forecast_model)) {
+   horizon <- horizon + as.numeric(as.Date(target_date) - max(cases$date))
+ } 
+
+# Adaptive approximate delay ----------------------------------------------
+
  if (approx_delay) {
    total_cases <- data.table::copy(cases)[date <= max(date)][,
                         .(cases = sum(confirm, na.rm = TRUE))]$cases

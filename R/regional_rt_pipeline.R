@@ -43,6 +43,7 @@
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, 
                                  delay_defs = NULL, incubation_defs = NULL,
                                  target_folder = "results", 
+                                 target_date = NULL,
                                  merge_onsets = FALSE,
                                  case_limit = 40,
                                  onset_modifier = NULL,
@@ -60,9 +61,10 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
     onset_modifier <- data.table::as.data.table(onset_modifier)
   }
   
-  ## Control parameters
-  target_date <- as.character(max(cases$date))
-  
+  if (is.null(target_date)) {
+    target_date <- as.character(max(cases$date))
+  }
+
   message("Running pipeline for ", target_date)
    
   
