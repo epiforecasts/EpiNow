@@ -34,9 +34,6 @@
 #' 
 #' cases <- data.table::rbindlist(list(
 #'   data.table::copy(cases)[, region := "testland"],
-#'   data.table::copy(cases)[, region := "moretestland"],
-#'   data.table::copy(cases)[, region := "testville"],
-#'   data.table::copy(cases)[, region := "testtown"],
 #'   cases[, region := "realland"]))
 #'   
 #' ## Run basic nowcasting pipeline
@@ -144,11 +141,6 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
       verbose = verbose,
       ...)
     
-    ## Clean up used objects
-    rm(list = ls())
-    ## Manual force memory clean up 
-    gc()
-
     return(invisible(NULL))}
   
 

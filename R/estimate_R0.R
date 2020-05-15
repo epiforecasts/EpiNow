@@ -35,10 +35,10 @@
 #' estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
 #'                          generation_times = as.matrix(EpiNow::covid_generation_times[,1]), 
 #'                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
-#'                          windows = c(1, 3, 7), rt_samples = 10, gt_samples = 2,
+#'                          windows = c(1, 3, 7), rt_samples = 10, gt_samples = 20,
 #'                          min_est_date =  as.Date("2020-02-18"),
 #'                          forecast_model = function(...){EpiSoon::fable_model(model = fable::ETS(y ~ trend("A")), ...)},
-#'                          horizon = 7)
+#'                          horizon = 14)
 #'                                            
 #'## Rt estimates and forecasts
 #' estimates$rts
@@ -265,10 +265,7 @@ estimate_R0 <- function(cases = NULL, generation_times = NULL,
   if (horizon > 0 & !is.null(forecast_model)) {
     estimates$cases <- join_gt_samples(estimates$cases)
   }
-
-
-  rm(list = setdiff(ls(), "estimates"))
-  gc()
+  
   return(estimates)
 }
 

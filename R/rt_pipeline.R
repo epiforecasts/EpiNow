@@ -83,19 +83,6 @@ message(print(pryr::mem_used()))
                                                 sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
                                                 max_value = 30, samples = nrow(delay_defs))
   }
-  
-balance_dfs <- function(df1, df2) {
-  if (nrow(df1) > nrow(df2)) {
-    df2 <- data.table::rbindlist(list(
-      df2,
-      df2[sample(1:nrow(df2), (nrow(df1) - nrow(df2)), replace = TRUE), ]
-    ))
-  }
-  return(df2)
-}
-  
-  incubation_defs <- balance_dfs(delay_defs, incubation_defs)
-  delay_defs <- balance_dfs(incubation_defs, delay_defs)
 
  # Set up folders ----------------------------------------------------------
 
@@ -190,8 +177,6 @@ balance_dfs <- function(df1, df2) {
     approx_delay = approx_delay,
     max_delay = max_delay)
  
- message("Post nowcast usage")
- message(print(pryr::mem_used()))
 # Report nowcast estimates ------------------------------------------------
   EpiNow::report_nowcast(nowcast, cases,
                          target_folder = target_folder,
@@ -202,10 +187,6 @@ balance_dfs <- function(df1, df2) {
   saveRDS(incubation_defs, paste0(target_folder, "/incubation.rds"))
   
   # Estimate time-varying parameters ----------------------------------------
-  message("Pre-time-varying usage")
-  gc()
-  message(print(pryr::mem_used()))
-  
   epi_estimates <-
     EpiNow::epi_measures_pipeline(
           nowcast = nowcast[type == "infection_upscaled"][, type := "nowcast"],
@@ -225,59 +206,23 @@ balance_dfs <- function(df1, df2) {
   rm(list = setdiff(ls(), c("target_folder", "target_date", "min_plot_date",
                   "report_forecast", "latest_folder")))
 
-  message("Post time-varying usage")
-  gc()
-  message(print(pryr::mem_used()))
 # Report estimates --------------------------------------------------------
 
- #  ## Build an empty environment for reporting
- #  empty_env <- new.env(parent = emptyenv())
- #  assign("target_folder", target_folder, envir = empty_env)
- #  assign("target_date", target_date, envir = empty_env)
- #  assign("min_plot_date", min_plot_date, envir = empty_env)
- #  assign("report_forecast", report_forecast, envir = empty_env)
- # 
- #  empty_env$report_reff <- EpiNow::report_reff
- #  empty_env$report_reff(empty_env$target_folder)
   EpiNow::report_reff(target_folder)  
- #  
- #  empty_env$report_littler <- EpiNow::report_littler
- #  empty_env$report_littler(empty_env$target_folder)
+
   EpiNow::report_littler(target_folder)
- #  
- #  message("Post R reporting usage")
- #  gc()
- #  message(print(pryr::mem_used()))
- # # Summarise  -------------------------------------------------------
- # 
- #  empty_env$report_summary <- EpiNow::report_summary
- #  empty_env$report_summary(empty_env$target_folder)
- #  
+
+ # Summarise  -------------------------------------------------------
+
   EpiNow::report_summary(target_folder)
- #  
- #  message("Post R summary usage")
- #  gc()
- #  message(print(pryr::mem_used()))
- #  
- # # Plot --------------------------------------------------------------------
- # 
- #  empty_env$plot_pipeline <- EpiNow::plot_pipeline
- #  empty_env$plot_pipeline(target_folder = empty_env$target_folder,                       
- #                           target_date = empty_env$target_date,
- #                           min_plot_date = empty_env$min_plot_date,
- #                           report_forecast = empty_env$report_forecast)
- #  
- #  rm(empty_env)
+
+ # Plot --------------------------------------------------------------------
+
  EpiNow::plot_pipeline(target_folder = target_folder,
                        target_date = target_date,
                        min_plot_date = min_plot_date,
                        report_forecast = report_forecast)
- #  
- #  message("Post report usage")
-  ## Remove everything but folder targets
-  rm(list=setdiff(ls(), c("target_folder", "latest_folder")))
-  gc()
- #  message(print(pryr::mem_used()))
+
  # Copy all results to latest folder ---------------------------------------
   
   ## Save all results to a latest folder as well
