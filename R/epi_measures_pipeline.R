@@ -73,7 +73,7 @@ epi_measures_pipeline <- function(nowcast = NULL,
                                  min_est_date = min_est_date,
                                  forecast_model = forecast_model,
                                  horizon = horizon,
-                                 future.scheduling = 1)
+                                 future.scheduling = 10)
 
   ## Clean up NULL rt estimates and bind together
   R0_estimates <- data.table::rbindlist(
