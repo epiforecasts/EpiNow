@@ -12,8 +12,9 @@
 #'   intervals <- EpiNow::covid_generation_times
 #'   nowcast <- readRDS(nowcast_dir)[type %in% "infection_upscaled"][, type := NULL]
 #'   nowcast <- nowcast[, sample := as.numeric(sample)]
-#'   nowcast <- nowcast[sample %in% c(3,4)]
+#'   nowcast <- nowcast[sample %in% c(4, 8)]
 #'   rt_prior <- list(mean = 2.6, sd = 2)
+#'   window <- 7
 estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
   
 
@@ -41,7 +42,7 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
   ## Define model parameters
   data <- list(t = length(unique(local_cases$date)), # Length of time series
                k = length(unique(local_cases$sample)),
-               window = 7, # R estimation window
+               window = window, # R estimation window
                r_mean  = rt_prior$mean, # Mean of R prior
                r_sd = rt_prior$sd) # SD of R prior
   
@@ -67,24 +68,25 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
                               ncol = data$k)
 
   ## Initialise within the prior on R and with low overdispersion
-  init_fun <- function(){list(R = rgamma(n = data$t, 
-                                          shape = (rt_prior$mean / rt_prior$sd)^2, 
-                                          scale = (rt_prior$sd^2) / rt_prior$mean),
-                              phi = rexp(1, 1/2))}
+  init_fun <- function(){list(R = array(rep(rgamma(n = data$t, 
+                                                    shape = (rt_prior$mean / rt_prior$sd)^2, 
+                                                    scale = (rt_prior$sd^2) / rt_prior$mean),
+                                             data$k),dim = data$k),
+                              phi = array(rexp(data$k, 1/2)))}
   
   ## Load the stan model used for estimation
   model <- rstan::stan_model("inst/stan/estimateR.stan")
   
   if (verbose) {
     message(paste0("Running for ",data$k," samples"))
-    message(paste0("and ",data$t," time steps..."))
+    message(paste0("and ", data$t," time steps..."))
   }
 
   
   fit <- rstan::sampling(model,
                          data = data,
                          init = init_fun,
-                         chains = 4,
+                         chains = 1,
                          iter = 2000, 
                          cores = 4,
                          refresh = ifelse(verbose, 50, 0))
