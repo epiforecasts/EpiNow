@@ -25,7 +25,7 @@
 #' ## reporting delay dist
 #' delay_dist <- suppressWarnings(
 #'                EpiNow::get_dist_def(rexp(25, 1/10), 
-#'                                     samples = 1, bootstraps = 1))
+#'                                     samples = 10, bootstraps = 1))
 #' 
 #' ## Uses example case vector from EpiSoon
 #' cases <- data.table::setDT(EpiSoon::example_obs_cases)
@@ -43,6 +43,7 @@
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, 
                                  delay_defs = NULL, incubation_defs = NULL,
                                  target_folder = "results", 
+                                 target_date = NULL,
                                  merge_onsets = FALSE,
                                  case_limit = 40,
                                  onset_modifier = NULL,
@@ -60,9 +61,10 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
     onset_modifier <- data.table::as.data.table(onset_modifier)
   }
   
-  ## Control parameters
-  target_date <- as.character(max(cases$date))
-  
+  if (is.null(target_date)) {
+    target_date <- as.character(max(cases$date))
+  }
+
   message("Running pipeline for ", target_date)
    
   
@@ -79,7 +81,8 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
   
   message("Running the pipeline for: ",
           paste(eval_regions, collapse = ", "))
-   
+  
+  rm(eval_regions)
   ## Make sure all dates have cases numbers
   cases_grid <- cases[,.(date = seq(min(date), max(date), by = "days"), 
                          import_status = list(list("local", "imported"))),
@@ -90,32 +93,43 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
   cases <- cases[cases_grid, on = c("date", "region", "import_status")][is.na(confirm), confirm := 0]
   cases <- data.table::setorder(cases, region, import_status, date)
  
+  rm(cases_grid)
+  
   ## regional pipelines
   regions <- unique(cases$region)
 
   message("Running pipelines by region")
-   
   ## Function to run the pipeline in a region
-  run_region <- function(target_region, ...) { 
+  run_region <- function(target_region, 
+                         cases,
+                         linelist,
+                         onset_modifier,
+                         ...) { 
     message("Running Rt pipeline for ", target_region)
     data.table::setDTthreads(threads = dt_threads)
     
-    regional_cases <- data.table::copy(cases)[region %in% target_region][, region := NULL]
+    regional_cases <- cases[region %in% target_region][, region := NULL]
+    
+    rm(cases)
     
     if (!is.null(linelist) & merge_onsets) {
-      regional_linelist <- data.table::copy(linelist)[region %in% target_region][, 
-                                                      region := NULL]
+      regional_linelist <- linelist[region %in% target_region][, 
+                                    region := NULL]
     }else{
       regional_linelist <- linelist
     }
     
+    rm(linelist)
+    
     if (!is.null(onset_modifier)) {
-      region_onset_modifier <- data.table::copy(onset_modifier)[region %in% target_region]
+      region_onset_modifier <- onset_modifier[region %in% target_region]
       region_onset_modifier <- region_onset_modifier[,region := NULL]
       
     }else{
       region_onset_modifier <- NULL
     }
+    
+    rm(onset_modifier)
     
     EpiNow::rt_pipeline(
       cases = regional_cases,
@@ -134,6 +148,9 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
 
   ## Run regions (make parallel using future::plan)
   future.apply::future_lapply(regions, run_region,
+                              cases = cases,
+                              linelist = linelist,
+                              onset_modifier = onset_modifier,
                               ...,
                               future.scheduling = Inf)
 

@@ -10,6 +10,7 @@ regional_rt_pipeline(
   delay_defs = NULL,
   incubation_defs = NULL,
   target_folder = "results",
+  target_date = NULL,
   merge_onsets = FALSE,
   case_limit = 40,
   onset_modifier = NULL,
@@ -32,6 +33,8 @@ See \code{get_delay_dist} for an example of the structure.}
 See \code{get_delay_dist} for an example of the structure.}
 
 \item{target_folder}{Character string, name of the folder in which to save the results.}
+
+\item{target_date}{Character string, in the form "2020-01-01". Date to cast.}
 
 \item{merge_onsets}{Logical defaults to \code{FALSE}. Should available onset data be used. Typically if \code{regional_delay} is}
 
@@ -62,7 +65,7 @@ target_dir <- tempdir()
 ## reporting delay dist
 delay_dist <- suppressWarnings(
                EpiNow::get_dist_def(rexp(25, 1/10), 
-                                    samples = 1, bootstraps = 1))
+                                    samples = 10, bootstraps = 1))
 
 ## Uses example case vector from EpiSoon
 cases <- data.table::setDT(EpiSoon::example_obs_cases)
@@ -71,6 +74,9 @@ cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")][,
 
 cases <- data.table::rbindlist(list(
   data.table::copy(cases)[, region := "testland"],
+  data.table::copy(cases)[, region := "moretestland"],
+  data.table::copy(cases)[, region := "testville"],
+  data.table::copy(cases)[, region := "testtown"],
   cases[, region := "realland"]))
   
 ## Run basic nowcasting pipeline
