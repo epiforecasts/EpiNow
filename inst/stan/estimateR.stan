@@ -1,6 +1,6 @@
 data {
   int t; // number of time steps
-  int k; // number of serial interval and delay samples
+  int k; // number of interval and case samples
   int n; // length of interval distributions
   int <lower = 0> obs_imported[t, k]; // imported cases
   int <lower = 0> obs_local[t, k]; // local cases
@@ -39,14 +39,14 @@ parameters{
 
 model {
   R ~ gamma(r_alpha, r_beta); // Prior  on Rt
-  phi ~ normal(0, 1) T[0,]; //Prior on Phi
+  phi ~ exponential(0.5); //Prior on Phi
   
   
- //Build likelihood across all samples for each   
+ //Build likelihood across all samples
  for(j in 1:k) {
   for (s in (window + 1):t){
     for (i in (s - window + 1):s){
-      target += neg_binomial_2_lpmf(obs_local[i, j] | R[s] * infectiousness[i, j], 1 / sqrt(phi));
+      target += neg_binomial_2_lpmf(obs_local[i, j] | R[s] * infectiousness[i, j], phi);
     }
    }
  }

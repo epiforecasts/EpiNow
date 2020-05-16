@@ -12,7 +12,7 @@
 #'   intervals <- EpiNow::covid_generation_times
 #'   nowcast <- readRDS(nowcast_dir)[type %in% "infection_upscaled"][, type := NULL]
 #'   nowcast <- nowcast[, sample := as.numeric(sample)]
-#'   nowcast <- nowcast[sample < 2]
+#'   nowcast <- nowcast[sample %in% c(3,4)]
 #'   rt_prior <- list(mean = 2.6, sd = 2)
 estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
   
@@ -20,14 +20,14 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
   ## Make sure there are no missing dates
   nowcast_grid <- data.table::copy(nowcast)[,
        .(date = seq(min(date), max(date), by = "days"),
-         sample = list(1:max(sample)), 
+         sample = list(unique(sample)), 
          import_status = list(list("local", "imported")))][,
        .(sample = unlist(sample), import_status), by = c("date")][,
        .(import_status = unlist(import_status)), by = c("date", "sample")]
   
   nowcast <-  data.table::merge.data.table(
     nowcast,nowcast_grid, 
-    by = c("date", "sample", "import_status"), all.y = TRUE)
+    by = c("date", "import_status", "sample"), all.y = TRUE)
   
   nowcast <-  nowcast[is.na(cases), cases := 0 ][,
                       .(sample = as.numeric(sample), date = date, 
@@ -66,18 +66,17 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
                               nrow = data$t,
                               ncol = data$k)
 
-
-
+  ## Initialise within the prior on R and with low overdispersion
   init_fun <- function(){list(R = rgamma(n = data$t, 
                                           shape = (rt_prior$mean / rt_prior$sd)^2, 
                                           scale = (rt_prior$sd^2) / rt_prior$mean),
-                              phi = runif(1, 0, 1))}
+                              phi = rexp(1, 1/2))}
   
   ## Load the stan model used for estimation
   model <- rstan::stan_model("inst/stan/estimateR.stan")
   
   if (verbose) {
-    message(paste0("Running for ",data$k," SI & nowcast samples"))
+    message(paste0("Running for ",data$k," samples"))
     message(paste0("and ",data$t," time steps..."))
   }
 
