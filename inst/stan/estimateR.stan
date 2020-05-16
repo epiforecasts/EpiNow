@@ -11,12 +11,13 @@ data {
 }
 
 transformed data{
-  // Initialise infectiousness as zero everywhere
-  matrix[t, k] infectiousness= rep_matrix(0, t, k);
+  // Set up transformed data objects
+  matrix[t, k] infectiousness;
   real r_alpha; //alpha parameter of the R gamma prior
   real r_beta;  //beta parameter of the R gamma prior
 
-
+  // Initialise infectiousness as zero everywhere
+  infectiousness = rep_matrix(0, t, k);
   // calculate alpha and beta for gamma distribution
   r_alpha = (r_mean / r_sd)^2;
   r_beta = (r_sd^2) / r_mean;
@@ -24,12 +25,11 @@ transformed data{
   // Calculate infectiousness at each timestep for each sample in turn
   for (j in 1:k){
       for (s in 2:t){
-         for (i in 1:(min((s - 1), n))){
-           infectiousness[s, j] += (obs_imported[i, j] + obs_local[i, j]) * intervals[i, j];
+         for (i in 1:(min((s - 1), n - 1))){
+           infectiousness[s, j] += (obs_imported[s - i, j] + obs_local[s - i, j]) * intervals[i + 1, j];
       }
     }
   }
-
 }
 
 parameters{

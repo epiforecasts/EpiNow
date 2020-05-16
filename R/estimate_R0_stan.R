@@ -5,15 +5,16 @@
 #' @return
 #' @export
 #' @importFrom rstan sampling extract
-#'
+#' @importFrom data.table copy merge.data.table setorder
 #' @examples
-#' 
+#'   ## Path to a nowcast
+#'   nowcast_dir <- "../national/France/latest/nowcast.rds"
 #'   intervals <- EpiNow::covid_generation_times
 #'   nowcast <- readRDS(nowcast_dir)[type %in% "infection_upscaled"][, type := NULL]
 #'   nowcast <- nowcast[, sample := as.numeric(sample)]
-#'   nowcast <- nowcast[sample < 10]
+#'   nowcast <- nowcast[sample < 2]
 #'   rt_prior <- list(mean = 2.6, sd = 2)
-estimate_R0_stan <- function(nowcast, intervals, rt_prior) {
+estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
   
 
   ## Make sure there are no missing dates
@@ -24,8 +25,9 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior) {
        .(sample = unlist(sample), import_status), by = c("date")][,
        .(import_status = unlist(import_status)), by = c("date", "sample")]
   
-  nowcast <-  merge(nowcast,nowcast_grid, 
-                    by = c("date", "sample", "import_status"), all.y = TRUE)
+  nowcast <-  data.table::merge.data.table(
+    nowcast,nowcast_grid, 
+    by = c("date", "sample", "import_status"), all.y = TRUE)
   
   nowcast <-  nowcast[is.na(cases), cases := 0 ][,
                       .(sample = as.numeric(sample), date = date, 
@@ -45,10 +47,11 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior) {
   
   ## Sample supplied interval distributions with replacement
   interval_indexes <- sample(1:ncol(intervals), data$k, replace = TRUE)
-  data$intervals <- intervals[, interval_indexes]
+  data$intervals <- as.matrix(intervals[, interval_indexes])
+                           
 
   ## Set the length of the supplied interval
-  data$n <- dim(intervals)[1]
+  data$n <- nrow(data$intervals)
   
   ## Format local cases as a matrix
   data$obs_local <- matrix(local_cases$cases,
@@ -73,8 +76,11 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior) {
   ## Load the stan model used for estimation
   model <- rstan::stan_model("inst/stan/estimateR.stan")
   
-  message(paste0("Running for ",data$k," SI & nowcast samples"))
-  message(paste0("and ",data$t," time steps..."))
+  if (verbose) {
+    message(paste0("Running for ",data$k," SI & nowcast samples"))
+    message(paste0("and ",data$t," time steps..."))
+  }
+
   
   fit <- rstan::sampling(model,
                          data = data,
@@ -82,7 +88,7 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior) {
                          chains = 4,
                          iter = 2000, 
                          cores = 4,
-                         refresh = 50)
+                         refresh = ifelse(verbose, 50, 0))
   
   samples <- rstan::extract(fit)
   
