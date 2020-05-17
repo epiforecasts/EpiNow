@@ -19,6 +19,10 @@ library(here)
 if (!exists("case_def")) {
   case_def <- "case"
 }
+
+if (!exists("report_growth")) {
+  report_growth <- TRUE
+}
 ```
 
 `r paste(c(rep("#", title_depth), paste0(" Summary (estimates as of the ", latest_date, ")")), collapse = "")`
@@ -43,12 +47,12 @@ knitr::include_graphics(here::here(file.path(region_path, region, "latest/rt_cas
 <br>
 `r paste0("*Figure ",  summary_figures + 1 + (index - 1) * 2, ": A.) Confirmed ",  case_def, "s by date of report (bars) and their estimated date of infection. B.) Time-varying estimate of the effective reproduction number. Light ribbon = 90% credible interval; dark ribbon = the 50% credible interval. Estimates from existing data are shown up to the ", latest_date, ifelse(report_forecast, " from when forecasts are shown. These should be considered indicative only", ""),  ". Confidence in the estimated values is indicated by translucency with increased translucency corresponding to reduced confidence. The vertical dashed line indicates the date of report generation.*")`
 
-`r paste(c(rep("#", title_depth), " Time-varying rate of growth and doubling time"), collapse = "")`
+`r ifelse(report_growth, paste(c(rep("#", title_depth), " Time-varying rate of growth and doubling time"), collapse = ""), "")`
 
-```{r, fig.height = 6, fig.width = 8, out.width = "90%"}
+```{r, fig.height = 6, fig.width = 8, out.width = "90%", eval = report_growth}
 knitr::include_graphics(here::here(file.path(region_path, region, "latest/rate_spread_plot.png")))
 ```
 
 <br>
-`r paste0("*Figure ",  summary_figures + 2 + (index - 1) * 2, ": A.) Time-varying estimate of the rate of growth, B.) Time-varying estimate of the doubling time in days (when negative this corresponds to the halving time), C.) The adjusted R-squared estimates indicating the goodness of fit of the exponential regression model (with values closer to 1 indicating a better fit).  Estimates from existing data are shown up to the ", latest_date,  ". Light ribbon = 90% credible interval; dark ribbon = the 50% credible interval. Confidence in the estimated values is indicated by translucency with increased translucency corresponding to reduced confidence.*")`
+`r ifelse(report_growth, paste0("*Figure ",  summary_figures + 2 + (index - 1) * 2, ": A.) Time-varying estimate of the rate of growth, B.) Time-varying estimate of the doubling time in days (when negative this corresponds to the halving time), C.) The adjusted R-squared estimates indicating the goodness of fit of the exponential regression model (with values closer to 1 indicating a better fit).  Estimates from existing data are shown up to the ", latest_date,  ". Light ribbon = 90% credible interval; dark ribbon = the 50% credible interval. Confidence in the estimated values is indicated by translucency with increased translucency corresponding to reduced confidence.*"), "")`
 
