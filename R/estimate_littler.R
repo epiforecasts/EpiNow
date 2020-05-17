@@ -121,7 +121,7 @@ estimate_r_in_window <- function(onsets = NULL,
                                              upper = lower, mean, median)]
   
   ## Sumamrise goodness of fit
-  summarise_fit <- r[,.(
+  summarise_fit <- data.table::copy(r)[,.(
     bottom = purrr::map_dbl(list(HDInterval::hdi(fit_meas, 
                                                  credMass = 0.9)), ~ .[[1]]),
     top = purrr::map_dbl(list(HDInterval::hdi(fit_meas, 
@@ -180,8 +180,8 @@ estimate_time_varying_r <- function(onsets, window = 7) {
   
   ## Remove first nesting layer
   windowed_r <- windowed_r[!purrr::map_lgl(estimates, is.null)][,
-                                                                .(estimates = purrr::flatten(estimates), var = unlist(var)),
-                                                                by = c("date", "min_time", "max_time")]
+                           .(estimates = purrr::flatten(estimates), var = unlist(var)),
+                           by = c("date", "min_time", "max_time")]
   
   windowed_r <- windowed_r[, .(windowed_r[, .(date, var)],
                                data.table::rbindlist(estimates))]

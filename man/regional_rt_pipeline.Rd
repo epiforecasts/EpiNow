@@ -74,9 +74,6 @@ cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")][,
 
 cases <- data.table::rbindlist(list(
   data.table::copy(cases)[, region := "testland"],
-  data.table::copy(cases)[, region := "moretestland"],
-  data.table::copy(cases)[, region := "testville"],
-  data.table::copy(cases)[, region := "testtown"],
   cases[, region := "realland"]))
   
 ## Run basic nowcasting pipeline
