@@ -382,11 +382,11 @@ summarise_to_csv <- function(results_dir = NULL, summary_dir = NULL,
   
   
   
-  timeseries <- EpiNow::get_timeseries(results_dir, date = NULL, summarised = TRUE)
+  timeseries <- EpiNow::get_timeseries(results_dir, date = date, summarised = TRUE)
   
   ## Clean and save Rt estimates
   rt <- data.table::as.data.table(timeseries$rt)[type %in% "nowcast", 
-                        .(region, type = rt_type, median = round(median, 1),
+                        .(region, date, type = rt_type, median = round(median, 1),
                           lower_90 = round(bottom, 1), upper_90 = round(top, 1),
                           lower_50 = round(lower, 1), upper_50 = round(upper, 1), 
                           prob_control = round(prob_control, 2))]
@@ -398,7 +398,7 @@ summarise_to_csv <- function(results_dir = NULL, summary_dir = NULL,
   
   ## Clean and save case estimates
   cases <- data.table::as.data.table(timeseries$incidence)[type %in% "nowcast", 
-                       .(region, median = round(median, 1), lower_90 = round(bottom, 0), 
+                       .(region, date, median = round(median, 1), lower_90 = round(bottom, 0), 
                          upper_90 = round(top, 0), lower_50 = round(lower, 0), 
                          upper_50 = round(upper, 0), confidence = round(confidence, 2))]
   
