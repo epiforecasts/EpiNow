@@ -40,7 +40,7 @@ transformed data{
 }
 
 parameters{
-  vector<lower = 0>[t] R[k]; // Effective reproduction number over time
+  vector<lower = 0>[t] R[k, w]; // Effective reproduction number over time
   real <lower = 0> phi[k]; // Dispersion of negative binomial distribution
   simplex[w] weights[t]; //Weights of each window
 }
@@ -50,7 +50,9 @@ model {
   vector[w] lps;
   
   for (j in 1:k) {
-    R[j] ~ gamma(r_alpha, r_beta); // Prior  on Rt
+    for (l in 1:w) {
+      R[j, l] ~ gamma(r_alpha, r_beta); // Prior  on Rt
+    }
     phi[j] ~ exponential(1); //Prior on Phi
   }
   
@@ -59,7 +61,7 @@ model {
    lps = log(weights[s]);
    for (l in 1:w) {
         for(j in 1:k) {
-          vector[windows[w]] window_mean_cases = R[j][s] * infectiousness[j][(s - windows[w] + 1):s];
+          vector[windows[w]] window_mean_cases = R[j, l][s] * infectiousness[j][(s - windows[w] + 1):s];
           int window_obs_cases[windows[w]] = obs_local[(s - windows[w] + 1):s, j];
           lps[l] += neg_binomial_2_lpmf(window_obs_cases | window_mean_cases, phi[j]);
           }
