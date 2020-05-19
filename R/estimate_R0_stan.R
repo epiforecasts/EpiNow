@@ -12,9 +12,8 @@
 #'   intervals <- EpiNow::covid_generation_times
 #'   nowcast <- readRDS(nowcast_dir)[type %in% "infection_upscaled"][, type := NULL]
 #'   nowcast <- nowcast[, sample := as.numeric(sample)]
-#'   nowcast <- nowcast[sample < 11]
+#'   nowcast <- nowcast[sample < 5]
 #'   rt_prior <- list(mean = 2.6, sd = 2)
-#'   windows <- c(2, 7)
 estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
   
 
@@ -42,8 +41,10 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
   ## Define model parameters
   data <- list(t = length(unique(local_cases$date)), # Length of time series
                k = length(unique(local_cases$sample)),
-               w = length(windows),
-               windows = array(windows), # R estimation window
+               times = 1:length(unique(local_cases$date)),
+               num_knots = length(unique(local_cases$date)),
+               knots = 1:length(unique(local_cases$date)),
+               spline_degree = 1,
                r_mean  = rt_prior$mean, # Mean of R prior
                r_sd = rt_prior$sd) # SD of R prior
   
@@ -69,10 +70,9 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
                               ncol = data$k)
 
   ## Initialise within the prior on R and with low overdispersion
-  init_fun <- function(){list(R = array(rep(rgamma(n = data$t, 
+  init_fun <- function(){list(init_R = rgamma(n = data$num_knots, 
                                                     shape = (rt_prior$mean / rt_prior$sd)^2, 
                                                     scale = (rt_prior$sd^2) / rt_prior$mean),
-                                             data$k * data$w),dim = c(data$k, data$w, data$t)),
                               phi = rexp(1, 1))}
   
   ## Load the stan model used for estimation
