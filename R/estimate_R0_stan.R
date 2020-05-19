@@ -12,8 +12,8 @@
 #'   intervals <- EpiNow::covid_generation_times
 #'   nowcast <- readRDS(nowcast_dir)[type %in% "infection_upscaled"][, type := NULL]
 #'   nowcast <- nowcast[, sample := as.numeric(sample)]
-#'   nowcast <- nowcast[sample < 4]
-#'   rt_prior <- list(mean = 1, sd = 1)
+#'   nowcast <- nowcast[sample < 21]
+#'   rt_prior <- list(mean = 2.6, sd = 2)
 #'   windows <- c(2, 7)
 estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
   
