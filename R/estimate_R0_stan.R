@@ -12,7 +12,7 @@
 #'   intervals <- EpiNow::covid_generation_times
 #'   nowcast <- readRDS(nowcast_dir)[type %in% "infection_upscaled"][, type := NULL]
 #'   nowcast <- nowcast[, sample := as.numeric(sample)]
-#'   nowcast <- nowcast[sample < 21]
+#'   nowcast <- nowcast[sample < 11]
 #'   rt_prior <- list(mean = 2.6, sd = 2)
 #'   windows <- c(2, 7)
 estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
@@ -73,7 +73,7 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
                                                     shape = (rt_prior$mean / rt_prior$sd)^2, 
                                                     scale = (rt_prior$sd^2) / rt_prior$mean),
                                              data$k * data$w),dim = c(data$k, data$w, data$t)),
-                              phi = array(rexp(data$k, 1)))}
+                              phi = rexp(1, 1))}
   
   ## Load the stan model used for estimation
   model <- rstan::stan_model("inst/stan/estimateR.stan")

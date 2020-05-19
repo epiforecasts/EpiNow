@@ -41,32 +41,32 @@ transformed data{
 
 parameters{
   vector<lower = 0>[t] R[k, w]; // Effective reproduction number over time
-  real <lower = 0> phi[k]; // Dispersion of negative binomial distribution
+  real <lower = 0> phi; // Dispersion of negative binomial distribution
   simplex[w] weights[t]; //Weights of each window
 }
 
 model {
   //Log likelihood across windows
-  vector[w] lps;
+   vector[w] lps;
   
   for (j in 1:k) {
     for (l in 1:w) {
       R[j, l] ~ gamma(r_alpha, r_beta); // Prior  on Rt
     }
-    phi[j] ~ exponential(1); //Prior on Phi
   }
+    phi ~ exponential(1); //Prior on Phi
   
  //Build likelihood across all samples
  for (s in (max(windows) + 1):t){
-   lps = log(weights[s]);
+    lps = log(weights[s]);
    for (l in 1:w) {
         for(j in 1:k) {
           vector[windows[w]] window_mean_cases = R[j, l][s] * infectiousness[j][(s - windows[w] + 1):s];
           int window_obs_cases[windows[w]] = obs_local[(s - windows[w] + 1):s, j];
           //Likelihood for each window
-          target += neg_binomial_2_lpmf(window_obs_cases | window_mean_cases, phi[j]);
+          target += neg_binomial_2_lpmf(window_obs_cases | window_mean_cases, phi);
           //One-day ahead likelihood for window mixture model
-          lps[l] += neg_binomial_2_lpmf(obs_local[s, j] | R[j, l][s] * infectiousness[j][s], phi[j]);
+          lps[l] += neg_binomial_2_lpmf(window_obs_cases[windows[w]] | window_mean_cases[windows[w]], phi);
           }
         }
     //Mixture model of windows
