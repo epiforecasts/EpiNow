@@ -59,8 +59,12 @@ model {
      R[s, l] ~ gamma(r_alpha, r_beta); // Prior  on Rt
     }    
   }
-
+  
+  if (phi_mean == 0) {
+    phi ~ exponential(1);
+  }else{
     phi ~ normal(phi_mean, phi_sd) T[0,]; //Prior on Phi
+  }
   
  //Build likelihood each time point and window starting when all windows have data
  for (s in (max(windows) + 1):t){

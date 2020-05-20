@@ -11,7 +11,7 @@
 #'   intervals <- EpiNow::covid_generation_times
 #'   nowcast <- readRDS(nowcast_dir)[type %in% "infection_upscaled"][, type := NULL]
 #'   nowcast <- nowcast[, sample := as.numeric(sample)]
-#'   nowcast <- nowcast[sample < 21]
+#'   nowcast <- nowcast[sample < 11]
 #'   rt_prior <- list(mean = 2.6, sd = 2)
 #'   disp_prior <- list(mean = 0.1, sd = 0.1)
 #'   model <- "negbin"
