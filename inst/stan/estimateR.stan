@@ -61,12 +61,12 @@ model {
     lps = log(weights[s]);
    for (l in 1:w) {
         for(j in 1:k) {
-          vector[windows[w]] window_mean_cases = R[j, l][s] * infectiousness[j][(s - windows[w] + 1):s];
-          int window_obs_cases[windows[w]] = obs_local[(s - windows[w] + 1):s, j];
+          vector[windows[w]] window_mean_cases = R[j, l][s] * infectiousness[j][(s - windows[l] + 1):s];
+          int window_obs_cases[windows[w]] = obs_local[(s - windows[l] + 1):s, j];
           //Likelihood for each window
           target += neg_binomial_2_lpmf(window_obs_cases | window_mean_cases, phi);
           //One-day ahead likelihood for window mixture model
-          lps[l] += neg_binomial_2_lpmf(window_obs_cases[windows[w]] | window_mean_cases[windows[w]], phi);
+          lps[l] += neg_binomial_2_lpmf(window_obs_cases[windows[l]] | window_mean_cases[windows[l]], phi);
           }
         }
     //Mixture model of windows
