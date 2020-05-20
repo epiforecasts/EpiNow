@@ -6,14 +6,16 @@ data {
   int <lower = 0> obs_imported[t, k]; // imported cases
   int <lower = 0> obs_local[t, k]; // local cases
   int windows[w]; // length of window
+  int model_type; //Type of model: 1 = Poisson otherwise negative binomial
   real intervals[n, k]; // matrix of different interval distributions
   real <lower = 0> r_mean;
   real <lower = 0> r_sd;
+  real <lower = 0> phi_mean;
+  real <lower = 0> phi_sd;
 }
 
 transformed data{
-  // Set up transformed data objects
-  vector[t] infectiousness[k];
+  vector[k] infectiousness[t]; //Infectiousness at any time t vectorised across samples
   real r_alpha; //alpha parameter of the R gamma prior
   real r_beta;  //beta parameter of the R gamma prior
 
@@ -21,18 +23,20 @@ transformed data{
   r_alpha = (r_mean / r_sd)^2;
   r_beta = (r_sd^2) / r_mean;
   
+      
   // Calculate infectiousness at each timestep for each sample in turn
-  for (j in 1:k){
-      // Initialise infectiousness as zero initially
-      infectiousness[j] = rep_vector(0, t);
-      for (s in 2:t){
+  for (s in 2:t){
+    // Initialise infectiousness as zero initially
+    infectiousness[s] = rep_vector(0.0, k);
+    
+      for (j in 1:k){
          for (i in 1:(min((s - 1), n - 1))){
-           infectiousness[j][s] += (obs_imported[s - i, j] + obs_local[s - i, j]) * intervals[i + 1, j];
+           infectiousness[s, j] += (obs_imported[s - i, j] + obs_local[s - i, j]) * intervals[i + 1, j];
       }
     
      //If infectiousness is ever zero set to be nearly zero to avoid sampling issues
-     if (infectiousness[j][s] == 0) {
-       infectiousness[j][s] = 0.0000001;
+     if (infectiousness[s, j] == 0) {
+       infectiousness[s, j] = 0.0000001;
      }
      
     }
@@ -40,37 +44,46 @@ transformed data{
 }
 
 parameters{
-  vector<lower = 0>[t] R[k, w]; // Effective reproduction number over time
+  vector<lower = 0>[k] R[t, w]; // Effective reproduction number over time
   real <lower = 0> phi; // Dispersion of negative binomial distribution
   simplex[w] weights[t]; //Weights of each window
 }
 
+
 model {
   //Log likelihood across windows
-   vector[w] lps;
+   vector[k] avg_R;
   
-  for (j in 1:k) {
+  for (s in 1:t) {
     for (l in 1:w) {
-      R[j, l] ~ gamma(r_alpha, r_beta); // Prior  on Rt
-    }
+     R[s, l] ~ gamma(r_alpha, r_beta); // Prior  on Rt
+    }    
   }
-    phi ~ exponential(1); //Prior on Phi
+
+    phi ~ normal(phi_mean, phi_sd) T[0,]; //Prior on Phi
   
- //Build likelihood across all samples
+ //Build likelihood each time point and window starting when all windows have data
  for (s in (max(windows) + 1):t){
-    lps = log(weights[s]);
-   for (l in 1:w) {
-        for(j in 1:k) {
-          vector[windows[w]] window_mean_cases = R[j, l][s] * infectiousness[j][(s - windows[w] + 1):s];
-          int window_obs_cases[windows[w]] = obs_local[(s - windows[w] + 1):s, j];
-          //Likelihood for each window
-          target += neg_binomial_2_lpmf(window_obs_cases | window_mean_cases, phi);
-          //One-day ahead likelihood for window mixture model
-          lps[l] += neg_binomial_2_lpmf(window_obs_cases[windows[w]] | window_mean_cases[windows[w]], phi);
-          }
-        }
-    //Mixture model of windows
-    target += log_sum_exp(lps);
+   avg_R = rep_vector(0.0, k);
+    for (l in 1:w) {
+      for (i in (s - windows[l] + 1):s) {
+         //Likelihood over each window - vectorised over the no. of samples
+         if (model_type == 1) {
+           target += poisson_lpmf(obs_local[i] | infectiousness[i] .* R[s, l]);
+         }else{
+           target += neg_binomial_2_lpmf(obs_local[i] | infectiousness[i] .* R[s, l], phi);
+         }
+      }
+    for (h in 1:k) {
+     avg_R[h] += weights[s][l] * R[s, l][h];
+     }
   }
+   
+   if (model_type == 1) {
+       target +=  poisson_lpmf(obs_local[s] | infectiousness[s] .* avg_R);
+     }else{
+       target +=  neg_binomial_2_lpmf(obs_local[s] | infectiousness[s] .* avg_R, phi);
+     }
+ }
 }
 

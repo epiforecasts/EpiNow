@@ -1,7 +1,6 @@
 #' Fit the negative binomial version of EpiEstim
 #'
 #' @param nowcast_dir The directory of the nowcast to fit to
-#'
 #' @return
 #' @export
 #' @importFrom rstan sampling extract
@@ -12,10 +11,14 @@
 #'   intervals <- EpiNow::covid_generation_times
 #'   nowcast <- readRDS(nowcast_dir)[type %in% "infection_upscaled"][, type := NULL]
 #'   nowcast <- nowcast[, sample := as.numeric(sample)]
-#'   nowcast <- nowcast[sample < 11]
+#'   nowcast <- nowcast[sample < 21]
 #'   rt_prior <- list(mean = 2.6, sd = 2)
-#'   windows <- c(2, 7)
-estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
+#'   disp_prior <- list(mean = 0.1, sd = 0.1)
+#'   model <- "negbin"
+#'   windows <- c(1, 3, 7, 14)
+#'   verbose <- TRUE
+estimate_R0_stan <- function(nowcast, intervals, rt_prior, model = "poisson",
+                             verbose = FALSE) {
   
 
   ## Make sure there are no missing dates
@@ -45,7 +48,16 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
                w = length(windows),
                windows = array(windows), # R estimation window
                r_mean  = rt_prior$mean, # Mean of R prior
-               r_sd = rt_prior$sd) # SD of R prior
+               r_sd = rt_prior$sd,
+               phi_mean  = disp_prior$mean, # Mean of R prior
+               phi_sd = disp_prior$sd) # SD of R prior) # SD of R prior
+  
+  ## Set model to poisson or negative binomial
+  if (model %in% "poisson") {
+    data$model_type <- 1
+  }else if (model %in% "negbin"){
+    data$model_type <- 2
+  }
   
   ## Sample supplied interval distributions with replacement
   interval_indexes <- sample(1:ncol(intervals), data$k, replace = TRUE)
@@ -69,10 +81,10 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
                               ncol = data$k)
 
   ## Initialise within the prior on R and with low overdispersion
-  init_fun <- function(){list(R = array(rep(rgamma(n = data$t, 
+  init_fun <- function(){list(R = array(rep(rgamma(n = data$k, 
                                                     shape = (rt_prior$mean / rt_prior$sd)^2, 
                                                     scale = (rt_prior$sd^2) / rt_prior$mean),
-                                             data$k * data$w),dim = c(data$k, data$w, data$t)),
+                                             data$t * data$w),dim = c(data$t, data$w, data$k)),
                               phi = rexp(1, 1))}
   
   ## Load the stan model used for estimation
@@ -93,15 +105,6 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, verbose = FALSE) {
                          refresh = ifelse(verbose, 50, 0))
   
   samples <- rstan::extract(fit)
-  
-  # out <- data.table::data.table(
-  #   date = seq(min(local_cases$date), 
-  #              max(local_cases$date), by = "days"),
-  #   R = purrr::map(dim(sample$R)
-  # )
-  # R <- samples$R[, 1, ]
-  # 
-  # phi <- 
   
   return(list(fit, samples))
 }
