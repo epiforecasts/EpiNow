@@ -11,11 +11,11 @@
 #'   intervals <- EpiNow::covid_generation_times
 #'   nowcast <- readRDS(nowcast_dir)[type %in% "infection_upscaled"][, type := NULL]
 #'   nowcast <- nowcast[, sample := as.numeric(sample)]
-#'   nowcast <- nowcast[sample < 11]
+#'   nowcast <- nowcast[sample < 101]
 #'   rt_prior <- list(mean = 2.6, sd = 2)
 #'   disp_prior <- list(mean = 0.1, sd = 0.1)
 #'   model <- "negbin"
-#'   windows <- c(1, 3, 7, 14)
+#'   windows <- c(1, 7, 14)
 #'   verbose <- TRUE
 estimate_R0_stan <- function(nowcast, intervals, rt_prior, model = "poisson",
                              verbose = FALSE) {
