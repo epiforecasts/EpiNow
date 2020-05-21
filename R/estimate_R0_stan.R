@@ -7,18 +7,19 @@
 #' @importFrom data.table copy merge.data.table setorder
 #' @examples
 #'   ## Path to a nowcast
-#'   nowcast_dir <- "../national/France/latest/nowcast.rds"
+#'   nowcast_dir <- "../national/Spain/latest/nowcast.rds"
 #'   intervals <- EpiNow::covid_generation_times
 #'   nowcast <- readRDS(nowcast_dir)[type %in% "infection_upscaled"][, type := NULL]
 #'   nowcast <- nowcast[, sample := as.numeric(sample)]
 #'   nowcast <- nowcast[sample < 101]
 #'   rt_prior <- list(mean = 2.6, sd = 2)
-#'   disp_prior <- list(mean = 0.1, sd = 0.1)
-#'   model <- "negbin"
+#'   disp_prior <- list(mean = 0, sd = 0.1) ## mean = 0 -> exp(1) prior
+#'   model <- "poisson"
+#'   min_cases <- 10
 #'   windows <- c(1, 7, 14)
 #'   verbose <- TRUE
 estimate_R0_stan <- function(nowcast, intervals, rt_prior, model = "poisson",
-                             verbose = FALSE) {
+                             min_cases, verbose = FALSE) {
   
 
   ## Make sure there are no missing dates
@@ -42,10 +43,17 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, model = "poisson",
   local_cases <- nowcast[import_status == "local"][, import_status := NULL]
   imported_cases <- nowcast[import_status == "imported"][, import_status := NULL]
   
+  
+  ## Define the wait time based on the minimum case thresold
+  wait_time <- data.table::copy(local_cases)[, time := 1:.N - 1, by = sample]
+  wait_time <- unique(wait_time[cases >= min_cases][date == min(date)]$time)
+  wait_time <- ifelse(wait_time < max(windows), max(windows), wait_time)
+  
   ## Define model parameters
   data <- list(t = length(unique(local_cases$date)), # Length of time series
                k = length(unique(local_cases$sample)),
                w = length(windows),
+               wait_time = wait_time,
                windows = array(windows), # R estimation window
                r_mean  = rt_prior$mean, # Mean of R prior
                r_sd = rt_prior$sd,
@@ -81,22 +89,22 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, model = "poisson",
                               ncol = data$k)
 
   ## Initialise within the prior on R and with low overdispersion
-  init_fun <- function(){list(R = array(rep(rgamma(n = data$k, 
+  init_fun <- function(){list(R = array(rep(rgamma(n = data$t - wait_time, 
                                                     shape = (rt_prior$mean / rt_prior$sd)^2, 
                                                     scale = (rt_prior$sd^2) / rt_prior$mean),
-                                             data$t * data$w),dim = c(data$t, data$w, data$k)),
-                              phi = rexp(1, 1))}
+                                             data$w),dim = c(data$w, data$t - wait_time)),
+                             phi = rexp(1, 1))}
   
   ## Load the stan model used for estimation
-  model <- rstan::stan_model("inst/stan/estimateR.stan")
+  estimateR <- rstan::stan_model("inst/stan/estimateR.stan")
   
   if (verbose) {
     message(paste0("Running for ",data$k," samples"))
-    message(paste0("and ", data$t," time steps..."))
+    message(paste0("and ", data$t - wait_time," time steps..."))
   }
 
   
-  fit <- rstan::sampling(model,
+  fit <- rstan::sampling(estimateR,
                          data = data,
                          init = init_fun,
                          chains = 4,

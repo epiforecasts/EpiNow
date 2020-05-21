@@ -3,6 +3,7 @@ data {
   int k; // number of interval and case samples
   int n; // length of interval distributions
   int w; //Number of windows to evaluate
+  int wait_time; //Time to wait before starting to estimate
   int <lower = 0> obs_imported[t, k]; // imported cases
   int <lower = 0> obs_local[t, k]; // local cases
   int windows[w]; // length of window
@@ -18,7 +19,7 @@ transformed data{
   vector[k] infectiousness[t]; //Infectiousness at any time t vectorised across samples
   real r_alpha; //alpha parameter of the R gamma prior
   real r_beta;  //beta parameter of the R gamma prior
-
+  
   // calculate alpha and beta for gamma distribution
   r_alpha = (r_mean / r_sd)^2;
   r_beta = (r_sd^2) / r_mean;
@@ -44,21 +45,23 @@ transformed data{
 }
 
 parameters{
-  vector<lower = 0>[k] R[t, w]; // Effective reproduction number over time
+  vector<lower = 0>[t - wait_time] R[w]; // Effective reproduction number over time
   real <lower = 0> phi; // Dispersion of negative binomial distribution
-  simplex[w] weights[t]; //Weights of each window
+  simplex[w] weights[t - wait_time]; //Weights of each window
 }
 
 
 model {
   //Log likelihood across windows
-   vector[k] avg_R;
+  real avg_R;
+  vector[w] lps;
+  vector[k] pred_cases;
+  vector[k] one_day_pred_cases;
   
-  for (s in 1:t) {
-    for (l in 1:w) {
-     R[s, l] ~ gamma(r_alpha, r_beta); // Prior  on Rt
-    }    
-  }
+  // Set up priors on parameters
+   for (l in 1:w) {
+     R[l] ~ gamma(r_alpha, r_beta); // Prior  on Rt
+   }
   
   if (phi_mean == 0) {
     phi ~ exponential(1);
@@ -67,27 +70,30 @@ model {
   }
   
  //Build likelihood each time point and window starting when all windows have data
- for (s in (max(windows) + 1):t){
-   avg_R = rep_vector(0.0, k);
+ for (s in (wait_time + 1):(t)){
+   //Initialise mixture model and start window at 0
+   lps = log(weights[s - wait_time]);
     for (l in 1:w) {
       for (i in (s - windows[l] + 1):s) {
          //Likelihood over each window - vectorised over the no. of samples
+         pred_cases = R[l][s - wait_time] * infectiousness[i];
          if (model_type == 1) {
-           target += poisson_lpmf(obs_local[i] | infectiousness[i] .* R[s, l]);
+           target += poisson_lpmf(obs_local[i] | pred_cases);
          }else{
-           target += neg_binomial_2_lpmf(obs_local[i] | infectiousness[i] .* R[s, l], phi);
+           target += neg_binomial_2_lpmf(obs_local[i] | pred_cases, phi);
          }
       }
-    for (h in 1:k) {
-     avg_R[h] += weights[s][l] * R[s, l][h];
-     }
+
+      //One-day ahead likelihood for window mixture model
+      one_day_pred_cases = R[l][s - wait_time] * infectiousness[s];
+      if (model_type == 1) {
+       lps[l] +=  poisson_lpmf(obs_local[s] |  one_day_pred_cases);
+      }else{
+       lps[l] +=  neg_binomial_2_lpmf(obs_local[s] | one_day_pred_cases, phi);
+      }
+    }
+    //Mixture model of windows
+    target += log_sum_exp(lps);
   }
-   
-   if (model_type == 1) {
-       target +=  poisson_lpmf(obs_local[s] | infectiousness[s] .* avg_R);
-     }else{
-       target +=  neg_binomial_2_lpmf(obs_local[s] | infectiousness[s] .* avg_R, phi);
-     }
- }
 }
 
