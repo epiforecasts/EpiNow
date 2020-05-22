@@ -45,22 +45,23 @@ transformed data{
 }
 
 parameters{
-  vector<lower = 0>[t - wait_time] R[w]; // Effective reproduction number over time
+  vector<lower = 0>[k] R[w, t - wait_time - 1]; // Effective reproduction number over time
   real <lower = 0> phi; // Dispersion of negative binomial distribution
-  simplex[w] weights[t - wait_time]; //Weights of each window
+  simplex[w] weights[t - wait_time - 1]; //Weights of each window
 }
 
 
 model {
   //Log likelihood across windows
-  real avg_R;
   vector[w] lps;
   vector[k] pred_cases;
   vector[k] one_day_pred_cases;
   
   // Set up priors on parameters
    for (l in 1:w) {
-     R[l] ~ gamma(r_alpha, r_beta); // Prior  on Rt
+     for (s in 1:(t - wait_time - 1)) {
+       R[l, s] ~ gamma(r_alpha, r_beta); // Prior  on Rt
+     }
    }
   
   if (phi_mean == 0) {
@@ -70,13 +71,13 @@ model {
   }
   
  //Build likelihood each time point and window starting when all windows have data
- for (s in (wait_time + 1):(t)){
+ for (s in (wait_time + 1):(t - 1)){
    //Initialise mixture model and start window at 0
    lps = log(weights[s - wait_time]);
     for (l in 1:w) {
       for (i in (s - windows[l] + 1):s) {
          //Likelihood over each window - vectorised over the no. of samples
-         pred_cases = R[l][s - wait_time] * infectiousness[i];
+         pred_cases = R[l, s - wait_time] .* infectiousness[i];
          if (model_type == 1) {
            target += poisson_lpmf(obs_local[i] | pred_cases);
          }else{
@@ -85,11 +86,11 @@ model {
       }
 
       //One-day ahead likelihood for window mixture model
-      one_day_pred_cases = R[l][s - wait_time] * infectiousness[s];
+      one_day_pred_cases = R[l, s - wait_time] .* infectiousness[s + 1];
       if (model_type == 1) {
-       lps[l] +=  poisson_lpmf(obs_local[s] |  one_day_pred_cases);
+       lps[l] +=  poisson_lpmf(obs_local[s + 1] |  one_day_pred_cases);
       }else{
-       lps[l] +=  neg_binomial_2_lpmf(obs_local[s] | one_day_pred_cases, phi);
+       lps[l] +=  neg_binomial_2_lpmf(obs_local[s + 1] | one_day_pred_cases, phi);
       }
     }
     //Mixture model of windows

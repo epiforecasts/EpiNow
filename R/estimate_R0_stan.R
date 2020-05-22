@@ -7,11 +7,11 @@
 #' @importFrom data.table copy merge.data.table setorder
 #' @examples
 #'   ## Path to a nowcast
-#'   nowcast_dir <- "../national/Spain/latest/nowcast.rds"
+#'   nowcast_dir <- "../covid-global/national/Spain/latest/nowcast.rds"
 #'   intervals <- EpiNow::covid_generation_times
 #'   nowcast <- readRDS(nowcast_dir)[type %in% "infection_upscaled"][, type := NULL]
 #'   nowcast <- nowcast[, sample := as.numeric(sample)]
-#'   nowcast <- nowcast[sample < 101]
+#'   nowcast <- nowcast[sample < 11]
 #'   rt_prior <- list(mean = 2.6, sd = 2)
 #'   disp_prior <- list(mean = 0, sd = 0.1) ## mean = 0 -> exp(1) prior
 #'   model <- "poisson"
@@ -89,18 +89,17 @@ estimate_R0_stan <- function(nowcast, intervals, rt_prior, model = "poisson",
                               ncol = data$k)
 
   ## Initialise within the prior on R and with low overdispersion
-  init_fun <- function(){list(R = array(rep(rgamma(n = data$t - wait_time, 
+  init_fun <- function(){list(R = array(rep(rgamma(n = data$k, 
                                                     shape = (rt_prior$mean / rt_prior$sd)^2, 
                                                     scale = (rt_prior$sd^2) / rt_prior$mean),
-                                             data$w),dim = c(data$w, data$t - wait_time)),
+                                             data$w * (data$t - wait_time - 1)),dim = c(data$w, data$t - wait_time - 1, data$k)),
                              phi = rexp(1, 1))}
   
   ## Load the stan model used for estimation
   estimateR <- rstan::stan_model("inst/stan/estimateR.stan")
   
   if (verbose) {
-    message(paste0("Running for ",data$k," samples"))
-    message(paste0("and ", data$t - wait_time," time steps..."))
+    message(paste0("Running for ",data$k," samples and ", data$t - wait_time," time steps..."))
   }
 
   
