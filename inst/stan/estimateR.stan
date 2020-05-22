@@ -65,18 +65,22 @@ model {
   }
 
 //Build likelihood each time point and window starting when all windows have data
+
  for (l in 1:w) {
+  // Define sliding window start time based on previous window size
+  int window_start = l == 1 ? 0 : windows[l - 1];
   // define within window temporary variables
-  real pred_cases[(t - wait_time), windows[l], k];
-  int target_cases[(t - wait_time), windows[l], k];
-  real flat_pred_cases[(t - wait_time)*windows[l]*k];
-  int flat_cases[(t - wait_time)*windows[l]*k];
+  real pred_cases[(t - wait_time), windows[l] - window_start, k];
+  int target_cases[(t - wait_time), windows[l] - window_start, k];
+  real flat_pred_cases[(t - wait_time)*(windows[l] - window_start)*k];
+  int flat_cases[(t - wait_time)*(windows[l] - window_start)*k];
   
     for (s in (wait_time + 1):(t)){
-      for (i in (s - windows[l] + 1):s) {
+      for (i in (s - windows[l] + 1):(s - window_start)) {
          //Likelihood over each window - vectorised over the no. of samples
-         pred_cases[s - wait_time, s - i + 1] = to_array_1d(R[l][s - wait_time] * infectiousness[i]);
-         target_cases[s - wait_time, s - i + 1] = obs_local[i];
+         int index = s - window_start - i + 1;
+         pred_cases[s - wait_time, index] = to_array_1d(R[l][s - wait_time] * infectiousness[i]);
+         target_cases[s - wait_time, index] = obs_local[i];
       }
     }
     
