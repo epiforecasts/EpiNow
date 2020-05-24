@@ -28,6 +28,7 @@ rt_pipeline(
   min_forecast_cases = 200,
   target_folder = NULL,
   target_date = NULL,
+  max_upscale = 100,
   dt_threads = 1,
   verbose = FALSE
 )
@@ -89,6 +90,9 @@ of data in order for a forecast to be run. This prevents spurious forecasts base
 
 \item{target_date}{Character string, in the form "2020-01-01". Date to cast.}
 
+\item{max_upscale}{Numeric, maximum upscaling of cases allowed at each time point. Defaults to 100 times the observed
+cases.}
+
 \item{dt_threads}{Numeric, the number of data.table threads to use. Set internally to avoid issue when running in parallel.
 Defaults to 1 thread.}
 
@@ -106,7 +110,7 @@ the time-varying effective reproduction number and rate of spread.
 
 ## Save everything to a temporary directory 
 ## Change this to inspect locally
-target_dir <- tempdir() 
+target_dir <- tempdir()
 
 ## Construct example distributions
 ## reporting delay dist

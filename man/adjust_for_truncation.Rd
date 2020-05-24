@@ -9,7 +9,8 @@ adjust_for_truncation(
   cum_freq,
   dates,
   confidence_adjustment = NULL,
-  samples
+  samples,
+  max_upscale
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ adjust_for_truncation(
 \item{confidence_adjustment}{Numeric vector of frequencies used to adjust confidence}
 
 \item{samples}{Numeric, number of samples to take}
+
+\item{max_upscale}{Numeric, maximum upscaling of cases allowed at each time point}
 }
 \value{
 

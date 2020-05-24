@@ -1,15 +1,26 @@
-##' Draw with an offset from a negative binomial distribution
-##'
-##' @description Samples size (the number of trials) of a binomial distribution
-##'  copied from https://github.com/sbfnk/bpmodels/blob/master/R/utils.r
-##' @param n Numeric, number of samples to draw
-##' @param x Numeric, offset.
-##' @param prob Numeric, probability of successful trial
-##' @export
-rbinom_size <- function(n, x, prob) {
-  x <- ifelse(is.na(x), 0, x + stats::rnbinom(n, x + 1, prob))
+#' Draw with an offset from a negative binomial distribution
+#'
+#' @description Samples size (the number of trials) of a binomial distribution
+#'  copied from https://github.com/sbfnk/bpmodels/blob/master/R/utils.r
+#' @param n Numeric, number of samples to draw
+#' @param x Numeric, offset.
+#' @param prob Numeric, probability of successful trial
+#' @param max_upscale Numeric, maximum upscaling of cases allowed at each time point
+#' @export
+#' @examples
+#' x <- c(0:10)
+#' prob <- pgamma(1:11, 4, 2)
+#'
+#' rbinom_size(length(x), x, prob, max_upscale = 10)
+#'
+rbinom_size <- function(n, x, prob, max_upscale) {
+  y <- ifelse(is.na(x), 0, x + stats::rnbinom(n, x + 1, prob))
   
-  return(x)
+  if (!missing(max_upscale)) {
+    y <- ifelse(y > max_upscale * (x + 1),  max_upscale * (x + 1), y)
+  }
+  
+  return(y)
 }
 
 
@@ -22,6 +33,7 @@ rbinom_size <- function(n, x, prob) {
 #' @param samples Numeric, number of samples to take
 #' @return
 #' @export
+#' @inheritParams rbinom_size
 #' @importFrom purrr map
 #' @importFrom data.table data.table
 #' @examples
@@ -29,7 +41,7 @@ rbinom_size <- function(n, x, prob) {
 #'
 adjust_for_truncation <- function(cases, cum_freq, dates, 
                                   confidence_adjustment = NULL,
-                                  samples) {
+                                  samples, max_upscale) {
   
   
   out <- purrr::map(seq_len(samples), function(sample) {
@@ -40,7 +52,7 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
       EpiNow::rbinom_size(
         length(cum_freq),
         cases[length(cases):(length(cases) - (length(cum_freq) - 1))],
-        cum_freq)
+        cum_freq, max_upscale = max_upscale)
     
     ## Add confidence based on the cumulative frequency
     confidence <- rep(1, length(x_cases))

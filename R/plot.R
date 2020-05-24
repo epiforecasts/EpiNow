@@ -374,7 +374,7 @@ plot_grid <- function(regions = NULL, plot_object = "bigr_eff_plot.rds",
 #' @param log_cases Logical, should cases be shown on a logged scale. Defaults to `FALSE`
 #' @return A `ggplot2` object
 #' @export
-#' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme guides labs expand_limits guide_legend element_blank scale_color_manual .data
+#' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme guides labs expand_limits guide_legend element_blank scale_color_manual .data coord_cartesian
 #' @importFrom cowplot theme_cowplot panel_border
 #' @importFrom patchwork plot_layout
 #'
@@ -424,7 +424,8 @@ plot_summary <- function(summary_results, x_lab = "Region", log_cases = FALSE) {
     ggplot2::theme(legend.position = "bottom") +
     ggplot2::guides(col = ggplot2::guide_legend(nrow = 2)) +
     ggplot2::labs(x = x_lab, y = "") +
-    ggplot2::expand_limits(y = c(0, min(max(rt_data$upper), 3)))
+    ggplot2::expand_limits(y = c(0, min(max(rt_data$upper), 4))) +
+    ggplot2::coord_cartesian(ylim = c(0, 4))
   
   
   ##join plots together

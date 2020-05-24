@@ -4,7 +4,7 @@
 \alias{rbinom_size}
 \title{Draw with an offset from a negative binomial distribution}
 \usage{
-rbinom_size(n, x, prob)
+rbinom_size(n, x, prob, max_upscale)
 }
 \arguments{
 \item{n}{Numeric, number of samples to draw}
@@ -12,8 +12,17 @@ rbinom_size(n, x, prob)
 \item{x}{Numeric, offset.}
 
 \item{prob}{Numeric, probability of successful trial}
+
+\item{max_upscale}{Numeric, maximum upscaling of cases allowed at each time point}
 }
 \description{
 Samples size (the number of trials) of a binomial distribution
 copied from https://github.com/sbfnk/bpmodels/blob/master/R/utils.r
+}
+\examples{
+x <- c(0:10)
+prob <- pgamma(1:11, 4, 2)
+
+rbinom_size(length(x), x, prob, max_upscale = 10)
+
 }
