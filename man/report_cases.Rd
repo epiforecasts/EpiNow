@@ -9,6 +9,7 @@ report_cases(
   case_forecast = NULL,
   delay_defs,
   incubation_defs,
+  type = "median",
   reporting_effect
 )
 }

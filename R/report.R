@@ -112,6 +112,7 @@ report_cases <- function(nowcast,
                          case_forecast = NULL, 
                          delay_defs,
                          incubation_defs,
+                         type = "median",
                          reporting_effect) {
   
   ## Add a null reporting effect if missing
@@ -144,6 +145,7 @@ report_cases <- function(nowcast,
                      function(id) {EpiNow::adjust_infection_to_report(infections[sample == id], 
                                                           delay_def = delay_defs[id,],
                                                           incubation_def = incubation_defs[id, ],
+                                                          type = type,
                                                           reporting_effect = reporting_effect[sample == id, ]$effect)})
   
   report <- data.table::rbindlist(report, idcol = "sample")

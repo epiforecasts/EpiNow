@@ -80,5 +80,6 @@ report_weekly <- adjust_infection_to_report(infections, delay_def, incubation_de
 print(report_weekly) 
 
 ## Map using a deterministic median shift for both delays
-report <- adjust_infection_to_report(infections, delay_def, incubation_def)              
+report_median <- adjust_infection_to_report(infections, delay_def, 
+                                           incubation_def, type = "median")              
 }
