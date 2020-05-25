@@ -32,7 +32,7 @@
 #' 
 #' ## Save everything to a temporary directory 
 #' ## Change this to inspect locally
-#' target_dir <- tempdir()
+#' target_dir <- "../test"
 #' 
 #' ## Construct example distributions
 #' ## reporting delay dist
