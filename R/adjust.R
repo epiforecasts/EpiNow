@@ -82,3 +82,59 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
   
   return(out)
 }
+
+
+
+
+#' Adjust from Case Counts by Infection Date to Date of Report
+#'
+#' @param infections 
+#' @param delay_def 
+#' @param incubation_def 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+#' 
+adjust_infection_to_report <- function(infections, delay_def, incubation_def) {
+  
+  ## Define sample delay fn
+  sample_delay_fn <- function(n, ...) {
+    EpiNow::dist_skel(n = n, 
+                      model = delay_def$model[[1]], 
+                      params = delay_def$params[[1]],
+                      max_value = delay_def$max_value[[1]], 
+                      ...)
+  }
+  
+  ## Define an incubation fn
+  sample_incubation_fn <- function(n, ...) {
+    EpiNow::dist_skel(n = n, 
+                      model = incubation_def$model[[1]], 
+                      params = incubation_def$params[[1]],
+                      max_value = incubation_def$max_value[[1]], 
+                      ...)
+  }
+
+  
+  ## Infection to onset
+  onset <- EpiNow::sample_approx_dist(cases = infections, 
+                                      dist_fn = sample_incubation_fn,
+                                      max_value = incubation_def$max_value,
+                                      direction = "forwards",
+                                      truncate_future = FALSE)
+  
+  ## Onset to report
+  report <- EpiNow::sample_approx_dist(cases = onset, 
+                                       dist_fn = sample_delay_fn,
+                                       max_value = delay_def$max_value,
+                                       direction = "forwards",
+                                       trucate_future = FALSE)
+  
+  ## Truncate reported cases by maximum infection date
+  report <- report[date <= max(infection$date)]
+  
+  return(report)
+}

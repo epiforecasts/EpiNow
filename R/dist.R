@@ -426,6 +426,8 @@ get_dist_def <- function(values, verbose = FALSE, samples = 1,
 #' either "backwards" or "forwards".
 #' @param earliest_allowed_mapped A character string representing a date ("2020-01-01"). Indicates 
 #' the earlies allowed mapped value.
+#' @param truncate_future Logical, should cases be truncted if they occur after the first date reported in the data. 
+#' Defaults to `TRUE`.
 #' @return A `data.table` of cases by date of onset
 #' @export
 #' @importFrom purrr map_dfc
@@ -469,7 +471,8 @@ sample_approx_dist <- function(cases = NULL,
                                dist_fn = NULL,
                                max_value = 120, 
                                earliest_allowed_mapped = NULL,
-                               direction = "backwards") {
+                               direction = "backwards",
+                               truncate_future = TRUE) {
   
   if (direction %in% "backwards") {
     direction_fn <- rev
@@ -523,7 +526,7 @@ sample_approx_dist <- function(cases = NULL,
   }
   
   ## Filter out future cases
-  if (direction %in% "forwards") {
+  if (direction %in% "forwards" & truncate_future) {
     max_date <- max(cases$date)
     mapped_cases <- mapped_cases[date <= max_date]
   }
