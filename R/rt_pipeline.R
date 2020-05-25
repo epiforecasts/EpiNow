@@ -32,7 +32,7 @@
 #' 
 #' ## Save everything to a temporary directory 
 #' ## Change this to inspect locally
-#' target_dir <- tempdir() 
+#' target_dir <- "../test"
 #' 
 #' ## Construct example distributions
 #' ## reporting delay dist
@@ -58,7 +58,7 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
                         generation_times = NULL, rt_prior = NULL, nowcast_lag = 8,
                         forecast_model = NULL, horizon = 0, report_forecast = FALSE,  
                         onset_modifier = NULL, min_forecast_cases = 200, 
-                        target_folder = NULL, target_date = NULL, 
+                        target_folder = NULL, target_date = NULL, max_upscale = 10,
                         dt_threads = 1, verbose = FALSE) {
  
  
@@ -210,6 +210,18 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
   saveRDS(epi_estimates$R0, paste0(target_folder, "/summarised_reff.rds"))
   saveRDS(epi_estimates$rate_of_spread, paste0(target_folder, "/summarised_littler.rds"))
 
+  
+
+# Report cases ------------------------------------------------------------
+
+  cases_by_report <- report_cases(nowcast,
+                                  case_forecast = epi_estimates$raw_case_forecast,
+                                  delay_defs = delay_defs,
+                                  incubation_defs = incubation_defs,
+                                  type = "median")
+  
+  saveRDS(cases_by_report, paste0(target_folder, "/cases_by_report.rds"))
+  
   ## Remove everything except folder and reporting arguments
   rm(list = setdiff(ls(), c("target_folder", "target_date", "min_plot_date",
                   "report_forecast", "latest_folder")))

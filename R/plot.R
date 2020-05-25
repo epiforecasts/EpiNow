@@ -136,6 +136,7 @@ plot_pipeline <- function(target_date = NULL, target_folder = NULL,
   # Read in summary data ----------------------------------------------------
   
   summarised_nowcast <- readRDS(paste0(target_folder, "/summarised_nowcast.rds"))
+  cases_by_report <- readRDS(paste0(target_folder, "/cases_by_report.rds"))
   case_forecast <- readRDS(paste0(target_folder, "/case_forecast.rds"))
   reff_nowcast <- readRDS(paste0(target_folder, "/bigr_estimates.rds"))[type %in% "nowcast"]
   reff_forecast <- readRDS(paste0(target_folder, "/summarised_reff.rds"))[rt_type %in% "forecast"]
@@ -374,7 +375,7 @@ plot_grid <- function(regions = NULL, plot_object = "bigr_eff_plot.rds",
 #' @param log_cases Logical, should cases be shown on a logged scale. Defaults to `FALSE`
 #' @return A `ggplot2` object
 #' @export
-#' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme guides labs expand_limits guide_legend element_blank scale_color_manual .data
+#' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme guides labs expand_limits guide_legend element_blank scale_color_manual .data coord_cartesian
 #' @importFrom cowplot theme_cowplot panel_border
 #' @importFrom patchwork plot_layout
 #'
@@ -424,7 +425,8 @@ plot_summary <- function(summary_results, x_lab = "Region", log_cases = FALSE) {
     ggplot2::theme(legend.position = "bottom") +
     ggplot2::guides(col = ggplot2::guide_legend(nrow = 2)) +
     ggplot2::labs(x = x_lab, y = "") +
-    ggplot2::expand_limits(y = c(0, min(max(rt_data$upper), 3)))
+    ggplot2::expand_limits(y = c(0, min(max(rt_data$upper), 4))) +
+    ggplot2::coord_cartesian(ylim = c(0, 4))
   
   
   ##join plots together

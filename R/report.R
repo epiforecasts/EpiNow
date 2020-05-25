@@ -61,6 +61,96 @@ report_nowcast <- function(nowcast, cases,
 }
 
 
+#' Report case counts by date of report                        
+#' 
+#' @param case_forecast A data.table of case forecasts as produced by `epi_measures_pipeline` If not supplied the
+#' default is not incoperate forecasts.
+#' @param reporting_effect A `data.table` giving the weekly reporting effect with the following variables:
+#' `sample` (must be the same as in `nowcast`), `effect` (numeric scaling factor for each weekday), `day`
+#' (numeric 1 - 7 (1 = Monday and 7 = Sunday)). If not supplied then no weekly reporting effect is assumed.
+#' @export
+#' @return A `data.table` containing the following variables `sample`, `date` and `cases`
+#' @inheritParams report_nowcast
+#' @inheritParams nowcast_pipeline
+#' @importFrom data.table data.table rbindlist
+#' @importFrom future.apply future_lapply
+#' @examples 
+#' 
+#' ## Define example cases
+#' cases <- data.table::as.data.table(EpiSoon::example_obs_cases) 
+#' 
+#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
+#' 
+#' ## Define a single report delay distribution
+#' delay_defs <- EpiNow::lognorm_dist_def(mean = 5, 
+#'                                        mean_sd = 1,
+#'                                        sd = 3,
+#'                                        sd_sd = 1,
+#'                                        max_value = 30,
+#'                                        samples = 100)
+#'                                        
+#' ## Define a single incubation period
+#' incubation_defs <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_period[1, ]$mean,
+#'                                             mean_sd = EpiNow::covid_incubation_period[1, ]$mean_sd,
+#'                                             sd = EpiNow::covid_incubation_period[1, ]$sd,
+#'                                             sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
+#'                                             max_value = 30, samples = 100)
+#'                                            
+#' 
+#' ## Perform a nowcast
+#' nowcast <- nowcast_pipeline(reported_cases = cases, 
+#'                             target_date = max(cases$date),
+#'                             delay_defs = delay_defs,
+#'                             incubation_defs = incubation_defs)
+#'                             
+#'                      
+#' reported_cases <- report_cases(nowcast, delay_defs = delay_defs,
+#'                                incubation_defs = incubation_defs)
+#'                                
+#' print(reported_cases)
+report_cases <- function(nowcast,
+                         case_forecast = NULL, 
+                         delay_defs,
+                         incubation_defs,
+                         reporting_effect) {
+  
+  ## Add a null reporting effect if missing
+  if (missing(reporting_effect)) {
+    reporting_effect <- data.table::data.table(
+      sample = list(1:nrow(delay_defs)),
+      effect = rep(1, 7),
+      day = 1:7
+    )
+    
+    reporting_effect <- reporting_effect[, .(sample = unlist(sample)), by = .(effect, day)]
+  }
+  
+  ## Filter and sum nowcast to use only upscaled cases by date of infection
+  infections <- data.table::copy(nowcast)[type %in% "infection_upscaled" & import_status %in% "local"][,
+                                         `:=`(type = NULL, import_status = NULL)]
+  infections <- infections[, .(sample, date, cases)]
+  
+  ## Add in case forecast if present
+  if (!is.null(case_forecast)) {
+    infections <- data.table::rbindlist(list(
+      infections,
+      case_forecast[, .(sample, date, cases = as.integer(cases))]
+    ))
+  }
+  
+
+  ## For each sample map to report date
+  report <- future.apply::future_lapply(1:max(infections$sample), 
+                     function(id) {EpiNow::adjust_infection_to_report(infections[sample == id], 
+                                                          delay_def = delay_defs[id,],
+                                                          incubation_def = incubation_defs[id, ],
+                                                          reporting_effect = reporting_effect[sample == id, ]$effect)})
+  
+  report <- data.table::rbindlist(report, idcol = "sample")
+    
+  return(report)
+}
+
 #' Report Effective Reproduction Number Estimates
 #' @inheritParams report_nowcast
 #' @return NULL

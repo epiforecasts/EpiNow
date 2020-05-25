@@ -17,6 +17,7 @@ nowcast_pipeline(
   delay_defs = NULL,
   incubation_defs = NULL,
   nowcast_lag = 8,
+  max_upscale = 10,
   onset_modifier = NULL
 )
 }
@@ -43,6 +44,9 @@ See \code{get_delay_dist} for an example of the structure.}
 See \code{get_delay_dist} for an example of the structure.}
 
 \item{nowcast_lag}{Numeric, defaults to 4. The number of days by which to lag nowcasts. Helps reduce bias due to case upscaling.}
+
+\item{max_upscale}{Numeric, maximum upscaling of cases allowed at each time point. Defaults to 100 times the observed
+cases.}
 
 \item{onset_modifier}{data.frame containing a \code{date} variable and a function \code{modifier} variable. This is used
 to modify estimated cases by onset date. \code{modifier} must be a function that returns a proportion when called

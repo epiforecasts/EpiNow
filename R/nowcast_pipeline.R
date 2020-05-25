@@ -15,6 +15,8 @@
 #' (enables inclusion of uncertainty) and takes the following arguments: `n` (samples to return) and `status` ("local" or "import").
 #' @param approx_delay  Logical, defaults to `FALSE`. Should delay sampling be approximated using case counts. Not appropriate
 #' when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.
+#' @param max_upscale Numeric, maximum upscaling of cases allowed at each time point. Defaults to 100 times the observed 
+#' cases.
 #' @inheritParams generate_pseudo_linelist
 #' @inheritParams sample_delay
 #' @inheritParams report_nowcast
@@ -55,7 +57,8 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              samples = 1,
                              delay_defs = NULL,
                              incubation_defs = NULL,
-                             nowcast_lag = 8,
+                             nowcast_lag = 8, 
+                             max_upscale = 10,
                              onset_modifier = NULL) {
 
   
@@ -146,7 +149,7 @@ if (!is.null(onset_modifier)) {
  
 # Nowcasting for each samples or vector of samples ------------------------
 
-  nowcast_inner <- function(dist_def = NULL, verbose = NULL) {
+  nowcast_inner <- function(dist_def = NULL, max_upscale, verbose = NULL) {
     
     suppressMessages(data.table::setDTthreads(threads = 1))
     
@@ -258,7 +261,8 @@ if (!is.null(onset_modifier)) {
       cases = cases_by_onset$cases,
       dates = cases_by_onset$date,
       cum_freq = sample_delay_fn(1:nrow(cases_by_onset), dist = TRUE),
-      samples = 1
+      samples = 1,
+      max_upscale = max_upscale
     )[[1]])[, `:=`(type = "onset_upscaled", import_status = "local")]
 
     if (sum(imported_cases$confirm) > 0) {
@@ -267,7 +271,8 @@ if (!is.null(onset_modifier)) {
         cases = imported_cases_by_onset$cases,
         dates = imported_cases_by_onset$date,
         cum_freq = sample_delay_fn(1:nrow(imported_cases_by_onset), dist = TRUE),
-        samples = 1
+        samples = 1,
+        max_upscale = max_upscale
       )[[1]])[, `:=`(type = "onset_upscaled", import_status = "imported")]
     }
     
@@ -289,7 +294,8 @@ if (!is.null(onset_modifier)) {
       dates =  cases_by_infection$date,
       cum_freq = sample_incubation_fn(1:nrow(cases_by_infection), dist = TRUE),
       confidence_adjustment = sample_delay_fn(1:nrow(cases_by_infection), dist = TRUE),
-      samples = 1
+      samples = 1,
+      max_upscale = max_upscale
     )[[1]])[, `:=`(type = "infection_upscaled", import_status = "local")]
     
     ## Apply to imported cases if present
@@ -304,7 +310,8 @@ if (!is.null(onset_modifier)) {
         dates = imported_cases_by_infection$date,
         cum_freq = sample_incubation_fn(1:nrow(imported_cases_by_infection), dist = TRUE),
         confidence_adjustment = sample_delay_fn(1:nrow(imported_cases_by_infection), dist = TRUE),
-        samples = 1
+        samples = 1,
+        max_upscale = max_upscale
       )[[1]])[, `:=`(type = "infection_upscaled", import_status = "imported")]
       
     }
@@ -353,6 +360,7 @@ if (!is.null(onset_modifier)) {
   out <- future.apply::future_lapply(dist_defs,
                                      nowcast_inner, 
                                      verbose = FALSE,
+                                     max_upscale = max_upscale,
                                      future.scheduling = 20,
                                      future.packages = c("EpiNow", "data.table"))
     
