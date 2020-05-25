@@ -58,7 +58,7 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              delay_defs = NULL,
                              incubation_defs = NULL,
                              nowcast_lag = 8, 
-                             max_upscale = 100,
+                             max_upscale = 10,
                              onset_modifier = NULL) {
 
   

@@ -58,7 +58,7 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
                         generation_times = NULL, rt_prior = NULL, nowcast_lag = 8,
                         forecast_model = NULL, horizon = 0, report_forecast = FALSE,  
                         onset_modifier = NULL, min_forecast_cases = 200, 
-                        target_folder = NULL, target_date = NULL, max_upscale = 100,
+                        target_folder = NULL, target_date = NULL, max_upscale = 10,
                         dt_threads = 1, verbose = FALSE) {
  
  
