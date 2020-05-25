@@ -191,7 +191,9 @@ adjust_infection_to_report <- function(infections, delay_def, incubation_def,
                                        truncate_future = FALSE)
   
   ## Truncate reported cases by maximum infection date
-  report <- report[date <= max(infections$date)]
+  if (type %in% "sample") {
+      report <- report[date <= max(infections$date)]
+    }
   
   ## Add a weekly reporting effect if present
   if (!missing(reporting_effect)) {
