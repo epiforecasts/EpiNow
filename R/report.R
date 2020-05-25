@@ -61,14 +61,18 @@ report_nowcast <- function(nowcast, cases,
 }
 
 
-#'                             
+#' Report case counts by date of report                        
 #' 
-#' @param nowcast 
-#' @param case_forecast 
-#' @param delay_defs 
-#' @param incubation_defs 
-#' @param reporting_effect 
-#' 
+#' @param case_forecast A data.table of case forecasts as produced by `epi_measures_pipeline` If not supplied the
+#' default is not incoperate forecasts.
+#' @param reporting_effect A `data.table` giving the weekly reporting effect with the following variables:
+#' `sample` (must be the same as in `nowcast`), `effect` (numeric scaling factor for each weekday), `day`
+#' (numeric 1 - 7 (1 = Monday and 7 = Sunday)). If not supplied then no weekly reporting effect is assumed.
+#' @export
+#' @return A `data.table` containing the following variables `sample`, `date` and `cases`
+#' @inheritParams report_nowcast
+#' @inheritParams nowcast_pipeline
+#' @importFrom data.table data.table rbindlist
 #' @examples 
 #' 
 #' ## Define example cases
@@ -100,10 +104,11 @@ report_nowcast <- function(nowcast, cases,
 #'                             
 #'                      
 #' reported_cases <- report_cases(nowcast, delay_defs = delay_def,
-#'                                incubation_defs = incubation_def,
-#'                                reporting_effect = reporting_effect)
+#'                                incubation_defs = incubation_def)
+#'                                
+#' print(reported_cases)
 report_cases <- function(nowcast,
-                         case_forecast, 
+                         case_forecast = NULL, 
                          delay_defs,
                          incubation_defs,
                          reporting_effect) {
@@ -140,7 +145,7 @@ report_cases <- function(nowcast,
                                                           incubation_def = incubation_defs[., ],
                                                           reporting_effect = reporting_effect[sample == ., ]$effect))
   
-  report <- data.table::rbindlist(report)
+  report <- data.table::rbindlist(report, idcol = "sample")
     
   return(report)
 }
