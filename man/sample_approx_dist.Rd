@@ -10,6 +10,7 @@ sample_approx_dist(
   max_value = 120,
   earliest_allowed_mapped = NULL,
   direction = "backwards",
+  type = "sample",
   truncate_future = TRUE
 )
 }
@@ -24,6 +25,9 @@ the earlies allowed mapped value.}
 
 \item{direction}{Character string, defato "backwards". Direction in which to map cases. Supports
 either "backwards" or "forwards".}
+
+\item{type}{Character string indicating the method to use to transfrom counts. Supports either "sample"
+which approximates sampling or "median" would shift by the median of the distribution.}
 
 \item{truncate_future}{Logical, should cases be truncted if they occur after the first date reported in the data.
 Defaults to \code{TRUE}.}
@@ -47,7 +51,12 @@ print(cases)
 sum(cases$cases)
 
 delay_fn <- function(n, dist, cum) {
-   pgamma(n + 0.9999, 2, 1) - pgamma(n - 1e-5, 2, 1)}
+              if(dist) {
+                pgamma(n + 0.9999, 2, 1) - pgamma(n - 1e-5, 2, 1)
+               }else{
+                as.integer(rgamma(n, 2, 1))
+               }
+             }
 
 onsets <- sample_approx_dist(cases = cases,
                              dist_fn = delay_fn)
@@ -68,5 +77,12 @@ total_onsets
 reports <- sample_approx_dist(cases = cases,
                               dist_fn = delay_fn,
                               direction = "forwards")
+                              
+                              
+## Map from onset cases to reported using a mean shift               
+reports <- sample_approx_dist(cases = cases,
+                              dist_fn = delay_fn,
+                              direction = "forwards",
+                              type = "median")
 
 }

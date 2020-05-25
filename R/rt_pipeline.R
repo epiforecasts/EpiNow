@@ -32,7 +32,7 @@
 #' 
 #' ## Save everything to a temporary directory 
 #' ## Change this to inspect locally
-#' target_dir <- "../test"
+#' target_dir <- tempdir()
 #' 
 #' ## Construct example distributions
 #' ## reporting delay dist
@@ -217,7 +217,8 @@ rt_pipeline <- function(cases = NULL, linelist = NULL,
   cases_by_report <- report_cases(nowcast,
                                   case_forecast = epi_estimates$raw_case_forecast,
                                   delay_defs = delay_defs,
-                                  incubation_defs = incubation_defs)
+                                  incubation_defs = incubation_defs,
+                                  type = "median")
   
   saveRDS(cases_by_report, paste0(target_folder, "/cases_by_report.rds"))
   

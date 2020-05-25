@@ -136,6 +136,7 @@ plot_pipeline <- function(target_date = NULL, target_folder = NULL,
   # Read in summary data ----------------------------------------------------
   
   summarised_nowcast <- readRDS(paste0(target_folder, "/summarised_nowcast.rds"))
+  cases_by_report <- readRDS(paste0(target_folder, "/cases_by_report.rds"))
   case_forecast <- readRDS(paste0(target_folder, "/case_forecast.rds"))
   reff_nowcast <- readRDS(paste0(target_folder, "/bigr_estimates.rds"))[type %in% "nowcast"]
   reff_forecast <- readRDS(paste0(target_folder, "/summarised_reff.rds"))[rt_type %in% "forecast"]

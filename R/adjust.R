@@ -99,6 +99,7 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #' by the day on which they report (1 = Monday, 7 = Sunday). By default no scaling occurs.
 #' @return A `data.table` containing a `date` variable (date of report) and a `cases` variable.
 #' @export
+#' @inheritParams sample_approx_dist
 #' @importFrom data.table setorder data.table setDTthreads
 #' @importFrom lubridate wday
 #' @examples
@@ -144,9 +145,13 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #' report_weekly <- adjust_infection_to_report(infections, delay_def, incubation_def,
 #'                                             reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95))          
 #'                              
-#' print(report_weekly)                  
+#' print(report_weekly) 
+#' 
+#'## Map using a deterministic median shift for both delays
+#'report_median <- adjust_infection_to_report(infections, delay_def, 
+#'                                            incubation_def, type = "median")              
 adjust_infection_to_report <- function(infections, delay_def, incubation_def,
-                                       reporting_effect) {
+                                       reporting_effect, type = "sample") {
   
   data.table::setDTthreads(1)
   
@@ -174,6 +179,7 @@ adjust_infection_to_report <- function(infections, delay_def, incubation_def,
                                       dist_fn = sample_incubation_fn,
                                       max_value = incubation_def$max_value,
                                       direction = "forwards",
+                                      type = type,
                                       truncate_future = FALSE)
   
   ## Onset to report
@@ -181,6 +187,7 @@ adjust_infection_to_report <- function(infections, delay_def, incubation_def,
                                        dist_fn = sample_delay_fn,
                                        max_value = delay_def$max_value,
                                        direction = "forwards",
+                                       type = type,
                                        truncate_future = FALSE)
   
   ## Truncate reported cases by maximum infection date

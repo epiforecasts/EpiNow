@@ -8,7 +8,8 @@ adjust_infection_to_report(
   infections,
   delay_def,
   incubation_def,
-  reporting_effect
+  reporting_effect,
+  type = "sample"
 )
 }
 \arguments{
@@ -22,6 +23,9 @@ See \code{lognorm_dist_def} for an example of the structure.}
 
 \item{reporting_effect}{A numeric vector of length 7 that allows the scaling of reported cases
 by the day on which they report (1 = Monday, 7 = Sunday). By default no scaling occurs.}
+
+\item{type}{Character string indicating the method to use to transfrom counts. Supports either "sample"
+which approximates sampling or "median" would shift by the median of the distribution.}
 }
 \value{
 A \code{data.table} containing a \code{date} variable (date of report) and a \code{cases} variable.
@@ -73,5 +77,8 @@ print(report)
 report_weekly <- adjust_infection_to_report(infections, delay_def, incubation_def,
                                             reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95))          
                              
-print(report_weekly)                  
+print(report_weekly) 
+
+## Map using a deterministic median shift for both delays
+report <- adjust_infection_to_report(infections, delay_def, incubation_def)              
 }

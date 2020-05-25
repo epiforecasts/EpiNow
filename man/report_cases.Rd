@@ -47,21 +47,21 @@ delay_defs <- EpiNow::lognorm_dist_def(mean = 5,
                                        sd = 3,
                                        sd_sd = 1,
                                        max_value = 30,
-                                       samples = 5)
+                                       samples = 100)
                                        
 ## Define a single incubation period
 incubation_defs <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_period[1, ]$mean,
                                             mean_sd = EpiNow::covid_incubation_period[1, ]$mean_sd,
                                             sd = EpiNow::covid_incubation_period[1, ]$sd,
                                             sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
-                                            max_value = 30, samples = 5)
+                                            max_value = 30, samples = 100)
                                            
 
 ## Perform a nowcast
 nowcast <- nowcast_pipeline(reported_cases = cases, 
                             target_date = max(cases$date),
-                            delay_defs = delay_def,
-                            incubation_defs = incubation_def)
+                            delay_defs = delay_defs,
+                            incubation_defs = incubation_defs)
                             
                      
 reported_cases <- report_cases(nowcast, delay_defs = delay_defs,
