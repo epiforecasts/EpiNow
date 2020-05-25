@@ -100,6 +100,7 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #' @return A `data.table` containing a `date` variable (date of report) and a `cases` variable.
 #' @export
 #' @importFrom data.table setorder data.table
+#' @importFrom lubridate wday
 #' @examples
 #' 
 #' ## Define example cases
