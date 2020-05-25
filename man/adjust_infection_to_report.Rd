@@ -4,7 +4,12 @@
 \alias{adjust_infection_to_report}
 \title{Adjust from Case Counts by Infection Date to Date of Report}
 \usage{
-adjust_infection_to_report(infections, delay_def, incubation_def)
+adjust_infection_to_report(
+  infections,
+  delay_def,
+  incubation_def,
+  reporting_effect
+)
 }
 \arguments{
 \item{infections}{\code{data.table} containing a \code{date} variable and a numeric \code{cases} variable.}
@@ -14,6 +19,9 @@ See \code{lognorm_dist_def} for an example of the structure.}
 
 \item{incubation_def}{A single row data.table that defines the incubation distribution (model, parameters and maximum delay for each model).
 See \code{lognorm_dist_def} for an example of the structure.}
+
+\item{reporting_effect}{A numeric vector of length 7 that allows the scaling of reported cases
+by the day on which they report (1 = Monday, 7 = Sunday). By default no scaling occurs.}
 }
 \value{
 A \code{data.table} containing a \code{date} variable (date of report) and a \code{cases} variable.
@@ -55,7 +63,15 @@ nowcast <- nowcast_pipeline(reported_cases = cases,
 infections <- nowcast[type \%in\% "infection_upscaled" & import_status \%in\% "local"]
 infections <- infections[, `:=`(type = NULL, import_status = NULL)]
 
+
+## Simple mapping
 report <- adjust_infection_to_report(infections, delay_def, incubation_def)   
 
-report                                   
+print(report)   
+
+## Mapping with a weekly reporting effect
+report_weekly <- adjust_infection_to_report(infections, delay_def, incubation_def,
+                                            reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95))          
+                             
+print(report_weekly)                  
 }

@@ -95,9 +95,11 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #' See `lognorm_dist_def` for an example of the structure.
 #' @param incubation_def A single row data.table that defines the incubation distribution (model, parameters and maximum delay for each model). 
 #' See `lognorm_dist_def` for an example of the structure.
+#' @param reporting_effect A numeric vector of length 7 that allows the scaling of reported cases
+#' by the day on which they report (1 = Monday, 7 = Sunday). By default no scaling occurs.
 #' @return A `data.table` containing a `date` variable (date of report) and a `cases` variable.
 #' @export
-#'
+#' @importFrom data.table setorder data.table
 #' @examples
 #' 
 #' ## Define example cases
@@ -131,10 +133,19 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #' infections <- nowcast[type %in% "infection_upscaled" & import_status %in% "local"]
 #' infections <- infections[, `:=`(type = NULL, import_status = NULL)]
 #' 
+#' 
+#' ## Simple mapping
 #' report <- adjust_infection_to_report(infections, delay_def, incubation_def)   
 #' 
-#' report                                   
-adjust_infection_to_report <- function(infections, delay_def, incubation_def) {
+#' print(report)   
+#' 
+#' ## Mapping with a weekly reporting effect
+#' report_weekly <- adjust_infection_to_report(infections, delay_def, incubation_def,
+#'                                             reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95))          
+#'                              
+#' print(report_weekly)                  
+adjust_infection_to_report <- function(infections, delay_def, incubation_def,
+                                       reporting_effect) {
   
   ## Define sample delay fn
   sample_delay_fn <- function(n, ...) {
@@ -171,6 +182,21 @@ adjust_infection_to_report <- function(infections, delay_def, incubation_def) {
   
   ## Truncate reported cases by maximum infection date
   report <- report[date <= max(infections$date)]
+  
+  ## Add a weekly reporting effect if present
+  if (!missing(reporting_effect)) {
+    reporting_effect <- data.table::data.table(
+      day = 1:7,
+      effect = reporting_effect
+    )
+    
+    report <- report[, day := lubridate::wday(date)]
+    report <- report[reporting_effect, on = "day"]
+    report <- report[, cases := as.integer(cases * effect)][,
+                       `:=`(effect = NULL, day = NULL)]
+    
+    report <- data.table::setorder(report, date)
+  }
   
   return(report)
 }
