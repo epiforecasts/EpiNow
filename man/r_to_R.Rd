@@ -17,7 +17,8 @@ r_to_R(r, gamma_mean, gamma_sd)
 Numeric vector of reproduction number estimates
 }
 \description{
-Convert Growth Rates to Reproduction numbers.
+See \href{https://www.medrxiv.org/content/10.1101/2020.01.30.20019877v3.full.pdf}{here}
+for justification.
 }
 \examples{
 

@@ -426,7 +426,7 @@ plot_summary <- function(summary_results, x_lab = "Region", log_cases = FALSE) {
     ggplot2::guides(col = ggplot2::guide_legend(nrow = 2)) +
     ggplot2::labs(x = x_lab, y = "") +
     ggplot2::expand_limits(y = c(0, min(max(rt_data$upper), 4))) +
-    ggplot2::coord_cartesian(ylim = c(0, 4))
+    ggplot2::coord_cartesian(ylim = c(0, min(max(rt_data$upper), 4)))
   
   
   ##join plots together
