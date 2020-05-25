@@ -61,6 +61,90 @@ report_nowcast <- function(nowcast, cases,
 }
 
 
+#'                             
+#' 
+#' @param nowcast 
+#' @param case_forecast 
+#' @param delay_defs 
+#' @param incubation_defs 
+#' @param reporting_effect 
+#' 
+#' @examples 
+#' 
+#' ## Define example cases
+#' cases <- data.table::as.data.table(EpiSoon::example_obs_cases) 
+#' 
+#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
+#' 
+#' ## Define a single report delay distribution
+#' delay_def <- EpiNow::lognorm_dist_def(mean = 5, 
+#'                                       mean_sd = 1,
+#'                                       sd = 3,
+#'                                       sd_sd = 1,
+#'                                       max_value = 30,
+#'                                       samples = 1)
+#'                                        
+#' ## Define a single incubation period
+#' incubation_def <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_period[1, ]$mean,
+#'                                            mean_sd = EpiNow::covid_incubation_period[1, ]$mean_sd,
+#'                                            sd = EpiNow::covid_incubation_period[1, ]$sd,
+#'                                            sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
+#'                                            max_value = 30, samples = 1)
+#'                                            
+#' 
+#' ## Perform a nowcast
+#' nowcast <- nowcast_pipeline(reported_cases = cases, 
+#'                             target_date = max(cases$date),
+#'                             delay_defs = delay_def,
+#'                             incubation_defs = incubation_def)
+#'                             
+#'                      
+#' reported_cases <- report_cases(nowcast, delay_defs = delay_def,
+#'                                incubation_defs = incubation_def,
+#'                                reporting_effect = reporting_effect)
+report_cases <- function(nowcast,
+                         case_forecast, 
+                         delay_defs,
+                         incubation_defs,
+                         reporting_effect) {
+  
+  ## Add a null reporting effect if missing
+  if (missing(reporting_effect)) {
+    reporting_effect <- data.table::data.table(
+      sample = list(1:nrow(delay_defs)),
+      effect = rep(1, 7),
+      day = 1:7
+    )
+    
+    reporting_effect <- reporting_effect[, .(sample = unlist(sample)), by = .(effect, day)]
+  }
+  
+  ## Filter and sum nowcast to use only upscaled cases by date of infection
+  infections <- data.table::copy(nowcast)[type %in% "infection_upscaled"][, type := NULL]
+  infections <- infections[, cases := sum(cases), by = "date"][order(date)]
+  infections <- infections[, .(sample, date, cases)]
+  
+  ## Add in case forecast if present
+  if (!is.null(case_forecast)) {
+    infections <- data.table::rbindlist(list(
+      infections,
+      case_forecast[, .(sample, date, cases = as.integer(cases))]
+    ))
+  }
+  
+
+  ## For each sample map to report date
+  report <- purrr::map(1:max(infections$sample), 
+                     ~ EpiNow::adjust_infection_to_report(infections[sample == .], 
+                                                          delay_def = delay_defs[.,],
+                                                          incubation_def = incubation_defs[., ],
+                                                          reporting_effect = reporting_effect[sample == ., ]$effect))
+  
+  report <- data.table::rbindlist(report)
+    
+  return(report)
+}
+
 #' Report Effective Reproduction Number Estimates
 #' @inheritParams report_nowcast
 #' @return NULL
