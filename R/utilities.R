@@ -149,3 +149,49 @@ pull_max_var <- function(df, max_var = NULL,
   
   return(df)
 }
+
+
+
+
+#' Convert Growth Rates to Reproduction numbers.
+#'
+#' @description See [here](https://www.medrxiv.org/content/10.1101/2020.01.30.20019877v3.full.pdf) 
+#' for justification.
+#' @param r Numeric, rate of growth estimates
+#' @param gamma_mean Numeric, mean of the gamma distribution
+#' @param gamma_sd Numeric, standard deviation of the gamma distribution
+#'
+#' @return Numeric vector of reproduction number estimates
+#' @export
+#'
+#' @examples
+#' 
+#' r_to_R(0.2, 4, 1)
+r_to_R <- function(r, gamma_mean, gamma_sd) {
+  k <- (gamma_sd / gamma_mean)^2
+  
+  R <- (1 + k * r * gamma_mean)^(1/k)
+  
+  return(R)
+}
+  
+#' Convert Reproduction Numbers to Growth Rates
+#'
+#' @description See [here](https://www.medrxiv.org/content/10.1101/2020.01.30.20019877v3.full.pdf) 
+#' for justification.
+#' @param R Numeric, Reproduction number estimates
+#' @param gamma_sd Numeric, standard deviation of the gamma distribution
+#'
+#' @return Numeric vector of reproduction number estimates
+#' @export
+#'
+#' @examples
+#' 
+#' R_to_r(2.18, 4, 1)  
+R_to_r <- function(R, gamma_mean, gamma_sd) {
+  k <- (gamma_sd / gamma_mean)^2
+  
+  r <- (R^k - 1) / (k * gamma_mean)
+
+  return(r)
+}  
