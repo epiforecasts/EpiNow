@@ -2,6 +2,7 @@
 
 export(add_dates)
 export(adjust_for_truncation)
+export(adjust_infection_to_report)
 export(clean_nowcasts)
 export(country_map)
 export(dist_fit)

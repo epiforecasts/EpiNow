@@ -9,7 +9,8 @@ sample_approx_dist(
   dist_fn = NULL,
   max_value = 120,
   earliest_allowed_mapped = NULL,
-  direction = "backwards"
+  direction = "backwards",
+  truncate_future = TRUE
 )
 }
 \arguments{
@@ -23,6 +24,9 @@ the earlies allowed mapped value.}
 
 \item{direction}{Character string, defato "backwards". Direction in which to map cases. Supports
 either "backwards" or "forwards".}
+
+\item{truncate_future}{Logical, should cases be truncted if they occur after the first date reported in the data.
+Defaults to \code{TRUE}.}
 }
 \value{
 A \code{data.table} of cases by date of onset

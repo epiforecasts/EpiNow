@@ -28,7 +28,7 @@ rt_pipeline(
   min_forecast_cases = 200,
   target_folder = NULL,
   target_date = NULL,
-  max_upscale = 100,
+  max_upscale = 10,
   dt_threads = 1,
   verbose = FALSE
 )

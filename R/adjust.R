@@ -88,16 +88,52 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 
 #' Adjust from Case Counts by Infection Date to Date of Report
 #'
-#' @param infections 
-#' @param delay_def 
-#' @param incubation_def 
-#'
-#' @return
+#' @description Stochastic mapping from cases by date of infection to date of report via date of 
+#' onset. Essentially reversal of `nowcast_pipeline`.
+#' @param infections `data.table` containing a `date` variable and a numeric `cases` variable.
+#' @param delay_def A single row data.table that defines the delay distribution (model, parameters and maximum delay for each model). 
+#' See `lognorm_dist_def` for an example of the structure.
+#' @param incubation_def A single row data.table that defines the incubation distribution (model, parameters and maximum delay for each model). 
+#' See `lognorm_dist_def` for an example of the structure.
+#' @return A `data.table` containing a `date` variable (date of report) and a `cases` variable.
 #' @export
 #'
 #' @examples
 #' 
+#' ## Define example cases
+#' cases <- data.table::as.data.table(EpiSoon::example_obs_cases) 
 #' 
+#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
+#' 
+#' ## Define a single report delay distribution
+#' delay_def <- EpiNow::lognorm_dist_def(mean = 5, 
+#'                                       mean_sd = 1,
+#'                                       sd = 3,
+#'                                       sd_sd = 1,
+#'                                       max_value = 30,
+#'                                       samples = 1)
+#'                                        
+#' ## Define a single incubation period
+#' incubation_def <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_period[1, ]$mean,
+#'                                            mean_sd = EpiNow::covid_incubation_period[1, ]$mean_sd,
+#'                                            sd = EpiNow::covid_incubation_period[1, ]$sd,
+#'                                            sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
+#'                                            max_value = 30, samples = 1)
+#'                                            
+#' 
+#' ## Perform a nowcast
+#' nowcast <- nowcast_pipeline(reported_cases = cases, 
+#'                             target_date = max(cases$date),
+#'                             delay_defs = delay_def,
+#'                             incubation_defs = incubation_def)
+#'                             
+#' 
+#' infections <- nowcast[type %in% "infection_upscaled" & import_status %in% "local"]
+#' infections <- infections[, `:=`(type = NULL, import_status = NULL)]
+#' 
+#' report <- adjust_infection_to_report(infections, delay_def, incubation_def)   
+#' 
+#' report                                   
 adjust_infection_to_report <- function(infections, delay_def, incubation_def) {
   
   ## Define sample delay fn
@@ -131,10 +167,10 @@ adjust_infection_to_report <- function(infections, delay_def, incubation_def) {
                                        dist_fn = sample_delay_fn,
                                        max_value = delay_def$max_value,
                                        direction = "forwards",
-                                       trucate_future = FALSE)
+                                       truncate_future = FALSE)
   
   ## Truncate reported cases by maximum infection date
-  report <- report[date <= max(infection$date)]
+  report <- report[date <= max(infections$date)]
   
   return(report)
 }
