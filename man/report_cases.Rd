@@ -42,19 +42,19 @@ cases <- data.table::as.data.table(EpiSoon::example_obs_cases)
 cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
 
 ## Define a single report delay distribution
-delay_def <- EpiNow::lognorm_dist_def(mean = 5, 
-                                      mean_sd = 1,
-                                      sd = 3,
-                                      sd_sd = 1,
-                                      max_value = 30,
-                                      samples = 1)
+delay_defs <- EpiNow::lognorm_dist_def(mean = 5, 
+                                       mean_sd = 1,
+                                       sd = 3,
+                                       sd_sd = 1,
+                                       max_value = 30,
+                                       samples = 5)
                                        
 ## Define a single incubation period
-incubation_def <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_period[1, ]$mean,
-                                           mean_sd = EpiNow::covid_incubation_period[1, ]$mean_sd,
-                                           sd = EpiNow::covid_incubation_period[1, ]$sd,
-                                           sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
-                                           max_value = 30, samples = 1)
+incubation_defs <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_period[1, ]$mean,
+                                            mean_sd = EpiNow::covid_incubation_period[1, ]$mean_sd,
+                                            sd = EpiNow::covid_incubation_period[1, ]$sd,
+                                            sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
+                                            max_value = 30, samples = 5)
                                            
 
 ## Perform a nowcast
@@ -64,8 +64,8 @@ nowcast <- nowcast_pipeline(reported_cases = cases,
                             incubation_defs = incubation_def)
                             
                      
-reported_cases <- report_cases(nowcast, delay_defs = delay_def,
-                               incubation_defs = incubation_def)
+reported_cases <- report_cases(nowcast, delay_defs = delay_defs,
+                               incubation_defs = incubation_defs)
                                
 print(reported_cases)
 }

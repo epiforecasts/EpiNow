@@ -99,7 +99,7 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #' by the day on which they report (1 = Monday, 7 = Sunday). By default no scaling occurs.
 #' @return A `data.table` containing a `date` variable (date of report) and a `cases` variable.
 #' @export
-#' @importFrom data.table setorder data.table
+#' @importFrom data.table setorder data.table setDTthreads
 #' @importFrom lubridate wday
 #' @examples
 #' 
@@ -147,6 +147,8 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #' print(report_weekly)                  
 adjust_infection_to_report <- function(infections, delay_def, incubation_def,
                                        reporting_effect) {
+  
+  data.table::setDTthreads(1)
   
   ## Define sample delay fn
   sample_delay_fn <- function(n, ...) {

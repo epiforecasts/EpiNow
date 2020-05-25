@@ -73,6 +73,7 @@ report_nowcast <- function(nowcast, cases,
 #' @inheritParams report_nowcast
 #' @inheritParams nowcast_pipeline
 #' @importFrom data.table data.table rbindlist
+#' @importFrom future.apply future_lapply
 #' @examples 
 #' 
 #' ## Define example cases
@@ -81,30 +82,30 @@ report_nowcast <- function(nowcast, cases,
 #' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
 #' 
 #' ## Define a single report delay distribution
-#' delay_def <- EpiNow::lognorm_dist_def(mean = 5, 
-#'                                       mean_sd = 1,
-#'                                       sd = 3,
-#'                                       sd_sd = 1,
-#'                                       max_value = 30,
-#'                                       samples = 1)
+#' delay_defs <- EpiNow::lognorm_dist_def(mean = 5, 
+#'                                        mean_sd = 1,
+#'                                        sd = 3,
+#'                                        sd_sd = 1,
+#'                                        max_value = 30,
+#'                                        samples = 100)
 #'                                        
 #' ## Define a single incubation period
-#' incubation_def <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_period[1, ]$mean,
-#'                                            mean_sd = EpiNow::covid_incubation_period[1, ]$mean_sd,
-#'                                            sd = EpiNow::covid_incubation_period[1, ]$sd,
-#'                                            sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
-#'                                            max_value = 30, samples = 1)
+#' incubation_defs <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_period[1, ]$mean,
+#'                                             mean_sd = EpiNow::covid_incubation_period[1, ]$mean_sd,
+#'                                             sd = EpiNow::covid_incubation_period[1, ]$sd,
+#'                                             sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
+#'                                             max_value = 30, samples = 100)
 #'                                            
 #' 
 #' ## Perform a nowcast
 #' nowcast <- nowcast_pipeline(reported_cases = cases, 
 #'                             target_date = max(cases$date),
-#'                             delay_defs = delay_def,
-#'                             incubation_defs = incubation_def)
+#'                             delay_defs = delay_defs,
+#'                             incubation_defs = incubation_defs)
 #'                             
 #'                      
-#' reported_cases <- report_cases(nowcast, delay_defs = delay_def,
-#'                                incubation_defs = incubation_def)
+#' reported_cases <- report_cases(nowcast, delay_defs = delay_defs,
+#'                                incubation_defs = incubation_defs)
 #'                                
 #' print(reported_cases)
 report_cases <- function(nowcast,
@@ -125,8 +126,8 @@ report_cases <- function(nowcast,
   }
   
   ## Filter and sum nowcast to use only upscaled cases by date of infection
-  infections <- data.table::copy(nowcast)[type %in% "infection_upscaled"][, type := NULL]
-  infections <- infections[, cases := sum(cases), by = "date"][order(date)]
+  infections <- data.table::copy(nowcast)[type %in% "infection_upscaled" & import_status %in% "local"][,
+                                         `:=`(type = NULL, import_status = NULL)]
   infections <- infections[, .(sample, date, cases)]
   
   ## Add in case forecast if present
@@ -139,11 +140,11 @@ report_cases <- function(nowcast,
   
 
   ## For each sample map to report date
-  report <- purrr::map(1:max(infections$sample), 
-                     ~ EpiNow::adjust_infection_to_report(infections[sample == .], 
-                                                          delay_def = delay_defs[.,],
-                                                          incubation_def = incubation_defs[., ],
-                                                          reporting_effect = reporting_effect[sample == ., ]$effect))
+  report <- future.apply::future_lapply(1:max(infections$sample), 
+                     function(id) {EpiNow::adjust_infection_to_report(infections[sample == id], 
+                                                          delay_def = delay_defs[id,],
+                                                          incubation_def = incubation_defs[id, ],
+                                                          reporting_effect = reporting_effect[sample == id, ]$effect)})
   
   report <- data.table::rbindlist(report, idcol = "sample")
     
