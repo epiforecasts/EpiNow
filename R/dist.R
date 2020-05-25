@@ -540,7 +540,7 @@ sample_approx_dist <- function(cases = NULL,
     mapped_cases <- mapped_cases[,cum_cases := cumsum(cases)][cum_cases != 0][,cum_cases := NULL]
     
   }else if (type %in% "median") {
-    shift <- median(dist_fn(1000, dist = FALSE))
+    shift <- as.integer(median(as.integer(dist_fn(1000, dist = FALSE)), na.rm = TRUE))
     
     if (direction %in% "backwards") {
       mapped_cases <- data.table::copy(cases)[, date := date - lubridate::days(shift)]
