@@ -12,8 +12,8 @@
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/lumen/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 
@@ -60,7 +60,7 @@
   <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-index">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
@@ -71,27 +71,36 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">EpiNow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+  <a href="../index.html">Home</a>
+</li>
+<li>
+  <a href="../articles/introduction.html">Getting started</a>
+</li>
+<li>
+  <a href="../news/index.html">News</a>
+</li>
+<li>
+  <a href="../reference/index.html">
+    <span class="fa fa-file-code-o"></span>
      
+    Functions
   </a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li>
-  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/epiforecasts/EpiNow">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -119,8 +128,8 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
+          <h2 id="section-define-fit-and-parameterise-distributions" class="hasAnchor"><a href="#section-define-fit-and-parameterise-distributions" class="anchor"></a>Define, Fit and Parameterise Distributions</h2>
+          <p class="section-desc"><p>Functions to define, fit and parameterise distributions</p></p>
         </th>
       </tr>
       
@@ -129,36 +138,6 @@
       
       
       <tr>
-        
-        <td>
-          <p><code><a href="add_dates.html">add_dates()</a></code> </p>
-        </td>
-        <td><p>Add Dates from Daata</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="adjust_for_truncation.html">adjust_for_truncation()</a></code> </p>
-        </td>
-        <td><p>Adjust Case Counts for Truncation</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="adjust_infection_to_report.html">adjust_infection_to_report()</a></code> </p>
-        </td>
-        <td><p>Adjust from Case Counts by Infection Date to Date of Report</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="clean_nowcasts.html">clean_nowcasts()</a></code> </p>
-        </td>
-        <td><p>Clean Nowcasts for a Supplied Date</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="country_map.html">country_map()</a></code> </p>
-        </td>
-        <td><p>Generate a country map for a single variable.</p></td>
-      </tr><tr>
         
         <td>
           <p><code><a href="dist_fit.html">dist_fit()</a></code> </p>
@@ -173,51 +152,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="epi_measures_pipeline.html">epi_measures_pipeline()</a></code> </p>
-        </td>
-        <td><p>Estimate time-varying measures and forecast</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="estimate_R0.html">estimate_R0()</a></code> </p>
-        </td>
-        <td><p>Estimate the time varying R0 - using EpiEstim</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="estimate_doubling_time.html">estimate_doubling_time()</a></code> </p>
-        </td>
-        <td><p>Estimate the doubling time</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="estimate_little_r.html">estimate_little_r()</a></code> </p>
-        </td>
-        <td><p>Estimate r</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="estimate_r_in_window.html">estimate_r_in_window()</a></code> </p>
-        </td>
-        <td><p>Estimate r in a set time window</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="estimate_time_varying_r.html">estimate_time_varying_r()</a></code> </p>
-        </td>
-        <td><p>Estimate time varying r</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="gamma_dist_def.html">gamma_dist_def()</a></code> </p>
         </td>
         <td><p>Generate a Gamma Distribution Definition Based on Parameter Estimates</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="generate_pseudo_linelist.html">generate_pseudo_linelist()</a></code> </p>
-        </td>
-        <td><p>Generate a sample linelist from the observed linelist and sampled linelists</p></td>
       </tr><tr>
         
         <td>
@@ -227,123 +164,71 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="get_local_import_case_counts.html">get_local_import_case_counts()</a></code> </p>
-        </td>
-        <td><p>Combine total and imported case counts</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="get_regions.html">get_regions()</a></code> </p>
-        </td>
-        <td><p>Get Folders with Nowcast Results</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="get_timeseries.html">get_timeseries()</a></code> </p>
-        </td>
-        <td><p>Get Timeseries from EpiNow</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="global_map.html">global_map()</a></code> </p>
-        </td>
-        <td><p>Generate a global map for a single variable.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="linelist_from_case_counts.html">linelist_from_case_counts()</a></code> </p>
-        </td>
-        <td><p>Sample a linelist from case counts and a reporting delay distribution</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="load_nowcast_result.html">load_nowcast_result()</a></code> </p>
-        </td>
-        <td><p>Load nowcast results</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="lognorm_dist_def.html">lognorm_dist_def()</a></code> </p>
         </td>
         <td><p>Generate a Log Normal Distribution Definition Based on Parameter Estimates</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="make_conf.html">make_conf()</a></code> </p>
+          <p><code><a href="sample_approx_dist.html">sample_approx_dist()</a></code> </p>
         </td>
-        <td><p>Format Credible Intervals</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="map_prob_change.html">map_prob_change()</a></code> </p>
-        </td>
-        <td><p>Categorise the Probability of Change for Rt</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="nowcast_pipeline.html">nowcast_pipeline()</a></code> </p>
-        </td>
-        <td><p>Impute Cases Date of Infection</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plot_confidence.html">plot_confidence()</a></code> </p>
-        </td>
-        <td><p>Plot a Time Series with Confidence.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plot_forecast.html">plot_forecast()</a></code> </p>
-        </td>
-        <td><p>Add a Forecast to a Plot</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plot_grid.html">plot_grid()</a></code> </p>
-        </td>
-        <td><p>Plot a Grid of Plots</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plot_pipeline.html">plot_pipeline()</a></code> </p>
-        </td>
-        <td><p>Plot Pipeline Results</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plot_summary.html">plot_summary()</a></code> </p>
-        </td>
-        <td><p>Plot a Summary of the Latest Results</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="pull_max_var.html">pull_max_var()</a></code> </p>
-        </td>
-        <td><p>Extract a the Maximum Value of a Variable Based on a Filter</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="r_to_R.html">r_to_R()</a></code> </p>
-        </td>
-        <td><p>Convert Growth Rates to Reproduction numbers.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="rbinom_size.html">rbinom_size()</a></code> </p>
-        </td>
-        <td><p>Draw with an offset from a negative binomial distribution</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="regional_rt_pipeline.html">regional_rt_pipeline()</a></code> </p>
-        </td>
-        <td><p>Regional Realtime Pipeline</p></td>
-      </tr><tr>
+        <td><p>Approximate Sampling a Distribution using Counts</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-summarise-results" class="hasAnchor"><a href="#section-summarise-results" class="anchor"></a>Summarise results</h2>
+          <p class="section-desc"><p>Summarise results</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
         
         <td>
           <p><code><a href="regional_summary.html">regional_summary()</a></code> </p>
         </td>
         <td><p>Generate Regional Summary Output</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="summarise_cast.html">summarise_cast()</a></code> </p>
+        </td>
+        <td><p>Summarise a nowcast</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="summarise_results.html">summarise_results()</a></code> </p>
+        </td>
+        <td><p>Summarise Realtime Results</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="summarise_to_csv.html">summarise_to_csv()</a></code> </p>
+        </td>
+        <td><p>Summarise rt and cases as a csv</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-report-results" class="hasAnchor"><a href="#section-report-results" class="anchor"></a>Report results</h2>
+          <p class="section-desc"><p>Functions to report results</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="adjust_infection_to_report.html">adjust_infection_to_report()</a></code> </p>
+        </td>
+        <td><p>Adjust from Case Counts by Infection Date to Date of Report</p></td>
       </tr><tr>
         
         <td>
@@ -374,54 +259,92 @@
           <p><code><a href="report_summary.html">report_summary()</a></code> </p>
         </td>
         <td><p>Provide Summary Statistics on an Rt Pipeline</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-plot-results" class="hasAnchor"><a href="#section-plot-results" class="anchor"></a>Plot results</h2>
+          <p class="section-desc"><p>Plot generated results</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="plot_confidence.html">plot_confidence()</a></code> </p>
+        </td>
+        <td><p>Plot a Time Series with Confidence.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="rt_pipeline.html">rt_pipeline()</a></code> </p>
+          <p><code><a href="plot_forecast.html">plot_forecast()</a></code> </p>
         </td>
-        <td><p>Real-time Pipeline</p></td>
+        <td><p>Add a Forecast to a Plot</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="sample_approx_dist.html">sample_approx_dist()</a></code> </p>
+          <p><code><a href="plot_grid.html">plot_grid()</a></code> </p>
         </td>
-        <td><p>Approximate Sampling a Distribution using Counts</p></td>
+        <td><p>Plot a Grid of Plots</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="sample_delay.html">sample_delay()</a></code> </p>
+          <p><code><a href="plot_pipeline.html">plot_pipeline()</a></code> </p>
         </td>
-        <td><p>Sample Onset Dates for Cases missing them</p></td>
+        <td><p>Plot Pipeline Results</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="split_linelist_by_day.html">split_linelist_by_day()</a></code> </p>
+          <p><code><a href="plot_summary.html">plot_summary()</a></code> </p>
         </td>
-        <td><p>Convert a linelist into a nested tibble of linelists by day</p></td>
+        <td><p>Plot a Summary of the Latest Results</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-utilities" class="hasAnchor"><a href="#section-utilities" class="anchor"></a>Utilities</h2>
+          <p class="section-desc"><p>Utility functions</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="clean_nowcasts.html">clean_nowcasts()</a></code> </p>
+        </td>
+        <td><p>Clean Nowcasts for a Supplied Date</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="summarise_cast.html">summarise_cast()</a></code> </p>
+          <p><code><a href="add_dates.html">add_dates()</a></code> </p>
         </td>
-        <td><p>Summarise a nowcast</p></td>
+        <td><p>Add Dates from Daata</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="summarise_results.html">summarise_results()</a></code> </p>
+          <p><code><a href="make_conf.html">make_conf()</a></code> </p>
         </td>
-        <td><p>Summarise Realtime Results</p></td>
+        <td><p>Format Credible Intervals</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="summarise_to_csv.html">summarise_to_csv()</a></code> </p>
+          <p><code><a href="map_prob_change.html">map_prob_change()</a></code> </p>
         </td>
-        <td><p>Summarise rt and cases as a csv</p></td>
+        <td><p>Categorise the Probability of Change for Rt</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="theme_map.html">theme_map()</a></code> </p>
+          <p><code><a href="pull_max_var.html">pull_max_var()</a></code> </p>
         </td>
-        <td><p>Custom Map Theme</p></td>
+        <td><p>Extract a the Maximum Value of a Variable Based on a Filter</p></td>
       </tr>
     </tbody>
     </table>

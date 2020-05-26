@@ -12,8 +12,8 @@
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/lumen/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 
@@ -61,7 +61,7 @@
   <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
@@ -72,27 +72,36 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">EpiNow</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+  <a href="../index.html">Home</a>
+</li>
+<li>
+  <a href="../articles/introduction.html">Getting started</a>
+</li>
+<li>
+  <a href="../news/index.html">News</a>
+</li>
+<li>
+  <a href="../reference/index.html">
+    <span class="fa fa-file-code-o"></span>
      
+    Functions
   </a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li>
-  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/epiforecasts/EpiNow">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -171,14 +180,14 @@ See <code>get_delay_dist</code> for an example of the structure.</p></td>
                                        <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>3</span>,
                                        <span class='kw'>sd_sd</span> <span class='kw'>=</span> <span class='fl'>1</span>,
                                        <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>30</span>,
-                                       <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>100</span>)
+                                       <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>)
 
 <span class='co'>## Define a single incubation period</span>
 <span class='no'>incubation_defs</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='lognorm_dist_def.html'>lognorm_dist_def</a></span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_incubation_period</span>[<span class='fl'>1</span>, ]$<span class='no'>mean</span>,
                                             <span class='kw'>mean_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_incubation_period</span>[<span class='fl'>1</span>, ]$<span class='no'>mean_sd</span>,
                                             <span class='kw'>sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_incubation_period</span>[<span class='fl'>1</span>, ]$<span class='no'>sd</span>,
                                             <span class='kw'>sd_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_incubation_period</span>[<span class='fl'>1</span>, ]$<span class='no'>sd_sd</span>,
-                                            <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>30</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>100</span>)
+                                            <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>30</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>)
 
 
 <span class='co'>## Perform a nowcast</span>
@@ -191,18 +200,18 @@ See <code>get_delay_dist</code> for an example of the structure.</p></td>
 <span class='no'>reported_cases</span> <span class='kw'>&lt;-</span> <span class='fu'>report_cases</span>(<span class='no'>nowcast</span>, <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='no'>delay_defs</span>,
                                <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='no'>incubation_defs</span>)
 
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>reported_cases</span>)</div><div class='output co'>#&gt;       sample sample       date cases
-#&gt;    1:      1      1 2020-01-14     1
-#&gt;    2:      1      1 2020-01-15     1
-#&gt;    3:      1      1 2020-01-16     0
-#&gt;    4:      1      1 2020-01-17     0
-#&gt;    5:      1      1 2020-01-18     0
-#&gt;   ---                               
-#&gt; 7496:     99     99 2020-03-24   353
-#&gt; 7497:     99     99 2020-03-25   385
-#&gt; 7498:     99     99 2020-03-26   387
-#&gt; 7499:     99     99 2020-03-27   390
-#&gt; 7500:     99     99 2020-03-28   415</div></pre>
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>reported_cases</span>)</div><div class='output co'>#&gt;      sample sample       date cases
+#&gt;   1:      1      1 2020-01-23     1
+#&gt;   2:      1      1 2020-01-24     2
+#&gt;   3:      1      1 2020-01-25     0
+#&gt;   4:      1      1 2020-01-26     2
+#&gt;   5:      1      1 2020-01-27     0
+#&gt;  ---                               
+#&gt; 656:      9      9 2020-03-19   262
+#&gt; 657:      9      9 2020-03-20   279
+#&gt; 658:      9      9 2020-03-21   305
+#&gt; 659:      9      9 2020-03-22   354
+#&gt; 660:      9      9 2020-03-23   409</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
