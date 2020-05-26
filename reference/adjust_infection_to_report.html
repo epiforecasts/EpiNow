@@ -183,10 +183,10 @@ which approximates sampling or "median" would shift by the median of the distrib
                                       <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 
 <span class='co'>## Define a single incubation period</span>
-<span class='no'>incubation_def</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='lognorm_dist_def.html'>lognorm_dist_def</a></span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_incubation_period</span>[<span class='fl'>1</span>, ]$<span class='no'>mean</span>,
-                                           <span class='kw'>mean_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_incubation_period</span>[<span class='fl'>1</span>, ]$<span class='no'>mean_sd</span>,
-                                           <span class='kw'>sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_incubation_period</span>[<span class='fl'>1</span>, ]$<span class='no'>sd</span>,
-                                           <span class='kw'>sd_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_incubation_period</span>[<span class='fl'>1</span>, ]$<span class='no'>sd_sd</span>,
+<span class='no'>incubation_def</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='lognorm_dist_def.html'>lognorm_dist_def</a></span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>mean</span>,
+                                           <span class='kw'>mean_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>mean_sd</span>,
+                                           <span class='kw'>sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>sd</span>,
+                                           <span class='kw'>sd_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>sd_sd</span>,
                                            <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>30</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 
 
@@ -264,8 +264,9 @@ which approximates sampling or "median" would shift by the median of the distrib
 #&gt; 57: 2020-03-14   131
 #&gt;           date cases</div><div class='input'>
 <span class='co'>## Mapping with a weekly reporting effect</span>
-<span class='no'>report_weekly</span> <span class='kw'>&lt;-</span> <span class='fu'>adjust_infection_to_report</span>(<span class='no'>infections</span>, <span class='no'>delay_def</span>, <span class='no'>incubation_def</span>,
-                                            <span class='kw'>reporting_effect</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>, <span class='fl'>4</span>), <span class='fl'>0.95</span>, <span class='fl'>0.95</span>))
+<span class='no'>report_weekly</span> <span class='kw'>&lt;-</span> <span class='fu'>adjust_infection_to_report</span>(
+                      <span class='no'>infections</span>, <span class='no'>delay_def</span>, <span class='no'>incubation_def</span>,
+                      <span class='kw'>reporting_effect</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>, <span class='fl'>4</span>), <span class='fl'>0.95</span>, <span class='fl'>0.95</span>))
 
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>report_weekly</span>)</div><div class='output co'>#&gt;           date cases
 #&gt;  1: 2020-01-16     1

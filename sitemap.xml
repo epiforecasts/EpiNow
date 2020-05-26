@@ -4,6 +4,9 @@
     <loc>epiforecasts.io/EpiNow//index.html</loc>
   </url>
   <url>
+    <loc>epiforecasts.io/EpiNow//reference/R_to_growth.html</loc>
+  </url>
+  <url>
     <loc>epiforecasts.io/EpiNow//reference/add_dates.html</loc>
   </url>
   <url>
@@ -17,6 +20,15 @@
   </url>
   <url>
     <loc>epiforecasts.io/EpiNow//reference/country_map.html</loc>
+  </url>
+  <url>
+    <loc>epiforecasts.io/EpiNow//reference/covid_generation_times.html</loc>
+  </url>
+  <url>
+    <loc>epiforecasts.io/EpiNow//reference/covid_incubation_period.html</loc>
+  </url>
+  <url>
+    <loc>epiforecasts.io/EpiNow//reference/covid_serial_intervals.html</loc>
   </url>
   <url>
     <loc>epiforecasts.io/EpiNow//reference/dist_fit.html</loc>
@@ -64,6 +76,9 @@
     <loc>epiforecasts.io/EpiNow//reference/global_map.html</loc>
   </url>
   <url>
+    <loc>epiforecasts.io/EpiNow//reference/growth_to_R.html</loc>
+  </url>
+  <url>
     <loc>epiforecasts.io/EpiNow//reference/linelist_from_case_counts.html</loc>
   </url>
   <url>
@@ -98,9 +113,6 @@
   </url>
   <url>
     <loc>epiforecasts.io/EpiNow//reference/pull_max_var.html</loc>
-  </url>
-  <url>
-    <loc>epiforecasts.io/EpiNow//reference/r_to_R.html</loc>
   </url>
   <url>
     <loc>epiforecasts.io/EpiNow//reference/rbinom_size.html</loc>

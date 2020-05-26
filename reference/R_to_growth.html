@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Generate a Gamma Distribution Definition Based on Parameter Estimates — gamma_dist_def • EpiNow</title>
+<title>Convert Reproduction Numbers to Growth Rates — R_to_growth • EpiNow</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Generate a Gamma Distribution Definition Based on Parameter Estimates — gamma_dist_def" />
-<meta property="og:description" content="Generates a distribution definition when only parameter estimates
-are available for gamma distributed parameters. See rgamma for distribution information." />
+<meta property="og:title" content="Convert Reproduction Numbers to Growth Rates — R_to_growth" />
+<meta property="og:description" content="See here
+for justification." />
 
 
 
@@ -116,76 +116,42 @@ are available for gamma distributed parameters. See rgamma for distribution info
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Generate a Gamma Distribution Definition Based on Parameter Estimates</h1>
+    <h1>Convert Reproduction Numbers to Growth Rates</h1>
     
-    <div class="hidden name"><code>gamma_dist_def.Rd</code></div>
+    <div class="hidden name"><code>R_to_growth.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Generates a distribution definition when only parameter estimates
-are available for gamma distributed parameters. See <code>rgamma</code> for distribution information.</p>
+    <p>See <a href='https://www.medrxiv.org/content/10.1101/2020.01.30.20019877v3.full.pdf'>here</a>
+for justification.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>gamma_dist_def</span>(<span class='no'>shape</span>, <span class='no'>shape_sd</span>, <span class='no'>scale</span>, <span class='no'>scale_sd</span>, <span class='no'>max_value</span>, <span class='no'>samples</span>)</pre>
+    <pre class="usage"><span class='fu'>R_to_growth</span>(<span class='no'>R</span>, <span class='no'>gamma_mean</span>, <span class='no'>gamma_sd</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>shape</th>
-      <td><p>Numeric, shape parameter of the gamma distribution.</p></td>
+      <th>R</th>
+      <td><p>Numeric, Reproduction number estimates</p></td>
     </tr>
     <tr>
-      <th>shape_sd</th>
-      <td><p>Numeric, standard deviation of the shape parameter.</p></td>
+      <th>gamma_mean</th>
+      <td><p>Numeric, mean of the gamma distribution</p></td>
     </tr>
     <tr>
-      <th>scale</th>
-      <td><p>Numeric, scale parameter of the gamma distribution.</p></td>
-    </tr>
-    <tr>
-      <th>scale_sd</th>
-      <td><p>Numeric, standard deviation of the scale parameter.</p></td>
-    </tr>
-    <tr>
-      <th>max_value</th>
-      <td><p>Numeric, the maximum value to allow. Defaults to 120. Samples outside
-of this range are resampled.</p></td>
-    </tr>
-    <tr>
-      <th>samples</th>
-      <td><p>Numeric, number of sample distributions to generate.</p></td>
+      <th>gamma_sd</th>
+      <td><p>Numeric, standard deviation of the gamma distribution</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data.table definining the distribution as used by <code>dist_skel</code></p>
+    <p>Numeric vector of reproduction number estimates</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-
-<span class='no'>def</span> <span class='kw'>&lt;-</span> <span class='fu'>gamma_dist_def</span>(<span class='kw'>shape</span> <span class='kw'>=</span> <span class='fl'>5.807</span>, <span class='kw'>shape_sd</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
-               <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>0.9</span>, <span class='kw'>scale_sd</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
-               <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>)
-
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>def</span>)</div><div class='output co'>#&gt;     model params max_value
-#&gt;  1: gamma &lt;list&gt;        20
-#&gt;  2: gamma &lt;list&gt;        20
-#&gt;  3: gamma &lt;list&gt;        20
-#&gt;  4: gamma &lt;list&gt;        20
-#&gt;  5: gamma &lt;list&gt;        20
-#&gt;  6: gamma &lt;list&gt;        20
-#&gt;  7: gamma &lt;list&gt;        20
-#&gt;  8: gamma &lt;list&gt;        20
-#&gt;  9: gamma &lt;list&gt;        20
-#&gt; 10: gamma &lt;list&gt;        20</div><div class='input'>
-<span class='no'>def</span>$<span class='no'>params</span><span class='kw'>[[</span><span class='fl'>1</span>]]</div><div class='output co'>#&gt; $alpha
-#&gt; [1] 5.744829
-#&gt; 
-#&gt; $beta
-#&gt; [1] 1.125733
-#&gt; </div></pre>
+<span class='fu'>R_to_growth</span>(<span class='fl'>2.18</span>, <span class='fl'>4</span>, <span class='fl'>1</span>)</div><div class='output co'>#&gt; [1] 0.1996541</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

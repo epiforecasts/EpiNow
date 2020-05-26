@@ -183,10 +183,10 @@ See <code>get_delay_dist</code> for an example of the structure.</p></td>
                                        <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>)
 
 <span class='co'>## Define a single incubation period</span>
-<span class='no'>incubation_defs</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='lognorm_dist_def.html'>lognorm_dist_def</a></span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_incubation_period</span>[<span class='fl'>1</span>, ]$<span class='no'>mean</span>,
-                                            <span class='kw'>mean_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_incubation_period</span>[<span class='fl'>1</span>, ]$<span class='no'>mean_sd</span>,
-                                            <span class='kw'>sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_incubation_period</span>[<span class='fl'>1</span>, ]$<span class='no'>sd</span>,
-                                            <span class='kw'>sd_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_incubation_period</span>[<span class='fl'>1</span>, ]$<span class='no'>sd_sd</span>,
+<span class='no'>incubation_defs</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='lognorm_dist_def.html'>lognorm_dist_def</a></span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>mean</span>,
+                                            <span class='kw'>mean_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>mean_sd</span>,
+                                            <span class='kw'>sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>sd</span>,
+                                            <span class='kw'>sd_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>sd_sd</span>,
                                             <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>30</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>)
 
 
@@ -201,17 +201,17 @@ See <code>get_delay_dist</code> for an example of the structure.</p></td>
                                <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='no'>incubation_defs</span>)
 
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>reported_cases</span>)</div><div class='output co'>#&gt;      sample sample       date cases
-#&gt;   1:      1      1 2020-01-23     1
-#&gt;   2:      1      1 2020-01-24     2
-#&gt;   3:      1      1 2020-01-25     0
-#&gt;   4:      1      1 2020-01-26     2
-#&gt;   5:      1      1 2020-01-27     0
+#&gt;   1:      1      1 2020-01-09     1
+#&gt;   2:      1      1 2020-01-10     0
+#&gt;   3:      1      1 2020-01-11     0
+#&gt;   4:      1      1 2020-01-12     0
+#&gt;   5:      1      1 2020-01-13     1
 #&gt;  ---                               
-#&gt; 656:      9      9 2020-03-19   262
-#&gt; 657:      9      9 2020-03-20   279
-#&gt; 658:      9      9 2020-03-21   305
-#&gt; 659:      9      9 2020-03-22   354
-#&gt; 660:      9      9 2020-03-23   409</div></pre>
+#&gt; 704:      9      9 2020-03-25   352
+#&gt; 705:      9      9 2020-03-26   352
+#&gt; 706:      9      9 2020-03-27   368
+#&gt; 707:      9      9 2020-03-28   446
+#&gt; 708:      9      9 2020-03-29   417</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

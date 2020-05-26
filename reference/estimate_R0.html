@@ -188,7 +188,7 @@ future Rt values. An example of the required structure is: <code>function(ss, y)
     <pre class="examples"><div class='input'>
 <span class='co'>## Nowcast Rts                  </span>
 <span class='no'>estimates</span> <span class='kw'>&lt;-</span> <span class='fu'>estimate_R0</span>(<span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>,
-                         <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_generation_times</span>[,<span class='fl'>2</span>]),
+                         <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_generation_times.html'>covid_generation_times</a></span>[,<span class='fl'>2</span>]),
                          <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mean_prior</span> <span class='kw'>=</span> <span class='fl'>2.6</span>, <span class='kw'>std_prior</span> <span class='kw'>=</span> <span class='fl'>2</span>),
                          <span class='kw'>windows</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>gt_samples</span> <span class='kw'>=</span> <span class='fl'>1</span>,
                          <span class='kw'>min_est_date</span> <span class='kw'>=</span>  <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='st'>"2020-02-18"</span>))
@@ -206,31 +206,26 @@ future Rt values. An example of the required structure is: <code>function(ss, y)
 #&gt; 338: 2020-03-22 1.4118572      8 128.97      1 nowcast
 #&gt; 339: 2020-03-22 1.4176165      9 128.97      1 nowcast
 #&gt; 340: 2020-03-22 1.4467386     10 128.97      1 nowcast</div><div class='input'>
+<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='co'>## Nowcast Rts, forecast Rts and the forecast cases</span>
 <span class='no'>estimates</span> <span class='kw'>&lt;-</span> <span class='fu'>estimate_R0</span>(<span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>,
-                         <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'>covid_generation_times</span>[,<span class='fl'>1</span>]),
+                         <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_generation_times.html'>covid_generation_times</a></span>[,<span class='fl'>1</span>]),
                          <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mean_prior</span> <span class='kw'>=</span> <span class='fl'>2.6</span>, <span class='kw'>std_prior</span> <span class='kw'>=</span> <span class='fl'>2</span>),
                          <span class='kw'>windows</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>gt_samples</span> <span class='kw'>=</span> <span class='fl'>20</span>,
                          <span class='kw'>min_est_date</span> <span class='kw'>=</span>  <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='st'>"2020-02-18"</span>),
-                         <span class='kw'>forecast_model</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>...</span>){<span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/EpiSoon/man/fable_model.html'>fable_model</a></span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='kw pkg'>fable</span><span class='kw ns'>::</span><span class='fu'>ETS</span>(<span class='no'>y</span> ~ <span class='fu'>trend</span>(<span class='st'>"A"</span>)), <span class='no'>...</span>)},
-                         <span class='kw'>horizon</span> <span class='kw'>=</span> <span class='fl'>14</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Column 'rt' does not exist to remove</span></div><div class='output co'>#&gt; <span class='error'>Error in colnamesInt(x, names(on), check_dups = FALSE): argument specifying columns specify non existing column(s): cols[1]='date'</span></div><div class='input'>
+                         <span class='kw'>forecast_model</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>...</span>){
+                              <span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/EpiSoon/man/fable_model.html'>fable_model</a></span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='kw pkg'>fable</span><span class='kw ns'>::</span><span class='fu'>ETS</span>(<span class='no'>y</span> ~ <span class='fu'>trend</span>(<span class='st'>"A"</span>)), <span class='no'>...</span>)
+                              },
+                         <span class='kw'>horizon</span> <span class='kw'>=</span> <span class='fl'>14</span>)
+
 <span class='co'>## Rt estimates and forecasts</span>
-<span class='no'>estimates</span>$<span class='no'>rts</span></div><div class='output co'>#&gt;            date         R sample   crps window rt_type
-#&gt;   1: 2020-02-18 0.7386448      1   0.11      7 nowcast
-#&gt;   2: 2020-02-18 1.3338698      2   0.11      7 nowcast
-#&gt;   3: 2020-02-18 1.4583940      3   0.11      7 nowcast
-#&gt;   4: 2020-02-18 1.5128130      4   0.11      7 nowcast
-#&gt;   5: 2020-02-18 1.5661245      5   0.11      7 nowcast
-#&gt;  ---                                                  
-#&gt; 336: 2020-03-22 1.3903791      6 128.97      1 nowcast
-#&gt; 337: 2020-03-22 1.4114245      7 128.97      1 nowcast
-#&gt; 338: 2020-03-22 1.4118572      8 128.97      1 nowcast
-#&gt; 339: 2020-03-22 1.4176165      9 128.97      1 nowcast
-#&gt; 340: 2020-03-22 1.4467386     10 128.97      1 nowcast</div><div class='input'>
+<span class='no'>estimates</span>$<span class='no'>rts</span>
+
 
 
 <span class='co'>## Case forecasts</span>
-<span class='no'>estimates</span>$<span class='no'>cases</span></div><div class='output co'>#&gt; NULL</div></pre>
+<span class='no'>estimates</span>$<span class='no'>cases</span>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
