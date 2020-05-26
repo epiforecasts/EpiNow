@@ -15,6 +15,7 @@
 #' @export
 #' @importFrom future.apply future_lapply
 #' @importFrom data.table as.data.table setDT copy setorder
+#' @importFrom purrr safely
 #' @examples
 #' 
 #' ## Save everything to a temporary directory 
@@ -146,8 +147,10 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
     return(invisible(NULL))}
   
 
+  safe_run_region <- purrr::safely(run_region)
+  
   ## Run regions (make parallel using future::plan)
-  future.apply::future_lapply(regions, run_region,
+  future.apply::future_lapply(regions, safe_run_region[[1]],
                               cases = cases,
                               linelist = linelist,
                               onset_modifier = onset_modifier,

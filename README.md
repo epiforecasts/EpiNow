@@ -1,11 +1,11 @@
 
-# EpiNow
+# EpiNow: Estimate realtime case counts and time-varying epidemiological parameters 
 
 [![DOI](https://zenodo.org/badge/247464257.svg)](https://zenodo.org/badge/latestdoi/247464257)
 
-*Warning: This package is a work in progress and is currently developed solely with the COVID-19 outbreak in mind. Breaking changes may occur and the authors cannot guarantee support.*
 
-**Aim:** To identify changes in the reproduction number, rate of spread, and doubling time during the course of outbreaks whilst accounting for potential biases due to delays in case reporting.
+This packages estimates the time-varying reproduction number, rate of spread and doubling time using a range of open-source tools and current best practices. It aims to help users avoid some of the limitations of naive implementations in a framework that is informed by community feedback and is under active development. It assumes that only limited data is available on cases by date of onset and instead uses cases by date of report. These are then imputed to case counts by date of infection using an uncertain reporting delay and incubation period. Right truncation of cases is dealt with internally by `EpiNow`, as is propogating uncertainty from all inputs into the final parameter estimates (helping to mitigate spurious findings). Time-varying estimates of the reproduction number are estimated using the [`EpiEstim`](https://github.com/annecori/EpiEstim) package by date of infection with a generation time estimate that includes uncertainty. Time-varying estimates of the rate of growth are derived using a quasipoisson GLM with a sliding window, which are then used to estimate the doubling time. Optimal windows are chosen by using one day ahead case prediction. Optionally, the time-varying reproduction number can be forecast forwards in time using an integration with the [`EpiSoon`](https://epiforecasts.io/EpiSoon) package and conversion to a case forecast using a branching process. See the [methods](https://epiforecasts.io/covid/methods.html) section of our Covid-19 site for a detailed discussion of the approach. 
+
 
 ## Installation
 
@@ -14,6 +14,16 @@ Install the analysis and all dependencies with:
 ```r
 remotes::install_github("epiforecasts/EpiNow", dependencies = TRUE)
 ```
+
+## Quick start
+
+
+*Work in progress: please see `?rt_pipeline` and `?regional_rt_pipeline` for examples of implementing the tooling. A working implementation can also be found [here](https://github.com/epiforecasts/covid-global/blob/master/update_nowcasts.R).*
+
+## Contributing
+
+File an issue [here](https://github.com/epiforecasts/EpiNow/issues) if you have identified an issue with the package. Please note that due to operational constraints priority will be given to users informing government policy or offering methodological insights. We welcome all contributions, in particular those that improve the approach or the robustness of the code base.
+
 
 ## Docker
 
