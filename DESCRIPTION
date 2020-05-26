@@ -45,6 +45,8 @@ Imports:
     patchwork,
     R.devices
 Suggests:
+    dplyr,
+    tidyr,
     knitr,
     kableExtra,
     here,

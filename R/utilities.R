@@ -166,8 +166,8 @@ pull_max_var <- function(df, max_var = NULL,
 #'
 #' @examples
 #' 
-#' r_to_R(0.2, 4, 1)
-r_to_R <- function(r, gamma_mean, gamma_sd) {
+#' growth_to_R(0.2, 4, 1)
+growth_to_R <- function(r, gamma_mean, gamma_sd) {
   k <- (gamma_sd / gamma_mean)^2
   
   R <- (1 + k * r * gamma_mean)^(1/k)
@@ -180,18 +180,35 @@ r_to_R <- function(r, gamma_mean, gamma_sd) {
 #' @description See [here](https://www.medrxiv.org/content/10.1101/2020.01.30.20019877v3.full.pdf) 
 #' for justification.
 #' @param R Numeric, Reproduction number estimates
-#' @param gamma_sd Numeric, standard deviation of the gamma distribution
-#'
+#' @inheritParams growth_to_R
 #' @return Numeric vector of reproduction number estimates
 #' @export
 #'
 #' @examples
 #' 
-#' R_to_r(2.18, 4, 1)  
-R_to_r <- function(R, gamma_mean, gamma_sd) {
+#' R_to_growth(2.18, 4, 1)  
+R_to_growth <- function(R, gamma_mean, gamma_sd) {
   k <- (gamma_sd / gamma_mean)^2
   
   r <- (R^k - 1) / (k * gamma_mean)
 
   return(r)
 }  
+
+
+#' @importFrom stats glm median na.omit pexp pgamma plnorm quasipoisson rexp rgamma rlnorm rnorm rpois runif sd var
+
+globalVariables(
+  c("bottom", "cases", "confidence", "confirm", "country_code", "crps", 
+    "cum_cases", "Date", "date_confirm", "date_confirmation", "date_onset", 
+    "date_onset_sample", "date_onset_symptoms", "date_onset.x", "date_onset.y",
+    "date_report", "day", "doubling_time", "effect",  "Effective reproduction no.",
+    "estimates", "Expected change in daily cases", "fit_meas", "goodness_of_fit", 
+    "gt_sample", "import_status", "imported", "index", "latest", "little_r", 
+    "lower", "max_time", "mean_R", "Mean(R)", "metric", "mid_lower", "mid_upper",
+    "min_time", "model", "modifier", "n", "New", "confirmed cases by infection date",
+    "overall_little_r", "params", "prob_control", "provnum_ne", "R0_range",
+    "region", "region_code", "report_delay", "results_dir", "rt", "rt_type",
+    "sample_R", "sampled_r", "sd_R", "sd_rt", "Std(R)", "t_end", "t_start",
+    "target_date", "time", "time_varying_r", "top", "total", "type", "upper", 
+    "value", "var", "vars", "viridis_palette", "window"))

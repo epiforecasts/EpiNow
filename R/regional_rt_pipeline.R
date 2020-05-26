@@ -9,7 +9,7 @@
 #' @param case_limit Numeric, the minimum number of cases in a region required for that region to be evaluated. Defaults to 10.
 #' set to `FALSE` this should also be `FALSE`
 #' @param verbose Logical, defaults to `FALSE`. Should progress messages be shown for each reigon?
-#' @param ... 
+#' @param ... Pass additional arguments to `rt_pipeline`
 #' @inheritParams rt_pipeline
 #' @return NULL
 #' @export
@@ -150,7 +150,7 @@ regional_rt_pipeline <- function(cases = NULL, linelist = NULL,
   safe_run_region <- purrr::safely(run_region)
   
   ## Run regions (make parallel using future::plan)
-  future.apply::future_lapply(regions, safe_run_region[[1]],
+  future.apply::future_lapply(regions, safe_run_region,
                               cases = cases,
                               linelist = linelist,
                               onset_modifier = onset_modifier,

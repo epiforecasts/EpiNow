@@ -50,7 +50,7 @@ Defaults to 1 thread.}
 
 \item{verbose}{Logical, defaults to \code{FALSE}. Should progress messages be shown for each reigon?}
 
-\item{...}{}
+\item{...}{Pass additional arguments to \code{rt_pipeline}}
 }
 \description{
 Runs a pipeline by region.

@@ -142,8 +142,9 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #' print(report)   
 #' 
 #' ## Mapping with a weekly reporting effect
-#' report_weekly <- adjust_infection_to_report(infections, delay_def, incubation_def,
-#'                                             reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95))          
+#' report_weekly <- adjust_infection_to_report(
+#'                       infections, delay_def, incubation_def,
+#'                       reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95))          
 #'                              
 #' print(report_weekly) 
 #' 

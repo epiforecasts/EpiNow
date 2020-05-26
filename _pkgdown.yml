@@ -29,7 +29,12 @@ reference:
     desc: Functions to define, fit and parameterise distributions
     contents:
       - contains("dist")
-    
+  - title: Estimate Parameters
+    desc: Function to estimate time-varying parameters of interest.
+    contents:
+      - contains("estimate")
+      - growth_to_R
+      - R_to_growth
   - title: Summarise results
     desc: Summarise results
     contents:
@@ -43,6 +48,10 @@ reference:
     desc: Plot generated results
     contents: 
       - contains("plot")
+  - title: Map results
+    desc: Optional mapping functions (requires additional dependencies)
+    contents:
+      - contains("map")
   - title: Utilities
     desc: Utility functions
     contents: 

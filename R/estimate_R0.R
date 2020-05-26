@@ -30,14 +30,17 @@
 #'                          
 #'                          
 #' estimates$rts
-#'   
+#'  
+#'\dontrun{ 
 #'## Nowcast Rts, forecast Rts and the forecast cases
 #' estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
 #'                          generation_times = as.matrix(EpiNow::covid_generation_times[,1]), 
 #'                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
 #'                          windows = c(1, 3, 7), rt_samples = 10, gt_samples = 20,
 #'                          min_est_date =  as.Date("2020-02-18"),
-#'                          forecast_model = function(...){EpiSoon::fable_model(model = fable::ETS(y ~ trend("A")), ...)},
+#'                          forecast_model = function(...){
+#'                               EpiSoon::fable_model(model = fable::ETS(y ~ trend("A")), ...)
+#'                               },
 #'                          horizon = 14)
 #'                                            
 #'## Rt estimates and forecasts
@@ -47,6 +50,7 @@
 #' 
 #' ## Case forecasts
 #' estimates$cases
+#' }
 estimate_R0 <- function(cases = NULL, generation_times = NULL,
                         rt_prior = NULL, windows = NULL, 
                         gt_samples = 100, rt_samples = 100,

@@ -6,6 +6,7 @@
 * Added function examples
 * Update README with introduction, quick start guide, and contribution information
 * Added a getting started vignette.
+* Improve CRAN compliance and cleaned up CRAN check results
 
 # EpiNow 0.2.0 
 
