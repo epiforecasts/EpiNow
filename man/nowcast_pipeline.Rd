@@ -17,7 +17,7 @@ nowcast_pipeline(
   delay_defs = NULL,
   incubation_defs = NULL,
   nowcast_lag = 8,
-  max_upscale = 10,
+  max_upscale = 5,
   onset_modifier = NULL
 )
 }

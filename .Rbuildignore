@@ -6,3 +6,4 @@
 ^Dockerfile$
 ^libs$
 ^inst/pkg-structure$
+^_pkgdown.yml$

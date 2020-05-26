@@ -48,14 +48,14 @@ delay_defs <- EpiNow::lognorm_dist_def(mean = 5,
                                        sd = 3,
                                        sd_sd = 1,
                                        max_value = 30,
-                                       samples = 100)
+                                       samples = 10)
                                        
 ## Define a single incubation period
 incubation_defs <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_period[1, ]$mean,
                                             mean_sd = EpiNow::covid_incubation_period[1, ]$mean_sd,
                                             sd = EpiNow::covid_incubation_period[1, ]$sd,
                                             sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
-                                            max_value = 30, samples = 100)
+                                            max_value = 30, samples = 10)
                                            
 
 ## Perform a nowcast

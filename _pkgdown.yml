@@ -1,0 +1,53 @@
+url: epiforecasts.io/EpiNow/
+template:
+  params:
+    bootswatch: lumen
+
+development:
+  mode: release
+
+navbar:
+  type: inverse
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Getting started"
+      href: articles/introduction.html
+    - text: News
+      href: news/index.html
+    - icon: fa-file-code-o
+      text: "Functions"
+      href: reference/index.html
+  right:
+    - icon: fa-github
+      href: https://github.com/epiforecasts/EpiNow
+
+
+
+reference:
+  - title: Define, Fit and Parameterise Distributions
+    desc: Functions to define, fit and parameterise distributions
+    contents:
+      - contains("dist")
+    
+  - title: Summarise results
+    desc: Summarise results
+    contents:
+      - regional_summary
+      - contains("summarise")
+  - title: Report results
+    desc: Functions to report results
+    contents:
+      - contains("report")
+  - title: Plot results
+    desc: Plot generated results
+    contents: 
+      - contains("plot")
+  - title: Utilities
+    desc: Utility functions
+    contents: 
+      - clean_nowcasts
+      - add_dates 
+      - make_conf
+      - map_prob_change
+      - pull_max_var

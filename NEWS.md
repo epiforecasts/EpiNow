@@ -1,3 +1,11 @@
+# EpiNow 0.3.0
+
+* Added documentation.
+* Added GitHub Actions for documentation and CRAN check.
+* Added function to map from simulated cases by date of infection to cases by date of report.
+* Added function examples
+* Update README with introduction, quick start guide, and contribution information
+* Added a getting started vignette.
 
 # EpiNow 0.2.0 
 
