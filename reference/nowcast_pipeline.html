@@ -133,7 +133,6 @@
   <span class='kw'>approx_delay</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>max_delay</span> <span class='kw'>=</span> <span class='fl'>120</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>nowcast_lag</span> <span class='kw'>=</span> <span class='fl'>8</span>,
@@ -153,6 +152,10 @@
       <td><p>A linelist of report dates and onset dates</p></td>
     </tr>
     <tr>
+      <th>target_date</th>
+      <td><p>Character string, in the form "2020-01-01". Date to cast.</p></td>
+    </tr>
+    <tr>
       <th>earliest_allowed_onset</th>
       <td><p>A character string in the form of a date ("2020-01-01") indiciating the earliest
 allowed onset.</p></td>
@@ -166,6 +169,10 @@ Should linelist onset dates be used where available?</p></td>
       <th>approx_delay</th>
       <td><p>Logical, defaults to <code>FALSE</code>. Should delay sampling be approximated using case counts. Not appropriate
 when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.</p></td>
+    </tr>
+    <tr>
+      <th>max_delay</th>
+      <td><p>Numeric, maximum delay to allow. Defaults to 120 days</p></td>
     </tr>
     <tr>
       <th>verbose</th>

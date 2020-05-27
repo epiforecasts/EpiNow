@@ -156,6 +156,11 @@ See <code>get_delay_dist</code> for an example of the structure.</p></td>
 See <code>get_delay_dist</code> for an example of the structure.</p></td>
     </tr>
     <tr>
+      <th>type</th>
+      <td><p>Character string indicating the method to use to transfrom counts. Supports either "sample"
+which approximates sampling or "median" would shift by the median of the distribution.</p></td>
+    </tr>
+    <tr>
       <th>reporting_effect</th>
       <td><p>A <code>data.table</code> giving the weekly reporting effect with the following variables:
 <code>sample</code> (must be the same as in <code>nowcast</code>), <code>effect</code> (numeric scaling factor for each weekday), <code>day</code>

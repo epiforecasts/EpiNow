@@ -214,6 +214,15 @@ Should linelist onset dates be used where available?</p></td>
 when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.</p></td>
     </tr>
     <tr>
+      <th>approx_threshold</th>
+      <td><p>Numeric, defaults to 10,000. Threshold of cases below which explicit sampling of onsets
+always occurs.</p></td>
+    </tr>
+    <tr>
+      <th>max_delay</th>
+      <td><p>Numeric, maximum delay to allow. Defaults to 120 days</p></td>
+    </tr>
+    <tr>
       <th>generation_times</th>
       <td><p>A matrix with columns representing samples and rows representing the probability of the serial intervel being on
 that day. Defaults to <code><a href='covid_generation_times.html'>EpiNow::covid_generation_times</a></code>.</p></td>
@@ -252,7 +261,8 @@ of data in order for a forecast to be run. This prevents spurious forecasts base
     </tr>
     <tr>
       <th>target_folder</th>
-      <td><p>Character string, name of the folder in which to save the results.</p></td>
+      <td><p>Character string indicating the folder into which to save results.
+Also used to extract previously generated results.</p></td>
     </tr>
     <tr>
       <th>target_date</th>
@@ -271,11 +281,6 @@ Defaults to 1 thread.</p></td>
     <tr>
       <th>verbose</th>
       <td><p>Logical, defaults to <code>FALSE</code>. Should internal nowcasting progress messages be returned.</p></td>
-    </tr>
-    <tr>
-      <th>approx_thresold</th>
-      <td><p>Numeric, defaults to 10,000. Threshold of cases below which explicit sampling of onsets
-always occurs.</p></td>
     </tr>
     </table>
 
