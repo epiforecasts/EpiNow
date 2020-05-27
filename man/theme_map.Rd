@@ -18,8 +18,9 @@ theme_map(
 \arguments{
 \item{map}{\code{ggplot2} map object}
 
-\item{continuous}{Logical defaults to \code{FALSE}. Is the fill variable continuous.
-#@param variable_label A character string indicating the variable label to use. If not supplied then the underlying
+\item{continuous}{Logical defaults to \code{FALSE}. Is the fill variable continuous.}
+
+\item{variable_label}{A character string indicating the variable label to use. If not supplied then the underlying
 variable name is used.}
 
 \item{trans}{A character string specifying the transform to use on the specified metric. Defaults to no
@@ -33,7 +34,7 @@ which can be used for percentage data.}
 
 \item{breaks}{Breaks to use in legend. Defaults to \code{ggplot2::waiver}.}
 
-\item{additional}{arguments passed to \code{scale_fill}}
+\item{...}{Additional arguments passed to the \code{scale_fill} function}
 }
 \value{
 A \code{ggplot2} object

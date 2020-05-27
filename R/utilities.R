@@ -127,7 +127,8 @@ map_prob_change <- function(var) {
 #' Extract a the Maximum Value of a Variable Based on a Filter
 #'
 #' @param df Datatable with the following variables: `type` and `si_dist`
-#' @param var Unquoted variable name to pull out the maximum R estimate for.
+#' @param max_var Character string containing the variable name to pull out the maximum R estimate for.
+#' @param sel_var Character string indicating the variable to extract
 #' @param type_selected The nowcast type to extract.
 #' @importFrom data.table as.data.table
 #' @return A character string containing the maximum variable

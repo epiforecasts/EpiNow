@@ -23,7 +23,6 @@ global_map <- function(data = NULL, variable = NULL,
                        trans = "identity",
                        fill_labels = NULL,
                        scale_fill = NULL,
-                       show_caption = TRUE,
                        ...) {
   
   # Prep --------------------------------------------------------------------
@@ -119,7 +118,6 @@ country_map <- function(data = NULL, country = NULL,
                         trans = "identity",
                         fill_labels = NULL,
                         scale_fill = NULL,
-                        show_caption = TRUE,
                         ...) {
   
   
@@ -179,7 +177,7 @@ country_map <- function(data = NULL, country = NULL,
 #'
 #' @param map `ggplot2` map object 
 #' @param continuous Logical defaults to `FALSE`. Is the fill variable continuous.
-#'#@param variable_label A character string indicating the variable label to use. If not supplied then the underlying
+#' @param variable_label A character string indicating the variable label to use. If not supplied then the underlying
 #' variable name is used.
 #' @param trans A character string specifying the transform to use on the specified metric. Defaults to no
 #' transform ("identity"). Other options include log scaling ("log") and log base 10 scaling
@@ -187,8 +185,8 @@ country_map <- function(data = NULL, country = NULL,
 #' @param fill_labels A function to use to allocate legend labels. An example (used below) is \code{scales::percent},
 #' which can be used for percentage data.
 #' @param scale_fill Function to use for scaling the fill. Defaults to a custom `ggplot2::scale_fill_manual`
-#' @param additional arguments passed to `scale_fill`
 #' @param breaks Breaks to use in legend. Defaults to `ggplot2::waiver`.
+#' @param ... Additional arguments passed to the `scale_fill` function
 #' @return A `ggplot2` object 
 #' @importFrom ggplot2 waiver theme guides scale_fill_manual
 #' @export

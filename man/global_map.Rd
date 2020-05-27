@@ -11,7 +11,6 @@ global_map(
   trans = "identity",
   fill_labels = NULL,
   scale_fill = NULL,
-  show_caption = TRUE,
   ...
 )
 }
@@ -19,6 +18,9 @@ global_map(
 \item{data}{Dataframe containing variables to be mapped. Must contain a \code{country} variable.}
 
 \item{variable}{A character string indicating the variable to map data for. This must be supplied.}
+
+\item{variable_label}{A character string indicating the variable label to use. If not supplied then the underlying
+variable name is used.}
 
 \item{trans}{A character string specifying the transform to use on the specified metric. Defaults to no
 transform ("identity"). Other options include log scaling ("log") and log base 10 scaling
@@ -28,6 +30,8 @@ transform ("identity"). Other options include log scaling ("log") and log base 1
 which can be used for percentage data.}
 
 \item{scale_fill}{Function to use for scaling the fill. Defaults to a custom \code{ggplot2::scale_fill_manual}}
+
+\item{...}{Additional arguments passed to the \code{scale_fill} function}
 }
 \value{
 A \code{ggplot2} object containing a global map.

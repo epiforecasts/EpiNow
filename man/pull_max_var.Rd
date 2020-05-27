@@ -9,9 +9,11 @@ pull_max_var(df, max_var = NULL, sel_var = NULL, type_selected = NULL)
 \arguments{
 \item{df}{Datatable with the following variables: \code{type} and \code{si_dist}}
 
-\item{type_selected}{The nowcast type to extract.}
+\item{max_var}{Character string containing the variable name to pull out the maximum R estimate for.}
 
-\item{var}{Unquoted variable name to pull out the maximum R estimate for.}
+\item{sel_var}{Character string indicating the variable to extract}
+
+\item{type_selected}{The nowcast type to extract.}
 }
 \value{
 A character string containing the maximum variable
