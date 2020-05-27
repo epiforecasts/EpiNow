@@ -10,10 +10,18 @@ This packages estimates the time-varying reproduction number, rate of spread and
 
 ## Installation
 
-Install the analysis and all dependencies with: 
+Install the stabele version of the package using [`{drat}`](https://epiforecasts.io/drat/):
 
 ```r
-remotes::install_github("epiforecasts/EpiNow", dependencies = TRUE)
+install.packages("drat")
+drat::add("epiforecasts")
+install.packages("EpiNow")
+```
+
+Install the development version of the package with: 
+
+```r
+remotes::install_github("epiforecasts/EpiNow")
 ```
 
 ## Quick start
