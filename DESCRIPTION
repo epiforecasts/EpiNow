@@ -55,8 +55,9 @@ Suggests:
     rnaturalearth,
     rnaturalearthdata,
     rnaturalearthhires
+Additional_repositories: 
+  https://epiforecasts.io/drat/
 Remotes:
-    epiforecasts/EpiSoon,
     ropensci/rnaturalearthhires
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0

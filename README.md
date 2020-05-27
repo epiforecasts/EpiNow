@@ -2,6 +2,7 @@
 # EpiNow: Estimate realtime case counts and time-varying epidemiological parameters 
 
 ![R-CMD-check](https://github.com/epiforecasts/EpiNow/workflows/R-CMD-check/badge.svg)
+![Docker Pulls](https://img.shields.io/docker/pulls/seabbs/epinow)
 [![DOI](https://zenodo.org/badge/247464257.svg)](https://zenodo.org/badge/latestdoi/247464257)
 
 
@@ -10,7 +11,7 @@ This packages estimates the time-varying reproduction number, rate of spread and
 
 ## Installation
 
-Install the stabele version of the package using [`{drat}`](https://epiforecasts.io/drat/):
+Install the stable version of the package using [`{drat}`](https://epiforecasts.io/drat/):
 
 ```r
 install.packages("drat")
@@ -32,7 +33,6 @@ remotes::install_github("epiforecasts/EpiNow")
 ## Contributing
 
 File an issue [here](https://github.com/epiforecasts/EpiNow/issues) if you have identified an issue with the package. Please note that due to operational constraints priority will be given to users informing government policy or offering methodological insights. We welcome all contributions, in particular those that improve the approach or the robustness of the code base.
-
 
 ## Docker
 
