@@ -7,5 +7,7 @@
 ^libs$
 ^inst/pkg-structure$
 ^_pkgdown.yml$
-^.github$
+^\.github$
 ^docs$
+^configure$
+^configure\.win$
