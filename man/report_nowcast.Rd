@@ -21,7 +21,3 @@ Also used to extract previously generated results.}
 Returns a summarised nowcast as well as saving key information to the
 results folder.
 }
-\examples{
-
-
-}

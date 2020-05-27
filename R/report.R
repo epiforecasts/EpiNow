@@ -11,9 +11,6 @@
 #' @importFrom data.table rbindlist
 #' @importFrom purrr pmap
 #' @inheritParams sample_approx_dist
-#' @examples
-#' 
-#' 
 report_nowcast <- function(nowcast, cases, 
                             target, target_folder) {
   
@@ -158,8 +155,6 @@ report_cases <- function(nowcast,
 #' @inheritParams report_nowcast
 #' @return NULL
 #' @export
-#' @examples
-#' 
 report_reff <- function(target_folder) {
   
   ## Get summarised nowcast 
@@ -217,8 +212,6 @@ report_reff <- function(target_folder) {
 #' @export
 #' @importFrom data.table copy rbindlist as.data.table dcast
 #' @importFrom purrr map
-#' @examples
-#' 
 report_littler <- function(target_folder) {
   
   
@@ -330,12 +323,10 @@ report_littler <- function(target_folder) {
 
 #' Provide Summary Statistics on an Rt Pipeline
 #'
-#' @return
+#' @return NULL
 #' @export
 #' @inheritParams report_nowcast
 #' @importFrom data.table data.table
-#' @examples
-#' 
 report_summary <- function(target_folder) { 
   
   current_cases <- readRDS(paste0(target_folder, "/current_cases.rds"))

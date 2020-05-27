@@ -25,8 +25,7 @@
 #' estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
 #'                          generation_times = as.matrix(EpiNow::covid_generation_times[,2]), 
 #'                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
-#'                          windows = c(1, 3, 7), rt_samples = 10, gt_samples = 1,
-#'                          min_est_date =  as.Date("2020-02-18"))
+#'                          windows = c(1, 3, 7), rt_samples = 10, gt_samples = 1)
 #'                          
 #'                          
 #' estimates$rts
@@ -98,8 +97,12 @@ estimate_R0 <- function(cases = NULL, generation_times = NULL,
   ## Calculate when to start the window estimation of Rt
   min_case_date <- summed_cases[cases > 0][date == min(date)]$date
     
-  wait_time <- as.numeric(min_est_date - min_case_date) + 1
-  
+  if (!is.null(min_est_date)){
+    wait_time <- as.numeric(min_est_date - min_case_date) + 1
+  }else{
+    wait_time <- 1
+  }
+ 
   if (wait_time > nrow(incid)){
     wait_time <- nrow(incid)
   }

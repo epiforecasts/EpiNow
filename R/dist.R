@@ -132,14 +132,18 @@ dist_skel <- function(n, dist = FALSE, cum = TRUE, model,
 #' @param samples Numeric, number of samples to take
 #' @param dist Character string, which distribution to fit. Defaults to exponential (`"exp"`) but
 #' gamma is also supported (`"gamma"`).
-#' @return
+#' @return A `stan` fit of an interval censored distribution
 #' @export
 #' @import Rcpp
 #' @import methods
 #' @importFrom rstan sampling extract
 #' @useDynLib EpiNow, .registration=TRUE
 #' @examples
-#'
+#' \dontrun{
+#' 
+#' dist_fit(rexp(1:100, 2), samples = 1000, dist = "exp")
+#' 
+#' }
 dist_fit <- function(values = NULL, samples = NULL, dist = "exp") {
   
   if (is.null(samples)) {

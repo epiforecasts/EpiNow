@@ -27,12 +27,8 @@ adjust_for_truncation(
 \item{max_upscale}{Numeric, maximum upscaling of cases allowed at each time point}
 }
 \value{
-
+A \code{data.table} adjusted for truncation
 }
 \description{
 Adjust Case Counts for Truncation
-}
-\examples{
-
-
 }

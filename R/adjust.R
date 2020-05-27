@@ -31,14 +31,11 @@ rbinom_size <- function(n, x, prob, max_upscale) {
 #' @param confidence_adjustment Numeric vector of frequencies used to adjust confidence
 #' @param dates Character vector of dates
 #' @param samples Numeric, number of samples to take
-#' @return
+#' @return A `data.table` adjusted for truncation
 #' @export
 #' @inheritParams rbinom_size
 #' @importFrom purrr map
 #' @importFrom data.table data.table
-#' @examples
-#'
-#'
 adjust_for_truncation <- function(cases, cum_freq, dates, 
                                   confidence_adjustment = NULL,
                                   samples, max_upscale) {

@@ -13,15 +13,42 @@
 #' @importFrom future.apply future_lapply
 #' @importFrom data.table setorder rbindlist copy setDTthreads
 #' @examples 
-#'
+#' ## Construct example distributions
+#' ## reporting delay dist
+#' delay_dist <- EpiNow::lognorm_dist_def(mean = 3, 
+#'                                       mean_sd = 1,
+#'                                       sd = 3,
+#'                                       sd_sd = 1,
+#'                                       max_value = 30,
+#'                                       samples = 1)
+#' 
+#' ## incubation delay dist
+#' incubation_dist <- delay_dist
+#' 
+#' ## Uses example case vector from EpiSoon
+#' cases <- data.table::setDT(EpiSoon::example_obs_cases)
+#' cases <- cases[, `:=`(confirm = as.integer(cases), import_status = "local")]
+#' 
+#' ## Basic nowcast
+#' nowcast <- nowcast_pipeline(reported_cases = cases, 
+#'                             target_date = max(cases$date),
+#'                             delay_defs = delay_dist,
+#'                             incubation_defs = incubation_dist)
+#'  
+#' ## Estimate parameters                           
+#' estimates <- epi_measures_pipeline(nowcast[type %in% "infection_upscaled"], 
+#'                        generation_times = EpiNow::covid_generation_times,
+#'                        rt_prior = list(mean_prior = 2.6, std_prior = 2))   
+#'                        
+#' estimates                                                             
 epi_measures_pipeline <- function(nowcast = NULL,
                                   generation_times = NULL,
                                   min_est_date = NULL,
                                   gt_samples = 1, rt_samples = 5,
                                   rt_windows = 7, rate_window = 7,
                                   rt_prior = NULL, forecast_model = NULL,
-                                  horizon = NULL, verbose = TRUE) {
- 
+                                  horizon = 0, verbose = TRUE) {
+  
   ## Estimate time-varying R0
   process_R0 <- function(data,
                          generation_times,

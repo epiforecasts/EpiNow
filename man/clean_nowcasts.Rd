@@ -11,13 +11,7 @@ clean_nowcasts(date = NULL, nowcast_dir = NULL)
 
 \item{nowcast_dir}{Character string giving the filepath to the nowcast results directory.}
 }
-\value{
-
-}
 \description{
 This function removes nowcasts in the format produced by \code{EpiNow} from a target
 directory for the date supplied.
-}
-\examples{
-
 }

@@ -5,11 +5,8 @@
 #' @param date Date object. Defaults to todays date
 #' @param nowcast_dir Character string giving the filepath to the nowcast results directory.
 #'
-#' @return
+#' @return NULL
 #' @export
-#'
-#' @examples
-#' 
 clean_nowcasts <- function(date = NULL, nowcast_dir = NULL) {
   
   if (is.null(date)) {
@@ -47,7 +44,6 @@ clean_nowcasts <- function(date = NULL, nowcast_dir = NULL) {
 #' @description Pulls the last n dates from a vector
 #' @param dates Character vector of dates to pull from.
 #' @param n Number of dates required
-#'
 #' @return Character vector of dates of length N
 #' @export
 #'

@@ -50,8 +50,7 @@ Estimate the time varying R0 - using EpiEstim
 estimates <- estimate_R0(cases = EpiSoon::example_obs_cases, 
                          generation_times = as.matrix(EpiNow::covid_generation_times[,2]), 
                          rt_prior = list(mean_prior = 2.6, std_prior = 2),
-                         windows = c(1, 3, 7), rt_samples = 10, gt_samples = 1,
-                         min_est_date =  as.Date("2020-02-18"))
+                         windows = c(1, 3, 7), rt_samples = 10, gt_samples = 1)
                          
                          
 estimates$rts

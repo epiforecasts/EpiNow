@@ -13,6 +13,3 @@ Also used to extract previously generated results.}
 \description{
 Report Effective Reproduction Number Estimates
 }
-\examples{
-
-}

@@ -15,11 +15,15 @@ dist_fit(values = NULL, samples = NULL, dist = "exp")
 gamma is also supported (\code{"gamma"}).}
 }
 \value{
-
+A \code{stan} fit of an interval censored distribution
 }
 \description{
 Fit an integer adjusted exponential or gamma distribution
 }
 \examples{
+\dontrun{
 
+dist_fit(rexp(1:100, 2), samples = 1000, dist = "exp")
+
+}
 }

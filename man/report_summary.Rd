@@ -10,12 +10,6 @@ report_summary(target_folder)
 \item{target_folder}{Character string indicating the folder into which to save results.
 Also used to extract previously generated results.}
 }
-\value{
-
-}
 \description{
 Provide Summary Statistics on an Rt Pipeline
-}
-\examples{
-
 }
