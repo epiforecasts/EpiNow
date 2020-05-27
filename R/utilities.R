@@ -150,8 +150,7 @@ pull_max_var <- function(df, max_var = NULL,
   return(df)
 }
 
-
-
+ 
 
 #' Convert Growth Rates to Reproduction numbers.
 #'
@@ -211,4 +210,5 @@ globalVariables(
     "region", "region_code", "report_delay", "results_dir", "rt", "rt_type",
     "sample_R", "sampled_r", "sd_R", "sd_rt", "Std(R)", "t_end", "t_start",
     "target_date", "time", "time_varying_r", "top", "total", "type", "upper", 
-    "value", "var", "vars", "viridis_palette", "window"))
+    "value", "var", "vars", "viridis_palette", "window", ".", "%>%",
+    "New confirmed cases by infection date", "Data", "R"))

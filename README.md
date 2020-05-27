@@ -1,6 +1,7 @@
 
 # EpiNow: Estimate realtime case counts and time-varying epidemiological parameters 
 
+![R-CMD-check](https://github.com/epiforecasts/EpiNow/workflows/R-CMD-check/badge.svg)
 [![DOI](https://zenodo.org/badge/247464257.svg)](https://zenodo.org/badge/latestdoi/247464257)
 
 

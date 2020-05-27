@@ -40,5 +40,5 @@ the installation of the \code{rnaturalearth} package.
 }
 \examples{
 
-
+country_map
 }
