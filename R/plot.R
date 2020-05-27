@@ -8,12 +8,9 @@
 #' @param legend Character string defaults to "none". Should a legend be displayed.
 #' @return A `ggplot2` object.
 #' @export
-#'
 #' @importFrom ggplot2 ggplot aes geom_line scale_x_date geom_ribbon theme element_text scale_fill_manual theme labs guide_legend guides
 #' @importFrom cowplot theme_cowplot
 #' @importFrom data.table as.data.table copy .N rbindlist
-#' @examples
-#'
 plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2,
                             plot_median = TRUE, legend = "none") {
   
@@ -89,8 +86,6 @@ plot_confidence <- function(data, outer_alpha = 0.1, inner_alpha = 0.2,
 #' @return A `ggplot2` plot
 #' @export
 #' @importFrom ggplot2 geom_ribbon aes geom_line
-#' @examples
-#' 
 plot_forecast <- function(plot = NULL, forecast = NULL) {
   
   if (nrow(forecast) > 0) {
@@ -123,11 +118,8 @@ plot_forecast <- function(plot = NULL, forecast = NULL) {
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_layout
 #' @importFrom R.devices suppressGraphics
-#' @return
+#' @return A `ggplot2` object
 #' @export
-#'
-#' @examples
-#' 
 plot_pipeline <- function(target_date = NULL, target_folder = NULL, 
                           min_plot_date = NULL, report_forecast = FALSE) {
   
@@ -326,10 +318,6 @@ plot_pipeline <- function(target_date = NULL, target_folder = NULL,
 #' @importFrom stringr str_replace str_to_title
 #' @importFrom patchwork wrap_plots plot_layout
 #' @importFrom purrr safely
-#' @examples
-#' 
-#' ## Code 
-#' plot_grid
 plot_grid <- function(regions = NULL, plot_object = "bigr_eff_plot.rds", 
                       results_dir = "results", target_date = NULL, ...) {
   
@@ -378,10 +366,6 @@ plot_grid <- function(regions = NULL, plot_object = "bigr_eff_plot.rds",
 #' @importFrom ggplot2 ggplot aes geom_linerange geom_hline facet_wrap theme guides labs expand_limits guide_legend element_blank scale_color_manual .data coord_cartesian
 #' @importFrom cowplot theme_cowplot panel_border
 #' @importFrom patchwork plot_layout
-#'
-#' @examples
-#' 
-#' 
 plot_summary <- function(summary_results, x_lab = "Region", log_cases = FALSE) {
   
   
@@ -433,5 +417,4 @@ plot_summary <- function(summary_results, x_lab = "Region", log_cases = FALSE) {
   plot <- cases_plot + rt_plot + patchwork::plot_layout(ncol = 1)
   
   return(plot)
-  
 }

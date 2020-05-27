@@ -33,8 +33,3 @@ A \code{ggplot2} object combining multiple plots
 \description{
 Plot a Grid of Plots
 }
-\examples{
-
-## Code 
-plot_grid
-}

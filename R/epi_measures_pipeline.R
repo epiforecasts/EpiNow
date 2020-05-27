@@ -6,7 +6,8 @@
 #' @param rate_window Numeric, the window to use to estimate the rate of spread.
 #' @param verbose Logical, defaults to `TRUE`. Should progress messages be shown.
 #' @inheritParams estimate_R0
-#' @return
+#' @return A list of data frames containing reproduction number estimates, case forecasts, rate of growth estimates
+#' both summarised and raw.
 #' @export
 #' @importFrom purrr safely map_dbl map pmap map_lgl
 #' @importFrom HDInterval hdi

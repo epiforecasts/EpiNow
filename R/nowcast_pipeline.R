@@ -21,7 +21,7 @@
 #' @inheritParams generate_pseudo_linelist
 #' @inheritParams sample_delay
 #' @inheritParams plot_pipeline
-#' @return
+#' @return A dataframe of nowcast cases from each step of the nowcasting process (defined by `type`).
 #' @export
 #' @importFrom lubridate days
 #' @importFrom purrr map safely map_dfr map_lgl compact map2_dbl transpose

@@ -30,6 +30,3 @@ A \code{ggplot2} object.
 \description{
 Plot a Time Series with Confidence.
 }
-\examples{
-
-}

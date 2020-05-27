@@ -15,7 +15,3 @@ A summarised dataframe
 \description{
 Summarise a nowcast
 }
-\examples{
-
-
-}

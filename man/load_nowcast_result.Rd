@@ -21,11 +21,8 @@ load_nowcast_result(
 \item{result_dir}{Character string giving the location of the target directory}
 }
 \value{
-
+An R object read in from the targeted .rds file
 }
 \description{
 Load nowcast results
-}
-\examples{
-
 }

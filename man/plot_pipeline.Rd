@@ -22,11 +22,8 @@ plotting estimates.}
 \item{report_forecast}{Logical, defaults to \code{FALSE}. Should the forecast be reported.}
 }
 \value{
-
+A \code{ggplot2} object
 }
 \description{
 Plot Pipeline Results
-}
-\examples{
-
 }

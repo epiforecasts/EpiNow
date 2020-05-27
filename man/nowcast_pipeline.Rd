@@ -56,7 +56,7 @@ to modify estimated cases by onset date. \code{modifier} must be a function that
 (enables inclusion of uncertainty) and takes the following arguments: \code{n} (samples to return) and \code{status} ("local" or "import").}
 }
 \value{
-
+A dataframe of nowcast cases from each step of the nowcasting process (defined by \code{type}).
 }
 \description{
 Impute Cases Date of Infection

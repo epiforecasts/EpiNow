@@ -16,8 +16,3 @@ A named character vector containing the results to plot.
 \description{
 Get Folders with Nowcast Results
 }
-\examples{
-
-## Code 
-get_regions
-}

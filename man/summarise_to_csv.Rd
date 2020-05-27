@@ -21,13 +21,6 @@ summarise_to_csv(
 \item{date}{A Character string (in the format "yyyy-mm-dd") indicating the date to extract
 data for. Defaults to "latest" which finds the latest results available.}
 }
-\value{
-Nothing is returned
-}
 \description{
 Summarise rt and cases as a csv
-}
-\examples{
-
-
 }

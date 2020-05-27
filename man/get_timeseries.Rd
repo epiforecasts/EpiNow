@@ -17,7 +17,7 @@ data for. Defaults to "latest" which finds the latest results available.}
 returned.}
 }
 \value{
-
+A list of reproduction number estimates and nowcast cases
 }
 \description{
 Get Timeseries from EpiNow

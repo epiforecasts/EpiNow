@@ -17,4 +17,5 @@ Estimate the doubling time
 }
 \examples{
 
+estimate_doubling_time(0.2)
 }

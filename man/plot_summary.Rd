@@ -19,7 +19,3 @@ A \code{ggplot2} object
 \description{
 Plot a Summary of the Latest Results
 }
-\examples{
-
-
-}

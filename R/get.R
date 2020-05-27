@@ -8,9 +8,6 @@
 #' @importFrom lubridate ymd
 #' @return A tibble containing cases by date locally and imported
 #' @export
-#'
-#' @examples
-#'
 get_local_import_case_counts <- function(total_cases, linelist = NULL, cases_from = NULL) {
   
   .Deprecated()
@@ -75,10 +72,6 @@ get_local_import_case_counts <- function(total_cases, linelist = NULL, cases_fro
 #'
 #' @return A named character vector containing the results to plot.
 #' @export
-#' @examples
-#' 
-#' ## Code 
-#' get_regions
 get_regions <- function(results_dir) {
   
   # Regions to include - based on folder names
@@ -102,11 +95,8 @@ get_regions <- function(results_dir) {
 #' @param date Target date (in the format `"yyyy-mm-dd`).
 #' @param result_dir Character string giving the location of the target directory 
 #'
-#' @return
+#' @return An R object read in from the targeted .rds file
 #' @export
-#'
-#' @examples
-#' 
 load_nowcast_result <- function(file = NULL, region = NULL, 
                                 date = target_date, result_dir = results_dir) {
   file_path <- file.path(result_dir, region, date, file)
@@ -123,7 +113,7 @@ load_nowcast_result <- function(file = NULL, region = NULL,
 #' data for. Defaults to "latest" which finds the latest results available.
 #' @param summarised Logical, defaults to `FALSE`. Should full or summarised results be 
 #' returned. 
-#' @return
+#' @return A list of reproduction number estimates and nowcast cases
 #' @export
 #' @importFrom purrr map_dfr safely
 #' @examples

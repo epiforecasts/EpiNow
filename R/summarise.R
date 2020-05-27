@@ -7,9 +7,6 @@
 #' @importFrom purrr map_dbl
 #' @importFrom HDInterval hdi
 #' @importFrom lubridate days
-#' @examples
-#'
-#'
 summarise_cast <- function(nowcast) {
   
   get_conf <- function(conf, import_status) {
@@ -60,14 +57,8 @@ summarise_cast <- function(nowcast) {
 #' @importFrom purrr partial map_chr map_dbl map_chr
 #' @importFrom data.table setorderv melt
 #' @importFrom stringr str_split
-#' @return
+#' @return A list of summary data
 #' @export
-#'
-#' @examples
-#' 
-#' ## Code
-#' 
-#' summarise_results
 summarise_results <- function(regions = NULL,
                               results_dir = "results",
                               target_date = NULL,
@@ -164,7 +155,6 @@ summarise_results <- function(regions = NULL,
 #' @param csv_region_label Character string indicating the label to assign to a region when saving to .csv.
 #' @return NULL
 #' @export
-#'
 #' @inheritParams summarise_results
 #' @inheritParams plot_summary
 #' @inheritParams summarise_to_csv
@@ -372,12 +362,9 @@ regional_summary <- function(results_dir = NULL,
 #' @param summary_dir Character string the directory into which to save results
 #' @param type Character string, the region identifier to apply
 #' @inheritParams get_timeseries
-#' @return Nothing is returned
+#' @return NULL
 #' @export
 #' @importFrom data.table as.data.table setnames fwrite
-#' @examples
-#' 
-#' 
 summarise_to_csv <- function(results_dir = NULL, summary_dir = NULL, 
                              type = "country", date = NULL) {
   

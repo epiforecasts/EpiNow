@@ -24,14 +24,8 @@ for this date.}
 \item{region_scale}{A character string indicating the name to give the regions being summarised.}
 }
 \value{
-
+A list of summary data
 }
 \description{
 Summarise Realtime Results
-}
-\examples{
-
-## Code
-
-summarise_results
 }

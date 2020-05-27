@@ -28,7 +28,3 @@ model goodness of fit.
 \description{
 Estimate r in a set time window
 }
-\examples{
-
-
-}

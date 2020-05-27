@@ -17,6 +17,3 @@ A dataframe of r estimates over time summarisd across samples.
 \description{
 Estimate time varying r
 }
-\examples{
-
-}

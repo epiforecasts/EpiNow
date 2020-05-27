@@ -18,6 +18,3 @@ A \code{ggplot2} plot
 \description{
 Add a Forecast to a Plot
 }
-\examples{
-
-}

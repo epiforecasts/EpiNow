@@ -45,7 +45,8 @@ future Rt values. An example of the required structure is: \code{function(ss, y)
 \item{verbose}{Logical, defaults to \code{TRUE}. Should progress messages be shown.}
 }
 \value{
-
+A list of data frames containing reproduction number estimates, case forecasts, rate of growth estimates
+both summarised and raw.
 }
 \description{
 Estimate time-varying measures and forecast

@@ -20,6 +20,3 @@ A tibble containing cases by date locally and imported
 \description{
 Combine total and imported case counts
 }
-\examples{
-
-}

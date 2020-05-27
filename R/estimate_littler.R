@@ -52,7 +52,8 @@ estimate_little_r <- function(sample, min_time = NULL, max_time = NULL) {
 #' @export
 #'
 #' @examples
-#'
+#' 
+#' estimate_doubling_time(0.2)
 estimate_doubling_time <- function(r) {
   log(2) * 1 / r
 }
@@ -72,10 +73,6 @@ estimate_doubling_time <- function(r) {
 #' @importFrom purrr map map_dbl
 #' @importFrom HDInterval hdi
 #' @importFrom data.table setDTthreads rbindlist copy
-#'
-#' @examples
-#'
-#'
 estimate_r_in_window <- function(onsets = NULL,
                                  min_time = NULL,
                                  max_time = NULL,
@@ -151,8 +148,6 @@ estimate_r_in_window <- function(onsets = NULL,
 #' @export
 #' @importFrom purrr safely map_lgl
 #' @importFrom future.apply future_lapply
-#' @examples
-#'
 estimate_time_varying_r <- function(onsets, window = 7) {
   
   safe_estimate_r_window <- purrr::safely(
