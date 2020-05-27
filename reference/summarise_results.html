@@ -157,54 +157,8 @@ for this date.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    
+    <p>A list of summary data</p>
 
-
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='co'>## Code</span>
-
-<span class='no'>summarise_results</span></div><div class='output co'>#&gt; function (regions = NULL, results_dir = "results", target_date = NULL, 
-#&gt;     region_scale = "Region") 
-#&gt; {
-#&gt;     load_data &lt;- purrr::partial(load_nowcast_result, date = target_date, 
-#&gt;         result_dir = results_dir)
-#&gt;     estimates &lt;- data.table::data.table(region = names(regions), 
-#&gt;         `New confirmed cases by infection date` = purrr::map(regions, 
-#&gt;             ~load_data("current_cases.rds", .)), `Expected change in daily cases` = map_prob_change(purrr::map_dbl(regions, 
-#&gt;             ~load_data("prob_control_latest.rds", .))), `Effective reproduction no.` = purrr::map(regions, 
-#&gt;             ~load_data("bigr_eff_latest.rds", .)), `Doubling/halving time (days)` = purrr::map_chr(regions, 
-#&gt;             ~load_data("doubling_time_latest.rds", .)))
-#&gt;     numeric_estimates &lt;- estimates[, .(region, `New confirmed cases by infection date`, 
-#&gt;         `Effective reproduction no.`, `Expected change in daily cases`)]
-#&gt;     numeric_estimates &lt;- data.table::melt(numeric_estimates, 
-#&gt;         measure.vars = c("New confirmed cases by infection date", 
-#&gt;             "Effective reproduction no."), variable.name = "metric", 
-#&gt;         value.name = "value")
-#&gt;     numeric_estimates &lt;- numeric_estimates[, `:=`(lower = purrr::map_dbl(value, 
-#&gt;         ~.[[1]]$lower), upper = purrr::map_dbl(value, ~.[[1]]$upper), 
-#&gt;         mid_lower = purrr::map_dbl(value, ~.[[1]]$mid_lower), 
-#&gt;         mid_upper = purrr::map_dbl(value, ~.[[1]]$mid_upper))][, 
-#&gt;         `:=`(metric, factor(metric, levels = c("New confirmed cases by infection date", 
-#&gt;             "Effective reproduction no.")))]
-#&gt;     high_inc_regions &lt;- unique(data.table::setorderv(numeric_estimates, 
-#&gt;         cols = "upper", order = -1)$region)
-#&gt;     numeric_estimates &lt;- numeric_estimates[, `:=`(region, factor(region, 
-#&gt;         levels = high_inc_regions))]
-#&gt;     estimates &lt;- estimates[, `:=`(`New confirmed cases by infection date` = EpiNow::make_conf(purrr::map(`New confirmed cases by infection date`, 
-#&gt;         ~.[[1]]), digits = 0), `Effective reproduction no.` = EpiNow::make_conf(purrr::map(`Effective reproduction no.`, 
-#&gt;         ~.[[1]]), digits = 1))]
-#&gt;     estimates &lt;- estimates[, `:=`((region_scale), region)][, 
-#&gt;         `:=`(region, NULL)]
-#&gt;     estimates &lt;- estimates[, c((region_scale), colnames(estimates)[-ncol(estimates)]), 
-#&gt;         with = FALSE]
-#&gt;     out &lt;- list(estimates, numeric_estimates, high_inc_regions)
-#&gt;     names(out) &lt;- c("table", "data", "regions_by_inc")
-#&gt;     return(out)
-#&gt; }
-#&gt; &lt;bytecode: 0x7f825e2254a0&gt;
-#&gt; &lt;environment: namespace:EpiNow&gt;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -165,31 +165,6 @@ for this date.</p></td>
 
     <p>A <code>ggplot2</code> object combining multiple plots</p>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='co'>## Code </span>
-<span class='no'>plot_grid</span></div><div class='output co'>#&gt; function (regions = NULL, plot_object = "bigr_eff_plot.rds", 
-#&gt;     results_dir = "results", target_date = NULL, ...) 
-#&gt; {
-#&gt;     load_plot &lt;- function(region) {
-#&gt;         plot &lt;- EpiNow::load_nowcast_result(plot_object, region, 
-#&gt;             date = target_date, results_dir) + ggplot2::labs(title = stringr::str_to_title(stringr::str_replace(region, 
-#&gt;             "-", " "))) + ggplot2::scale_x_date(date_breaks = "1 week", 
-#&gt;             date_labels = "%b %d")
-#&gt;         return(plot)
-#&gt;     }
-#&gt;     safe_load_plot &lt;- purrr::safely(load_plot)
-#&gt;     plots &lt;- suppressMessages(purrr::map(regions, ~safe_load_plot(.)[[1]]))
-#&gt;     plots[-1] &lt;- purrr::map(plots[-1], function(plot) {
-#&gt;         plot &lt;- plot + ggplot2::guides(fill = FALSE)
-#&gt;         return(plot)
-#&gt;     })
-#&gt;     plot &lt;- patchwork::wrap_plots(plots) + patchwork::plot_layout(..., 
-#&gt;         guides = "collect")
-#&gt;     return(suppressMessages(plot))
-#&gt; }
-#&gt; &lt;bytecode: 0x7f824842e158&gt;
-#&gt; &lt;environment: namespace:EpiNow&gt;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
