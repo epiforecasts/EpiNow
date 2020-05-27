@@ -53,12 +53,9 @@ Suggests:
     magrittr,
     countrycode,
     rnaturalearth,
-    rnaturalearthdata,
-    rnaturalearthhires
+    rnaturalearthdata
 Additional_repositories: 
   https://epiforecasts.io/drat/
-Remotes:
-    ropensci/rnaturalearthhires
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 Biarch: true
