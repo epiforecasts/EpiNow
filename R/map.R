@@ -102,7 +102,7 @@ global_map <- function(data = NULL, variable = NULL,
 #' the data supplied must contain a \code{region_code} variable for linking to mapping data. This function requires 
 #' the installation of the `rnaturalearth` package.
 #' @param data Dataframe containing variables to be mapped. Must contain a \code{region_code} variable.
-#' 
+#' @param country Character string indicating the name of the country to be mapped.
 #' @inheritParams global_map
 #' @return A \code{ggplot2} object containing a country map.
 #' @export

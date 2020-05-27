@@ -272,6 +272,7 @@ lognorm_dist_def <- function(mean, mean_sd,
 #'
 #' @param values Numeric vector of integer values.
 #' @param verbose Logical, defaults to `FALSE`. Should progress messages be printed
+#' @param samples Numeric, number of samples to take overall from the bootstrapped posteriors.
 #' @param bootstraps Numeric, defaults to 1. The number of bootstrap samples (with replacement)
 #'  of the delay distribution to take.
 #' @param bootstrap_samples Numeric, defaults to 100. The number of samples to take in each boostrap.

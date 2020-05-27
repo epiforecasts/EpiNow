@@ -18,6 +18,8 @@ country_map(
 \arguments{
 \item{data}{Dataframe containing variables to be mapped. Must contain a \code{region_code} variable.}
 
+\item{country}{Character string indicating the name of the country to be mapped.}
+
 \item{variable}{A character string indicating the variable to map data for. This must be supplied.}
 
 \item{variable_label}{A character string indicating the variable label to use. If not supplied then the underlying

@@ -17,6 +17,8 @@ get_dist_def(
 
 \item{verbose}{Logical, defaults to \code{FALSE}. Should progress messages be printed}
 
+\item{samples}{Numeric, number of samples to take overall from the bootstrapped posteriors.}
+
 \item{bootstraps}{Numeric, defaults to 1. The number of bootstrap samples (with replacement)
 of the delay distribution to take.}
 
