@@ -21,7 +21,3 @@ Dataframe with no missing data and two variables: date_report and date_onset
 \description{
 Sample Onset Dates for Cases missing them
 }
-\examples{
-
-
-}

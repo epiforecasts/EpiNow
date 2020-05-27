@@ -16,7 +16,3 @@ a date_report variable
 \description{
 Convert a linelist into a nested `data.table`` of linelists by day
 }
-\examples{
-
-
-}

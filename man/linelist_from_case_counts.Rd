@@ -15,7 +15,3 @@ A linelist grouped by day as a \code{data.table} with two variables: date_report
 \description{
 Sample a linelist from case counts and a reporting delay distribution
 }
-\examples{
-
-
-}

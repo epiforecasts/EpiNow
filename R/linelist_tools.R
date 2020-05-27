@@ -7,9 +7,6 @@
 #' @export
 #' @importFrom data.table setkey merge.data.table fifelse
 #' @importFrom purrr map2
-#' @examples
-#'
-#'
 generate_pseudo_linelist <- function(count_linelist = NULL, observed_linelist = NULL,
                                      merge_actual_onsets = TRUE) {
   
@@ -52,9 +49,6 @@ generate_pseudo_linelist <- function(count_linelist = NULL, observed_linelist = 
 #' @importFrom purrr map2
 #' @importFrom lubridate days
 #' @importFrom data.table copy .N
-#' @examples
-#'
-#'
 linelist_from_case_counts <- function(cases = NULL) {
   
   cases_linelist <- suppressWarnings(data.table::copy(cases)[confirm > 0,
@@ -74,9 +68,6 @@ linelist_from_case_counts <- function(cases = NULL) {
 #' @export
 #' @importFrom purrr map
 #' @importFrom data.table .N
-#' @examples
-#'
-#'
 split_linelist_by_day <- function(linelist = NULL) {
   
   
@@ -103,9 +94,6 @@ split_linelist_by_day <- function(linelist = NULL) {
 #' @importFrom data.table fifelse
 #' @importFrom purrr map2
 #' @importFrom data.table copy
-#' @examples
-#'
-#'
 sample_delay <- function(linelist = NULL, delay_fn = NULL,
                          earliest_allowed_onset = NULL) {
   

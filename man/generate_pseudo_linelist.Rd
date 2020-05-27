@@ -23,7 +23,3 @@ Dataframe with   two variables: date_report and date_onset
 \description{
 Generate a sample linelist from the observed linelist and sampled linelists
 }
-\examples{
-
-
-}
