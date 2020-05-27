@@ -174,8 +174,34 @@ which can be used for percentage data.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-
-</div></pre>
+<span class='no'>country_map</span></div><div class='output co'>#&gt; function (data = NULL, country = NULL, variable = NULL, variable_label = NULL, 
+#&gt;     trans = "identity", fill_labels = NULL, scale_fill = NULL, 
+#&gt;     show_caption = TRUE, ...) 
+#&gt; {
+#&gt;     if (is.null(variable_label)) {
+#&gt;         variable_label &lt;- variable
+#&gt;     }
+#&gt;     country &lt;- rnaturalearth::ne_countries(scale = "large", country = country, 
+#&gt;         returnclass = "sf")
+#&gt;     regions &lt;- rnaturalearth::ne_states(country, returnclass = "sf")
+#&gt;     data &lt;- data.table::as.data.table(date)[, `:=`(provnum_ne, 
+#&gt;         region_code)]
+#&gt;     regions_with_data &lt;- merge(regions, data, by = c("provnum_ne"), 
+#&gt;         all.x = TRUE)
+#&gt;     if (is.null(fill_labels)) {
+#&gt;         fill_labels &lt;- ggplot2::waiver()
+#&gt;     }
+#&gt;     map &lt;- ggplot(regions_with_data) + ggplot2::geom_sf(aes(fill = .data[[variable]]), 
+#&gt;         col = "white", alpha = 0.8, size = 0.2) + ggplot2::geom_sf(data = country, 
+#&gt;         col = "darkgrey", fill = NA, alpha = 1, size = 0.4)
+#&gt;     map &lt;- EpiNow::theme_map(map, continuous = is.numeric(regions_with_data[[variable]]), 
+#&gt;         variable_label = variable_label, trans = trans, fill_labels = fill_labels, 
+#&gt;         scale_fill = NULL, breaks = levels(regions_with_data[[variable]]), 
+#&gt;         ...)
+#&gt;     return(map)
+#&gt; }
+#&gt; &lt;bytecode: 0x7ff700bd3438&gt;
+#&gt; &lt;environment: namespace:EpiNow&gt;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
