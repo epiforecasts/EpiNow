@@ -134,7 +134,7 @@
   <span class='kw'>rate_window</span> <span class='kw'>=</span> <span class='fl'>7</span>,
   <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>forecast_model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>horizon</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>horizon</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
@@ -197,8 +197,235 @@ future Rt values. An example of the required structure is: <code>function(ss, y)
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-</div></pre>
+    <pre class="examples"><div class='input'><span class='co'>## Construct example distributions</span>
+<span class='co'>## reporting delay dist</span>
+<span class='no'>delay_dist</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='lognorm_dist_def.html'>lognorm_dist_def</a></span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>3</span>,
+                                      <span class='kw'>mean_sd</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+                                      <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>3</span>,
+                                      <span class='kw'>sd_sd</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+                                      <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>30</span>,
+                                      <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+
+<span class='co'>## incubation delay dist</span>
+<span class='no'>incubation_dist</span> <span class='kw'>&lt;-</span> <span class='no'>delay_dist</span>
+
+<span class='co'>## Uses example case vector from EpiSoon</span>
+<span class='no'>cases</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/setDT.html'>setDT</a></span>(<span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>)
+<span class='no'>cases</span> <span class='kw'>&lt;-</span> <span class='no'>cases</span>[, <span class='fu'>`:=`</span>(<span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span>(<span class='no'>cases</span>), <span class='kw'>import_status</span> <span class='kw'>=</span> <span class='st'>"local"</span>)]
+
+<span class='co'>## Basic nowcast</span>
+<span class='no'>nowcast</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='nowcast_pipeline.html'>nowcast_pipeline</a></span>(<span class='kw'>reported_cases</span> <span class='kw'>=</span> <span class='no'>cases</span>,
+                            <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='no'>cases</span>$<span class='no'>date</span>),
+                            <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='no'>delay_dist</span>,
+                            <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='no'>incubation_dist</span>)
+
+<span class='co'>## Estimate parameters                           </span>
+<span class='no'>estimates</span> <span class='kw'>&lt;-</span> <span class='fu'>epi_measures_pipeline</span>(<span class='no'>nowcast</span>[<span class='no'>type</span> <span class='kw'>%in%</span> <span class='st'>"infection_upscaled"</span>],
+                       <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_generation_times.html'>covid_generation_times</a></span>,
+                       <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mean_prior</span> <span class='kw'>=</span> <span class='fl'>2.6</span>, <span class='kw'>std_prior</span> <span class='kw'>=</span> <span class='fl'>2</span>))</div><div class='output co'>#&gt; <span class='message'>Estimate time-varying R0</span></div><div class='output co'>#&gt; <span class='message'>Summarising time-varying R0</span></div><div class='output co'>#&gt; <span class='message'>Summarising forecast cases</span></div><div class='output co'>#&gt; <span class='message'>Estimate time-varying rate of growth</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Attaching package: ‘purrr’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:data.table’:</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    transpose</span></div><div class='input'>
+<span class='no'>estimates</span></div><div class='output co'>#&gt; $R0
+#&gt;                   type       date rt_type    bottom      top     lower    upper
+#&gt;  1: infection_upscaled 2020-01-17 nowcast 0.7466803 3.006430 0.7466803 1.240275
+#&gt;  2: infection_upscaled 2020-01-18 nowcast 0.8864384 3.570888 1.2786435 1.841273
+#&gt;  3: infection_upscaled 2020-01-19 nowcast 2.0091058 4.437581 2.0091058 2.710940
+#&gt;  4: infection_upscaled 2020-01-20 nowcast 1.6018509 2.256486 1.7546234 1.955850
+#&gt;  5: infection_upscaled 2020-01-21 nowcast 2.0716867 2.665287 2.6230063 2.665287
+#&gt;  6: infection_upscaled 2020-01-22 nowcast 1.6274709 2.909955 2.3392161 2.909955
+#&gt;  7: infection_upscaled 2020-01-23 nowcast 1.3913986 2.062623 1.4779104 1.611343
+#&gt;  8: infection_upscaled 2020-01-24 nowcast 1.0403333 2.029404 1.4661985 1.677742
+#&gt;  9: infection_upscaled 2020-01-25 nowcast 1.0330824 2.445151 1.0330824 1.485077
+#&gt; 10: infection_upscaled 2020-01-26 nowcast 1.4280489 2.151118 1.7192008 1.940777
+#&gt; 11: infection_upscaled 2020-01-27 nowcast 1.4031655 1.980483 1.4031655 1.522599
+#&gt; 12: infection_upscaled 2020-01-28 nowcast 1.3629897 1.876518 1.3629897 1.493564
+#&gt; 13: infection_upscaled 2020-01-29 nowcast 1.5291823 2.007183 1.7123566 1.794109
+#&gt; 14: infection_upscaled 2020-01-30 nowcast 1.2214383 1.419965 1.3249586 1.419965
+#&gt; 15: infection_upscaled 2020-01-31 nowcast 1.4692658 2.031425 1.4692658 1.697421
+#&gt; 16: infection_upscaled 2020-02-01 nowcast 1.2889701 1.565084 1.2889701 1.376827
+#&gt; 17: infection_upscaled 2020-02-02 nowcast 1.2676366 1.893551 1.7281252 1.893551
+#&gt; 18: infection_upscaled 2020-02-03 nowcast 1.0180099 1.568886 1.4990798 1.568886
+#&gt; 19: infection_upscaled 2020-02-04 nowcast 1.3427592 1.617291 1.5799463 1.594510
+#&gt; 20: infection_upscaled 2020-02-05 nowcast 1.2208566 1.553431 1.2208566 1.246987
+#&gt; 21: infection_upscaled 2020-02-06 nowcast 1.0756814 1.423310 1.1895265 1.293894
+#&gt; 22: infection_upscaled 2020-02-07 nowcast 1.1511530 1.721054 1.3177636 1.408595
+#&gt; 23: infection_upscaled 2020-02-08 nowcast 1.2907245 1.698699 1.5179218 1.698699
+#&gt; 24: infection_upscaled 2020-02-09 nowcast 1.3360168 1.710270 1.4931149 1.528359
+#&gt; 25: infection_upscaled 2020-02-10 nowcast 1.3213034 1.585728 1.3213034 1.436011
+#&gt; 26: infection_upscaled 2020-02-11 nowcast 1.4218020 1.685952 1.4218020 1.437369
+#&gt; 27: infection_upscaled 2020-02-12 nowcast 1.3194175 1.672174 1.3776787 1.441203
+#&gt; 28: infection_upscaled 2020-02-13 nowcast 1.2139617 1.525500 1.2139617 1.302122
+#&gt; 29: infection_upscaled 2020-02-14 nowcast 1.4193496 1.667752 1.4499892 1.533110
+#&gt; 30: infection_upscaled 2020-02-15 nowcast 1.3594522 1.672884 1.6330792 1.672884
+#&gt; 31: infection_upscaled 2020-02-16 nowcast 1.2845592 1.545096 1.4612553 1.545096
+#&gt; 32: infection_upscaled 2020-02-17 nowcast 1.4469437 1.670705 1.4469437 1.535656
+#&gt; 33: infection_upscaled 2020-02-18 nowcast 1.3969442 1.546580 1.3969442 1.421942
+#&gt; 34: infection_upscaled 2020-02-19 nowcast 1.3771659 1.522822 1.3771659 1.412510
+#&gt; 35: infection_upscaled 2020-02-20 nowcast 1.3748343 1.559742 1.4304941 1.459397
+#&gt; 36: infection_upscaled 2020-02-21 nowcast 1.2481871 1.532993 1.2481871 1.381135
+#&gt; 37: infection_upscaled 2020-02-22 nowcast 1.2735373 1.431546 1.4149205 1.431546
+#&gt; 38: infection_upscaled 2020-02-23 nowcast 1.3051997 1.456052 1.3439783 1.402537
+#&gt; 39: infection_upscaled 2020-02-24 nowcast 1.2356516 1.457084 1.3015738 1.368422
+#&gt; 40: infection_upscaled 2020-02-25 nowcast 1.2166608 1.511916 1.2789867 1.286997
+#&gt; 41: infection_upscaled 2020-02-26 nowcast 1.1714963 1.271753 1.2585896 1.271753
+#&gt; 42: infection_upscaled 2020-02-27 nowcast 1.1991284 1.256669 1.1991284 1.208677
+#&gt; 43: infection_upscaled 2020-02-28 nowcast 1.1221917 1.215119 1.1727447 1.198325
+#&gt; 44: infection_upscaled 2020-02-29 nowcast 1.1555807 1.223686 1.1651687 1.193660
+#&gt; 45: infection_upscaled 2020-03-01 nowcast 1.0829161 1.228728 1.1026919 1.153561
+#&gt; 46: infection_upscaled 2020-03-02 nowcast 1.0495864 1.188871 1.1007279 1.126226
+#&gt; 47: infection_upscaled 2020-03-03 nowcast 1.1465917 1.229056 1.1465917 1.186643
+#&gt; 48: infection_upscaled 2020-03-04 nowcast 1.0912553 1.174296 1.0912553 1.107252
+#&gt; 49: infection_upscaled 2020-03-05 nowcast 1.1359939 1.274421 1.1359939 1.188924
+#&gt; 50: infection_upscaled 2020-03-06 nowcast 1.1037206 1.211454 1.2035683 1.211454
+#&gt; 51: infection_upscaled 2020-03-07 nowcast 1.1741737 1.262313 1.1741737 1.206635
+#&gt; 52: infection_upscaled 2020-03-08 nowcast 1.2207433 1.297691 1.2207433 1.241641
+#&gt; 53: infection_upscaled 2020-03-09 nowcast 1.1717427 1.282012 1.1717427 1.191974
+#&gt; 54: infection_upscaled 2020-03-10 nowcast 1.1255103 1.209293 1.1824386 1.209293
+#&gt; 55: infection_upscaled 2020-03-11 nowcast 1.1772820 1.229559 1.1772820 1.184618
+#&gt; 56: infection_upscaled 2020-03-12 nowcast 1.1607926 1.233918 1.1974317 1.233918
+#&gt; 57: infection_upscaled 2020-03-13 nowcast 1.1449609 1.205278 1.1792924 1.205278
+#&gt; 58: infection_upscaled 2020-03-14 nowcast 1.0865500 1.183295 1.1507180 1.183295
+#&gt;                   type       date rt_type    bottom      top     lower    upper
+#&gt;       median     mean        std prob_control mean_window sd_window mean_crps
+#&gt;  1: 1.240275 1.669805 0.90369888          0.2           7         0      0.16
+#&gt;  2: 1.714775 1.858403 1.02887841          0.2           7         0      0.80
+#&gt;  3: 2.710940 2.913762 1.01365622          0.0           7         0      0.76
+#&gt;  4: 1.860799 1.885922 0.24534366          0.0           7         0      1.76
+#&gt;  5: 2.623006 2.435070 0.28389486          0.0           7         0      1.64
+#&gt;  6: 2.339216 2.288826 0.53616999          0.0           7         0      1.04
+#&gt;  7: 1.546736 1.618002 0.26162254          0.0           7         0      0.24
+#&gt;  8: 1.545917 1.551919 0.35809454          0.0           7         0      0.56
+#&gt;  9: 1.485077 1.730812 0.62356984          0.0           7         0      0.60
+#&gt; 10: 1.828216 1.813472 0.26826605          0.0           7         0      0.60
+#&gt; 11: 1.522599 1.593823 0.23941284          0.0           7         0      0.52
+#&gt; 12: 1.493564 1.576664 0.22468564          0.0           7         0      1.44
+#&gt; 13: 1.730944 1.754755 0.17213087          0.0           7         0      1.32
+#&gt; 14: 1.324959 1.310754 0.08278257          0.0           7         0      1.44
+#&gt; 15: 1.697421 1.714296 0.23008647          0.0           7         0      2.16
+#&gt; 16: 1.376827 1.412250 0.12619517          0.0           7         0      5.24
+#&gt; 17: 1.728125 1.625767 0.29216263          0.0           7         0      5.04
+#&gt; 18: 1.499080 1.387094 0.23598305          0.0           7         0      1.60
+#&gt; 19: 1.591189 1.545139 0.11394425          0.0           7         0      2.72
+#&gt; 20: 1.246987 1.306783 0.13905364          0.0           7         0      4.24
+#&gt; 21: 1.245979 1.245678 0.12838397          0.0           7         0      2.76
+#&gt; 22: 1.374859 1.394685 0.20756200          0.0           7         0      6.24
+#&gt; 23: 1.517922 1.471395 0.16829129          0.0           7         0      4.84
+#&gt; 24: 1.517719 1.517096 0.13304925          0.0           7         0      1.16
+#&gt; 25: 1.436011 1.461160 0.12011220          0.0           7         0      3.28
+#&gt; 26: 1.437369 1.520364 0.12462512          0.0           7         0      3.00
+#&gt; 27: 1.415786 1.445252 0.13488750          0.0           7         0      1.56
+#&gt; 28: 1.302122 1.364947 0.13973444          0.0           7         0      4.12
+#&gt; 29: 1.505450 1.515130 0.09634289          0.0           7         0      1.52
+#&gt; 30: 1.633079 1.572523 0.12868598          0.0           7         0      7.36
+#&gt; 31: 1.461255 1.427764 0.10760312          0.0           7         0      1.28
+#&gt; 32: 1.535656 1.560001 0.09325059          0.0           7         0      3.12
+#&gt; 33: 1.421942 1.446045 0.06141216          0.0           7         0      6.52
+#&gt; 34: 1.412510 1.427873 0.05710594          0.0           7         0      9.24
+#&gt; 35: 1.448473 1.454588 0.06719184          0.0           7         0      8.68
+#&gt; 36: 1.381135 1.377119 0.11442665          0.0           7         0      2.44
+#&gt; 37: 1.414920 1.369454 0.07173354          0.0           7         0      3.48
+#&gt; 38: 1.391011 1.379756 0.05767456          0.0           7         0      5.16
+#&gt; 39: 1.349954 1.342537 0.08208016          0.0           7         0      8.68
+#&gt; 40: 1.279541 1.314820 0.11378120          0.0           7         0      3.96
+#&gt; 41: 1.258590 1.231752 0.04653059          0.0           7         0     28.16
+#&gt; 42: 1.208677 1.222396 0.02500451          0.0           7         0      4.40
+#&gt; 43: 1.187628 1.179202 0.03542102          0.0           7         0     25.32
+#&gt; 44: 1.193622 1.186344 0.02690593          0.0           7         0      3.68
+#&gt; 45: 1.140076 1.141595 0.05633461          0.0           7         0      2.84
+#&gt; 46: 1.121877 1.117458 0.05020618          0.0           7         0     23.16
+#&gt; 47: 1.186643 1.186139 0.03559976          0.0           7         0      1.88
+#&gt; 48: 1.107252 1.119692 0.03489331          0.0           7         0      2.32
+#&gt; 49: 1.188924 1.193717 0.05573907          0.0           7         0      3.84
+#&gt; 50: 1.203568 1.179519 0.04517022          0.0           7         0     11.20
+#&gt; 51: 1.206635 1.213581 0.03950063          0.0           7         0     14.16
+#&gt; 52: 1.241641 1.254974 0.03187404          0.0           7         0      3.72
+#&gt; 53: 1.191974 1.217578 0.05183788          0.0           7         0     13.96
+#&gt; 54: 1.182439 1.167300 0.03659044          0.0           7         0      6.00
+#&gt; 55: 1.184618 1.194927 0.02234939          0.0           7         0      4.96
+#&gt; 56: 1.197432 1.196733 0.03027523          0.0           7         0      9.08
+#&gt; 57: 1.179292 1.176838 0.02546946          0.0           7         0      4.64
+#&gt; 58: 1.150718 1.142070 0.03762434          0.0           7         0      1.36
+#&gt;       median     mean        std prob_control mean_window sd_window mean_crps
+#&gt;     sd_crps R0_range
+#&gt;  1:       0   &lt;list&gt;
+#&gt;  2:       0   &lt;list&gt;
+#&gt;  3:       0   &lt;list&gt;
+#&gt;  4:       0   &lt;list&gt;
+#&gt;  5:       0   &lt;list&gt;
+#&gt;  6:       0   &lt;list&gt;
+#&gt;  7:       0   &lt;list&gt;
+#&gt;  8:       0   &lt;list&gt;
+#&gt;  9:       0   &lt;list&gt;
+#&gt; 10:       0   &lt;list&gt;
+#&gt; 11:       0   &lt;list&gt;
+#&gt; 12:       0   &lt;list&gt;
+#&gt; 13:       0   &lt;list&gt;
+#&gt; 14:       0   &lt;list&gt;
+#&gt; 15:       0   &lt;list&gt;
+#&gt; 16:       0   &lt;list&gt;
+#&gt; 17:       0   &lt;list&gt;
+#&gt; 18:       0   &lt;list&gt;
+#&gt; 19:       0   &lt;list&gt;
+#&gt; 20:       0   &lt;list&gt;
+#&gt; 21:       0   &lt;list&gt;
+#&gt; 22:       0   &lt;list&gt;
+#&gt; 23:       0   &lt;list&gt;
+#&gt; 24:       0   &lt;list&gt;
+#&gt; 25:       0   &lt;list&gt;
+#&gt; 26:       0   &lt;list&gt;
+#&gt; 27:       0   &lt;list&gt;
+#&gt; 28:       0   &lt;list&gt;
+#&gt; 29:       0   &lt;list&gt;
+#&gt; 30:       0   &lt;list&gt;
+#&gt; 31:       0   &lt;list&gt;
+#&gt; 32:       0   &lt;list&gt;
+#&gt; 33:       0   &lt;list&gt;
+#&gt; 34:       0   &lt;list&gt;
+#&gt; 35:       0   &lt;list&gt;
+#&gt; 36:       0   &lt;list&gt;
+#&gt; 37:       0   &lt;list&gt;
+#&gt; 38:       0   &lt;list&gt;
+#&gt; 39:       0   &lt;list&gt;
+#&gt; 40:       0   &lt;list&gt;
+#&gt; 41:       0   &lt;list&gt;
+#&gt; 42:       0   &lt;list&gt;
+#&gt; 43:       0   &lt;list&gt;
+#&gt; 44:       0   &lt;list&gt;
+#&gt; 45:       0   &lt;list&gt;
+#&gt; 46:       0   &lt;list&gt;
+#&gt; 47:       0   &lt;list&gt;
+#&gt; 48:       0   &lt;list&gt;
+#&gt; 49:       0   &lt;list&gt;
+#&gt; 50:       0   &lt;list&gt;
+#&gt; 51:       0   &lt;list&gt;
+#&gt; 52:       0   &lt;list&gt;
+#&gt; 53:       0   &lt;list&gt;
+#&gt; 54:       0   &lt;list&gt;
+#&gt; 55:       0   &lt;list&gt;
+#&gt; 56:       0   &lt;list&gt;
+#&gt; 57:       0   &lt;list&gt;
+#&gt; 58:       0   &lt;list&gt;
+#&gt;     sd_crps R0_range
+#&gt; 
+#&gt; $rate_of_spread
+#&gt;                  type overall_little_r time_varying_r
+#&gt; 1: infection_upscaled           &lt;list&gt;   &lt;data.table&gt;
+#&gt; 
+#&gt; $raw_R0
+#&gt;            date         R sample crps window rt_type               type
+#&gt;   1: 2020-01-17 0.7466803      1 0.16      7 nowcast infection_upscaled
+#&gt;   2: 2020-01-17 1.2070038      1 0.16      7 nowcast infection_upscaled
+#&gt;   3: 2020-01-17 1.2402748      1 0.16      7 nowcast infection_upscaled
+#&gt;   4: 2020-01-17 2.1486380      1 0.16      7 nowcast infection_upscaled
+#&gt;   5: 2020-01-17 3.0064296      1 0.16      7 nowcast infection_upscaled
+#&gt;  ---                                                                   
+#&gt; 286: 2020-03-14 1.0865500      1 1.36      7 nowcast infection_upscaled
+#&gt; 287: 2020-03-14 1.1250233      1 1.36      7 nowcast infection_upscaled
+#&gt; 288: 2020-03-14 1.1507180      1 1.36      7 nowcast infection_upscaled
+#&gt; 289: 2020-03-14 1.1647643      1 1.36      7 nowcast infection_upscaled
+#&gt; 290: 2020-03-14 1.1832948      1 1.36      7 nowcast infection_upscaled
+#&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
