@@ -65,6 +65,11 @@ Should linelist onset dates be used where available?}
 \item{approx_delay}{Logical, defaults to \code{FALSE}. Should delay sampling be approximated using case counts. Not appropriate
 when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.}
 
+\item{approx_threshold}{Numeric, defaults to 10,000. Threshold of cases below which explicit sampling of onsets
+always occurs.}
+
+\item{max_delay}{Numeric, maximum delay to allow. Defaults to 120 days}
+
 \item{generation_times}{A matrix with columns representing samples and rows representing the probability of the serial intervel being on
 that day. Defaults to \code{EpiNow::covid_generation_times}.}
 
@@ -86,7 +91,8 @@ to modify estimated cases by onset date. \code{modifier} must be a function that
 \item{min_forecast_cases}{Numeric, defaults to 200. The minimum number of cases required in the last 7 days
 of data in order for a forecast to be run. This prevents spurious forecasts based on highly uncertain Rt estimates.}
 
-\item{target_folder}{Character string, name of the folder in which to save the results.}
+\item{target_folder}{Character string indicating the folder into which to save results.
+Also used to extract previously generated results.}
 
 \item{target_date}{Character string, in the form "2020-01-01". Date to cast.}
 
@@ -97,9 +103,6 @@ cases.}
 Defaults to 1 thread.}
 
 \item{verbose}{Logical, defaults to \code{FALSE}. Should internal nowcasting progress messages be returned.}
-
-\item{approx_thresold}{Numeric, defaults to 10,000. Threshold of cases below which explicit sampling of onsets
-always occurs.}
 }
 \description{
 Combine fitting a delay distribution, constructing a set of

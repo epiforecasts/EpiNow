@@ -25,6 +25,9 @@ See \code{get_delay_dist} for an example of the structure.}
 \item{incubation_defs}{A data.table that defines the incubation distributions (model, parameters and maximum delay for each model).
 See \code{get_delay_dist} for an example of the structure.}
 
+\item{type}{Character string indicating the method to use to transfrom counts. Supports either "sample"
+which approximates sampling or "median" would shift by the median of the distribution.}
+
 \item{reporting_effect}{A \code{data.table} giving the weekly reporting effect with the following variables:
 \code{sample} (must be the same as in \code{nowcast}), \code{effect} (numeric scaling factor for each weekday), \code{day}
 (numeric 1 - 7 (1 = Monday and 7 = Sunday)). If not supplied then no weekly reporting effect is assumed.}

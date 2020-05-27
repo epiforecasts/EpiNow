@@ -25,6 +25,8 @@ in which to store summary of results.}
 
 \item{region_scale}{A character string indicating the name to give the regions being summarised.}
 
+\item{csv_region_label}{Character string indicating the label to assign to a region when saving to .csv.}
+
 \item{log_cases}{Logical, should cases be shown on a logged scale. Defaults to \code{FALSE}}
 }
 \description{

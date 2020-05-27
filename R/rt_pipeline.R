@@ -9,7 +9,7 @@
 #' to estimate the delay distribution.
 #' @param earliest_allowed_onset A character string in the form of a date ("2020-01-01") indiciating the earliest
 #' allowed onset.
-#' @param approx_thresold Numeric, defaults to 10,000. Threshold of cases below which explicit sampling of onsets
+#' @param approx_threshold Numeric, defaults to 10,000. Threshold of cases below which explicit sampling of onsets
 #' always occurs.
 #' @param generation_times A matrix with columns representing samples and rows representing the probability of the serial intervel being on
 #' that day. Defaults to `EpiNow::covid_generation_times`.

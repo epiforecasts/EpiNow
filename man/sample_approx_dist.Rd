@@ -18,6 +18,10 @@ sample_approx_dist(
 \item{cases}{A dataframe of cases (in date order) with the following variables:
 \code{date} and \code{cases}.}
 
+\item{dist_fn}{Function that takes two arguments with the first being numeric and the second being logical (and
+defined as \code{dist}). Should return the probability density or a sample from the defined distribution. See
+the examples for more.}
+
 \item{max_value}{Numeric, maximum value to allow. Defaults to 120 days}
 
 \item{earliest_allowed_mapped}{A character string representing a date ("2020-01-01"). Indicates

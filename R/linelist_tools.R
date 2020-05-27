@@ -47,7 +47,7 @@ generate_pseudo_linelist <- function(count_linelist = NULL, observed_linelist = 
 #'
 #' @param cases Dataframe with two variables: confirm (numeric) and date_report (date).
 #'
-#' @return A linelist grouped by day as a tibble with two variables: date_report, and daily_observed_linelist
+#' @return A linelist grouped by day as a `data.table` with two variables: date_report, and daily_observed_linelist
 #' @export
 #' @importFrom purrr map2
 #' @importFrom lubridate days
@@ -65,11 +65,11 @@ linelist_from_case_counts <- function(cases = NULL) {
 
 
 
-#' Convert a linelist into a nested tibble of linelists by day
+#' Convert a linelist into a nested `data.table`` of linelists by day
 #'
 #' @param linelist Dataframe with the following variables date_onset_symptoms and date_confirmation
 #'
-#' @return A nested tibble with a linelist per day (daily_observed_linelist) variable containing date_onset and date_report and
+#' @return A nested `data.table` with a linelist per day (daily_observed_linelist) variable containing date_onset and date_report and
 #' a date_report variable
 #' @export
 #' @importFrom purrr map

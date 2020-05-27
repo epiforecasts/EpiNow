@@ -3,7 +3,7 @@
 #' @description Returns a summarised nowcast as well as saving key information to the
 #' results folder.
 #' @param target Character string indicting the data type to use as the "nowcast".
-#'  @param target_folder Character string indicating the folder into which to save results. 
+#' @param target_folder Character string indicating the folder into which to save results. 
 #'  Also used to extract previously generated results. 
 #' @return NULL
 #' @inheritParams summarise_cast
@@ -72,6 +72,7 @@ report_nowcast <- function(nowcast, cases,
 #' @return A `data.table` containing the following variables `sample`, `date` and `cases`
 #' @inheritParams report_nowcast
 #' @inheritParams nowcast_pipeline
+#' @inheritParams adjust_infection_to_report
 #' @importFrom data.table data.table rbindlist
 #' @importFrom future.apply future_lapply
 #' @examples 

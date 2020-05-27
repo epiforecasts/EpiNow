@@ -15,11 +15,12 @@
 #' (enables inclusion of uncertainty) and takes the following arguments: `n` (samples to return) and `status` ("local" or "import").
 #' @param approx_delay  Logical, defaults to `FALSE`. Should delay sampling be approximated using case counts. Not appropriate
 #' when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.
+#' @param max_delay Numeric, maximum delay to allow. Defaults to 120 days
 #' @param max_upscale Numeric, maximum upscaling of cases allowed at each time point. Defaults to 100 times the observed 
 #' cases.
 #' @inheritParams generate_pseudo_linelist
 #' @inheritParams sample_delay
-#' @inheritParams report_nowcast
+#' @inheritParams plot_pipeline
 #' @return
 #' @export
 #' @importFrom lubridate days
@@ -54,7 +55,6 @@ nowcast_pipeline <- function(reported_cases = NULL, linelist = NULL,
                              approx_delay = FALSE,
                              max_delay = 120,
                              verbose = FALSE,
-                             samples = 1,
                              delay_defs = NULL,
                              incubation_defs = NULL,
                              nowcast_lag = 8, 

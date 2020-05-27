@@ -32,7 +32,8 @@ See \code{get_delay_dist} for an example of the structure.}
 \item{incubation_defs}{A data.table that defines the incubation distributions (model, parameters and maximum delay for each model).
 See \code{get_delay_dist} for an example of the structure.}
 
-\item{target_folder}{Character string, name of the folder in which to save the results.}
+\item{target_folder}{Character string indicating the folder into which to save results.
+Also used to extract previously generated results.}
 
 \item{target_date}{Character string, in the form "2020-01-01". Date to cast.}
 

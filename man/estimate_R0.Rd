@@ -39,7 +39,7 @@ future Rt values. An example of the required structure is: \code{function(ss, y)
 \item{horizon}{Numeric, defaults to 0. The horizon over which to forecast Rts and cases.}
 }
 \value{
-A tibble containing the date and summarised R estimte.
+A list of \code{data.table}'s containing the date and summarised R estimate and optionally a case forecast
 }
 \description{
 Estimate the time varying R0 - using EpiEstim

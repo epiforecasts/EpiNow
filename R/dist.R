@@ -425,6 +425,9 @@ get_dist_def <- function(values, verbose = FALSE, samples = 1,
 #' @param max_value Numeric, maximum value to allow. Defaults to 120 days
 #' @param direction Character string, defato "backwards". Direction in which to map cases. Supports
 #' either "backwards" or "forwards".
+#' @param dist_fn Function that takes two arguments with the first being numeric and the second being logical (and 
+#' defined as `dist`). Should return the probability density or a sample from the defined distribution. See
+#' the examples for more.
 #' @param earliest_allowed_mapped A character string representing a date ("2020-01-01"). Indicates 
 #' the earlies allowed mapped value.
 #' @param type Character string indicating the method to use to transfrom counts. Supports either "sample"

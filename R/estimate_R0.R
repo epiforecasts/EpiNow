@@ -13,7 +13,7 @@
 #' @param forecast_model An uninitialised bsts model passed to `EpiSoon::forecast_rt` to be used for forecasting
 #' future Rt values. An example of the required structure is: `function(ss, y){bsts::AddSemilocalLinearTrend(ss, y = y)}`.
 #' @param horizon Numeric, defaults to 0. The horizon over which to forecast Rts and cases.
-#' @return A tibble containing the date and summarised R estimte.
+#' @return A list of `data.table`'s containing the date and summarised R estimate and optionally a case forecast
 #' @export
 #' @importFrom EpiEstim estimate_R make_config
 #' @importFrom purrr map2 map2_dbl safely map

@@ -2,7 +2,7 @@
 % Please edit documentation in R/linelist_tools.R
 \name{split_linelist_by_day}
 \alias{split_linelist_by_day}
-\title{Convert a linelist into a nested tibble of linelists by day}
+\title{Convert a linelist into a nested `data.table`` of linelists by day}
 \usage{
 split_linelist_by_day(linelist = NULL)
 }
@@ -10,11 +10,11 @@ split_linelist_by_day(linelist = NULL)
 \item{linelist}{Dataframe with the following variables date_onset_symptoms and date_confirmation}
 }
 \value{
-A nested tibble with a linelist per day (daily_observed_linelist) variable containing date_onset and date_report and
+A nested \code{data.table} with a linelist per day (daily_observed_linelist) variable containing date_onset and date_report and
 a date_report variable
 }
 \description{
-Convert a linelist into a nested tibble of linelists by day
+Convert a linelist into a nested `data.table`` of linelists by day
 }
 \examples{
 

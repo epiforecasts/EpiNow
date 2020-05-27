@@ -6,6 +6,10 @@
 \usage{
 report_littler(target_folder)
 }
+\arguments{
+\item{target_folder}{Character string indicating the folder into which to save results.
+Also used to extract previously generated results.}
+}
 \description{
 Report Rate of Growth Estimates
 }

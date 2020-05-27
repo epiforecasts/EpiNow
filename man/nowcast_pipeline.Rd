@@ -13,7 +13,6 @@ nowcast_pipeline(
   approx_delay = FALSE,
   max_delay = 120,
   verbose = FALSE,
-  samples = 1,
   delay_defs = NULL,
   incubation_defs = NULL,
   nowcast_lag = 8,
@@ -26,6 +25,8 @@ nowcast_pipeline(
 
 \item{linelist}{A linelist of report dates and onset dates}
 
+\item{target_date}{Character string, in the form "2020-01-01". Date to cast.}
+
 \item{earliest_allowed_onset}{A character string in the form of a date ("2020-01-01") indiciating the earliest
 allowed onset.}
 
@@ -34,6 +35,8 @@ Should linelist onset dates be used where available?}
 
 \item{approx_delay}{Logical, defaults to \code{FALSE}. Should delay sampling be approximated using case counts. Not appropriate
 when case numbers are low. Useful for high cases counts as decouples run time and resource usage from case count.}
+
+\item{max_delay}{Numeric, maximum delay to allow. Defaults to 120 days}
 
 \item{verbose}{Logical, defaults to \code{FALSE}. Should internal nowcasting progress messages be returned.}
 

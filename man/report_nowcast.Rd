@@ -12,8 +12,9 @@ report_nowcast(nowcast, cases, target, target_folder)
 \item{cases}{A dataframe of cases (in date order) with the following variables:
 \code{date} and \code{cases}.}
 
-\item{target}{Character string indicting the data type to use as the "nowcast".
-@param target_folder Character string indicating the folder into which to save results.
+\item{target}{Character string indicting the data type to use as the "nowcast".}
+
+\item{target_folder}{Character string indicating the folder into which to save results.
 Also used to extract previously generated results.}
 }
 \description{

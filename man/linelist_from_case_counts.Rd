@@ -10,7 +10,7 @@ linelist_from_case_counts(cases = NULL)
 \item{cases}{Dataframe with two variables: confirm (numeric) and date_report (date).}
 }
 \value{
-A linelist grouped by day as a tibble with two variables: date_report, and daily_observed_linelist
+A linelist grouped by day as a \code{data.table} with two variables: date_report, and daily_observed_linelist
 }
 \description{
 Sample a linelist from case counts and a reporting delay distribution

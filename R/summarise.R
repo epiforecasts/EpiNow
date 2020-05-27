@@ -161,6 +161,7 @@ summarise_results <- function(regions = NULL,
 #'  in which to store summary of results.
 #' @param target_date A character string giving the target date for which to extract results
 #' (in the format "yyyy-mm-dd").
+#' @param csv_region_label Character string indicating the label to assign to a region when saving to .csv.
 #' @return NULL
 #' @export
 #'
