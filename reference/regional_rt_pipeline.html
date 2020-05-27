@@ -212,7 +212,7 @@ Defaults to 1 thread.</p></td>
 <span class='co'>## reporting delay dist</span>
 <span class='no'>delay_dist</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span>(
                <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='get_dist_def.html'>get_dist_def</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Exponential.html'>rexp</a></span>(<span class='fl'>25</span>, <span class='fl'>1</span>/<span class='fl'>10</span>),
-                                    <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>bootstraps</span> <span class='kw'>=</span> <span class='fl'>1</span>))
+                                    <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>bootstraps</span> <span class='kw'>=</span> <span class='fl'>1</span>))
 
 <span class='co'>## Uses example case vector from EpiSoon</span>
 <span class='no'>cases</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/setDT.html'>setDT</a></span>(<span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>)
