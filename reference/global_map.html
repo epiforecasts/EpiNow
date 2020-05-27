@@ -135,7 +135,6 @@ installation of the <code>rnaturalearth</code> package.</p>
   <span class='kw'>trans</span> <span class='kw'>=</span> <span class='st'>"identity"</span>,
   <span class='kw'>fill_labels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>scale_fill</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>show_caption</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='no'>...</span>
 )</pre>
 
@@ -151,6 +150,11 @@ installation of the <code>rnaturalearth</code> package.</p>
       <td><p>A character string indicating the variable to map data for. This must be supplied.</p></td>
     </tr>
     <tr>
+      <th>variable_label</th>
+      <td><p>A character string indicating the variable label to use. If not supplied then the underlying
+variable name is used.</p></td>
+    </tr>
+    <tr>
       <th>trans</th>
       <td><p>A character string specifying the transform to use on the specified metric. Defaults to no
 transform ("identity"). Other options include log scaling ("log") and log base 10 scaling
@@ -164,6 +168,10 @@ which can be used for percentage data.</p></td>
     <tr>
       <th>scale_fill</th>
       <td><p>Function to use for scaling the fill. Defaults to a custom <code><a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>ggplot2::scale_fill_manual</a></code></p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Additional arguments passed to the <code>scale_fill</code> function</p></td>
     </tr>
     </table>
 

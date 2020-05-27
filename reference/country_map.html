@@ -136,7 +136,6 @@ the installation of the <code>rnaturalearth</code> package.</p>
   <span class='kw'>trans</span> <span class='kw'>=</span> <span class='st'>"identity"</span>,
   <span class='kw'>fill_labels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>scale_fill</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>show_caption</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='no'>...</span>
 )</pre>
 
@@ -150,6 +149,11 @@ the installation of the <code>rnaturalearth</code> package.</p>
     <tr>
       <th>variable</th>
       <td><p>A character string indicating the variable to map data for. This must be supplied.</p></td>
+    </tr>
+    <tr>
+      <th>variable_label</th>
+      <td><p>A character string indicating the variable label to use. If not supplied then the underlying
+variable name is used.</p></td>
     </tr>
     <tr>
       <th>trans</th>
@@ -166,6 +170,10 @@ which can be used for percentage data.</p></td>
       <th>scale_fill</th>
       <td><p>Function to use for scaling the fill. Defaults to a custom <code><a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>ggplot2::scale_fill_manual</a></code></p></td>
     </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Additional arguments passed to the <code>scale_fill</code> function</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -176,7 +184,7 @@ which can be used for percentage data.</p></td>
     <pre class="examples"><div class='input'>
 <span class='no'>country_map</span></div><div class='output co'>#&gt; function (data = NULL, country = NULL, variable = NULL, variable_label = NULL, 
 #&gt;     trans = "identity", fill_labels = NULL, scale_fill = NULL, 
-#&gt;     show_caption = TRUE, ...) 
+#&gt;     ...) 
 #&gt; {
 #&gt;     if (is.null(variable_label)) {
 #&gt;         variable_label &lt;- variable
@@ -200,7 +208,7 @@ which can be used for percentage data.</p></td>
 #&gt;         ...)
 #&gt;     return(map)
 #&gt; }
-#&gt; &lt;bytecode: 0x7ffbc778a038&gt;
+#&gt; &lt;bytecode: 0x7faa8800c000&gt;
 #&gt; &lt;environment: namespace:EpiNow&gt;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
