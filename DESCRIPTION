@@ -54,7 +54,8 @@ Suggests:
     countrycode,
     rnaturalearth,
     rnaturalearthdata,
-    rnaturalearthhires
+    rnaturalearthhires,
+    rmarkdown
 Additional_repositories: 
   https://epiforecasts.io/drat/,
   http://packages.ropensci.org/
@@ -70,3 +71,4 @@ LinkingTo:
     rstan (>= 2.18.1),
     StanHeaders (>= 2.18.0)
 SystemRequirements: GNU make
+VignetteBuilder: knitr

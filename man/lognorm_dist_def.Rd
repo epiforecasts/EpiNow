@@ -4,7 +4,7 @@
 \alias{lognorm_dist_def}
 \title{Generate a Log Normal Distribution Definition Based on Parameter Estimates}
 \usage{
-lognorm_dist_def(mean, mean_sd, sd, sd_sd, max_value, samples)
+lognorm_dist_def(mean, mean_sd, sd, sd_sd, max_value, samples, to_log = FALSE)
 }
 \arguments{
 \item{mean}{Numeric, log mean parameter of the gamma distribution.}
@@ -19,6 +19,8 @@ lognorm_dist_def(mean, mean_sd, sd, sd_sd, max_value, samples)
 of this range are resampled.}
 
 \item{samples}{Numeric, number of sample distributions to generate.}
+
+\item{to_log}{Logical, should parameters be logged before use.}
 }
 \value{
 A data.table definining the distribution as used by \code{dist_skel}
@@ -33,6 +35,15 @@ are available for log normal distributed parameters. See \code{rlnorm} for distr
 def <- lognorm_dist_def(mean = 1.621, mean_sd = 0.0640,
                         sd = 0.418, sd_sd = 0.0691,
                         max_value = 20, samples = 10)
+               
+print(def)
+
+def$params[[1]]
+
+def <- lognorm_dist_def(mean = 5, mean_sd = 1,
+                        sd = 3, sd_sd = 1,
+                        max_value = 20, samples = 10,
+                        to_log = TRUE)
                
 print(def)
 

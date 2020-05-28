@@ -50,11 +50,35 @@
 #'             delay_defs = delay_dist,
 #'             target_date = max(cases$date),
 #'             target_folder = target_dir)
+#'             
+#'             
+#' ## Run with forecasting and approximate delay sampling
+#' 
+#' ## Requires additional packages:
+#' library(EpiSoon)
+#' library(forecastHybrid)
+#' 
+#' ## Runs the estimation pipeline as before but this time with a 14 day Rt and case forecast
+#' ## Uses the {forecastHybrid} package to produce an unweighted
+#' ## ensemble using the last 3 weeks of data
+#' rt_pipeline(cases = cases,
+#'             delay_defs = delay_dist,
+#'             target_date = max(cases$date),
+#'             approx_delay = TRUE,
+#'             target_folder = target_dir,
+#'             horizon = 14, 
+#'             report_forecast = TRUE
+#'             nowcast_lag = 8,
+#'             forecast_model = function(y, ...){EpiSoon::forecastHybrid_model(
+#'             y = y[max(1, length(y) - 21):length(y)],
+#'             model_params = list(models = "aefz", weights = "equal"),
+#'             forecast_params = list(PI.combination = "mean"), ...)})
+#' 
 #' }
 rt_pipeline <- function(cases = NULL, linelist = NULL,
                         delay_defs = NULL, incubation_defs = NULL,
                         delay_cutoff_date = NULL, rt_samples = 5, rt_windows = 1:7, 
-                        rate_window = 7,earliest_allowed_onset = NULL, merge_actual_onsets = TRUE, 
+                        rate_window = 7, earliest_allowed_onset = NULL, merge_actual_onsets = TRUE, 
                         approx_delay = FALSE,  approx_threshold = 10000, max_delay = 120, 
                         generation_times = NULL, rt_prior = NULL, nowcast_lag = 8,
                         forecast_model = NULL, horizon = 0, report_forecast = FALSE,  

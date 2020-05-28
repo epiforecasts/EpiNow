@@ -239,6 +239,7 @@ gamma_dist_def <- function(shape, shape_sd,
 #' @param sd Numeric, log sd parameter of the gamma distribution.
 #' @param sd_sd  Numeric, standard deviation of the log sd parameter.
 #' @param samples Numeric, number of sample distributions to generate.
+#' @param to_log Logical, should parameters be logged before use.
 #'
 #' @return A data.table definining the distribution as used by `dist_skel`
 #' @export
@@ -253,10 +254,26 @@ gamma_dist_def <- function(shape, shape_sd,
 #'print(def)
 #'
 #'def$params[[1]]
+#'
+#'def <- lognorm_dist_def(mean = 5, mean_sd = 1,
+#'                         sd = 3, sd_sd = 1,
+#'                         max_value = 20, samples = 10,
+#'                         to_log = TRUE)
+#'                
+#'print(def)
+#'
+#'def$params[[1]]
 lognorm_dist_def <- function(mean, mean_sd,
                              sd, sd_sd, 
-                             max_value, samples) {
+                             max_value, samples,
+                             to_log = FALSE) {
   
+  if (to_log) {
+    mean <- log(mean)
+    mean_sd <- log(mean_sd)
+    sd <- log(sd)
+    sd_sd <- log(sd_sd)
+  }
   dist <- data.table::data.table(
     model = rep("lognorm", samples),
     params = purrr::transpose(

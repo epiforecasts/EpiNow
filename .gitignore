@@ -7,3 +7,4 @@ docs
 src/*.so
 src/*.dll
 src/*.o
+inst/doc
