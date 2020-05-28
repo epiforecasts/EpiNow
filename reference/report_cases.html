@@ -185,14 +185,14 @@ which approximates sampling or "median" would shift by the median of the distrib
                                        <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>3</span>,
                                        <span class='kw'>sd_sd</span> <span class='kw'>=</span> <span class='fl'>1</span>,
                                        <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>30</span>,
-                                       <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>)
+                                       <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>2</span>)
 
 <span class='co'>## Define a single incubation period</span>
 <span class='no'>incubation_defs</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='lognorm_dist_def.html'>lognorm_dist_def</a></span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>mean</span>,
                                             <span class='kw'>mean_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>mean_sd</span>,
                                             <span class='kw'>sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>sd</span>,
                                             <span class='kw'>sd_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>sd_sd</span>,
-                                            <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>30</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>)
+                                            <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>30</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>2</span>)
 
 
 <span class='co'>## Perform a nowcast</span>
@@ -206,17 +206,17 @@ which approximates sampling or "median" would shift by the median of the distrib
                                <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='no'>incubation_defs</span>)
 
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>reported_cases</span>)</div><div class='output co'>#&gt;      sample sample       date cases
-#&gt;   1:      1      1 2020-01-17     1
-#&gt;   2:      1      1 2020-01-18     0
-#&gt;   3:      1      1 2020-01-19     0
-#&gt;   4:      1      1 2020-01-20     0
-#&gt;   5:      1      1 2020-01-21     1
+#&gt;   1:      1      1 2020-01-15     1
+#&gt;   2:      1      1 2020-01-16     0
+#&gt;   3:      1      1 2020-01-17     1
+#&gt;   4:      1      1 2020-01-18     0
+#&gt;   5:      1      1 2020-01-19     0
 #&gt;  ---                               
-#&gt; 709:      9      9 2020-03-16   281
-#&gt; 710:      9      9 2020-03-17   330
-#&gt; 711:      9      9 2020-03-18   362
-#&gt; 712:      9      9 2020-03-19   365
-#&gt; 713:      9      9 2020-03-20   394</div></pre>
+#&gt; 141:      2      2 2020-03-18   319
+#&gt; 142:      2      2 2020-03-19   332
+#&gt; 143:      2      2 2020-03-20   330
+#&gt; 144:      2      2 2020-03-21   364
+#&gt; 145:      2      2 2020-03-22   402</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
