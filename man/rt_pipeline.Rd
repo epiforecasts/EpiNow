@@ -110,7 +110,7 @@ complete sampled linelists, nowcast cases by onset date, and estimate
 the time-varying effective reproduction number and rate of spread.
 }
 \examples{
-
+\dontrun{
 ## Save everything to a temporary directory 
 ## Change this to inspect locally
 target_dir <- tempdir()
@@ -131,4 +131,5 @@ rt_pipeline(cases = cases,
             delay_defs = delay_dist,
             target_date = max(cases$date),
             target_folder = target_dir)
+}
 }

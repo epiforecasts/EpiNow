@@ -297,6 +297,7 @@ lognorm_dist_def <- function(mean, mean_sd,
 #' get_dist_def(delays, samples = 10, verbose = TRUE)
 #'
 #'
+#' \dontrun{
 #' ## Example with gamma and a larger sample
 #' delays <- rgamma(50, 4, 1)
 #'
@@ -313,6 +314,7 @@ lognorm_dist_def <- function(mean, mean_sd,
 #' EpiNow::dist_skel(10, model = out$model[[1]],
 #'                   params = out$params[[1]],
 #'                   max_value = out$max_value[[1]])
+#'}
 get_dist_def <- function(values, verbose = FALSE, samples = 1,
                          bootstraps = 1, bootstrap_samples = 250) {
   

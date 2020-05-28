@@ -39,6 +39,7 @@ delays <- rexp(20, 1)
 get_dist_def(delays, samples = 10, verbose = TRUE)
 
 
+\dontrun{
 ## Example with gamma and a larger sample
 delays <- rgamma(50, 4, 1)
 
@@ -55,6 +56,7 @@ out$params[[1]]
 EpiNow::dist_skel(10, model = out$model[[1]],
                   params = out$params[[1]],
                   max_value = out$max_value[[1]])
+}
 }
 \author{
 Sebastian Funk \href{mailto:sebastian.funk@lshtm.ac.uk}{sebastian.funk@lshtm.ac.uk}

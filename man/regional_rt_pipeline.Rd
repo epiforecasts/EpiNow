@@ -57,7 +57,7 @@ Defaults to 1 thread.}
 Runs a pipeline by region.
 }
 \examples{
-
+ \dontrun{
 ## Save everything to a temporary directory 
 ## Change this to inspect locally
 target_dir <- tempdir() 
@@ -81,4 +81,5 @@ cases <- data.table::rbindlist(list(
 regional_rt_pipeline(cases = cases,
             delay_defs = delay_dist,
             target_folder = target_dir)
+}
 }

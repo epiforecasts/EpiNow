@@ -17,7 +17,7 @@
 #' @importFrom data.table as.data.table setDT copy setorder
 #' @importFrom purrr safely
 #' @examples
-#' 
+#'  \dontrun{
 #' ## Save everything to a temporary directory 
 #' ## Change this to inspect locally
 #' target_dir <- tempdir() 
@@ -41,6 +41,7 @@
 #' regional_rt_pipeline(cases = cases,
 #'             delay_defs = delay_dist,
 #'             target_folder = target_dir)
+#'}
 regional_rt_pipeline <- function(cases = NULL, linelist = NULL, 
                                  delay_defs = NULL, incubation_defs = NULL,
                                  target_folder = "results", 

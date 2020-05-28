@@ -29,7 +29,7 @@
 #' @importFrom lubridate days
 #' 
 #' @examples
-#' 
+#' \dontrun{
 #' ## Save everything to a temporary directory 
 #' ## Change this to inspect locally
 #' target_dir <- tempdir()
@@ -50,6 +50,7 @@
 #'             delay_defs = delay_dist,
 #'             target_date = max(cases$date),
 #'             target_folder = target_dir)
+#' }
 rt_pipeline <- function(cases = NULL, linelist = NULL,
                         delay_defs = NULL, incubation_defs = NULL,
                         delay_cutoff_date = NULL, rt_samples = 5, rt_windows = 1:7, 
