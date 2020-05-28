@@ -89,11 +89,11 @@ delay_dist <- EpiNow::get_dist_def(example_delays,
 
 delay_dist
 #>    model max_value params
-#> 1:   exp        28 <list>
-#> 2:   exp        28 <list>
-#> 3:   exp        28 <list>
-#> 4:   exp        28 <list>
-#> 5:   exp        28 <list>
+#> 1:   exp        42 <list>
+#> 2:   exp        42 <list>
+#> 3:   exp        42 <list>
+#> 4:   exp        42 <list>
+#> 5:   exp        42 <list>
 ```
 
 Alternatively an uncertain distribution can be defined (for example
@@ -280,19 +280,19 @@ Examine the summarised Rt estimates.
 ``` r
 tail(time_varying_params$R0)
 #>       type       date rt_type   bottom      top    lower    upper   median
-#> 1: nowcast 2020-03-09 nowcast 1.240673 1.526705 1.322659 1.392163 1.349054
-#> 2: nowcast 2020-03-10 nowcast 1.189373 1.533686 1.309838 1.365160 1.331144
-#> 3: nowcast 2020-03-11 nowcast 1.229902 1.428127 1.248916 1.331950 1.319312
-#> 4: nowcast 2020-03-12 nowcast 1.199547 1.465645 1.249941 1.335618 1.306084
-#> 5: nowcast 2020-03-13 nowcast 1.240378 1.375309 1.240378 1.296664 1.284493
-#> 6: nowcast 2020-03-14 nowcast 1.191025 1.370845 1.252229 1.286960 1.270539
+#> 1: nowcast 2020-03-09 nowcast 1.298234 1.550427 1.399277 1.520567 1.425060
+#> 2: nowcast 2020-03-10 nowcast 1.285989 1.487247 1.373772 1.439600 1.409154
+#> 3: nowcast 2020-03-11 nowcast 1.302098 1.530213 1.285754 1.373901 1.373901
+#> 4: nowcast 2020-03-12 nowcast 1.209756 1.414150 1.297885 1.359720 1.322109
+#> 5: nowcast 2020-03-13 nowcast 1.168231 1.337957 1.273336 1.337957 1.287189
+#> 6: nowcast 2020-03-14 nowcast 1.234280 1.444606 1.219359 1.295597 1.295597
 #>        mean        std prob_control mean_window sd_window mean_crps  sd_crps
-#> 1: 1.367608 0.09584238            0         5.8  1.632993     5.392 2.794685
-#> 2: 1.343468 0.10307498            0         3.4  2.000000     5.672 2.021452
-#> 3: 1.328355 0.07299807            0         3.8  1.979057     5.616 1.984876
-#> 4: 1.316719 0.09199684            0         3.2  1.632993     6.624 4.671945
-#> 5: 1.287841 0.04793208            0         2.2  1.500000     8.552 5.025296
-#> 6: 1.272008 0.05299621            0         3.2  2.179449     5.376 1.091360
+#> 1: 1.426612 0.08850942            0         3.8 1.7559423     4.416 2.887167
+#> 2: 1.395194 0.06413824            0         3.2 1.6329932     7.312 6.117865
+#> 3: 1.395801 0.07742700            0         3.8 1.9790570     5.504 1.424687
+#> 4: 1.315644 0.06575513            0         2.0 1.1180340     5.416 1.913566
+#> 5: 1.271821 0.06118252            0         1.6 0.8164966     7.232 3.624675
+#> 6: 1.318287 0.07299126            0         4.4 1.6583124     6.976 4.292676
 #>    R0_range
 #> 1:   <list>
 #> 2:   <list>
@@ -308,8 +308,6 @@ plot.
 ``` r
 knitr::include_graphics(paste0(target_dir, "/latest/rt_cases_plot.png"))
 ```
-
-<img src="/tmp/Rtmp0wPwug/test/latest/rt_cases_plot.png" width="3840" />
 
 ### [Regional Rt pipeline](https://epiforecasts.io/EpiNow/reference/regional_rt_pipeline.html)
 

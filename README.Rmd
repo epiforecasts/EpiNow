@@ -128,7 +128,7 @@ tail(time_varying_params$R0)
 
 Examine the Rt and case plot.
 
-```{r}
+```{r, eval = FALSE}
 knitr::include_graphics(paste0(target_dir, "/latest/rt_cases_plot.png"))
 ```
 
