@@ -2,6 +2,8 @@
 # EpiNow: Estimate realtime case counts and time-varying epidemiological parameters
 
 ![R-CMD-check](https://github.com/epiforecasts/EpiNow/workflows/R-CMD-check/badge.svg)
+[![Codecov test
+coverage](https://codecov.io/gh/epiforecasts/EpiNow/branch/master/graph/badge.svg)](https://codecov.io/gh/epiforecasts/EpiNow?branch=master)
 [![Docker
 Pulls](https://img.shields.io/docker/pulls/seabbs/epinow)](https://hub.docker.com/r/seabbs/epinow)
 [![DOI](https://zenodo.org/badge/247464257.svg)](https://zenodo.org/badge/latestdoi/247464257)
@@ -89,11 +91,11 @@ delay_dist <- EpiNow::get_dist_def(example_delays,
 
 delay_dist
 #>    model max_value params
-#> 1:   exp        42 <list>
-#> 2:   exp        42 <list>
-#> 3:   exp        42 <list>
-#> 4:   exp        42 <list>
-#> 5:   exp        42 <list>
+#> 1:   exp        46 <list>
+#> 2:   exp        46 <list>
+#> 3:   exp        46 <list>
+#> 4:   exp        46 <list>
+#> 5:   exp        46 <list>
 ```
 
 Alternatively an uncertain distribution can be defined (for example
@@ -280,19 +282,19 @@ Examine the summarised Rt estimates.
 ``` r
 tail(time_varying_params$R0)
 #>       type       date rt_type   bottom      top    lower    upper   median
-#> 1: nowcast 2020-03-09 nowcast 1.298234 1.550427 1.399277 1.520567 1.425060
-#> 2: nowcast 2020-03-10 nowcast 1.285989 1.487247 1.373772 1.439600 1.409154
-#> 3: nowcast 2020-03-11 nowcast 1.302098 1.530213 1.285754 1.373901 1.373901
-#> 4: nowcast 2020-03-12 nowcast 1.209756 1.414150 1.297885 1.359720 1.322109
-#> 5: nowcast 2020-03-13 nowcast 1.168231 1.337957 1.273336 1.337957 1.287189
-#> 6: nowcast 2020-03-14 nowcast 1.234280 1.444606 1.219359 1.295597 1.295597
+#> 1: nowcast 2020-03-09 nowcast 1.267031 1.472907 1.300901 1.374458 1.339148
+#> 2: nowcast 2020-03-10 nowcast 1.265037 1.393554 1.343672 1.393554 1.351865
+#> 3: nowcast 2020-03-11 nowcast 1.171991 1.395065 1.285588 1.356244 1.313907
+#> 4: nowcast 2020-03-12 nowcast 1.281465 1.366165 1.317054 1.362078 1.330607
+#> 5: nowcast 2020-03-13 nowcast 1.190930 1.366951 1.246264 1.304027 1.296050
+#> 6: nowcast 2020-03-14 nowcast 1.195483 1.435042 1.269683 1.348453 1.316446
 #>        mean        std prob_control mean_window sd_window mean_crps  sd_crps
-#> 1: 1.426612 0.08850942            0         3.8 1.7559423     4.416 2.887167
-#> 2: 1.395194 0.06413824            0         3.2 1.6329932     7.312 6.117865
-#> 3: 1.395801 0.07742700            0         3.8 1.9790570     5.504 1.424687
-#> 4: 1.315644 0.06575513            0         2.0 1.1180340     5.416 1.913566
-#> 5: 1.271821 0.06118252            0         1.6 0.8164966     7.232 3.624675
-#> 6: 1.318287 0.07299126            0         4.4 1.6583124     6.976 4.292676
+#> 1: 1.342877 0.06854587            0         3.6  2.198484     7.576 3.898855
+#> 2: 1.348067 0.04231232            0         4.6  1.779513     8.416 5.566483
+#> 3: 1.299539 0.07370069            0         3.6  2.101587     4.672 2.412661
+#> 4: 1.330042 0.03419055            0         5.4  1.658312     4.408 2.087327
+#> 5: 1.304081 0.05721607            0         3.4  2.101587     6.312 4.612042
+#> 6: 1.310964 0.08233847            0         2.8  2.273030     6.568 2.793492
 #>    R0_range
 #> 1:   <list>
 #> 2:   <list>
