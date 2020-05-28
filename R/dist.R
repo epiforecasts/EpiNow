@@ -139,11 +139,9 @@ dist_skel <- function(n, dist = FALSE, cum = TRUE, model,
 #' @importFrom rstan sampling extract
 #' @useDynLib EpiNow, .registration=TRUE
 #' @examples
-#' \dontrun{
 #' 
 #' dist_fit(rexp(1:100, 2), samples = 1000, dist = "exp")
 #' 
-#' }
 dist_fit <- function(values = NULL, samples = NULL, dist = "exp") {
   
   if (is.null(samples)) {
@@ -300,7 +298,7 @@ lognorm_dist_def <- function(mean, mean_sd,
 #'
 #'
 #' ## Example with gamma and a larger sample
-#' delays <- rgamma(100, 4, 1)
+#' delays <- rgamma(50, 4, 1)
 #'
 #' out <- get_dist_def(delays, samples = 2, bootstraps = 2)
 #'

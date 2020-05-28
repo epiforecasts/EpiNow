@@ -21,9 +21,7 @@ A \code{stan} fit of an interval censored distribution
 Fit an integer adjusted exponential or gamma distribution
 }
 \examples{
-\dontrun{
 
 dist_fit(rexp(1:100, 2), samples = 1000, dist = "exp")
 
-}
 }

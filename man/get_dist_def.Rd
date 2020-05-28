@@ -40,7 +40,7 @@ get_dist_def(delays, samples = 10, verbose = TRUE)
 
 
 ## Example with gamma and a larger sample
-delays <- rgamma(100, 4, 1)
+delays <- rgamma(50, 4, 1)
 
 out <- get_dist_def(delays, samples = 2, bootstraps = 2)
 

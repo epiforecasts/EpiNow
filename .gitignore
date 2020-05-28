@@ -4,3 +4,6 @@
 .Ruserdata
 .cache
 docs
+src/*.so
+src/*.dll
+src/*.o
