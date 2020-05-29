@@ -48,8 +48,8 @@ remotes::install_github("epiforecasts/EpiNow")
 ```
 
 For simple deployment/development a prebuilt docker image is also
-available
-[here](https://github.com/epiforecasts/EpiNow/packages/246723).
+available (see documentation
+[here](https://github.com/epiforecasts/EpiNow/wiki/Docker)).
 
 ## Quick start
 
@@ -93,11 +93,11 @@ delay_dist <- EpiNow::get_dist_def(example_delays,
 
 delay_dist
 #>    model max_value params
-#> 1:   exp        47 <list>
-#> 2:   exp        47 <list>
-#> 3:   exp        47 <list>
-#> 4:   exp        47 <list>
-#> 5:   exp        47 <list>
+#> 1:   exp        51 <list>
+#> 2:   exp        51 <list>
+#> 3:   exp        51 <list>
+#> 4:   exp        51 <list>
+#> 5:   exp        51 <list>
 ```
 
 Alternatively an uncertain distribution can be defined (for example
@@ -284,19 +284,19 @@ Examine the summarised Rt estimates.
 ``` r
 tail(time_varying_params$R0)
 #>       type       date rt_type   bottom      top    lower    upper   median
-#> 1: nowcast 2020-03-09 nowcast 1.165899 1.501131 1.336700 1.483401 1.345463
-#> 2: nowcast 2020-03-10 nowcast 1.181306 1.518500 1.328175 1.439705 1.384007
-#> 3: nowcast 2020-03-11 nowcast 1.218882 1.437522 1.372264 1.466563 1.372264
-#> 4: nowcast 2020-03-12 nowcast 1.234824 1.490574 1.377817 1.454882 1.389729
-#> 5: nowcast 2020-03-13 nowcast 1.233475 1.425979 1.233475 1.304282 1.300920
-#> 6: nowcast 2020-03-14 nowcast 1.199211 1.399819 1.237704 1.322267 1.281201
+#> 1: nowcast 2020-03-09 nowcast 1.201786 1.482101 1.219509 1.300683 1.289869
+#> 2: nowcast 2020-03-10 nowcast 1.163689 1.493488 1.163689 1.279485 1.279485
+#> 3: nowcast 2020-03-11 nowcast 1.227604 1.502693 1.227604 1.267199 1.267199
+#> 4: nowcast 2020-03-12 nowcast 1.179222 1.342219 1.250780 1.307949 1.265503
+#> 5: nowcast 2020-03-13 nowcast 1.124467 1.350155 1.253722 1.350155 1.255616
+#> 6: nowcast 2020-03-14 nowcast 1.054925 1.302339 1.086232 1.214977 1.184348
 #>        mean        std prob_control mean_window sd_window mean_crps  sd_crps
-#> 1: 1.335353 0.12573091            0         1.6 0.8164966     5.720 3.617273
-#> 2: 1.352814 0.11751748            0         3.0 1.2909944     5.296 1.023263
-#> 3: 1.356818 0.07724246            0         3.6 1.7795130     5.928 2.217867
-#> 4: 1.354167 0.09113479            0         4.8 1.7559423     4.656 1.012456
-#> 5: 1.319511 0.07588238            0         3.6 1.5275252     7.080 3.364025
-#> 6: 1.290131 0.06816760            0         4.0 2.1408721     8.560 4.316866
+#> 1: 1.318159 0.10372410         0.00         3.4 0.8164966     5.744 1.846546
+#> 2: 1.327028 0.10624934         0.00         4.2 1.6329932     3.672 1.038717
+#> 3: 1.306971 0.10383570         0.00         4.2 2.4494897     4.288 1.207035
+#> 4: 1.262450 0.05103133         0.00         3.6 1.6583124     7.736 4.043480
+#> 5: 1.241697 0.07963535         0.00         4.0 2.3273733    10.296 9.058793
+#> 6: 1.176528 0.08920745         0.04         1.8 0.7637626     7.552 3.564492
 #>    R0_range
 #> 1:   <list>
 #> 2:   <list>

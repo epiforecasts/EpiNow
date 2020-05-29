@@ -37,7 +37,7 @@ remotes::install_github("epiforecasts/EpiNow")
 ```
 
 
-For simple deployment/development a prebuilt docker image is also available [here](https://github.com/epiforecasts/EpiNow/packages/246723).
+For simple deployment/development a prebuilt docker image is also available (see documentation [here](https://github.com/epiforecasts/EpiNow/wiki/Docker)).
 
 ## Quick start
 
