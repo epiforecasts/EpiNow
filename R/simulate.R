@@ -20,7 +20,7 @@
 #' ## Sample a report delay as a lognormal
 #' delay_def <- EpiNow::lognorm_dist_def(mean = 5, mean_sd = 1,
 #'                                       sd = 3, sd_sd = 1, max_value = 30,
-#'                                        samples = 1)
+#'                                       samples = 1, to_log = TRUE)
 #'                                       
 #' 
 #' ## Sample a incubation period (again using the default for covid)

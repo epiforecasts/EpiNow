@@ -51,7 +51,8 @@ delay_def <- EpiNow::lognorm_dist_def(mean = 5,
                                       sd = 3,
                                       sd_sd = 1,
                                       max_value = 30,
-                                      samples = 1)
+                                      samples = 1,
+                                      to_log = TRUE)
                                        
 ## Define a single incubation period
 incubation_def <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_period[1, ]$mean,

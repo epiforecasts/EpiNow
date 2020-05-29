@@ -58,7 +58,7 @@ generation_interval <- rowMeans(EpiNow::covid_generation_times)
 ## Sample a report delay as a lognormal
 delay_def <- EpiNow::lognorm_dist_def(mean = 5, mean_sd = 1,
                                       sd = 3, sd_sd = 1, max_value = 30,
-                                       samples = 1)
+                                      samples = 1, to_log = TRUE)
                                       
 
 ## Sample a incubation period (again using the default for covid)
@@ -71,7 +71,8 @@ incubation_def <- EpiNow::lognorm_dist_def(mean = EpiNow::covid_incubation_perio
 ## Simulate cases with a decrease in reporting at weekends and an incease on Monday                                     
 simulated_cases <- simulate_cases(rts, initial_cases = 100 , initial_date = as.Date("2020-03-01"),
                     generation_interval = generation_interval, delay_def = delay_def, 
-                   incubation_def = incubation_def, reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95))
+                   incubation_def = incubation_def, 
+                   reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95))
                    
 print(simulated_cases)
 }
