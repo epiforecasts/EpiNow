@@ -109,11 +109,11 @@
 
 <span class="no">delay_dist</span>
 <span class="co">#&gt;    model max_value params</span>
-<span class="co">#&gt; 1:   exp        46 &lt;list&gt;</span>
-<span class="co">#&gt; 2:   exp        46 &lt;list&gt;</span>
-<span class="co">#&gt; 3:   exp        46 &lt;list&gt;</span>
-<span class="co">#&gt; 4:   exp        46 &lt;list&gt;</span>
-<span class="co">#&gt; 5:   exp        46 &lt;list&gt;</span></pre></div>
+<span class="co">#&gt; 1:   exp        27 &lt;list&gt;</span>
+<span class="co">#&gt; 2:   exp        27 &lt;list&gt;</span>
+<span class="co">#&gt; 3:   exp        27 &lt;list&gt;</span>
+<span class="co">#&gt; 4:   exp        27 &lt;list&gt;</span>
+<span class="co">#&gt; 5:   exp        27 &lt;list&gt;</span></pre></div>
 <p>Alternatively an uncertain distribution can be defined (for example based on literature estimates). Currently supported distributions are the log normal and gamma distributions.</p>
 <div class="sourceCode" id="cb5"><pre class="r"><span class="no">delay_dist</span> <span class="kw">&lt;-</span> <span class="kw pkg">EpiNow</span><span class="kw ns">::</span><span class="fu"><a href="reference/lognorm_dist_def.html">lognorm_dist_def</a></span>(<span class="kw">mean</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">mean_sd</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">sd</span> <span class="kw">=</span> <span class="fl">3</span>, <span class="kw">sd_sd</span> <span class="kw">=</span> <span class="fl">1</span>,
                                        <span class="kw">max_value</span> <span class="kw">=</span> <span class="fl">30</span>, <span class="kw">samples</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">to_log</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
@@ -242,19 +242,19 @@
 <p>Examine the summarised Rt estimates.</p>
 <div class="sourceCode" id="cb12"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(<span class="no">time_varying_params</span>$<span class="no">R0</span>)
 <span class="co">#&gt;       type       date rt_type   bottom      top    lower    upper   median</span>
-<span class="co">#&gt; 1: nowcast 2020-03-09 nowcast 1.267031 1.472907 1.300901 1.374458 1.339148</span>
-<span class="co">#&gt; 2: nowcast 2020-03-10 nowcast 1.265037 1.393554 1.343672 1.393554 1.351865</span>
-<span class="co">#&gt; 3: nowcast 2020-03-11 nowcast 1.171991 1.395065 1.285588 1.356244 1.313907</span>
-<span class="co">#&gt; 4: nowcast 2020-03-12 nowcast 1.281465 1.366165 1.317054 1.362078 1.330607</span>
-<span class="co">#&gt; 5: nowcast 2020-03-13 nowcast 1.190930 1.366951 1.246264 1.304027 1.296050</span>
-<span class="co">#&gt; 6: nowcast 2020-03-14 nowcast 1.195483 1.435042 1.269683 1.348453 1.316446</span>
-<span class="co">#&gt;        mean        std prob_control mean_window sd_window mean_crps  sd_crps</span>
-<span class="co">#&gt; 1: 1.342877 0.06854587            0         3.6  2.198484     7.576 3.898855</span>
-<span class="co">#&gt; 2: 1.348067 0.04231232            0         4.6  1.779513     8.416 5.566483</span>
-<span class="co">#&gt; 3: 1.299539 0.07370069            0         3.6  2.101587     4.672 2.412661</span>
-<span class="co">#&gt; 4: 1.330042 0.03419055            0         5.4  1.658312     4.408 2.087327</span>
-<span class="co">#&gt; 5: 1.304081 0.05721607            0         3.4  2.101587     6.312 4.612042</span>
-<span class="co">#&gt; 6: 1.310964 0.08233847            0         2.8  2.273030     6.568 2.793492</span>
+<span class="co">#&gt; 1: nowcast 2020-03-09 nowcast 1.245409 1.471237 1.274907 1.353339 1.321905</span>
+<span class="co">#&gt; 2: nowcast 2020-03-10 nowcast 1.221094 1.457091 1.288575 1.349493 1.317320</span>
+<span class="co">#&gt; 3: nowcast 2020-03-11 nowcast 1.118408 1.359821 1.234658 1.295982 1.260752</span>
+<span class="co">#&gt; 4: nowcast 2020-03-12 nowcast 1.026160 1.388202 1.232347 1.356553 1.258159</span>
+<span class="co">#&gt; 5: nowcast 2020-03-13 nowcast 1.136472 1.326292 1.218276 1.272276 1.248865</span>
+<span class="co">#&gt; 6: nowcast 2020-03-14 nowcast 1.037211 1.311221 1.141218 1.234450 1.193664</span>
+<span class="co">#&gt;        mean        std prob_control mean_window sd_window mean_crps   sd_crps</span>
+<span class="co">#&gt; 1: 1.337638 0.07191466            0         3.6 1.7795130     3.752  1.641625</span>
+<span class="co">#&gt; 2: 1.323758 0.06437717            0         4.0 2.4913644     6.220  3.957272</span>
+<span class="co">#&gt; 3: 1.260374 0.07213566            0         2.0 0.9128709     5.928  1.217758</span>
+<span class="co">#&gt; 4: 1.249467 0.12113515            0         3.0 2.2360680     5.304  1.910253</span>
+<span class="co">#&gt; 5: 1.245559 0.05940095            0         3.2 2.0816660     8.760  7.168914</span>
+<span class="co">#&gt; 6: 1.185086 0.09052765            0         2.6 1.8929694     9.712 11.997705</span>
 <span class="co">#&gt;    R0_range</span>
 <span class="co">#&gt; 1:   &lt;list&gt;</span>
 <span class="co">#&gt; 2:   &lt;list&gt;</span>
@@ -343,6 +343,7 @@
   <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
+<li><a href="https://github.com/epiforecasts/EpiNow/actions"><img src="https://github.com/epiforecasts/EpiNow/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://codecov.io/gh/epiforecasts/EpiNow?branch=master"><img src="https://codecov.io/gh/epiforecasts/EpiNow/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
 <li><a href="https://hub.docker.com/r/seabbs/epinow"><img src="https://img.shields.io/docker/pulls/seabbs/epinow" alt="Docker Pulls"></a></li>
 <li><a href="https://zenodo.org/badge/latestdoi/247464257"><img src="https://zenodo.org/badge/247464257.svg" alt="DOI"></a></li>
