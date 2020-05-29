@@ -17,4 +17,4 @@ ADD . /home/rstudio/EpiNow
 WORKDIR /home/rstudio/EpiNow
 
 ## Install missing packages
-RUN Rscript -e "devtools::install_deps()"
+RUN Rscript -e "devtools::install_dev_deps()"
