@@ -94,7 +94,9 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #' See `lognorm_dist_def` for an example of the structure.
 #' @param reporting_effect A numeric vector of length 7 that allows the scaling of reported cases
 #' by the day on which they report (1 = Monday, 7 = Sunday). By default no scaling occurs.
-#' @return A `data.table` containing a `date` variable (date of report) and a `cases` variable.
+#' @param return_onset Logical, defaults to `FALSE`. Should cases by date of onset also be returned?
+#' @return A `data.table` containing a `date` variable (date of report) and a `cases` variable. If `return_onset = TRUE` there will be 
+#' a third variable `reference` which indicates what the date variable refers to. 
 #' @export
 #' @inheritParams sample_approx_dist
 #' @importFrom data.table setorder data.table setDTthreads
@@ -149,7 +151,8 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #'report_median <- adjust_infection_to_report(infections, delay_def, 
 #'                                            incubation_def, type = "median")              
 adjust_infection_to_report <- function(infections, delay_def, incubation_def,
-                                       reporting_effect, type = "sample") {
+                                       reporting_effect, type = "sample",
+                                       return_onset = FALSE) {
   
   data.table::setDTthreads(1)
   
@@ -188,11 +191,6 @@ adjust_infection_to_report <- function(infections, delay_def, incubation_def,
                                        type = type,
                                        truncate_future = FALSE)
   
-  ## Truncate reported cases by maximum infection date
-  if (type %in% "sample") {
-      report <- report[date <= max(infections$date)]
-    }
-  
   ## Add a weekly reporting effect if present
   if (!missing(reporting_effect)) {
     reporting_effect <- data.table::data.table(
@@ -207,6 +205,20 @@ adjust_infection_to_report <- function(infections, delay_def, incubation_def,
     
     report <- data.table::setorder(report, date)
   }
+  
+  ## Bind together onset and report
+  if (return_onset) {
+    report <- data.table::rbindlist(list(
+      onset[, reference := "onset"],
+      report[, reference := "report"]
+    ))
+  }
+  
+  ## Truncate reported cases by maximum infection date
+  if (type %in% "sample") {
+    report <- report[date <= max(infections$date)]
+  }
+  
   
   return(report)
 }

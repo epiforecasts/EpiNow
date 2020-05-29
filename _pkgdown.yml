@@ -68,6 +68,10 @@ reference:
     desc: Plot generated results
     contents: 
       - contains("plot")
+  - title: Simulate
+    desc: Functions to help with simulating data to evaluate the approach
+    contents:
+      - simulate_cases
   - title: Data
     desc: Package datasets that are used as defaults by other functions.
     contents:

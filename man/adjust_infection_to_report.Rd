@@ -9,7 +9,8 @@ adjust_infection_to_report(
   delay_def,
   incubation_def,
   reporting_effect,
-  type = "sample"
+  type = "sample",
+  return_onset = FALSE
 )
 }
 \arguments{
@@ -26,9 +27,12 @@ by the day on which they report (1 = Monday, 7 = Sunday). By default no scaling 
 
 \item{type}{Character string indicating the method to use to transfrom counts. Supports either "sample"
 which approximates sampling or "median" would shift by the median of the distribution.}
+
+\item{return_onset}{Logical, defaults to \code{FALSE}. Should cases by date of onset also be returned?}
 }
 \value{
-A \code{data.table} containing a \code{date} variable (date of report) and a \code{cases} variable.
+A \code{data.table} containing a \code{date} variable (date of report) and a \code{cases} variable. If \code{return_onset = TRUE} there will be
+a third variable \code{reference} which indicates what the date variable refers to.
 }
 \description{
 Stochastic mapping from cases by date of infection to date of report via date of
