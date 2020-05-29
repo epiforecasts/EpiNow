@@ -9,6 +9,7 @@
 #' @export
 #' @importFrom data.table data.table setDT rbindlist
 #' @importFrom lubridate days
+#' @importFrom EpiSoon predict_cases
 #' @examples
 #' ## Define an initial rt vector 
 #' rts <- c(rep(2, 20), (2 - 1:15 * 0.1), rep(0.5, 10))
