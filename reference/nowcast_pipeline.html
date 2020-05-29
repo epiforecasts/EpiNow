@@ -226,8 +226,13 @@ to modify estimated cases by onset date. <code>modifier</code> must be a functio
 <span class='no'>nowcast</span> <span class='kw'>&lt;-</span> <span class='fu'>nowcast_pipeline</span>(<span class='kw'>reported_cases</span> <span class='kw'>=</span> <span class='no'>cases</span>,
                             <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='no'>cases</span>$<span class='no'>date</span>),
                             <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='no'>delay_dist</span>,
-                            <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='no'>incubation_dist</span>)
-
+                            <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='no'>incubation_dist</span>)</div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='input'>
 <span class='no'>nowcast</span></div><div class='output co'>#&gt;      sample       date cases               type import_status confidence
 #&gt;   1:      1 2019-12-16     1              onset         local  1.0000000
 #&gt;   2:      1 2019-12-17     0              onset         local  1.0000000

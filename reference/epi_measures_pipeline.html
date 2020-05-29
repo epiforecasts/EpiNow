@@ -216,8 +216,13 @@ both summarised and raw.</p>
 <span class='no'>nowcast</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='nowcast_pipeline.html'>nowcast_pipeline</a></span>(<span class='kw'>reported_cases</span> <span class='kw'>=</span> <span class='no'>cases</span>,
                             <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='no'>cases</span>$<span class='no'>date</span>),
                             <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='no'>delay_dist</span>,
-                            <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='no'>incubation_dist</span>)
-
+                            <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='no'>incubation_dist</span>)</div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='input'>
 <span class='co'>## Estimate parameters                           </span>
 <span class='no'>estimates</span> <span class='kw'>&lt;-</span> <span class='fu'>epi_measures_pipeline</span>(<span class='no'>nowcast</span>[<span class='no'>type</span> <span class='kw'>%in%</span> <span class='st'>"infection_upscaled"</span>],
                        <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_generation_times.html'>covid_generation_times</a></span>,

@@ -200,16 +200,32 @@ a third variable <code>reference</code> which indicates what the date variable r
 <span class='no'>nowcast</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='nowcast_pipeline.html'>nowcast_pipeline</a></span>(<span class='kw'>reported_cases</span> <span class='kw'>=</span> <span class='no'>cases</span>,
                             <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='no'>cases</span>$<span class='no'>date</span>),
                             <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='no'>delay_def</span>,
-                            <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='no'>incubation_def</span>)
-
+                            <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='no'>incubation_def</span>)</div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='input'>
 
 <span class='no'>infections</span> <span class='kw'>&lt;-</span> <span class='no'>nowcast</span>[<span class='no'>type</span> <span class='kw'>%in%</span> <span class='st'>"infection_upscaled"</span> <span class='kw'>&amp;</span> <span class='no'>import_status</span> <span class='kw'>%in%</span> <span class='st'>"local"</span>]
 <span class='no'>infections</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>[, <span class='fu'>`:=`</span>(<span class='kw'>type</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>import_status</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)]
 
 
 <span class='co'>## Simple mapping</span>
-<span class='no'>report</span> <span class='kw'>&lt;-</span> <span class='fu'>adjust_infection_to_report</span>(<span class='no'>infections</span>, <span class='no'>delay_def</span>, <span class='no'>incubation_def</span>)
-
+<span class='no'>report</span> <span class='kw'>&lt;-</span> <span class='fu'>adjust_infection_to_report</span>(<span class='no'>infections</span>, <span class='no'>delay_def</span>, <span class='no'>incubation_def</span>)</div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>report</span>)</div><div class='output co'>#&gt;           date cases
 #&gt;  1: 2020-01-18     1
 #&gt;  2: 2020-01-19     0
@@ -272,8 +288,19 @@ a third variable <code>reference</code> which indicates what the date variable r
 <span class='co'>## Mapping with a weekly reporting effect</span>
 <span class='no'>report_weekly</span> <span class='kw'>&lt;-</span> <span class='fu'>adjust_infection_to_report</span>(
                       <span class='no'>infections</span>, <span class='no'>delay_def</span>, <span class='no'>incubation_def</span>,
-                      <span class='kw'>reporting_effect</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>, <span class='fl'>4</span>), <span class='fl'>0.95</span>, <span class='fl'>0.95</span>))
-
+                      <span class='kw'>reporting_effect</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>, <span class='fl'>4</span>), <span class='fl'>0.95</span>, <span class='fl'>0.95</span>))</div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>report_weekly</span>)</div><div class='output co'>#&gt;           date cases
 #&gt;  1: 2020-01-16     1
 #&gt;  2: 2020-01-17     0

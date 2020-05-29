@@ -212,8 +212,19 @@ which approximates sampling or "median" would shift by the median of the distrib
 <span class='co'>## Simulate cases with a decrease in reporting at weekends and an incease on Monday                                     </span>
 <span class='no'>simulated_cases</span> <span class='kw'>&lt;-</span> <span class='fu'>simulate_cases</span>(<span class='no'>rts</span>, <span class='kw'>initial_cases</span> <span class='kw'>=</span> <span class='fl'>100</span> , <span class='kw'>initial_date</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='st'>"2020-03-01"</span>),
                     <span class='kw'>generation_interval</span> <span class='kw'>=</span> <span class='no'>generation_interval</span>, <span class='kw'>delay_def</span> <span class='kw'>=</span> <span class='no'>delay_def</span>,
-                   <span class='kw'>incubation_def</span> <span class='kw'>=</span> <span class='no'>incubation_def</span>, <span class='kw'>reporting_effect</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>, <span class='fl'>4</span>), <span class='fl'>0.95</span>, <span class='fl'>0.95</span>))
-
+                   <span class='kw'>incubation_def</span> <span class='kw'>=</span> <span class='no'>incubation_def</span>, <span class='kw'>reporting_effect</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>, <span class='fl'>4</span>), <span class='fl'>0.95</span>, <span class='fl'>0.95</span>))</div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>simulated_cases</span>)</div><div class='output co'>#&gt;            date cases reference
 #&gt;   1: 2020-03-02    46 infection
 #&gt;   2: 2020-03-03    50 infection
