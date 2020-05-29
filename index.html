@@ -89,6 +89,7 @@
 <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"EpiNow"</span>)</pre></div>
 <p>Install the development version of the package with:</p>
 <div class="sourceCode" id="cb2"><pre class="r"><span class="kw pkg">remotes</span><span class="kw ns">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"epiforecasts/EpiNow"</span>)</pre></div>
+<p>For simple deployment/development a prebuilt docker image is also available <a href="https://github.com/epiforecasts/EpiNow/packages/246723">here</a>.</p>
 </div>
 <div id="quick-start" class="section level2">
 <h2 class="hasAnchor">
@@ -109,11 +110,11 @@
 
 <span class="no">delay_dist</span>
 <span class="co">#&gt;    model max_value params</span>
-<span class="co">#&gt; 1:   exp        27 &lt;list&gt;</span>
-<span class="co">#&gt; 2:   exp        27 &lt;list&gt;</span>
-<span class="co">#&gt; 3:   exp        27 &lt;list&gt;</span>
-<span class="co">#&gt; 4:   exp        27 &lt;list&gt;</span>
-<span class="co">#&gt; 5:   exp        27 &lt;list&gt;</span></pre></div>
+<span class="co">#&gt; 1:   exp        39 &lt;list&gt;</span>
+<span class="co">#&gt; 2:   exp        39 &lt;list&gt;</span>
+<span class="co">#&gt; 3:   exp        39 &lt;list&gt;</span>
+<span class="co">#&gt; 4:   exp        39 &lt;list&gt;</span>
+<span class="co">#&gt; 5:   exp        39 &lt;list&gt;</span></pre></div>
 <p>Alternatively an uncertain distribution can be defined (for example based on literature estimates). Currently supported distributions are the log normal and gamma distributions.</p>
 <div class="sourceCode" id="cb5"><pre class="r"><span class="no">delay_dist</span> <span class="kw">&lt;-</span> <span class="kw pkg">EpiNow</span><span class="kw ns">::</span><span class="fu"><a href="reference/lognorm_dist_def.html">lognorm_dist_def</a></span>(<span class="kw">mean</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">mean_sd</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">sd</span> <span class="kw">=</span> <span class="fl">3</span>, <span class="kw">sd_sd</span> <span class="kw">=</span> <span class="fl">1</span>,
                                        <span class="kw">max_value</span> <span class="kw">=</span> <span class="fl">30</span>, <span class="kw">samples</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">to_log</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
@@ -242,19 +243,19 @@
 <p>Examine the summarised Rt estimates.</p>
 <div class="sourceCode" id="cb12"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(<span class="no">time_varying_params</span>$<span class="no">R0</span>)
 <span class="co">#&gt;       type       date rt_type   bottom      top    lower    upper   median</span>
-<span class="co">#&gt; 1: nowcast 2020-03-09 nowcast 1.245409 1.471237 1.274907 1.353339 1.321905</span>
-<span class="co">#&gt; 2: nowcast 2020-03-10 nowcast 1.221094 1.457091 1.288575 1.349493 1.317320</span>
-<span class="co">#&gt; 3: nowcast 2020-03-11 nowcast 1.118408 1.359821 1.234658 1.295982 1.260752</span>
-<span class="co">#&gt; 4: nowcast 2020-03-12 nowcast 1.026160 1.388202 1.232347 1.356553 1.258159</span>
-<span class="co">#&gt; 5: nowcast 2020-03-13 nowcast 1.136472 1.326292 1.218276 1.272276 1.248865</span>
-<span class="co">#&gt; 6: nowcast 2020-03-14 nowcast 1.037211 1.311221 1.141218 1.234450 1.193664</span>
+<span class="co">#&gt; 1: nowcast 2020-03-09 nowcast 1.217312 1.528710 1.305830 1.415065 1.389882</span>
+<span class="co">#&gt; 2: nowcast 2020-03-10 nowcast 1.276451 1.591787 1.348404 1.484948 1.392524</span>
+<span class="co">#&gt; 3: nowcast 2020-03-11 nowcast 1.245211 1.503579 1.268110 1.369768 1.359855</span>
+<span class="co">#&gt; 4: nowcast 2020-03-12 nowcast 1.170007 1.517092 1.275032 1.393599 1.338198</span>
+<span class="co">#&gt; 5: nowcast 2020-03-13 nowcast 1.187054 1.513738 1.275118 1.365197 1.301014</span>
+<span class="co">#&gt; 6: nowcast 2020-03-14 nowcast 1.210802 1.431523 1.250140 1.337106 1.317296</span>
 <span class="co">#&gt;        mean        std prob_control mean_window sd_window mean_crps   sd_crps</span>
-<span class="co">#&gt; 1: 1.337638 0.07191466            0         3.6 1.7795130     3.752  1.641625</span>
-<span class="co">#&gt; 2: 1.323758 0.06437717            0         4.0 2.4913644     6.220  3.957272</span>
-<span class="co">#&gt; 3: 1.260374 0.07213566            0         2.0 0.9128709     5.928  1.217758</span>
-<span class="co">#&gt; 4: 1.249467 0.12113515            0         3.0 2.2360680     5.304  1.910253</span>
-<span class="co">#&gt; 5: 1.245559 0.05940095            0         3.2 2.0816660     8.760  7.168914</span>
-<span class="co">#&gt; 6: 1.185086 0.09052765            0         2.6 1.8929694     9.712 11.997705</span>
+<span class="co">#&gt; 1: 1.395579 0.10464534            0         2.6  1.658312     7.888 5.7534569</span>
+<span class="co">#&gt; 2: 1.399404 0.10035833            0         2.6  1.384437     6.512 3.1815510</span>
+<span class="co">#&gt; 3: 1.356776 0.08949395            0         4.8  2.179449     6.296 0.9877922</span>
+<span class="co">#&gt; 4: 1.326924 0.10777089            0         2.4  1.527525     8.848 2.6814673</span>
+<span class="co">#&gt; 5: 1.319871 0.10492874            0         2.6  1.658312     6.184 1.7803745</span>
+<span class="co">#&gt; 6: 1.312543 0.07091372            0         3.6  2.000000     5.480 3.8674712</span>
 <span class="co">#&gt;    R0_range</span>
 <span class="co">#&gt; 1:   &lt;list&gt;</span>
 <span class="co">#&gt; 2:   &lt;list&gt;</span>
@@ -304,20 +305,6 @@
 <a href="#contributing" class="anchor"></a>Contributing</h2>
 <p>File an issue <a href="https://github.com/epiforecasts/EpiNow/issues">here</a> if you have identified an issue with the package. Please note that due to operational constraints priority will be given to users informing government policy or offering methodological insights. We welcome all contributions, in particular those that improve the approach or the robustness of the code base.</p>
 </div>
-<div id="docker" class="section level2">
-<h2 class="hasAnchor">
-<a href="#docker" class="anchor"></a>Docker</h2>
-<p>This package was developed in a docker container based on the <code>rocker/geospatial</code> docker image.</p>
-<p>To build the docker image run (from the <code>EpiNow</code> directory):</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1"></a><span class="ex">docker</span> build . -t epinow</span></code></pre></div>
-<p>To run the docker image run:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1"></a><span class="ex">docker</span> run -d -p 8787:8787 --name epinow -e USER=epinow -e PASSWORD=epinow time_vary</span></code></pre></div>
-<p>The rstudio client can be found on port :8787 at your local machines ip. The default username:password is epinow:epinow, set the user with -e USER=username, and the password with - e PASSWORD=newpasswordhere. The default is to save the analysis files into the user directory.</p>
-<p>To mount a folder (from your current working directory - here assumed to be <code>tmp</code>) in the docker container to your local system use the following in the above docker run command (as given mounts the whole <code>epinow</code> directory to <code>tmp</code>).</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1"></a><span class="ex">--mount</span> type=bind,source=<span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>/tmp,target=/home/time_vary</span></code></pre></div>
-<p>To access the command line run the following:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1"></a><span class="ex">docker</span> exec -ti epinow bash</span></code></pre></div>
-</div>
 </div>
   </div>
 
@@ -345,7 +332,6 @@
 <ul class="list-unstyled">
 <li><a href="https://github.com/epiforecasts/EpiNow/actions"><img src="https://github.com/epiforecasts/EpiNow/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://codecov.io/gh/epiforecasts/EpiNow?branch=master"><img src="https://codecov.io/gh/epiforecasts/EpiNow/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
-<li><a href="https://hub.docker.com/r/seabbs/epinow"><img src="https://img.shields.io/docker/pulls/seabbs/epinow" alt="Docker Pulls"></a></li>
 <li><a href="https://zenodo.org/badge/latestdoi/247464257"><img src="https://zenodo.org/badge/247464257.svg" alt="DOI"></a></li>
 </ul>
 </div>
