@@ -6,8 +6,8 @@
 coverage](https://codecov.io/gh/epiforecasts/EpiNow/branch/master/graph/badge.svg)](https://codecov.io/gh/epiforecasts/EpiNow?branch=master)
 [![DOI](https://zenodo.org/badge/247464257.svg)](https://zenodo.org/badge/latestdoi/247464257)
 
-This packages estimates the time-varying reproduction number, rate of
-spread and doubling time using a range of open-source tools and current
+This package estimates the time-varying reproduction number, rate of
+spread, and doubling time using a range of open-source tools and current
 best practices. It aims to help users avoid some of the limitations of
 naive implementations in a framework that is informed by community
 feedback and is under active development. It assumes that only limited
@@ -93,11 +93,11 @@ delay_dist <- EpiNow::get_dist_def(example_delays,
 
 delay_dist
 #>    model max_value params
-#> 1:   exp        39 <list>
-#> 2:   exp        39 <list>
-#> 3:   exp        39 <list>
-#> 4:   exp        39 <list>
-#> 5:   exp        39 <list>
+#> 1:   exp        47 <list>
+#> 2:   exp        47 <list>
+#> 3:   exp        47 <list>
+#> 4:   exp        47 <list>
+#> 5:   exp        47 <list>
 ```
 
 Alternatively an uncertain distribution can be defined (for example
@@ -284,19 +284,19 @@ Examine the summarised Rt estimates.
 ``` r
 tail(time_varying_params$R0)
 #>       type       date rt_type   bottom      top    lower    upper   median
-#> 1: nowcast 2020-03-09 nowcast 1.217312 1.528710 1.305830 1.415065 1.389882
-#> 2: nowcast 2020-03-10 nowcast 1.276451 1.591787 1.348404 1.484948 1.392524
-#> 3: nowcast 2020-03-11 nowcast 1.245211 1.503579 1.268110 1.369768 1.359855
-#> 4: nowcast 2020-03-12 nowcast 1.170007 1.517092 1.275032 1.393599 1.338198
-#> 5: nowcast 2020-03-13 nowcast 1.187054 1.513738 1.275118 1.365197 1.301014
-#> 6: nowcast 2020-03-14 nowcast 1.210802 1.431523 1.250140 1.337106 1.317296
-#>        mean        std prob_control mean_window sd_window mean_crps   sd_crps
-#> 1: 1.395579 0.10464534            0         2.6  1.658312     7.888 5.7534569
-#> 2: 1.399404 0.10035833            0         2.6  1.384437     6.512 3.1815510
-#> 3: 1.356776 0.08949395            0         4.8  2.179449     6.296 0.9877922
-#> 4: 1.326924 0.10777089            0         2.4  1.527525     8.848 2.6814673
-#> 5: 1.319871 0.10492874            0         2.6  1.658312     6.184 1.7803745
-#> 6: 1.312543 0.07091372            0         3.6  2.000000     5.480 3.8674712
+#> 1: nowcast 2020-03-09 nowcast 1.165899 1.501131 1.336700 1.483401 1.345463
+#> 2: nowcast 2020-03-10 nowcast 1.181306 1.518500 1.328175 1.439705 1.384007
+#> 3: nowcast 2020-03-11 nowcast 1.218882 1.437522 1.372264 1.466563 1.372264
+#> 4: nowcast 2020-03-12 nowcast 1.234824 1.490574 1.377817 1.454882 1.389729
+#> 5: nowcast 2020-03-13 nowcast 1.233475 1.425979 1.233475 1.304282 1.300920
+#> 6: nowcast 2020-03-14 nowcast 1.199211 1.399819 1.237704 1.322267 1.281201
+#>        mean        std prob_control mean_window sd_window mean_crps  sd_crps
+#> 1: 1.335353 0.12573091            0         1.6 0.8164966     5.720 3.617273
+#> 2: 1.352814 0.11751748            0         3.0 1.2909944     5.296 1.023263
+#> 3: 1.356818 0.07724246            0         3.6 1.7795130     5.928 2.217867
+#> 4: 1.354167 0.09113479            0         4.8 1.7559423     4.656 1.012456
+#> 5: 1.319511 0.07588238            0         3.6 1.5275252     7.080 3.364025
+#> 6: 1.290131 0.06816760            0         4.0 2.1408721     8.560 4.316866
 #>    R0_range
 #> 1:   <list>
 #> 2:   <list>
