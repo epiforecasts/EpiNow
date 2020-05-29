@@ -43,7 +43,8 @@ Imports:
     ggplot2,
     cowplot,
     patchwork,
-    R.devices
+    R.devices,
+    truncnorm
 Suggests:
     dplyr,
     tidyr,

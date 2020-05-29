@@ -33,7 +33,8 @@
 #' ## Simulate cases with a decrease in reporting at weekends and an incease on Monday                                     
 #' simulated_cases <- simulate_cases(rts, initial_cases = 100 , initial_date = as.Date("2020-03-01"),
 #'                     generation_interval = generation_interval, delay_def = delay_def, 
-#'                    incubation_def = incubation_def, reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95))
+#'                    incubation_def = incubation_def, 
+#'                    reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95))
 #'                    
 #'print(simulated_cases)
 simulate_cases <- function(rts, initial_cases, initial_date, generation_interval,

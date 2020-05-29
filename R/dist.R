@@ -201,7 +201,7 @@ dist_fit <- function(values = NULL, samples = NULL, dist = "exp") {
 #' @param scale Numeric, scale parameter of the gamma distribution.
 #' @param scale_sd  Numeric, standard deviation of the scale parameter.
 #' @param samples Numeric, number of sample distributions to generate.
-#'
+#' @importFrom truncnorm rtruncnorm
 #' @return A data.table definining the distribution as used by `dist_skel`
 #' @export
 #' @inheritParams dist_skel
@@ -222,8 +222,8 @@ gamma_dist_def <- function(shape, shape_sd,
   dist <- data.table::data.table(
     model = rep("gamma", samples),
     params = purrr::transpose(
-      list(alpha = rnorm(samples, shape, shape_sd),
-           beta = 1 / rnorm(samples, scale, scale_sd))),
+      list(alpha = truncnorm::rtruncnorm(samples, a = 0, mean = shape, sd = shape_sd),
+           beta = 1 / truncnorm::rtruncnorm(samples, a = 0, mean = scale, sd = scale_sd))),
     max_value = rep(max_value, samples)
   )
   
@@ -242,6 +242,7 @@ gamma_dist_def <- function(shape, shape_sd,
 #' @param to_log Logical, should parameters be logged before use.
 #'
 #' @return A data.table definining the distribution as used by `dist_skel`
+#' @importFrom truncnorm rtruncnorm
 #' @export
 #' @inheritParams dist_skel
 #' @examples
@@ -277,8 +278,8 @@ lognorm_dist_def <- function(mean, mean_sd,
   dist <- data.table::data.table(
     model = rep("lognorm", samples),
     params = purrr::transpose(
-      list(mean = rnorm(samples, mean, mean_sd),
-           sd = rnorm(samples, sd, sd_sd))),
+      list(mean = truncnorm::rtruncnorm(samples, a = 0, mean = mean, sd = mean_sd),
+           sd = truncnorm::rtruncnorm(samples, a = 0, mean = sd, sd = sd_sd))),
     max_value = rep(max_value, samples)
   )
   
