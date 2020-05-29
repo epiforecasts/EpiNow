@@ -14,7 +14,6 @@ knitr::opts_chunk$set(
 
 [![R-CMD-check](https://github.com/epiforecasts/EpiNow/workflows/R-CMD-check/badge.svg)](https://github.com/epiforecasts/EpiNow/actions)
 [![Codecov test coverage](https://codecov.io/gh/epiforecasts/EpiNow/branch/master/graph/badge.svg)](https://codecov.io/gh/epiforecasts/EpiNow?branch=master)
-[![Docker Pulls](https://img.shields.io/docker/pulls/seabbs/epinow)](https://hub.docker.com/r/seabbs/epinow)
 [![DOI](https://zenodo.org/badge/247464257.svg)](https://zenodo.org/badge/latestdoi/247464257)
 
 
@@ -36,6 +35,9 @@ Install the development version of the package with:
 ```{r, eval = FALSE}
 remotes::install_github("epiforecasts/EpiNow")
 ```
+
+
+For simple deployment/development a prebuilt docker image is also available [here](https://github.com/epiforecasts/EpiNow/packages/246723).
 
 ## Quick start
 
@@ -188,33 +190,3 @@ Rmarkdown templates are provided in the package (`templates`) for semi-automated
 ## Contributing
 
 File an issue [here](https://github.com/epiforecasts/EpiNow/issues) if you have identified an issue with the package. Please note that due to operational constraints priority will be given to users informing government policy or offering methodological insights. We welcome all contributions, in particular those that improve the approach or the robustness of the code base.
-
-## Docker
-
-This package was developed in a docker container based on the `rocker/geospatial` docker image. 
-
-To build the docker image run (from the `EpiNow` directory):
-
-```{bash, eval = FALSE}
-docker build . -t epinow
-```
-
-To run the docker image run:
-
-```{bash, eval = FALSE}
-docker run -d -p 8787:8787 --name epinow -e USER=epinow -e PASSWORD=epinow time_vary
-```
-
-The rstudio client can be found on port :8787 at your local machines ip. The default username:password is epinow:epinow, set the user with -e USER=username, and the password with - e PASSWORD=newpasswordhere. The default is to save the analysis files into the user directory.
-
-To mount a folder (from your current working directory - here assumed to be `tmp`) in the docker container to your local system use the following in the above docker run command (as given mounts the whole `epinow` directory to `tmp`).
-
-```{bash, eval = FALSE}
---mount type=bind,source=$(pwd)/tmp,target=/home/time_vary
-```
-
-To access the command line run the following:
-
-```{bash, eval = FALSE}
-docker exec -ti epinow bash
-```

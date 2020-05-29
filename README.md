@@ -4,8 +4,6 @@
 [![R-CMD-check](https://github.com/epiforecasts/EpiNow/workflows/R-CMD-check/badge.svg)](https://github.com/epiforecasts/EpiNow/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/epiforecasts/EpiNow/branch/master/graph/badge.svg)](https://codecov.io/gh/epiforecasts/EpiNow?branch=master)
-[![Docker
-Pulls](https://img.shields.io/docker/pulls/seabbs/epinow)](https://hub.docker.com/r/seabbs/epinow)
 [![DOI](https://zenodo.org/badge/247464257.svg)](https://zenodo.org/badge/latestdoi/247464257)
 
 This packages estimates the time-varying reproduction number, rate of
@@ -49,6 +47,10 @@ Install the development version of the package with:
 remotes::install_github("epiforecasts/EpiNow")
 ```
 
+For simple deployment/development a prebuilt docker image is also
+available
+[here](https://github.com/epiforecasts/EpiNow/packages/246723).
+
 ## Quick start
 
 `{EpiNow}` is designed to be used at scale with few changes to the
@@ -91,11 +93,11 @@ delay_dist <- EpiNow::get_dist_def(example_delays,
 
 delay_dist
 #>    model max_value params
-#> 1:   exp        27 <list>
-#> 2:   exp        27 <list>
-#> 3:   exp        27 <list>
-#> 4:   exp        27 <list>
-#> 5:   exp        27 <list>
+#> 1:   exp        39 <list>
+#> 2:   exp        39 <list>
+#> 3:   exp        39 <list>
+#> 4:   exp        39 <list>
+#> 5:   exp        39 <list>
 ```
 
 Alternatively an uncertain distribution can be defined (for example
@@ -282,19 +284,19 @@ Examine the summarised Rt estimates.
 ``` r
 tail(time_varying_params$R0)
 #>       type       date rt_type   bottom      top    lower    upper   median
-#> 1: nowcast 2020-03-09 nowcast 1.245409 1.471237 1.274907 1.353339 1.321905
-#> 2: nowcast 2020-03-10 nowcast 1.221094 1.457091 1.288575 1.349493 1.317320
-#> 3: nowcast 2020-03-11 nowcast 1.118408 1.359821 1.234658 1.295982 1.260752
-#> 4: nowcast 2020-03-12 nowcast 1.026160 1.388202 1.232347 1.356553 1.258159
-#> 5: nowcast 2020-03-13 nowcast 1.136472 1.326292 1.218276 1.272276 1.248865
-#> 6: nowcast 2020-03-14 nowcast 1.037211 1.311221 1.141218 1.234450 1.193664
+#> 1: nowcast 2020-03-09 nowcast 1.217312 1.528710 1.305830 1.415065 1.389882
+#> 2: nowcast 2020-03-10 nowcast 1.276451 1.591787 1.348404 1.484948 1.392524
+#> 3: nowcast 2020-03-11 nowcast 1.245211 1.503579 1.268110 1.369768 1.359855
+#> 4: nowcast 2020-03-12 nowcast 1.170007 1.517092 1.275032 1.393599 1.338198
+#> 5: nowcast 2020-03-13 nowcast 1.187054 1.513738 1.275118 1.365197 1.301014
+#> 6: nowcast 2020-03-14 nowcast 1.210802 1.431523 1.250140 1.337106 1.317296
 #>        mean        std prob_control mean_window sd_window mean_crps   sd_crps
-#> 1: 1.337638 0.07191466            0         3.6 1.7795130     3.752  1.641625
-#> 2: 1.323758 0.06437717            0         4.0 2.4913644     6.220  3.957272
-#> 3: 1.260374 0.07213566            0         2.0 0.9128709     5.928  1.217758
-#> 4: 1.249467 0.12113515            0         3.0 2.2360680     5.304  1.910253
-#> 5: 1.245559 0.05940095            0         3.2 2.0816660     8.760  7.168914
-#> 6: 1.185086 0.09052765            0         2.6 1.8929694     9.712 11.997705
+#> 1: 1.395579 0.10464534            0         2.6  1.658312     7.888 5.7534569
+#> 2: 1.399404 0.10035833            0         2.6  1.384437     6.512 3.1815510
+#> 3: 1.356776 0.08949395            0         4.8  2.179449     6.296 0.9877922
+#> 4: 1.326924 0.10777089            0         2.4  1.527525     8.848 2.6814673
+#> 5: 1.319871 0.10492874            0         2.6  1.658312     6.184 1.7803745
+#> 6: 1.312543 0.07091372            0         3.6  2.000000     5.480 3.8674712
 #>    R0_range
 #> 1:   <list>
 #> 2:   <list>
@@ -382,41 +384,3 @@ operational constraints priority will be given to users informing
 government policy or offering methodological insights. We welcome all
 contributions, in particular those that improve the approach or the
 robustness of the code base.
-
-## Docker
-
-This package was developed in a docker container based on the
-`rocker/geospatial` docker image.
-
-To build the docker image run (from the `EpiNow` directory):
-
-``` bash
-docker build . -t epinow
-```
-
-To run the docker image
-run:
-
-``` bash
-docker run -d -p 8787:8787 --name epinow -e USER=epinow -e PASSWORD=epinow time_vary
-```
-
-The rstudio client can be found on port :8787 at your local machines ip.
-The default username:password is epinow:epinow, set the user with -e
-USER=username, and the password with - e PASSWORD=newpasswordhere. The
-default is to save the analysis files into the user directory.
-
-To mount a folder (from your current working directory - here assumed to
-be `tmp`) in the docker container to your local system use the following
-in the above docker run command (as given mounts the whole `epinow`
-directory to `tmp`).
-
-``` bash
---mount type=bind,source=$(pwd)/tmp,target=/home/time_vary
-```
-
-To access the command line run the following:
-
-``` bash
-docker exec -ti epinow bash
-```
