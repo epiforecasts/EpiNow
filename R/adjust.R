@@ -199,7 +199,7 @@ adjust_infection_to_report <- function(infections, delay_def, incubation_def,
       effect = reporting_effect
     )
     
-    report <- report[, day := lubridate::wday(date)]
+    report <- report[, day := lubridate::wday(date, week_start = 1)]
     report <- report[reporting_effect, on = "day"]
     report <- report[, cases := as.integer(cases * effect)][,
                        `:=`(effect = NULL, day = NULL)]
