@@ -64,7 +64,7 @@ simulate_cases <- function(rts, initial_cases, initial_date, generation_interval
   ## Mapping with a weekly reporting effect
   report <- EpiNow::adjust_infection_to_report(simulated_cases,
                                                delay_def = delay_def,
-                                               incubation_def = delay_def, 
+                                               incubation_def = incubation_def, 
                                                reporting_effect = reporting_effect,
                                                type = type, return_onset = TRUE)
   
