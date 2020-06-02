@@ -78,6 +78,7 @@ reference:
       - covid_incubation_period
       - covid_serial_intervals
       - covid_generation_times
+      - covid_generation_times_summary
   - title: Map results
     desc: Optional mapping functions (requires additional dependencies)
     contents:

@@ -5,6 +5,12 @@
 #' @format A `data.table` of mean and standard deviation estimates
 "covid_generation_times"
 
+#' Covid Generation Time Estimates - Summary
+#'
+#' Default Covid generation time estimates (summary). See 
+#' here for details: https://github.com/epiforecasts/EpiNow/blob/master/data-raw/ganyani-generation-time.R
+#' @format A `data.table` of summarising the distribution
+"covid_generation_times_summary"
 
 #' Covid Generation Serial Intervals
 #'
