@@ -94,6 +94,8 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #' See `lognorm_dist_def` for an example of the structure.
 #' @param reporting_effect A numeric vector of length 7 that allows the scaling of reported cases
 #' by the day on which they report (1 = Monday, 7 = Sunday). By default no scaling occurs.
+#' @param reporting_model A function that takes a single numeric vector as an argument and returns a 
+#' single numeric vector. Can be used to apply stochastic reporting effects. See the examples for details.
 #' @param return_onset Logical, defaults to `FALSE`. Should cases by date of onset also be returned?
 #' @return A `data.table` containing a `date` variable (date of report) and a `cases` variable. If `return_onset = TRUE` there will be 
 #' a third variable `reference` which indicates what the date variable refers to. 
@@ -150,10 +152,25 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #' 
 #'## Map using a deterministic median shift for both delays
 #'report_median <- adjust_infection_to_report(infections, delay_def, 
-#'                                            incubation_def, type = "median")              
+#'                                            incubation_def, type = "median")      
+#'                                            
+#'                                                    
+#'                                                            
+#' ## Map with a weekly reporting effect and stochastic reporting model
+#' report_stochastic <- adjust_infection_to_report(
+#'                       infections, delay_def, incubation_def,
+#'                       reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95),
+#'                       reporting_model <- function(n) {
+#'                       out <- suppressWarnings(rnbinom(length(n), as.integer(n), 0.5))
+#'                       out <- ifelse(is.na(out), 0, out)
+#'                       })          
+#'                              
+#' print(report_stochastic)         
 adjust_infection_to_report <- function(infections, delay_def, incubation_def,
-                                       reporting_effect, type = "sample",
-                                       return_onset = FALSE) {
+                                       reporting_effect, reporting_model,
+                                       type = "sample",
+                                       return_onset = FALSE,
+                                       truncate_future = TRUE){
   
   data.table::setDTthreads(1)
   
@@ -207,6 +224,10 @@ adjust_infection_to_report <- function(infections, delay_def, incubation_def,
     report <- data.table::setorder(report, date)
   }
   
+  if (!missing(reporting_model)) {
+    report <- report[, cases := reporting_model(cases)]
+  }
+  
   ## Bind together onset and report
   if (return_onset) {
     report <- data.table::rbindlist(list(
@@ -216,7 +237,7 @@ adjust_infection_to_report <- function(infections, delay_def, incubation_def,
   }
   
   ## Truncate reported cases by maximum infection date
-  if (type %in% "sample") {
+  if (type %in% "sample" & truncate_future) {
     report <- report[date <= max(infections$date)]
   }
   
