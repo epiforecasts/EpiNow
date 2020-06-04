@@ -30,15 +30,30 @@
 #'                                           sd_sd = EpiNow::covid_incubation_period[1, ]$sd_sd,
 #'                                           max_value = 30, samples = 1)
 #'
-#' ## Simulate cases with a decrease in reporting at weekends and an incease on Monday                                     
+#' ## Simulate cases with a decrease in reporting at weekends and an increase on Monday                                     
 #' simulated_cases <- simulate_cases(rts, initial_cases = 100 , initial_date = as.Date("2020-03-01"),
 #'                     generation_interval = generation_interval, delay_def = delay_def, 
 #'                    incubation_def = incubation_def, 
 #'                    reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95))
 #'                    
 #'print(simulated_cases)
+#'
+#'
+#'
+#' ## Simulate cases with a weekly reporting effect and stochastic noise in reporting (beyond the delay)                                  
+#' simulated_cases <- simulate_cases(rts, initial_cases = 100 , initial_date = as.Date("2020-03-01"),
+#'                     generation_interval = generation_interval, delay_def = delay_def, 
+#'                    incubation_def = incubation_def, 
+#'                    reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95),
+#'                    reporting_model = function(n) {
+#'                       out <- suppressWarnings(rnbinom(length(n), as.integer(n), 0.5))
+#'                       out <- ifelse(is.na(out), 0, out)
+#'                       })
+#'                    
+#'print(simulated_cases)
 simulate_cases <- function(rts, initial_cases, initial_date, generation_interval,
                            rdist = rpois, delay_def, incubation_def, reporting_effect, 
+                           reporting_model, truncate_future = TRUE,
                            type = "sample") {
   
   
@@ -66,7 +81,9 @@ simulate_cases <- function(rts, initial_cases, initial_date, generation_interval
                                                delay_def = delay_def,
                                                incubation_def = incubation_def, 
                                                reporting_effect = reporting_effect,
-                                               type = type, return_onset = TRUE)
+                                               reporting_model = reporting_model,
+                                               type = type, return_onset = TRUE,
+                                               truncate_future = truncate_future)
   
   
   ## Bind in simulated cases with reported cases

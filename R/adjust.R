@@ -160,7 +160,7 @@ adjust_for_truncation <- function(cases, cum_freq, dates,
 #' report_stochastic <- adjust_infection_to_report(
 #'                       infections, delay_def, incubation_def,
 #'                       reporting_effect = c(1.1, rep(1, 4), 0.95, 0.95),
-#'                       reporting_model <- function(n) {
+#'                       reporting_model = function(n) {
 #'                       out <- suppressWarnings(rnbinom(length(n), as.integer(n), 0.5))
 #'                       out <- ifelse(is.na(out), 0, out)
 #'                       })          
