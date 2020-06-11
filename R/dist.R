@@ -64,24 +64,24 @@ dist_skel <- function(n, dist = FALSE, cum = TRUE, model,
     ## Define support functions for exponential dist
     rdist <- function(n) {rexp(n, params$rate)}
     pdist <- function(n) {pexp(n, params$rate) / pexp(max_value, params$rate)}
-    ddist <- function(n) {(pexp(n + 0.9999, params$rate) -
-        pexp(n - 1e-5, params$rate)) / 
+    ddist <- function(n) {(pexp(n + 1, params$rate) -
+        pexp(n, params$rate)) / 
         pexp(max_value, params$rate)}
   }else if (model %in% "gamma") {
     rdist <- function(n) {rgamma(n, params$alpha, params$beta)}
     pdist <- function(n) {pgamma(n, params$alpha, params$beta)  /
         pgamma(max_value, params$alpha, params$beta)}
     ddist <- function(n) {
-      (pgamma(n + 0.9999, params$alpha, params$beta) -
-        pgamma(n - 1e-5, params$alpha, params$beta)) / 
+      (pgamma(n + 1, params$alpha, params$beta) -
+        pgamma(n, params$alpha, params$beta)) / 
         pgamma(max_value, params$alpha, params$beta)}
   }else if (model %in% "lognorm") {
     rdist <- function(n) {rlnorm(n, params$mean, params$sd)}
     pdist <- function(n) {plnorm(n, params$mean, params$sd) / 
         plnorm(max_value, params$mean, params$sd)}
     ddist <- function(n) {
-      (plnorm(n + 0.9999, params$mean, params$sd) -
-        plnorm(n - 1e-5, params$mean, params$sd)) / 
+      (plnorm(n + 1, params$mean, params$sd) -
+        plnorm(n, params$mean, params$sd)) / 
         plnorm(max_value, params$mean, params$sd)}
   }
   
