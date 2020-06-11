@@ -131,8 +131,10 @@ onset. Essentially reversal of <code>nowcast_pipeline</code>.</p>
   <span class='no'>delay_def</span>,
   <span class='no'>incubation_def</span>,
   <span class='no'>reporting_effect</span>,
+  <span class='no'>reporting_model</span>,
   <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"sample"</span>,
-  <span class='kw'>return_onset</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>return_onset</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>truncate_future</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -158,6 +160,11 @@ See <code>lognorm_dist_def</code> for an example of the structure.</p></td>
 by the day on which they report (1 = Monday, 7 = Sunday). By default no scaling occurs.</p></td>
     </tr>
     <tr>
+      <th>reporting_model</th>
+      <td><p>A function that takes a single numeric vector as an argument and returns a
+single numeric vector. Can be used to apply stochastic reporting effects. See the examples for details.</p></td>
+    </tr>
+    <tr>
       <th>type</th>
       <td><p>Character string indicating the method to use to transfrom counts. Supports either "sample"
 which approximates sampling or "median" would shift by the median of the distribution.</p></td>
@@ -165,6 +172,11 @@ which approximates sampling or "median" would shift by the median of the distrib
     <tr>
       <th>return_onset</th>
       <td><p>Logical, defaults to <code>FALSE</code>. Should cases by date of onset also be returned?</p></td>
+    </tr>
+    <tr>
+      <th>truncate_future</th>
+      <td><p>Logical, should cases be truncted if they occur after the first date reported in the data.
+Defaults to <code>TRUE</code>.</p></td>
     </tr>
     </table>
 
@@ -286,7 +298,7 @@ a third variable <code>reference</code> which indicates what the date variable r
 #&gt; 56: 2020-03-11   177
 #&gt; 57: 2020-03-12   188
 #&gt; 58: 2020-03-13   221
-#&gt; 59: 2020-03-14   245
+#&gt; 59: 2020-03-14   246
 #&gt;           date cases</div><div class='input'>
 <span class='co'>## Mapping with a weekly reporting effect</span>
 <span class='no'>report_weekly</span> <span class='kw'>&lt;-</span> <span class='fu'>adjust_infection_to_report</span>(
@@ -367,7 +379,90 @@ a third variable <code>reference</code> which indicates what the date variable r
 #&gt;           date cases</div><div class='input'>
 <span class='co'>## Map using a deterministic median shift for both delays</span>
 <span class='no'>report_median</span> <span class='kw'>&lt;-</span> <span class='fu'>adjust_infection_to_report</span>(<span class='no'>infections</span>, <span class='no'>delay_def</span>,
-                                           <span class='no'>incubation_def</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"median"</span>)</div></pre>
+                                           <span class='no'>incubation_def</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"median"</span>)
+
+
+
+<span class='co'>## Map with a weekly reporting effect and stochastic reporting model</span>
+<span class='no'>report_stochastic</span> <span class='kw'>&lt;-</span> <span class='fu'>adjust_infection_to_report</span>(
+                      <span class='no'>infections</span>, <span class='no'>delay_def</span>, <span class='no'>incubation_def</span>,
+                      <span class='kw'>reporting_effect</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>, <span class='fl'>4</span>), <span class='fl'>0.95</span>, <span class='fl'>0.95</span>),
+                      <span class='kw'>reporting_model</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>n</span>) {
+                      <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/NegBinomial.html'>rnbinom</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>n</span>), <span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span>(<span class='no'>n</span>), <span class='fl'>0.5</span>))
+                      <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span>(<span class='no'>out</span>), <span class='fl'>0</span>, <span class='no'>out</span>)
+                      })</div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>report_stochastic</span>)</div><div class='output co'>#&gt;           date cases
+#&gt;  1: 2020-01-17     3
+#&gt;  2: 2020-01-18     0
+#&gt;  3: 2020-01-19     0
+#&gt;  4: 2020-01-20     2
+#&gt;  5: 2020-01-21     0
+#&gt;  6: 2020-01-22     0
+#&gt;  7: 2020-01-23     0
+#&gt;  8: 2020-01-24     0
+#&gt;  9: 2020-01-25     0
+#&gt; 10: 2020-01-26     0
+#&gt; 11: 2020-01-27     0
+#&gt; 12: 2020-01-28     0
+#&gt; 13: 2020-01-29     0
+#&gt; 14: 2020-01-30     0
+#&gt; 15: 2020-01-31     0
+#&gt; 16: 2020-02-01     0
+#&gt; 17: 2020-02-02     0
+#&gt; 18: 2020-02-03     0
+#&gt; 19: 2020-02-04     0
+#&gt; 20: 2020-02-05     3
+#&gt; 21: 2020-02-06     9
+#&gt; 22: 2020-02-07     0
+#&gt; 23: 2020-02-08     1
+#&gt; 24: 2020-02-09     0
+#&gt; 25: 2020-02-10     6
+#&gt; 26: 2020-02-11     5
+#&gt; 27: 2020-02-12     1
+#&gt; 28: 2020-02-13     5
+#&gt; 29: 2020-02-14     7
+#&gt; 30: 2020-02-15     4
+#&gt; 31: 2020-02-16    15
+#&gt; 32: 2020-02-17    16
+#&gt; 33: 2020-02-18    13
+#&gt; 34: 2020-02-19    20
+#&gt; 35: 2020-02-20    22
+#&gt; 36: 2020-02-21    19
+#&gt; 37: 2020-02-22    16
+#&gt; 38: 2020-02-23    29
+#&gt; 39: 2020-02-24    37
+#&gt; 40: 2020-02-25    38
+#&gt; 41: 2020-02-26    39
+#&gt; 42: 2020-02-27    40
+#&gt; 43: 2020-02-28    40
+#&gt; 44: 2020-02-29    62
+#&gt; 45: 2020-03-01    37
+#&gt; 46: 2020-03-02    89
+#&gt; 47: 2020-03-03    54
+#&gt; 48: 2020-03-04   102
+#&gt; 49: 2020-03-05   103
+#&gt; 50: 2020-03-06   132
+#&gt; 51: 2020-03-07   106
+#&gt; 52: 2020-03-08   131
+#&gt; 53: 2020-03-09   158
+#&gt; 54: 2020-03-10   188
+#&gt; 55: 2020-03-11   206
+#&gt; 56: 2020-03-12   139
+#&gt; 57: 2020-03-13   220
+#&gt; 58: 2020-03-14   248
+#&gt;           date cases</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

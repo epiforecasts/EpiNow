@@ -133,6 +133,8 @@
   <span class='no'>delay_def</span>,
   <span class='no'>incubation_def</span>,
   <span class='no'>reporting_effect</span>,
+  <span class='no'>reporting_model</span>,
+  <span class='kw'>truncate_future</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"sample"</span>
 )</pre>
 
@@ -178,6 +180,16 @@ See <code>lognorm_dist_def</code> for an example of the structure.</p></td>
 by the day on which they report (1 = Monday, 7 = Sunday). By default no scaling occurs.</p></td>
     </tr>
     <tr>
+      <th>reporting_model</th>
+      <td><p>A function that takes a single numeric vector as an argument and returns a
+single numeric vector. Can be used to apply stochastic reporting effects. See the examples for details.</p></td>
+    </tr>
+    <tr>
+      <th>truncate_future</th>
+      <td><p>Logical, should cases be truncted if they occur after the first date reported in the data.
+Defaults to <code>TRUE</code>.</p></td>
+    </tr>
+    <tr>
       <th>type</th>
       <td><p>Character string indicating the method to use to transfrom counts. Supports either "sample"
 which approximates sampling or "median" would shift by the median of the distribution.</p></td>
@@ -209,7 +221,7 @@ which approximates sampling or "median" would shift by the median of the distrib
                                           <span class='kw'>sd_sd</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_incubation_period.html'>covid_incubation_period</a></span>[<span class='fl'>1</span>, ]$<span class='no'>sd_sd</span>,
                                           <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>30</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 
-<span class='co'>## Simulate cases with a decrease in reporting at weekends and an incease on Monday                                     </span>
+<span class='co'>## Simulate cases with a decrease in reporting at weekends and an increase on Monday                                     </span>
 <span class='no'>simulated_cases</span> <span class='kw'>&lt;-</span> <span class='fu'>simulate_cases</span>(<span class='no'>rts</span>, <span class='kw'>initial_cases</span> <span class='kw'>=</span> <span class='fl'>100</span> , <span class='kw'>initial_date</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='st'>"2020-03-01"</span>),
                     <span class='kw'>generation_interval</span> <span class='kw'>=</span> <span class='no'>generation_interval</span>, <span class='kw'>delay_def</span> <span class='kw'>=</span> <span class='no'>delay_def</span>,
                    <span class='kw'>incubation_def</span> <span class='kw'>=</span> <span class='no'>incubation_def</span>,
@@ -227,17 +239,52 @@ which approximates sampling or "median" would shift by the median of the distrib
 #&gt; <span class='message'>* NA -&gt; ...5</span>
 #&gt; <span class='message'>* ...</span></div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>simulated_cases</span>)</div><div class='output co'>#&gt;            date cases reference
-#&gt;   1: 2020-03-02    36 infection
+#&gt;   1: 2020-03-02    39 infection
 #&gt;   2: 2020-03-03    58 infection
-#&gt;   3: 2020-03-04    78 infection
-#&gt;   4: 2020-03-05    95 infection
+#&gt;   3: 2020-03-04    75 infection
+#&gt;   4: 2020-03-05    80 infection
 #&gt;   5: 2020-03-06   102 infection
 #&gt;  ---                           
-#&gt; 127: 2020-04-10  2147    report
-#&gt; 128: 2020-04-11  1952    report
-#&gt; 129: 2020-04-12  1782    report
-#&gt; 130: 2020-04-13  2061    report
-#&gt; 131: 2020-04-14  1803    report</div></pre>
+#&gt; 126: 2020-04-10  2079    report
+#&gt; 127: 2020-04-11  1821    report
+#&gt; 128: 2020-04-12  1729    report
+#&gt; 129: 2020-04-13  1791    report
+#&gt; 130: 2020-04-14  1481    report</div><div class='input'>
+
+
+<span class='co'>## Simulate cases with a weekly reporting effect and stochastic noise in reporting (beyond the delay)                                  </span>
+<span class='no'>simulated_cases</span> <span class='kw'>&lt;-</span> <span class='fu'>simulate_cases</span>(<span class='no'>rts</span>, <span class='kw'>initial_cases</span> <span class='kw'>=</span> <span class='fl'>100</span> , <span class='kw'>initial_date</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='st'>"2020-03-01"</span>),
+                    <span class='kw'>generation_interval</span> <span class='kw'>=</span> <span class='no'>generation_interval</span>, <span class='kw'>delay_def</span> <span class='kw'>=</span> <span class='no'>delay_def</span>,
+                   <span class='kw'>incubation_def</span> <span class='kw'>=</span> <span class='no'>incubation_def</span>,
+                   <span class='kw'>reporting_effect</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>, <span class='fl'>4</span>), <span class='fl'>0.95</span>, <span class='fl'>0.95</span>),
+                   <span class='kw'>reporting_model</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>n</span>) {
+                      <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>suppressWarnings</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/NegBinomial.html'>rnbinom</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>n</span>), <span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span>(<span class='no'>n</span>), <span class='fl'>0.5</span>))
+                      <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span>(<span class='no'>out</span>), <span class='fl'>0</span>, <span class='no'>out</span>)
+                      })</div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='output co'>#&gt; <span class='message'>New names:</span>
+#&gt; <span class='message'>* NA -&gt; ...1</span>
+#&gt; <span class='message'>* NA -&gt; ...2</span>
+#&gt; <span class='message'>* NA -&gt; ...3</span>
+#&gt; <span class='message'>* NA -&gt; ...4</span>
+#&gt; <span class='message'>* NA -&gt; ...5</span>
+#&gt; <span class='message'>* ...</span></div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>simulated_cases</span>)</div><div class='output co'>#&gt;            date cases reference
+#&gt;   1: 2020-03-02    51 infection
+#&gt;   2: 2020-03-03    51 infection
+#&gt;   3: 2020-03-04    82 infection
+#&gt;   4: 2020-03-05   102 infection
+#&gt;   5: 2020-03-06   100 infection
+#&gt;  ---                           
+#&gt; 125: 2020-04-10  2012    report
+#&gt; 126: 2020-04-11  1797    report
+#&gt; 127: 2020-04-12  1771    report
+#&gt; 128: 2020-04-13  1736    report
+#&gt; 129: 2020-04-14  1474    report</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

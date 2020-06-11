@@ -171,7 +171,8 @@ When the sample size of the supplied delay distribution is less than 100 this is
 <span class='co'>## Example with exponential and a small smaple</span>
 <span class='no'>delays</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Exponential.html'>rexp</a></span>(<span class='fl'>20</span>, <span class='fl'>1</span>)
 
-<span class='fu'>get_dist_def</span>(<span class='no'>delays</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='message'>Exponential selected as the best fit for the distribution</span></div><div class='output co'>#&gt;     model max_value params
+<span class='fu'>get_dist_def</span>(<span class='no'>delays</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: There were 7 divergent transitions after warmup. Increasing adapt_delta above 0.999 may help. See</span>
+#&gt; <span class='warning'>http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Examine the pairs() plot to diagnose sampling problems</span></div><div class='output co'>#&gt; <span class='message'>Exponential selected as the best fit for the distribution</span></div><div class='output co'>#&gt;     model max_value params
 #&gt;  1:   exp         3 &lt;list&gt;
 #&gt;  2:   exp         3 &lt;list&gt;
 #&gt;  3:   exp         3 &lt;list&gt;

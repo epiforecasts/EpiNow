@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get Timeseries from EpiNow — get_timeseries • EpiNow</title>
+<title>Covid Generation Time Estimates - Summary — covid_generation_times_summary • EpiNow</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Get Timeseries from EpiNow — get_timeseries" />
-<meta property="og:description" content="Get Timeseries from EpiNow" />
+<meta property="og:title" content="Covid Generation Time Estimates - Summary — covid_generation_times_summary" />
+<meta property="og:description" content="Default Covid generation time estimates (summary). See
+here for details: https://github.com/epiforecasts/EpiNow/blob/master/data-raw/ganyani-generation-time.R" />
 
 
 
@@ -115,81 +116,23 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get Timeseries from EpiNow</h1>
+    <h1>Covid Generation Time Estimates - Summary</h1>
     
-    <div class="hidden name"><code>get_timeseries.Rd</code></div>
+    <div class="hidden name"><code>covid_generation_times_summary.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get Timeseries from EpiNow</p>
+    <p>Default Covid generation time estimates (summary). See
+here for details: https://github.com/epiforecasts/EpiNow/blob/master/data-raw/ganyani-generation-time.R</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_timeseries</span>(<span class='kw'>results_dir</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>summarised</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='no'>covid_generation_times_summary</span></pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>results_dir</th>
-      <td><p>A character string indicating the folder containing the <code>EpiNow</code>
-results to extract.</p></td>
-    </tr>
-    <tr>
-      <th>date</th>
-      <td><p>A Character string (in the format "yyyy-mm-dd") indicating the date to extract
-data for. Defaults to "latest" which finds the latest results available.</p></td>
-    </tr>
-    <tr>
-      <th>summarised</th>
-      <td><p>Logical, defaults to <code>FALSE</code>. Should full or summarised results be
-returned.</p></td>
-    </tr>
-    </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <p>A list of reproduction number estimates and nowcast cases</p>
+    <p>A <code>data.table</code> of summarising the distribution</p>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='co'>## Assuming epiforecasts/covid is one repo higher</span>
-<span class='co'>## Summary results</span>
-<span class='fu'>get_timeseries</span>(<span class='st'>"../covid/_posts/global/nowcast/results/"</span>,
-               <span class='kw'>summarised</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
-
-<span class='co'>## Simulations</span>
-<span class='fu'>get_timeseries</span>(<span class='st'>"../covid/_posts/global/nowcast/results/"</span>)
-}
-<span class='co'>## Code</span>
-<span class='no'>get_timeseries</span></div><div class='output co'>#&gt; function (results_dir = NULL, date = NULL, summarised = FALSE) 
-#&gt; {
-#&gt;     if (is.null(date)) {
-#&gt;         date &lt;- "latest"
-#&gt;     }
-#&gt;     if (summarised) {
-#&gt;         nowcast &lt;- "summarised_nowcast.rds"
-#&gt;         rt_index &lt;- 1
-#&gt;     }
-#&gt;     else {
-#&gt;         nowcast &lt;- "nowcast.rds"
-#&gt;         rt_index &lt;- 3
-#&gt;     }
-#&gt;     regions &lt;- list.files(results_dir)
-#&gt;     names(regions) &lt;- regions
-#&gt;     load_data &lt;- purrr::safely(EpiNow::load_nowcast_result)
-#&gt;     rt &lt;- purrr::map_dfr(regions, ~load_data("time_varying_params.rds", 
-#&gt;         ., result_dir = results_dir, date = date)[[1]][[rt_index]], 
-#&gt;         .id = "region")
-#&gt;     incidence &lt;- purrr::map_dfr(regions, ~load_data(nowcast, 
-#&gt;         ., result_dir = results_dir, date = date)[[1]], .id = "region")
-#&gt;     out &lt;- list(rt, incidence)
-#&gt;     names(out) &lt;- c("rt", "incidence")
-#&gt;     return(out)
-#&gt; }
-#&gt; &lt;bytecode: 0x7f8a9086a400&gt;
-#&gt; &lt;environment: namespace:EpiNow&gt;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -193,18 +193,18 @@ future Rt values. An example of the required structure is: <code>function(ss, y)
                          <span class='kw'>windows</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>gt_samples</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 
 
-<span class='no'>estimates</span>$<span class='no'>rts</span></div><div class='output co'>#&gt;            date          R sample  crps window rt_type
-#&gt;   1: 2020-01-24 0.05799888      1   0.0      1 nowcast
-#&gt;   2: 2020-01-24 0.14540053      2   0.0      1 nowcast
-#&gt;   3: 2020-01-24 0.18679958      3   0.0      1 nowcast
-#&gt;   4: 2020-01-24 0.21414750      4   0.0      1 nowcast
-#&gt;   5: 2020-01-24 0.22314837      5   0.0      1 nowcast
+<span class='no'>estimates</span>$<span class='no'>rts</span></div><div class='output co'>#&gt;            date         R sample   crps window rt_type
+#&gt;   1: 2020-01-24 0.3179646      1   0.09      3 nowcast
+#&gt;   2: 2020-01-24 1.0212079      2   0.09      3 nowcast
+#&gt;   3: 2020-01-24 1.4533755      3   0.09      3 nowcast
+#&gt;   4: 2020-01-24 1.6329530      4   0.09      3 nowcast
+#&gt;   5: 2020-01-24 1.6330397      5   0.09      3 nowcast
 #&gt;  ---                                                  
-#&gt; 606: 2020-03-22 1.38524007      6 151.4      1 nowcast
-#&gt; 607: 2020-03-22 1.38532115      7 151.4      1 nowcast
-#&gt; 608: 2020-03-22 1.42216686      8 151.4      1 nowcast
-#&gt; 609: 2020-03-22 1.43626300      9 151.4      1 nowcast
-#&gt; 610: 2020-03-22 1.44562283     10 151.4      1 nowcast</div><div class='input'>
+#&gt; 586: 2020-03-22 1.4251245      6 166.20      1 nowcast
+#&gt; 587: 2020-03-22 1.4328383      7 166.20      1 nowcast
+#&gt; 588: 2020-03-22 1.4339116      8 166.20      1 nowcast
+#&gt; 589: 2020-03-22 1.4488785      9 166.20      1 nowcast
+#&gt; 590: 2020-03-22 1.4631037     10 166.20      1 nowcast</div><div class='input'>
 <span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='co'>## Nowcast Rts, forecast Rts and the forecast cases</span>
 <span class='no'>estimates</span> <span class='kw'>&lt;-</span> <span class='fu'>estimate_R0</span>(<span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>,
