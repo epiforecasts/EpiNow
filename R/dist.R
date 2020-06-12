@@ -552,12 +552,12 @@ sample_approx_dist <- function(cases = NULL,
     draw <- dist_fn(0:max_value, dist = TRUE, cum = FALSE)
     
     ## Approximate cases
-    mapped_cases <- purrr::map_dfc(1:length(reversed_cases), 
+    mapped_cases <- suppressMessages(purrr::map_dfc(1:length(reversed_cases), 
                                    ~ c(rep(0, . - 1), 
                                        stats::rbinom(length(draw),
                                                      rep(reversed_cases[.], length(draw)),
                                                      draw),
-                                       rep(0, length(reversed_cases) - .)))
+                                       rep(0, length(reversed_cases) - .))))
     
     
     ## Set dates order based on direction mapping
