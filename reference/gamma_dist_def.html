@@ -126,7 +126,18 @@ are available for gamma distributed parameters. See rgamma for distribution info
 are available for gamma distributed parameters. See <code>rgamma</code> for distribution information.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>gamma_dist_def</span>(<span class='no'>shape</span>, <span class='no'>shape_sd</span>, <span class='no'>scale</span>, <span class='no'>scale_sd</span>, <span class='no'>max_value</span>, <span class='no'>samples</span>)</pre>
+    <pre class="usage"><span class='fu'>gamma_dist_def</span>(
+  <span class='no'>shape</span>,
+  <span class='no'>shape_sd</span>,
+  <span class='no'>scale</span>,
+  <span class='no'>scale_sd</span>,
+  <span class='no'>mean</span>,
+  <span class='no'>mean_sd</span>,
+  <span class='no'>sd</span>,
+  <span class='no'>sd_sd</span>,
+  <span class='no'>max_value</span>,
+  <span class='no'>samples</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -164,7 +175,7 @@ of this range are resampled.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-
+<span class='co'>## Using estimated shape and scale</span>
 <span class='no'>def</span> <span class='kw'>&lt;-</span> <span class='fu'>gamma_dist_def</span>(<span class='kw'>shape</span> <span class='kw'>=</span> <span class='fl'>5.807</span>, <span class='kw'>shape_sd</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
                <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>0.9</span>, <span class='kw'>scale_sd</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
                <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>)
@@ -185,6 +196,28 @@ of this range are resampled.</p></td>
 #&gt; 
 #&gt; $beta
 #&gt; [1] 1.168393
+#&gt; </div><div class='input'>
+<span class='co'>## Using mean and sd</span>
+<span class='no'>def</span> <span class='kw'>&lt;-</span> <span class='fu'>gamma_dist_def</span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>mean_sd</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
+               <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>sd_sd</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+               <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>)
+
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>def</span>)</div><div class='output co'>#&gt;     model params max_value
+#&gt;  1: gamma &lt;list&gt;        20
+#&gt;  2: gamma &lt;list&gt;        20
+#&gt;  3: gamma &lt;list&gt;        20
+#&gt;  4: gamma &lt;list&gt;        20
+#&gt;  5: gamma &lt;list&gt;        20
+#&gt;  6: gamma &lt;list&gt;        20
+#&gt;  7: gamma &lt;list&gt;        20
+#&gt;  8: gamma &lt;list&gt;        20
+#&gt;  9: gamma &lt;list&gt;        20
+#&gt; 10: gamma &lt;list&gt;        20</div><div class='input'>
+<span class='no'>def</span>$<span class='no'>params</span><span class='kw'>[[</span><span class='fl'>1</span>]]</div><div class='output co'>#&gt; $alpha
+#&gt; [1] 0.9309454
+#&gt; 
+#&gt; $beta
+#&gt; [1] 0.3262709
 #&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
