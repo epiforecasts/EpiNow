@@ -207,7 +207,7 @@ dist_fit <- function(values = NULL, samples = NULL, dist = "exp") {
 #' @inheritParams dist_skel
 #' @examples
 #' 
-#' 
+#' ## Using estimated shape and scale
 #' def <- gamma_dist_def(shape = 5.807, shape_sd = 0.2,
 #'                scale = 0.9, scale_sd = 0.05,
 #'                max_value = 20, samples = 10)
@@ -215,15 +215,37 @@ dist_fit <- function(values = NULL, samples = NULL, dist = "exp") {
 #'print(def)
 #'
 #'def$params[[1]]
+#'
+#'## Using mean and sd
+#'def <- gamma_dist_def(mean = 3, mean_sd = 0.5,
+#'                sd = 3, sd_sd = 0.1,
+#'                max_value = 20, samples = 10)
+#'                
+#'print(def)
+#'
+#'def$params[[1]]
 gamma_dist_def <- function(shape, shape_sd,
                            scale, scale_sd, 
+                           mean, mean_sd,
+                           sd, sd_sd,
                            max_value, samples) {
+  
+  if (missing(shape) & missing(scale) & !missing(mean) & !missing(sd)) {
+    mean <- truncnorm::rtruncnorm(samples, a = 0, mean = mean, sd = mean_sd)
+    sd <- truncnorm::rtruncnorm(samples, a = 0, mean = sd, sd = sd_sd)
+    beta <- sd^2/mean
+    alpha <- mean/beta
+    beta <- 1 / beta
+  }else{
+    alpha <- truncnorm::rtruncnorm(samples, a = 0, mean = shape, sd = shape_sd)
+    beta <- 1 / truncnorm::rtruncnorm(samples, a = 0, mean = scale, sd = scale_sd)
+  }
   
   dist <- data.table::data.table(
     model = rep("gamma", samples),
     params = purrr::transpose(
-      list(alpha = truncnorm::rtruncnorm(samples, a = 0, mean = shape, sd = shape_sd),
-           beta = 1 / truncnorm::rtruncnorm(samples, a = 0, mean = scale, sd = scale_sd))),
+      list(alpha = alpha,
+           beta = beta)),
     max_value = rep(max_value, samples)
   )
   

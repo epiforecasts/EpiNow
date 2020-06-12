@@ -4,7 +4,18 @@
 \alias{gamma_dist_def}
 \title{Generate a Gamma Distribution Definition Based on Parameter Estimates}
 \usage{
-gamma_dist_def(shape, shape_sd, scale, scale_sd, max_value, samples)
+gamma_dist_def(
+  shape,
+  shape_sd,
+  scale,
+  scale_sd,
+  mean,
+  mean_sd,
+  sd,
+  sd_sd,
+  max_value,
+  samples
+)
 }
 \arguments{
 \item{shape}{Numeric, shape parameter of the gamma distribution.}
@@ -29,9 +40,18 @@ are available for gamma distributed parameters. See \code{rgamma} for distributi
 }
 \examples{
 
-
+## Using estimated shape and scale
 def <- gamma_dist_def(shape = 5.807, shape_sd = 0.2,
                scale = 0.9, scale_sd = 0.05,
+               max_value = 20, samples = 10)
+               
+print(def)
+
+def$params[[1]]
+
+## Using mean and sd
+def <- gamma_dist_def(mean = 3, mean_sd = 0.5,
+               sd = 3, sd_sd = 0.1,
                max_value = 20, samples = 10)
                
 print(def)
