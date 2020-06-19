@@ -320,7 +320,7 @@ regional_summary <- function(results_dir = NULL,
   
   message("Plotting overall Rt and case plots")
   
-  plots_per_row <- ifelse(length(regions) < 60, 3, 5)
+  plots_per_row <- ifelse(length(regions) < 60, 3, 6)
   
   ## Plot all countries
   rt_plot <- suppressWarnings(
