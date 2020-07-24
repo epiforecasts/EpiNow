@@ -6,6 +6,8 @@
 coverage](https://codecov.io/gh/epiforecasts/EpiNow/branch/master/graph/badge.svg)](https://codecov.io/gh/epiforecasts/EpiNow?branch=master)
 [![DOI](https://zenodo.org/badge/247464257.svg)](https://zenodo.org/badge/latestdoi/247464257)
 
+**{EpiNow} will shortly be depreciated in faviour of [{EpiNow2}](https://github.com/epiforecasts/EpiNow2)**
+
 This package estimates the time-varying reproduction number, rate of
 spread, and doubling time using a range of open-source tools and current
 best practices. It aims to help users avoid some of the limitations of
