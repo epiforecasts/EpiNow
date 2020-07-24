@@ -125,15 +125,15 @@
     </div>
 
     <pre class="usage"><span class='fu'>estimate_R0</span>(
-  <span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>windows</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>gt_samples</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>min_est_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>forecast_model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>horizon</span> <span class='kw'>=</span> <span class='fl'>0</span>
+  cases = <span class='kw'>NULL</span>,
+  generation_times = <span class='kw'>NULL</span>,
+  rt_prior = <span class='kw'>NULL</span>,
+  windows = <span class='kw'>NULL</span>,
+  gt_samples = <span class='fl'>100</span>,
+  rt_samples = <span class='fl'>100</span>,
+  min_est_date = <span class='kw'>NULL</span>,
+  forecast_model = <span class='kw'>NULL</span>,
+  horizon = <span class='fl'>0</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -187,13 +187,13 @@ future Rt values. An example of the required structure is: <code>function(ss, y)
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 <span class='co'>## Nowcast Rts                  </span>
-<span class='no'>estimates</span> <span class='kw'>&lt;-</span> <span class='fu'>estimate_R0</span>(<span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>,
-                         <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_generation_times.html'>covid_generation_times</a></span>[,<span class='fl'>2</span>]),
-                         <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mean_prior</span> <span class='kw'>=</span> <span class='fl'>2.6</span>, <span class='kw'>std_prior</span> <span class='kw'>=</span> <span class='fl'>2</span>),
-                         <span class='kw'>windows</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>gt_samples</span> <span class='kw'>=</span> <span class='fl'>1</span>)
-
-
-<span class='no'>estimates</span>$<span class='no'>rts</span></div><div class='output co'>#&gt;            date         R sample   crps window rt_type
+<span class='kw'>estimates</span> <span class='op'>&lt;-</span> <span class='fu'>estimate_R0</span>(cases = <span class='kw'>EpiSoon</span>::<span class='kw'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>, 
+                         generation_times = <span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/as.matrix.html'>as.matrix</a></span>(<span class='kw'>EpiNow</span>::<span class='kw'><a href='covid_generation_times.html'>covid_generation_times</a></span>[,<span class='fl'>2</span>]), 
+                         rt_prior = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(mean_prior = <span class='fl'>2.6</span>, std_prior = <span class='fl'>2</span>),
+                         windows = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), rt_samples = <span class='fl'>10</span>, gt_samples = <span class='fl'>1</span>)
+                         
+                         
+<span class='kw'>estimates</span><span class='op'>$</span><span class='kw'>rts</span></div><div class='output co'>#&gt;            date         R sample   crps window rt_type
 #&gt;   1: 2020-01-24 0.3179646      1   0.09      3 nowcast
 #&gt;   2: 2020-01-24 1.0212079      2   0.09      3 nowcast
 #&gt;   3: 2020-01-24 1.4533755      3   0.09      3 nowcast
@@ -204,26 +204,26 @@ future Rt values. An example of the required structure is: <code>function(ss, y)
 #&gt; 587: 2020-03-22 1.4328383      7 166.20      1 nowcast
 #&gt; 588: 2020-03-22 1.4339116      8 166.20      1 nowcast
 #&gt; 589: 2020-03-22 1.4488785      9 166.20      1 nowcast
-#&gt; 590: 2020-03-22 1.4631037     10 166.20      1 nowcast</div><div class='input'>
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+#&gt; 590: 2020-03-22 1.4631037     10 166.20      1 nowcast</div><div class='input'> 
+<span class='co'>if</span> (<span class='fl'>FALSE</span>) { 
 <span class='co'>## Nowcast Rts, forecast Rts and the forecast cases</span>
-<span class='no'>estimates</span> <span class='kw'>&lt;-</span> <span class='fu'>estimate_R0</span>(<span class='kw'>cases</span> <span class='kw'>=</span> <span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>,
-                         <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span>(<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_generation_times.html'>covid_generation_times</a></span>[,<span class='fl'>1</span>]),
-                         <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mean_prior</span> <span class='kw'>=</span> <span class='fl'>2.6</span>, <span class='kw'>std_prior</span> <span class='kw'>=</span> <span class='fl'>2</span>),
-                         <span class='kw'>windows</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>gt_samples</span> <span class='kw'>=</span> <span class='fl'>20</span>,
-                         <span class='kw'>min_est_date</span> <span class='kw'>=</span>  <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='st'>"2020-02-18"</span>),
-                         <span class='kw'>forecast_model</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>...</span>){
-                              <span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/EpiSoon/man/fable_model.html'>fable_model</a></span>(<span class='kw'>model</span> <span class='kw'>=</span> <span class='kw pkg'>fable</span><span class='kw ns'>::</span><span class='fu'>ETS</span>(<span class='no'>y</span> ~ <span class='fu'>trend</span>(<span class='st'>"A"</span>)), <span class='no'>...</span>)
+<span class='kw'>estimates</span> <span class='op'>&lt;-</span> <span class='fu'>estimate_R0</span>(cases = <span class='kw'>EpiSoon</span>::<span class='kw'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>, 
+                         generation_times = <span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/as.matrix.html'>as.matrix</a></span>(<span class='kw'>EpiNow</span>::<span class='kw'><a href='covid_generation_times.html'>covid_generation_times</a></span>[,<span class='fl'>1</span>]), 
+                         rt_prior = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(mean_prior = <span class='fl'>2.6</span>, std_prior = <span class='fl'>2</span>),
+                         windows = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>7</span>), rt_samples = <span class='fl'>10</span>, gt_samples = <span class='fl'>20</span>,
+                         min_est_date =  <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='st'>"2020-02-18"</span>),
+                         forecast_model = <span class='fu'>function</span>(<span class='kw'>...</span>){
+                              <span class='kw'>EpiSoon</span>::<span class='fu'><a href='https://rdrr.io/pkg/EpiSoon/man/fable_model.html'>fable_model</a></span>(model = <span class='kw'>fable</span>::<span class='fu'>ETS</span>(<span class='kw'>y</span> <span class='op'>~</span> <span class='fu'>trend</span>(<span class='st'>"A"</span>)), <span class='kw'>...</span>)
                               },
-                         <span class='kw'>horizon</span> <span class='kw'>=</span> <span class='fl'>14</span>)
-
+                         horizon = <span class='fl'>14</span>)
+                                           
 <span class='co'>## Rt estimates and forecasts</span>
-<span class='no'>estimates</span>$<span class='no'>rts</span>
+<span class='kw'>estimates</span><span class='op'>$</span><span class='kw'>rts</span>
 
 
 
 <span class='co'>## Case forecasts</span>
-<span class='no'>estimates</span>$<span class='no'>cases</span>
+<span class='kw'>estimates</span><span class='op'>$</span><span class='kw'>cases</span>
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

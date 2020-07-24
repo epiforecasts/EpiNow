@@ -79,53 +79,64 @@
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#epinow-estimate-realtime-case-counts-and-time-varying-epidemiological-parameters" class="anchor"></a>EpiNow: Estimate realtime case counts and time-varying epidemiological parameters</h1></div>
 
+<p><strong>{EpiNow} will shortly be depreciated in faviour of <a href="https://github.com/epiforecasts/EpiNow2">{EpiNow2}</a></strong></p>
 <p>This package estimates the time-varying reproduction number, rate of spread, and doubling time using a range of open-source tools and current best practices. It aims to help users avoid some of the limitations of naive implementations in a framework that is informed by community feedback and is under active development. It assumes that only limited data is available on cases by date of onset and instead uses cases by date of report. These are then imputed to case counts by date of infection using an uncertain reporting delay and incubation period. Right truncation of cases is dealt with internally by <code>{EpiNow}</code>, as is propogating uncertainty from all inputs into the final parameter estimates (helping to mitigate spurious findings). Time-varying estimates of the reproduction number are estimated using the <a href="https://github.com/annecori/EpiEstim"><code>{EpiEstim}</code></a> package by date of infection with a generation time estimate that includes uncertainty. Time-varying estimates of the rate of growth are derived using a quasipoisson GLM with a sliding window, which are then used to estimate the doubling time. Optimal windows are chosen by using one day ahead case prediction. Optionally, the time-varying reproduction number can be forecast forwards in time using an integration with the <a href="https://epiforecasts.io/EpiSoon"><code>{EpiSoon}</code></a> package and converted to a case forecast using a branching process. See the <a href="https://epiforecasts.io/covid/methods.html">methods</a> section of our Covid-19 site for a detailed discussion of the approach.</p>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
 <p>Install the stable version of the package using <a href="https://epiforecasts.io/drat/"><code>{drat}</code></a>:</p>
-<div class="sourceCode" id="cb1"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"drat"</span>)
-<span class="kw pkg">drat</span><span class="kw ns">:::</span><span class="fu">add</span>(<span class="st">"epiforecasts"</span>)
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"EpiNow"</span>)</pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"drat"</span>)
+<span class="kw">drat</span>:::<span class="fu">add</span>(<span class="st">"epiforecasts"</span>)
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"EpiNow"</span>)
+</pre></div>
 <p>Install the development version of the package with:</p>
-<div class="sourceCode" id="cb2"><pre class="r"><span class="kw pkg">remotes</span><span class="kw ns">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"epiforecasts/EpiNow"</span>)</pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="kw">remotes</span>::<span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"epiforecasts/EpiNow"</span>)
+</pre></div>
 <p>For simple deployment/development a prebuilt docker image is also available (see documentation <a href="https://github.com/epiforecasts/EpiNow/wiki/Docker">here</a>).</p>
 </div>
 <div id="quick-start" class="section level2">
 <h2 class="hasAnchor">
 <a href="#quick-start" class="anchor"></a>Quick start</h2>
 <p><code>{EpiNow}</code> is designed to be used at scale with few changes to the defaults and a single function call or to be used in an ad-hoc fashion via individual function calls. In the following section we give an overview of the simple use case. For more on using each function see the <a href="https://epiforecasts.io/EpiNow/reference/index.html">function documentation</a> and <a href="https://epiforecasts.io/EpiNow/articles/getting-started.html">introductory vignette</a>. A working implementation for COVID-19 can be found <a href="https://github.com/epiforecasts/covid-global/blob/master/update_nowcasts.R">here</a>. This quick start requires the following packages:</p>
-<div class="sourceCode" id="cb3"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">EpiNow</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">EpiSoon</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">data.table</span>)</pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw">EpiNow</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw">EpiSoon</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="http://r-datatable.com">data.table</a></span>)
+</pre></div>
 <div id="reporting-delays" class="section level3">
 <h3 class="hasAnchor">
 <a href="#reporting-delays" class="anchor"></a>Reporting delays</h3>
 <p>Reporting delays can either be fitted using package functionality or determined elsewhere and then defined with uncertainty for use in <code>{EpiNow}</code>. When data is supplied an interval censored gamma and exponential distribution will be fit and then compared using the <code>{loo}</code> package. Note that in this example a single bootstrap is used (i.e no bootstrap) but in real scenarios multiple bootstraps should be used to represent the uncertainty in the reported distribution (and to approximate stochastic change over time). The commented code (requires the <code>{future}</code> package) can be used to parallelise long running sections of code.</p>
-<div class="sourceCode" id="cb4"><pre class="r"><span class="co"># future::plan("multiprocess")</span>
-<span class="no">example_delays</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html">rexp</a></span>(<span class="fl">25</span>, <span class="fl">1</span>/<span class="fl">10</span>)
+<div class="sourceCode" id="cb4"><pre class="downlit">
+<span class="co"># future::plan("multiprocess")</span>
+<span class="kw">example_delays</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html">rexp</a></span>(<span class="fl">25</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">10</span>)
 
-<span class="no">delay_dist</span> <span class="kw">&lt;-</span> <span class="kw pkg">EpiNow</span><span class="kw ns">::</span><span class="fu"><a href="reference/get_dist_def.html">get_dist_def</a></span>(<span class="no">example_delays</span>,
-                                   <span class="kw">samples</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">bootstraps</span> <span class="kw">=</span> <span class="fl">1</span>)
+<span class="kw">delay_dist</span> <span class="op">&lt;-</span> <span class="kw">EpiNow</span>::<span class="fu"><a href="reference/get_dist_def.html">get_dist_def</a></span>(<span class="kw">example_delays</span>, 
+                                   samples = <span class="fl">5</span>, bootstraps = <span class="fl">1</span>)
 
-<span class="no">delay_dist</span>
+<span class="kw">delay_dist</span>
 <span class="co">#&gt;    model max_value params</span>
 <span class="co">#&gt; 1:   exp        51 &lt;list&gt;</span>
 <span class="co">#&gt; 2:   exp        51 &lt;list&gt;</span>
 <span class="co">#&gt; 3:   exp        51 &lt;list&gt;</span>
 <span class="co">#&gt; 4:   exp        51 &lt;list&gt;</span>
-<span class="co">#&gt; 5:   exp        51 &lt;list&gt;</span></pre></div>
+<span class="co">#&gt; 5:   exp        51 &lt;list&gt;</span>
+</pre></div>
 <p>Alternatively an uncertain distribution can be defined (for example based on literature estimates). Currently supported distributions are the log normal and gamma distributions.</p>
-<div class="sourceCode" id="cb5"><pre class="r"><span class="no">delay_dist</span> <span class="kw">&lt;-</span> <span class="kw pkg">EpiNow</span><span class="kw ns">::</span><span class="fu"><a href="reference/lognorm_dist_def.html">lognorm_dist_def</a></span>(<span class="kw">mean</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">mean_sd</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">sd</span> <span class="kw">=</span> <span class="fl">3</span>, <span class="kw">sd_sd</span> <span class="kw">=</span> <span class="fl">1</span>,
-                                       <span class="kw">max_value</span> <span class="kw">=</span> <span class="fl">30</span>, <span class="kw">samples</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">to_log</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
+<div class="sourceCode" id="cb5"><pre class="downlit">
+<span class="kw">delay_dist</span> <span class="op">&lt;-</span> <span class="kw">EpiNow</span>::<span class="fu"><a href="reference/lognorm_dist_def.html">lognorm_dist_def</a></span>(mean = <span class="fl">5</span>, mean_sd = <span class="fl">1</span>, sd = <span class="fl">3</span>, sd_sd = <span class="fl">1</span>,
+                                       max_value = <span class="fl">30</span>, samples = <span class="fl">5</span>, to_log = <span class="fl">TRUE</span>)
 
-<span class="no">delay_dist</span>
+<span class="kw">delay_dist</span>
 <span class="co">#&gt;      model params max_value</span>
 <span class="co">#&gt; 1: lognorm &lt;list&gt;        30</span>
 <span class="co">#&gt; 2: lognorm &lt;list&gt;        30</span>
 <span class="co">#&gt; 3: lognorm &lt;list&gt;        30</span>
 <span class="co">#&gt; 4: lognorm &lt;list&gt;        30</span>
-<span class="co">#&gt; 5: lognorm &lt;list&gt;        30</span></pre></div>
+<span class="co">#&gt; 5: lognorm &lt;list&gt;        30</span>
+</pre></div>
 </div>
 <div id="rt-pipeline" class="section level3">
 <h3 class="hasAnchor">
@@ -133,28 +144,35 @@
 </h3>
 <p>This wraps the core functionality of the package and includes results reporting. It requires a data frame of cases by date of report and a <code>dist_skel</code> compatible data frame of reporting delay distributions (as produced by <code>get_dist_def</code> or <code>lognorm_dist_def</code> etc.). Internally current best estimates of the incubation period, generation time and reproduction number are then used but these can also be manually specified (see <a href="https://github.com/epiforecasts/EpiNow/tree/master/data-raw">here</a> for the code that generates these estimates). Whilst defaults are likely to work for most users <a href="https://epiforecasts.io/EpiNow/reference/rt_pipeline.html">the documentation</a> provides additional options. For regions with high cases loads users should consider using approximate sampling (<code>approx_delay</code>). Forecasting is supported via <code>EpiSoon</code> and companion packages (see documentation for an example). If data by date of onset is available this can be passed to <code>linelist</code> and used rather than sampling dates of onsets - note this is currently only partially supported functionality. Please open an issue if this functionality is needed for your use case.</p>
 <p>Save everything to a temporary directory - change this (<code>rt_pipeline</code> will create the directory for you) to inspect the results</p>
-<div class="sourceCode" id="cb6"><pre class="r"><span class="no">target_dir</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span>(), <span class="st">"test"</span>)</pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit">
+<span class="kw">target_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span>(), <span class="st">"test"</span>)
+</pre></div>
 <p>Load example case data from <code>{EpiSoon}</code> and convert to have the required variable names (note imported cases are supported and should be delinated with <code>import_status = "imported"</code>).</p>
-<div class="sourceCode" id="cb7"><pre class="r"><span class="no">cases</span> <span class="kw">&lt;-</span> <span class="kw pkg">data.table</span><span class="kw ns">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setDT.html">setDT</a></span>(<span class="kw pkg">EpiSoon</span><span class="kw ns">::</span><span class="no"><a href="https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html">example_obs_cases</a></span>)
-<span class="no">cases</span> <span class="kw">&lt;-</span> <span class="no">cases</span>[, <span class="fu">`:=`</span>(<span class="kw">confirm</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span>(<span class="no">cases</span>), <span class="kw">import_status</span> <span class="kw">=</span> <span class="st">"local"</span>)][,
-                   <span class="no">cases</span> <span class="kw">:=</span> <span class="kw">NULL</span>]
+<div class="sourceCode" id="cb7"><pre class="downlit">
+<span class="kw">cases</span> <span class="op">&lt;-</span> <span class="kw">data.table</span>::<span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setDT.html">setDT</a></span>(<span class="kw">EpiSoon</span>::<span class="kw"><a href="https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html">example_obs_cases</a></span>)
+<span class="kw">cases</span> <span class="op">&lt;-</span> <span class="kw">cases</span>[, <span class="fu">`:=`</span>(confirm = <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span>(<span class="kw">cases</span>), import_status = <span class="st">"local"</span>)][,
+                   <span class="kw">cases</span> <span class="op">:=</span> <span class="kw">NULL</span>]
 
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(<span class="no">cases</span>)
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(<span class="kw">cases</span>)
 <span class="co">#&gt;          date confirm import_status</span>
 <span class="co">#&gt; 1: 2020-03-17     296         local</span>
 <span class="co">#&gt; 2: 2020-03-18     343         local</span>
 <span class="co">#&gt; 3: 2020-03-19     399         local</span>
 <span class="co">#&gt; 4: 2020-03-20     454         local</span>
 <span class="co">#&gt; 5: 2020-03-21     605         local</span>
-<span class="co">#&gt; 6: 2020-03-22     367         local</span></pre></div>
+<span class="co">#&gt; 6: 2020-03-22     367         local</span>
+</pre></div>
 <p>Run the complete pipeline that includes nowcasting cases, estimating the time-varying reproduction number, the rate of growth and the doubling time. See the documentation for an example that incorporates forecasting.</p>
-<div class="sourceCode" id="cb8"><pre class="r"><span class="co"># future::plan("multiprocess")</span>
-<span class="fu"><a href="reference/rt_pipeline.html">rt_pipeline</a></span>(<span class="kw">cases</span> <span class="kw">=</span> <span class="no">cases</span>,
-            <span class="kw">delay_defs</span> <span class="kw">=</span> <span class="no">delay_dist</span>,
-            <span class="kw">target_date</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="no">cases</span>$<span class="no">date</span>),
-            <span class="kw">target_folder</span> <span class="kw">=</span> <span class="no">target_dir</span>)</pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit">
+<span class="co"># future::plan("multiprocess")</span>
+<span class="fu"><a href="reference/rt_pipeline.html">rt_pipeline</a></span>(cases = <span class="kw">cases</span>,
+            delay_defs = <span class="kw">delay_dist</span>,
+            target_date = <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="kw">cases</span><span class="op">$</span><span class="kw">date</span>),
+            target_folder = <span class="kw">target_dir</span>)
+</pre></div>
 <p>List available output files.</p>
-<div class="sourceCode" id="cb9"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span>(<span class="no">target_dir</span>, <span class="kw">recursive</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
+<div class="sourceCode" id="cb9"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span>(<span class="kw">target_dir</span>, recursive = <span class="fl">TRUE</span>)
 <span class="co">#&gt;  [1] "2020-03-22/adjusted_r_latest.rds"          </span>
 <span class="co">#&gt;  [2] "2020-03-22/bigr_eff_latest.rds"            </span>
 <span class="co">#&gt;  [3] "2020-03-22/bigr_eff_max_estimate.rds"      </span>
@@ -216,11 +234,13 @@
 <span class="co">#&gt; [59] "latest/summarised_nowcast.rds"             </span>
 <span class="co">#&gt; [60] "latest/summarised_reff.rds"                </span>
 <span class="co">#&gt; [61] "latest/time_varying_littler.rds"           </span>
-<span class="co">#&gt; [62] "latest/time_varying_params.rds"</span></pre></div>
+<span class="co">#&gt; [62] "latest/time_varying_params.rds"</span>
+</pre></div>
 <p>Read in and examine the output nowcast cases.</p>
-<div class="sourceCode" id="cb10"><pre class="r"><span class="no">summarised_nowcast</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">target_dir</span>, <span class="st">"/latest/summarised_nowcast.rds"</span>))
+<div class="sourceCode" id="cb10"><pre class="downlit">
+<span class="kw">summarised_nowcast</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="kw">target_dir</span>, <span class="st">"/latest/summarised_nowcast.rds"</span>))
 
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(<span class="no">summarised_nowcast</span>)
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(<span class="kw">summarised_nowcast</span>)
 <span class="co">#&gt;          date                    type bottom top lower upper median mean</span>
 <span class="co">#&gt; 1: 2020-03-17 Observed by report date     NA  NA    NA    NA    296   NA</span>
 <span class="co">#&gt; 2: 2020-03-18 Observed by report date     NA  NA    NA    NA    343   NA</span>
@@ -234,14 +254,18 @@
 <span class="co">#&gt; 3:          1</span>
 <span class="co">#&gt; 4:          1</span>
 <span class="co">#&gt; 5:          1</span>
-<span class="co">#&gt; 6:          1</span></pre></div>
+<span class="co">#&gt; 6:          1</span>
+</pre></div>
 <p>Read in and examine the output time-varying estimates.</p>
-<div class="sourceCode" id="cb11"><pre class="r"><span class="no">time_varying_params</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">target_dir</span>, <span class="st">"/latest/time_varying_params.rds"</span>))
+<div class="sourceCode" id="cb11"><pre class="downlit">
+<span class="kw">time_varying_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="kw">target_dir</span>, <span class="st">"/latest/time_varying_params.rds"</span>))
 
-<span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">time_varying_params</span>)
-<span class="co">#&gt; [1] "R0"             "rate_of_spread" "raw_R0"</span></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="kw">time_varying_params</span>)
+<span class="co">#&gt; [1] "R0"             "rate_of_spread" "raw_R0"</span>
+</pre></div>
 <p>Examine the summarised Rt estimates.</p>
-<div class="sourceCode" id="cb12"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(<span class="no">time_varying_params</span>$<span class="no">R0</span>)
+<div class="sourceCode" id="cb12"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(<span class="kw">time_varying_params</span><span class="op">$</span><span class="kw">R0</span>)
 <span class="co">#&gt;       type       date rt_type   bottom      top    lower    upper   median</span>
 <span class="co">#&gt; 1: nowcast 2020-03-09 nowcast 1.201786 1.482101 1.219509 1.300683 1.289869</span>
 <span class="co">#&gt; 2: nowcast 2020-03-10 nowcast 1.163689 1.493488 1.163689 1.279485 1.279485</span>
@@ -262,9 +286,12 @@
 <span class="co">#&gt; 3:   &lt;list&gt;</span>
 <span class="co">#&gt; 4:   &lt;list&gt;</span>
 <span class="co">#&gt; 5:   &lt;list&gt;</span>
-<span class="co">#&gt; 6:   &lt;list&gt;</span></pre></div>
+<span class="co">#&gt; 6:   &lt;list&gt;</span>
+</pre></div>
 <p>Examine the Rt and case plot.</p>
-<div class="sourceCode" id="cb13"><pre class="r"><span class="kw pkg">knitr</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/include_graphics.html">include_graphics</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">target_dir</span>, <span class="st">"/latest/rt_cases_plot.png"</span>))</pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit">
+<span class="kw">knitr</span>::<span class="fu"><a href="https://rdrr.io/pkg/knitr/man/include_graphics.html">include_graphics</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="kw">target_dir</span>, <span class="st">"/latest/rt_cases_plot.png"</span>))
+</pre></div>
 </div>
 <div id="regional-rt-pipeline" class="section level3">
 <h3 class="hasAnchor">
@@ -272,26 +299,36 @@
 </h3>
 <p>This function provides a wrapper to <code>{rt_pipeline}</code> that allows it to be run on multiple regions at once with the same assumed report delay.</p>
 <p>Define a new target directory.</p>
-<div class="sourceCode" id="cb14"><pre class="r"><span class="no">target_dir</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span>(), <span class="st">"test-regional"</span>)</pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit">
+<span class="kw">target_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span>(), <span class="st">"test-regional"</span>)
+</pre></div>
 <p>Define cases in multiple regions delineated by the region variable.</p>
-<div class="sourceCode" id="cb15"><pre class="r"><span class="no">cases</span> <span class="kw">&lt;-</span> <span class="kw pkg">data.table</span><span class="kw ns">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/rbindlist.html">rbindlist</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-   <span class="kw pkg">data.table</span><span class="kw ns">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/copy.html">copy</a></span>(<span class="no">cases</span>)[, <span class="no">region</span> <span class="kw">:=</span> <span class="st">"testland"</span>],
-   <span class="no">cases</span>[, <span class="no">region</span> <span class="kw">:=</span> <span class="st">"realland"</span>]))</pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit">
+<span class="kw">cases</span> <span class="op">&lt;-</span> <span class="kw">data.table</span>::<span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/rbindlist.html">rbindlist</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
+   <span class="kw">data.table</span>::<span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/copy.html">copy</a></span>(<span class="kw">cases</span>)[, <span class="kw">region</span> <span class="op">:=</span> <span class="st">"testland"</span>],
+   <span class="kw">cases</span>[, <span class="kw">region</span> <span class="op">:=</span> <span class="st">"realland"</span>]))
+</pre></div>
 <p>Run the pipeline on each region in turn. The commented code (requires the <code>{future}</code> package) can be used to run regions in parallel (see <a href="https://github.com/epiforecasts/covid-global/blob/master/update_nowcasts.R">here</a> for an optimised nested example).</p>
-<div class="sourceCode" id="cb16"><pre class="r"><span class="co"># future::plan("multiprocess")</span>
-<span class="fu"><a href="reference/regional_rt_pipeline.html">regional_rt_pipeline</a></span>(<span class="kw">cases</span> <span class="kw">=</span> <span class="no">cases</span>,
-             <span class="kw">delay_defs</span> <span class="kw">=</span> <span class="no">delay_dist</span>,
-             <span class="kw">target_folder</span> <span class="kw">=</span> <span class="no">target_dir</span>)</pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit">
+<span class="co"># future::plan("multiprocess")</span>
+<span class="fu"><a href="reference/regional_rt_pipeline.html">regional_rt_pipeline</a></span>(cases = <span class="kw">cases</span>,
+             delay_defs = <span class="kw">delay_dist</span>,
+             target_folder = <span class="kw">target_dir</span>)
+</pre></div>
 <p>List output folders.</p>
-<div class="sourceCode" id="cb17"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span>(<span class="no">target_dir</span>, <span class="kw">recursive</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
-<span class="co">#&gt; [1] "realland" "testland"</span></pre></div>
+<div class="sourceCode" id="cb17"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span>(<span class="kw">target_dir</span>, recursive = <span class="fl">FALSE</span>)
+<span class="co">#&gt; [1] "realland" "testland"</span>
+</pre></div>
 <p>Summarise the results accross all regions.</p>
-<div class="sourceCode" id="cb18"><pre class="r"><span class="kw pkg">EpiNow</span><span class="kw ns">::</span><span class="fu"><a href="reference/regional_summary.html">regional_summary</a></span>(<span class="kw">results_dir</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span>(), <span class="st">"test-regional"</span>),
-                         <span class="kw">summary_dir</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span>(), <span class="st">"test-summary"</span>),
-                         <span class="kw">target_date</span> <span class="kw">=</span> <span class="st">"latest"</span>,
-                         <span class="kw">region_scale</span> <span class="kw">=</span> <span class="st">"Country"</span>,
-                         <span class="kw">csv_region_label</span> <span class="kw">=</span> <span class="st">"country"</span>,
-                         <span class="kw">log_cases</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit">
+<span class="kw">EpiNow</span>::<span class="fu"><a href="reference/regional_summary.html">regional_summary</a></span>(results_dir = <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span>(), <span class="st">"test-regional"</span>),
+                         summary_dir = <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span>(), <span class="st">"test-summary"</span>),
+                         target_date = <span class="st">"latest"</span>,
+                         region_scale = <span class="st">"Country"</span>,
+                         csv_region_label = <span class="st">"country"</span>,
+                         log_cases = <span class="fl">TRUE</span>)
+</pre></div>
 <p>An example of the summary output can be seen <a href="https://github.com/epiforecasts/covid-uk/tree/master/nowcast/regional-summary">here</a>.</p>
 </div>
 <div id="reporting-templates" class="section level3">

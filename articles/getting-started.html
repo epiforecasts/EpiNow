@@ -71,7 +71,7 @@
 
       
 
-      </header><div class="row">
+      </header><script src="getting-started_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Getting started</h1>
@@ -94,22 +94,26 @@
 <h2 class="hasAnchor">
 <a href="#case-data" class="anchor"></a>Case data</h2>
 <p><code>EpiNow</code> assumes that limited information is available on the dates of onset for cases and so is primarily based on using case counts by date of report. As imported cases may bias estimates of the time-varying reproduction number we support analysis that is based both on local cases and local + imported cases (where imported cases are used to adjust the local reproduction number estimates but are not otherwise used). An example of the required format is supplied in the <a href="https://epiforecasts.io/EpiSoon"><code>EpiSoon</code> package</a> (see below). Here data manipulation is done using <code>data.table</code> but this is strictly optional and <code>EpiNow</code> makes no assumptions about the form of the inputted data (except that it has the columns required).</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">EpiNow</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">EpiSoon</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">data.table</span>)</pre></body></html></div>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="no">cases</span> <span class="kw">&lt;-</span> <span class="kw pkg">data.table</span><span class="kw ns">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/as.data.table.html">as.data.table</a></span>(<span class="kw pkg">EpiSoon</span><span class="kw ns">::</span><span class="no"><a href="https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html">example_obs_cases</a></span>)
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw">EpiNow</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw">EpiSoon</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="http://r-datatable.com">data.table</a></span>)
+</pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="kw">cases</span> <span class="op">&lt;-</span> <span class="kw">data.table</span>::<span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/as.data.table.html">as.data.table</a></span>(<span class="kw">EpiSoon</span>::<span class="kw"><a href="https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html">example_obs_cases</a></span>) 
 
 <span class="co">## Here just using local cases if also using imported cases define imports as "imported"</span>
-<span class="no">cases</span> <span class="kw">&lt;-</span> <span class="no">cases</span>[, <span class="fu">`:=`</span>(<span class="kw">confirm</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span>(<span class="no">cases</span>), <span class="kw">import_status</span> <span class="kw">=</span> <span class="st">"local"</span>)]
+<span class="kw">cases</span> <span class="op">&lt;-</span> <span class="kw">cases</span>[, <span class="fu">`:=`</span>(confirm = <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span>(<span class="kw">cases</span>), import_status = <span class="st">"local"</span>)]
 
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(<span class="no">cases</span>)
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(<span class="kw">cases</span>)
 <span class="co">#&gt;    cases       date confirm import_status</span>
 <span class="co">#&gt; 1: 296.0 2020-03-17     296         local</span>
 <span class="co">#&gt; 2: 343.0 2020-03-18     343         local</span>
 <span class="co">#&gt; 3: 399.5 2020-03-19     399         local</span>
 <span class="co">#&gt; 4: 454.0 2020-03-20     454         local</span>
 <span class="co">#&gt; 5: 605.5 2020-03-21     605         local</span>
-<span class="co">#&gt; 6: 367.5 2020-03-22     367         local</span></pre></body></html></div>
+<span class="co">#&gt; 6: 367.5 2020-03-22     367         local</span>
+</pre></div>
 </div>
 <div id="reporting-delays-incubation-period-and-generation-time" class="section level2">
 <h2 class="hasAnchor">
@@ -117,25 +121,29 @@
 <p>In order to map from cases by date of report to cases by date of infection information is needed on reporting delay, and incubation period. This may either be specified (with uncertainty) in the format <code>EpiNow</code> supports or can be derived via fitting to supplied data. We first cover specifying the distirbutions.</p>
 <p>Here we define a lognormal distribution for reporting delay with a mean of 5 days (SD: 1 day) and a standard deviation of 3 days (SD: 1 day). Internally this uncertainty is then sampled to produce a <code>data.frame</code> that encodes a single distribution on each line in a format that can be processed by <code><a href="../reference/dist_skel.html">EpiNow::dist_skel</a></code> (used internally when dealing with distributions).</p>
 <p>Define the distribution</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="no">delay_def</span> <span class="kw">&lt;-</span> <span class="kw pkg">EpiNow</span><span class="kw ns">::</span><span class="fu"><a href="../reference/lognorm_dist_def.html">lognorm_dist_def</a></span>(<span class="kw">mean</span> <span class="kw">=</span> <span class="fl">5</span>,
-                                      <span class="kw">mean_sd</span> <span class="kw">=</span> <span class="fl">1</span>,
-                                      <span class="kw">sd</span> <span class="kw">=</span> <span class="fl">3</span>,
-                                      <span class="kw">sd_sd</span> <span class="kw">=</span> <span class="fl">1</span>,
-                                      <span class="kw">max_value</span> <span class="kw">=</span> <span class="fl">30</span>,
-                                      <span class="kw">samples</span> <span class="kw">=</span> <span class="fl">10</span>,
-                                      <span class="kw">to_log</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="kw">delay_def</span> <span class="op">&lt;-</span> <span class="kw">EpiNow</span>::<span class="fu"><a href="../reference/lognorm_dist_def.html">lognorm_dist_def</a></span>(mean = <span class="fl">5</span>, 
+                                      mean_sd = <span class="fl">1</span>,
+                                      sd = <span class="fl">3</span>,
+                                      sd_sd = <span class="fl">1</span>,
+                                      max_value = <span class="fl">30</span>,
+                                      samples = <span class="fl">10</span>,
+                                      to_log = <span class="fl">TRUE</span>)
 
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="no">delay_def</span>)
-<span class="co">#&gt;      model params max_value</span>
-<span class="co">#&gt; 1: lognorm &lt;list&gt;        30</span>
-<span class="co">#&gt; 2: lognorm &lt;list&gt;        30</span>
-<span class="co">#&gt; 3: lognorm &lt;list&gt;        30</span>
-<span class="co">#&gt; 4: lognorm &lt;list&gt;        30</span>
-<span class="co">#&gt; 5: lognorm &lt;list&gt;        30</span>
-<span class="co">#&gt; 6: lognorm &lt;list&gt;        30</span></pre></body></html></div>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw">delay_def</span>)
+<span class="co">#&gt;      model    params max_value</span>
+<span class="co">#&gt; 1: lognorm &lt;list[2]&gt;        30</span>
+<span class="co">#&gt; 2: lognorm &lt;list[2]&gt;        30</span>
+<span class="co">#&gt; 3: lognorm &lt;list[2]&gt;        30</span>
+<span class="co">#&gt; 4: lognorm &lt;list[2]&gt;        30</span>
+<span class="co">#&gt; 5: lognorm &lt;list[2]&gt;        30</span>
+<span class="co">#&gt; 6: lognorm &lt;list[2]&gt;        30</span>
+</pre></div>
 <p>Example of sampling from one of the distributions</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"> <span class="fu"><a href="../reference/dist_skel.html">dist_skel</a></span>(<span class="fl">10</span>, <span class="kw">model</span> <span class="kw">=</span> <span class="no">delay_def</span>$<span class="no">model</span>[<span class="fl">1</span>], <span class="kw">params</span> <span class="kw">=</span> <span class="no">delay_def</span>$<span class="no">params</span><span class="kw">[[</span><span class="fl">1</span>]])
-<span class="co">#&gt;  [1]  6  1  4  3 10 68 20  2  3  1</span></pre></body></html></div>
+<div class="sourceCode" id="cb4"><pre class="downlit">
+ <span class="fu"><a href="../reference/dist_skel.html">dist_skel</a></span>(<span class="fl">10</span>, model = <span class="kw">delay_def</span><span class="op">$</span><span class="kw">model</span>[<span class="fl">1</span>], params = <span class="kw">delay_def</span><span class="op">$</span><span class="kw">params</span>[[<span class="fl">1</span>]])
+<span class="co">#&gt;  [1] 11  0  8  5  4  6 11  1  0  8</span>
+</pre></div>
 </div>
 <div id="nowcasting-cases-by-date-of-infection" class="section level2">
 <h2 class="hasAnchor">

@@ -124,7 +124,7 @@
     <p>Get Timeseries from EpiNow</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_timeseries</span>(<span class='kw'>results_dir</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>summarised</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>get_timeseries</span>(results_dir = <span class='kw'>NULL</span>, date = <span class='kw'>NULL</span>, summarised = <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -153,17 +153,17 @@ returned.</p></td>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='co'>## Assuming epiforecasts/covid is one repo higher</span>
 <span class='co'>## Summary results</span>
-<span class='fu'>get_timeseries</span>(<span class='st'>"../covid/_posts/global/nowcast/results/"</span>,
-               <span class='kw'>summarised</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'>get_timeseries</span>(<span class='st'>"../covid/_posts/global/nowcast/results/"</span>, 
+               summarised = <span class='fl'>TRUE</span>)
 
 <span class='co'>## Simulations</span>
 <span class='fu'>get_timeseries</span>(<span class='st'>"../covid/_posts/global/nowcast/results/"</span>)
 }
 <span class='co'>## Code</span>
-<span class='no'>get_timeseries</span></div><div class='output co'>#&gt; function (results_dir = NULL, date = NULL, summarised = FALSE) 
+<span class='kw'>get_timeseries</span></div><div class='output co'>#&gt; function (results_dir = NULL, date = NULL, summarised = FALSE) 
 #&gt; {
 #&gt;     if (is.null(date)) {
 #&gt;         date &lt;- "latest"
@@ -188,7 +188,7 @@ returned.</p></td>
 #&gt;     names(out) &lt;- c("rt", "incidence")
 #&gt;     return(out)
 #&gt; }
-#&gt; &lt;bytecode: 0x7f8ae38573f8&gt;
+#&gt; &lt;bytecode: 0x11345d748&gt;
 #&gt; &lt;environment: namespace:EpiNow&gt;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

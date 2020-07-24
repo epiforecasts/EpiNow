@@ -125,11 +125,11 @@
     </div>
 
     <pre class="usage"><span class='fu'>get_dist_def</span>(
-  <span class='no'>values</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>bootstraps</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>bootstrap_samples</span> <span class='kw'>=</span> <span class='fl'>250</span>
+  <span class='kw'>values</span>,
+  verbose = <span class='fl'>FALSE</span>,
+  samples = <span class='fl'>1</span>,
+  bootstraps = <span class='fl'>1</span>,
+  bootstrap_samples = <span class='fl'>250</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -169,37 +169,37 @@ When the sample size of the supplied delay distribution is less than 100 this is
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 <span class='co'>## Example with exponential and a small smaple</span>
-<span class='no'>delays</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Exponential.html'>rexp</a></span>(<span class='fl'>20</span>, <span class='fl'>1</span>)
+<span class='kw'>delays</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Exponential.html'>rexp</a></span>(<span class='fl'>20</span>, <span class='fl'>1</span>)
 
-<span class='fu'>get_dist_def</span>(<span class='no'>delays</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='message'>Exponential selected as the best fit for the distribution</span></div><div class='output co'>#&gt;     model max_value params
-#&gt;  1:   exp         4 &lt;list&gt;
-#&gt;  2:   exp         4 &lt;list&gt;
-#&gt;  3:   exp         4 &lt;list&gt;
-#&gt;  4:   exp         4 &lt;list&gt;
-#&gt;  5:   exp         4 &lt;list&gt;
-#&gt;  6:   exp         4 &lt;list&gt;
-#&gt;  7:   exp         4 &lt;list&gt;
-#&gt;  8:   exp         4 &lt;list&gt;
-#&gt;  9:   exp         4 &lt;list&gt;
-#&gt; 10:   exp         4 &lt;list&gt;</div><div class='input'>
+<span class='fu'>get_dist_def</span>(<span class='kw'>delays</span>, samples = <span class='fl'>10</span>, verbose = <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='message'>Exponential selected as the best fit for the distribution</span></div><div class='output co'>#&gt;     model max_value    params
+#&gt;  1:   exp         4 &lt;list[1]&gt;
+#&gt;  2:   exp         4 &lt;list[1]&gt;
+#&gt;  3:   exp         4 &lt;list[1]&gt;
+#&gt;  4:   exp         4 &lt;list[1]&gt;
+#&gt;  5:   exp         4 &lt;list[1]&gt;
+#&gt;  6:   exp         4 &lt;list[1]&gt;
+#&gt;  7:   exp         4 &lt;list[1]&gt;
+#&gt;  8:   exp         4 &lt;list[1]&gt;
+#&gt;  9:   exp         4 &lt;list[1]&gt;
+#&gt; 10:   exp         4 &lt;list[1]&gt;</div><div class='input'>
 
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='co'>## Example with gamma and a larger sample</span>
-<span class='no'>delays</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/GammaDist.html'>rgamma</a></span>(<span class='fl'>50</span>, <span class='fl'>4</span>, <span class='fl'>1</span>)
+<span class='kw'>delays</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/GammaDist.html'>rgamma</a></span>(<span class='fl'>50</span>, <span class='fl'>4</span>, <span class='fl'>1</span>)
 
-<span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>get_dist_def</span>(<span class='no'>delays</span>, <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>bootstraps</span> <span class='kw'>=</span> <span class='fl'>2</span>)
+<span class='kw'>out</span> <span class='op'>&lt;-</span> <span class='fu'>get_dist_def</span>(<span class='kw'>delays</span>, samples = <span class='fl'>2</span>, bootstraps = <span class='fl'>2</span>)
 
 <span class='co'>## Inspect</span>
-<span class='no'>out</span>
+<span class='kw'>out</span>
 
 <span class='co'>## Inspect one parameter</span>
-<span class='no'>out</span>$<span class='no'>params</span><span class='kw'>[[</span><span class='fl'>1</span>]]
+<span class='kw'>out</span><span class='op'>$</span><span class='kw'>params</span>[[<span class='fl'>1</span>]]
 
 
 <span class='co'>## Load into skeleton and sample with truncation</span>
-<span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='dist_skel.html'>dist_skel</a></span>(<span class='fl'>10</span>, <span class='kw'>model</span> <span class='kw'>=</span> <span class='no'>out</span>$<span class='no'>model</span><span class='kw'>[[</span><span class='fl'>1</span>]],
-                  <span class='kw'>params</span> <span class='kw'>=</span> <span class='no'>out</span>$<span class='no'>params</span><span class='kw'>[[</span><span class='fl'>1</span>]],
-                  <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='no'>out</span>$<span class='no'>max_value</span><span class='kw'>[[</span><span class='fl'>1</span>]])
+<span class='kw'>EpiNow</span>::<span class='fu'><a href='dist_skel.html'>dist_skel</a></span>(<span class='fl'>10</span>, model = <span class='kw'>out</span><span class='op'>$</span><span class='kw'>model</span>[[<span class='fl'>1</span>]],
+                  params = <span class='kw'>out</span><span class='op'>$</span><span class='kw'>params</span>[[<span class='fl'>1</span>]],
+                  max_value = <span class='kw'>out</span><span class='op'>$</span><span class='kw'>max_value</span>[[<span class='fl'>1</span>]])
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

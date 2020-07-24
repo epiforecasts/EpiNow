@@ -125,17 +125,17 @@
     </div>
 
     <pre class="usage"><span class='fu'>epi_measures_pipeline</span>(
-  <span class='kw'>nowcast</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>min_est_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>gt_samples</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>rt_samples</span> <span class='kw'>=</span> <span class='fl'>5</span>,
-  <span class='kw'>rt_windows</span> <span class='kw'>=</span> <span class='fl'>7</span>,
-  <span class='kw'>rate_window</span> <span class='kw'>=</span> <span class='fl'>7</span>,
-  <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>forecast_model</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>horizon</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+  nowcast = <span class='kw'>NULL</span>,
+  generation_times = <span class='kw'>NULL</span>,
+  min_est_date = <span class='kw'>NULL</span>,
+  gt_samples = <span class='fl'>1</span>,
+  rt_samples = <span class='fl'>5</span>,
+  rt_windows = <span class='fl'>7</span>,
+  rate_window = <span class='fl'>7</span>,
+  rt_prior = <span class='kw'>NULL</span>,
+  forecast_model = <span class='kw'>NULL</span>,
+  horizon = <span class='fl'>0</span>,
+  verbose = <span class='fl'>TRUE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -198,34 +198,34 @@ both summarised and raw.</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Construct example distributions</span>
 <span class='co'>## reporting delay dist</span>
-<span class='no'>delay_dist</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='fu'><a href='lognorm_dist_def.html'>lognorm_dist_def</a></span>(<span class='kw'>mean</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-                                      <span class='kw'>mean_sd</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-                                      <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-                                      <span class='kw'>sd_sd</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-                                      <span class='kw'>max_value</span> <span class='kw'>=</span> <span class='fl'>30</span>,
-                                      <span class='kw'>samples</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+<span class='kw'>delay_dist</span> <span class='op'>&lt;-</span> <span class='kw'>EpiNow</span>::<span class='fu'><a href='lognorm_dist_def.html'>lognorm_dist_def</a></span>(mean = <span class='fl'>3</span>, 
+                                      mean_sd = <span class='fl'>1</span>,
+                                      sd = <span class='fl'>3</span>,
+                                      sd_sd = <span class='fl'>1</span>,
+                                      max_value = <span class='fl'>30</span>,
+                                      samples = <span class='fl'>1</span>)
 
 <span class='co'>## incubation delay dist</span>
-<span class='no'>incubation_dist</span> <span class='kw'>&lt;-</span> <span class='no'>delay_dist</span>
+<span class='kw'>incubation_dist</span> <span class='op'>&lt;-</span> <span class='kw'>delay_dist</span>
 
 <span class='co'>## Uses example case vector from EpiSoon</span>
-<span class='no'>cases</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/setDT.html'>setDT</a></span>(<span class='kw pkg'>EpiSoon</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>)
-<span class='no'>cases</span> <span class='kw'>&lt;-</span> <span class='no'>cases</span>[, <span class='fu'>`:=`</span>(<span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span>(<span class='no'>cases</span>), <span class='kw'>import_status</span> <span class='kw'>=</span> <span class='st'>"local"</span>)]
+<span class='kw'>cases</span> <span class='op'>&lt;-</span> <span class='kw'>data.table</span>::<span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/setDT.html'>setDT</a></span>(<span class='kw'>EpiSoon</span>::<span class='kw'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>)
+<span class='kw'>cases</span> <span class='op'>&lt;-</span> <span class='kw'>cases</span>[, <span class='fu'>`:=`</span>(confirm = <span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span>(<span class='kw'>cases</span>), import_status = <span class='st'>"local"</span>)]
 
 <span class='co'>## Basic nowcast</span>
-<span class='no'>nowcast</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='nowcast_pipeline.html'>nowcast_pipeline</a></span>(<span class='kw'>reported_cases</span> <span class='kw'>=</span> <span class='no'>cases</span>,
-                            <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='no'>cases</span>$<span class='no'>date</span>),
-                            <span class='kw'>delay_defs</span> <span class='kw'>=</span> <span class='no'>delay_dist</span>,
-                            <span class='kw'>incubation_defs</span> <span class='kw'>=</span> <span class='no'>incubation_dist</span>)
-
+<span class='kw'>nowcast</span> <span class='op'>&lt;-</span> <span class='fu'><a href='nowcast_pipeline.html'>nowcast_pipeline</a></span>(reported_cases = <span class='kw'>cases</span>, 
+                            target_date = <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='kw'>cases</span><span class='op'>$</span><span class='kw'>date</span>),
+                            delay_defs = <span class='kw'>delay_dist</span>,
+                            incubation_defs = <span class='kw'>incubation_dist</span>)
+ 
 <span class='co'>## Estimate parameters                           </span>
-<span class='no'>estimates</span> <span class='kw'>&lt;-</span> <span class='fu'>epi_measures_pipeline</span>(<span class='no'>nowcast</span>[<span class='no'>type</span> <span class='kw'>%in%</span> <span class='st'>"infection_upscaled"</span>],
-                       <span class='kw'>generation_times</span> <span class='kw'>=</span> <span class='kw pkg'>EpiNow</span><span class='kw ns'>::</span><span class='no'><a href='covid_generation_times.html'>covid_generation_times</a></span>,
-                       <span class='kw'>rt_prior</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mean_prior</span> <span class='kw'>=</span> <span class='fl'>2.6</span>, <span class='kw'>std_prior</span> <span class='kw'>=</span> <span class='fl'>2</span>))</div><div class='output co'>#&gt; <span class='message'>Estimate time-varying R0</span></div><div class='output co'>#&gt; <span class='message'>Summarising time-varying R0</span></div><div class='output co'>#&gt; <span class='message'>Summarising forecast cases</span></div><div class='output co'>#&gt; <span class='message'>Estimate time-varying rate of growth</span></div><div class='output co'>#&gt; <span class='message'></span>
+<span class='kw'>estimates</span> <span class='op'>&lt;-</span> <span class='fu'>epi_measures_pipeline</span>(<span class='kw'>nowcast</span>[<span class='kw'>type</span> <span class='op'>%in%</span> <span class='st'>"infection_upscaled"</span>], 
+                       generation_times = <span class='kw'>EpiNow</span>::<span class='kw'><a href='covid_generation_times.html'>covid_generation_times</a></span>,
+                       rt_prior = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(mean_prior = <span class='fl'>2.6</span>, std_prior = <span class='fl'>2</span>))   </div><div class='output co'>#&gt; <span class='message'>Estimate time-varying R0</span></div><div class='output co'>#&gt; <span class='message'>Summarising time-varying R0</span></div><div class='output co'>#&gt; <span class='message'>Summarising forecast cases</span></div><div class='output co'>#&gt; <span class='message'>Estimate time-varying rate of growth</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: ‘purrr’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:data.table’:</span>
 #&gt; <span class='message'></span>
-#&gt; <span class='message'>    transpose</span></div><div class='input'>
-<span class='no'>estimates</span></div><div class='output co'>#&gt; $R0
+#&gt; <span class='message'>    transpose</span></div><div class='input'>                       
+<span class='kw'>estimates</span>                                                             </div><div class='output co'>#&gt; $R0
 #&gt;                   type       date rt_type    bottom      top     lower
 #&gt;  1: infection_upscaled 2020-01-08 nowcast 1.1631424 2.732865 1.1631424
 #&gt;  2: infection_upscaled 2020-01-09 nowcast 1.0492720 2.735856 2.1404290
@@ -364,79 +364,79 @@ both summarised and raw.</p>
 #&gt; 66: 1.2253052 1.2253052 1.227756 0.01641097          0.0           7         0
 #&gt; 67: 1.2206810 1.2206810 1.220326 0.03427754          0.0           7         0
 #&gt;         upper    median     mean        std prob_control mean_window sd_window
-#&gt;     mean_crps sd_crps R0_range
-#&gt;  1:      2.00       0   &lt;list&gt;
-#&gt;  2:      0.20       0   &lt;list&gt;
-#&gt;  3:      0.36       0   &lt;list&gt;
-#&gt;  4:      0.04       0   &lt;list&gt;
-#&gt;  5:      0.04       0   &lt;list&gt;
-#&gt;  6:      0.68       0   &lt;list&gt;
-#&gt;  7:      1.04       0   &lt;list&gt;
-#&gt;  8:      0.88       0   &lt;list&gt;
-#&gt;  9:      0.20       0   &lt;list&gt;
-#&gt; 10:      0.12       0   &lt;list&gt;
-#&gt; 11:      0.40       0   &lt;list&gt;
-#&gt; 12:      0.16       0   &lt;list&gt;
-#&gt; 13:      0.68       0   &lt;list&gt;
-#&gt; 14:      1.36       0   &lt;list&gt;
-#&gt; 15:      2.40       0   &lt;list&gt;
-#&gt; 16:      0.28       0   &lt;list&gt;
-#&gt; 17:      0.24       0   &lt;list&gt;
-#&gt; 18:      0.24       0   &lt;list&gt;
-#&gt; 19:      1.24       0   &lt;list&gt;
-#&gt; 20:      0.88       0   &lt;list&gt;
-#&gt; 21:      0.80       0   &lt;list&gt;
-#&gt; 22:      4.68       0   &lt;list&gt;
-#&gt; 23:      2.48       0   &lt;list&gt;
-#&gt; 24:      2.48       0   &lt;list&gt;
-#&gt; 25:      1.28       0   &lt;list&gt;
-#&gt; 26:      2.56       0   &lt;list&gt;
-#&gt; 27:      1.84       0   &lt;list&gt;
-#&gt; 28:      2.12       0   &lt;list&gt;
-#&gt; 29:      1.56       0   &lt;list&gt;
-#&gt; 30:      3.68       0   &lt;list&gt;
-#&gt; 31:      1.28       0   &lt;list&gt;
-#&gt; 32:      5.88       0   &lt;list&gt;
-#&gt; 33:      1.56       0   &lt;list&gt;
-#&gt; 34:      3.32       0   &lt;list&gt;
-#&gt; 35:      9.24       0   &lt;list&gt;
-#&gt; 36:      3.28       0   &lt;list&gt;
-#&gt; 37:      2.12       0   &lt;list&gt;
-#&gt; 38:     10.00       0   &lt;list&gt;
-#&gt; 39:     11.92       0   &lt;list&gt;
-#&gt; 40:      1.00       0   &lt;list&gt;
-#&gt; 41:      5.20       0   &lt;list&gt;
-#&gt; 42:      2.44       0   &lt;list&gt;
-#&gt; 43:      4.52       0   &lt;list&gt;
-#&gt; 44:      5.76       0   &lt;list&gt;
-#&gt; 45:      2.52       0   &lt;list&gt;
-#&gt; 46:      1.36       0   &lt;list&gt;
-#&gt; 47:     12.40       0   &lt;list&gt;
-#&gt; 48:      7.40       0   &lt;list&gt;
-#&gt; 49:     13.80       0   &lt;list&gt;
-#&gt; 50:      5.20       0   &lt;list&gt;
-#&gt; 51:     27.40       0   &lt;list&gt;
-#&gt; 52:     16.04       0   &lt;list&gt;
-#&gt; 53:     12.64       0   &lt;list&gt;
-#&gt; 54:      1.96       0   &lt;list&gt;
-#&gt; 55:     13.64       0   &lt;list&gt;
-#&gt; 56:      2.60       0   &lt;list&gt;
-#&gt; 57:     12.96       0   &lt;list&gt;
-#&gt; 58:     19.20       0   &lt;list&gt;
-#&gt; 59:     10.52       0   &lt;list&gt;
-#&gt; 60:     15.96       0   &lt;list&gt;
-#&gt; 61:     14.08       0   &lt;list&gt;
-#&gt; 62:      3.92       0   &lt;list&gt;
-#&gt; 63:      4.56       0   &lt;list&gt;
-#&gt; 64:      3.80       0   &lt;list&gt;
-#&gt; 65:      5.48       0   &lt;list&gt;
-#&gt; 66:      8.88       0   &lt;list&gt;
-#&gt; 67:      3.56       0   &lt;list&gt;
-#&gt;     mean_crps sd_crps R0_range
+#&gt;     mean_crps sd_crps  R0_range
+#&gt;  1:      2.00       0 &lt;list[5]&gt;
+#&gt;  2:      0.20       0 &lt;list[5]&gt;
+#&gt;  3:      0.36       0 &lt;list[5]&gt;
+#&gt;  4:      0.04       0 &lt;list[5]&gt;
+#&gt;  5:      0.04       0 &lt;list[5]&gt;
+#&gt;  6:      0.68       0 &lt;list[5]&gt;
+#&gt;  7:      1.04       0 &lt;list[5]&gt;
+#&gt;  8:      0.88       0 &lt;list[5]&gt;
+#&gt;  9:      0.20       0 &lt;list[5]&gt;
+#&gt; 10:      0.12       0 &lt;list[5]&gt;
+#&gt; 11:      0.40       0 &lt;list[5]&gt;
+#&gt; 12:      0.16       0 &lt;list[5]&gt;
+#&gt; 13:      0.68       0 &lt;list[5]&gt;
+#&gt; 14:      1.36       0 &lt;list[5]&gt;
+#&gt; 15:      2.40       0 &lt;list[5]&gt;
+#&gt; 16:      0.28       0 &lt;list[5]&gt;
+#&gt; 17:      0.24       0 &lt;list[5]&gt;
+#&gt; 18:      0.24       0 &lt;list[5]&gt;
+#&gt; 19:      1.24       0 &lt;list[5]&gt;
+#&gt; 20:      0.88       0 &lt;list[5]&gt;
+#&gt; 21:      0.80       0 &lt;list[5]&gt;
+#&gt; 22:      4.68       0 &lt;list[5]&gt;
+#&gt; 23:      2.48       0 &lt;list[5]&gt;
+#&gt; 24:      2.48       0 &lt;list[5]&gt;
+#&gt; 25:      1.28       0 &lt;list[5]&gt;
+#&gt; 26:      2.56       0 &lt;list[5]&gt;
+#&gt; 27:      1.84       0 &lt;list[5]&gt;
+#&gt; 28:      2.12       0 &lt;list[5]&gt;
+#&gt; 29:      1.56       0 &lt;list[5]&gt;
+#&gt; 30:      3.68       0 &lt;list[5]&gt;
+#&gt; 31:      1.28       0 &lt;list[5]&gt;
+#&gt; 32:      5.88       0 &lt;list[5]&gt;
+#&gt; 33:      1.56       0 &lt;list[5]&gt;
+#&gt; 34:      3.32       0 &lt;list[5]&gt;
+#&gt; 35:      9.24       0 &lt;list[5]&gt;
+#&gt; 36:      3.28       0 &lt;list[5]&gt;
+#&gt; 37:      2.12       0 &lt;list[5]&gt;
+#&gt; 38:     10.00       0 &lt;list[5]&gt;
+#&gt; 39:     11.92       0 &lt;list[5]&gt;
+#&gt; 40:      1.00       0 &lt;list[5]&gt;
+#&gt; 41:      5.20       0 &lt;list[5]&gt;
+#&gt; 42:      2.44       0 &lt;list[5]&gt;
+#&gt; 43:      4.52       0 &lt;list[5]&gt;
+#&gt; 44:      5.76       0 &lt;list[5]&gt;
+#&gt; 45:      2.52       0 &lt;list[5]&gt;
+#&gt; 46:      1.36       0 &lt;list[5]&gt;
+#&gt; 47:     12.40       0 &lt;list[5]&gt;
+#&gt; 48:      7.40       0 &lt;list[5]&gt;
+#&gt; 49:     13.80       0 &lt;list[5]&gt;
+#&gt; 50:      5.20       0 &lt;list[5]&gt;
+#&gt; 51:     27.40       0 &lt;list[5]&gt;
+#&gt; 52:     16.04       0 &lt;list[5]&gt;
+#&gt; 53:     12.64       0 &lt;list[5]&gt;
+#&gt; 54:      1.96       0 &lt;list[5]&gt;
+#&gt; 55:     13.64       0 &lt;list[5]&gt;
+#&gt; 56:      2.60       0 &lt;list[5]&gt;
+#&gt; 57:     12.96       0 &lt;list[5]&gt;
+#&gt; 58:     19.20       0 &lt;list[5]&gt;
+#&gt; 59:     10.52       0 &lt;list[5]&gt;
+#&gt; 60:     15.96       0 &lt;list[5]&gt;
+#&gt; 61:     14.08       0 &lt;list[5]&gt;
+#&gt; 62:      3.92       0 &lt;list[5]&gt;
+#&gt; 63:      4.56       0 &lt;list[5]&gt;
+#&gt; 64:      3.80       0 &lt;list[5]&gt;
+#&gt; 65:      5.48       0 &lt;list[5]&gt;
+#&gt; 66:      8.88       0 &lt;list[5]&gt;
+#&gt; 67:      3.56       0 &lt;list[5]&gt;
+#&gt;     mean_crps sd_crps  R0_range
 #&gt; 
 #&gt; $rate_of_spread
-#&gt;                  type overall_little_r time_varying_r
-#&gt; 1: infection_upscaled           &lt;list&gt;   &lt;data.table&gt;
+#&gt;                  type overall_little_r      time_varying_r
+#&gt; 1: infection_upscaled        &lt;list[3]&gt; &lt;data.table[207x8]&gt;
 #&gt; 
 #&gt; $raw_R0
 #&gt;            date        R sample crps window rt_type               type

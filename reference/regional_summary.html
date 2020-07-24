@@ -125,12 +125,12 @@
     </div>
 
     <pre class="usage"><span class='fu'>regional_summary</span>(
-  <span class='kw'>results_dir</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>summary_dir</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>region_scale</span> <span class='kw'>=</span> <span class='st'>"Region"</span>,
-  <span class='kw'>csv_region_label</span> <span class='kw'>=</span> <span class='st'>"region"</span>,
-  <span class='kw'>log_cases</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  results_dir = <span class='kw'>NULL</span>,
+  summary_dir = <span class='kw'>NULL</span>,
+  target_date = <span class='kw'>NULL</span>,
+  region_scale = <span class='st'>"Region"</span>,
+  csv_region_label = <span class='st'>"region"</span>,
+  log_cases = <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -168,16 +168,17 @@ in which to store summary of results.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 
 <span class='co'>## Example asssumes that CovidGlobalNow (github.com/epiforecasts/covid-global) is  </span>
 <span class='co'>## in the directory above the root.</span>
-<span class='fu'>regional_summary</span>(<span class='kw'>results_dir</span> <span class='kw'>=</span> <span class='st'>"../covid-global/national"</span>,
-                 <span class='kw'>summary_dir</span> <span class='kw'>=</span> <span class='st'>"../covid-global/national-summary"</span>,
-                 <span class='kw'>target_date</span> <span class='kw'>=</span> <span class='st'>"2020-03-19"</span>,
-                 <span class='kw'>region_scale</span> <span class='kw'>=</span> <span class='st'>"Country"</span>)
+<span class='fu'>regional_summary</span>(results_dir = <span class='st'>"../covid-global/national"</span>,
+                 summary_dir = <span class='st'>"../covid-global/national-summary"</span>,
+                 target_date = <span class='st'>"2020-03-19"</span>,
+                 region_scale = <span class='st'>"Country"</span>)
 
-}</div></pre>
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
