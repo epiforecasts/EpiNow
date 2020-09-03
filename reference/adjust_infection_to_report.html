@@ -223,7 +223,8 @@ a third variable <code>reference</code> which indicates what the date variable r
 <span class='co'>## Simple mapping</span>
 <span class='kw'>report</span> <span class='op'>&lt;-</span> <span class='fu'>adjust_infection_to_report</span>(<span class='kw'>infections</span>, <span class='kw'>delay_def</span>, <span class='kw'>incubation_def</span>)   
 
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>report</span>)   </div><div class='output co'>#&gt;           date cases
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>report</span>)   
+</div><div class='output co'>#&gt;           date cases
 #&gt;  1: 2020-01-16     1
 #&gt;  2: 2020-01-17     1
 #&gt;  3: 2020-01-18     0
@@ -289,7 +290,8 @@ a third variable <code>reference</code> which indicates what the date variable r
                       <span class='kw'>infections</span>, <span class='kw'>delay_def</span>, <span class='kw'>incubation_def</span>,
                       reporting_effect = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>, <span class='fl'>4</span>), <span class='fl'>0.95</span>, <span class='fl'>0.95</span>))          
                              
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>report_weekly</span>) </div><div class='output co'>#&gt;           date cases
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>report_weekly</span>) 
+</div><div class='output co'>#&gt;           date cases
 #&gt;  1: 2020-01-16     1
 #&gt;  2: 2020-01-17     0
 #&gt;  3: 2020-01-18     0
@@ -365,7 +367,8 @@ a third variable <code>reference</code> which indicates what the date variable r
                       <span class='kw'>out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/fifelse.html'>ifelse</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span>(<span class='kw'>out</span>), <span class='fl'>0</span>, <span class='kw'>out</span>)
                       })          
                              
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>report_stochastic</span>)         </div><div class='output co'>#&gt;           date cases
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>report_stochastic</span>)         
+</div><div class='output co'>#&gt;           date cases
 #&gt;  1: 2020-01-17     3
 #&gt;  2: 2020-01-18     0
 #&gt;  3: 2020-01-19     0

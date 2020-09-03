@@ -171,7 +171,8 @@ When the sample size of the supplied delay distribution is less than 100 this is
 <span class='co'>## Example with exponential and a small smaple</span>
 <span class='kw'>delays</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Exponential.html'>rexp</a></span>(<span class='fl'>20</span>, <span class='fl'>1</span>)
 
-<span class='fu'>get_dist_def</span>(<span class='kw'>delays</span>, samples = <span class='fl'>10</span>, verbose = <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='message'>Exponential selected as the best fit for the distribution</span></div><div class='output co'>#&gt;     model max_value    params
+<span class='fu'>get_dist_def</span>(<span class='kw'>delays</span>, samples = <span class='fl'>10</span>, verbose = <span class='fl'>TRUE</span>)
+</div><div class='output co'>#&gt; <span class='message'>Exponential selected as the best fit for the distribution</span></div><div class='output co'>#&gt;     model max_value    params
 #&gt;  1:   exp         4 &lt;list[1]&gt;
 #&gt;  2:   exp         4 &lt;list[1]&gt;
 #&gt;  3:   exp         4 &lt;list[1]&gt;
@@ -200,7 +201,8 @@ When the sample size of the supplied delay distribution is less than 100 this is
 <span class='kw'>EpiNow</span>::<span class='fu'><a href='dist_skel.html'>dist_skel</a></span>(<span class='fl'>10</span>, model = <span class='kw'>out</span><span class='op'>$</span><span class='kw'>model</span>[[<span class='fl'>1</span>]],
                   params = <span class='kw'>out</span><span class='op'>$</span><span class='kw'>params</span>[[<span class='fl'>1</span>]],
                   max_value = <span class='kw'>out</span><span class='op'>$</span><span class='kw'>max_value</span>[[<span class='fl'>1</span>]])
-}</div></pre>
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

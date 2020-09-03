@@ -185,7 +185,8 @@ Defaults to <code>TRUE</code>.</p></td>
 <span class='kw'>cases</span> <span class='op'>&lt;-</span> <span class='kw'>cases</span>[, <span class='kw'>cases</span> <span class='op'>:=</span> <span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span>(<span class='kw'>cases</span>)] 
 
 <span class='co'>## Reported case distribution</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>cases</span>)</div><div class='output co'>#&gt;     cases       date
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>cases</span>)
+</div><div class='output co'>#&gt;     cases       date
 #&gt;  1:     1 2020-01-20
 #&gt;  2:     0 2020-01-21
 #&gt;  3:     1 2020-01-22
@@ -251,7 +252,8 @@ Defaults to <code>TRUE</code>.</p></td>
 #&gt; 63:   367 2020-03-22
 #&gt;     cases       date</div><div class='input'>
 <span class='co'>## Total cases</span>
-<span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span>(<span class='kw'>cases</span><span class='op'>$</span><span class='kw'>cases</span>)</div><div class='output co'>#&gt; [1] 4720</div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span>(<span class='kw'>cases</span><span class='op'>$</span><span class='kw'>cases</span>)
+</div><div class='output co'>#&gt; [1] 4720</div><div class='input'>
 <span class='kw'>delay_fn</span> <span class='op'>&lt;-</span> <span class='fu'>function</span>(<span class='kw'>n</span>, <span class='kw'>dist</span>, <span class='kw'>cum</span>) {
               <span class='co'>if</span>(<span class='kw'>dist</span>) {
                 <span class='fu'><a href='https://rdrr.io/r/stats/GammaDist.html'>pgamma</a></span>(<span class='kw'>n</span> <span class='op'>+</span> <span class='fl'>0.9999</span>, <span class='fl'>2</span>, <span class='fl'>1</span>) <span class='op'>-</span> <span class='fu'><a href='https://rdrr.io/r/stats/GammaDist.html'>pgamma</a></span>(<span class='kw'>n</span> <span class='op'>-</span> <span class='fl'>1e-5</span>, <span class='fl'>2</span>, <span class='fl'>1</span>)
@@ -264,7 +266,8 @@ Defaults to <code>TRUE</code>.</p></td>
                              dist_fn = <span class='kw'>delay_fn</span>)
    
 <span class='co'>## Estimated onset distribution</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>onsets</span>)</div><div class='output co'>#&gt;           date cases
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>onsets</span>)
+</div><div class='output co'>#&gt;           date cases
 #&gt;  1: 2020-01-19     1
 #&gt;  2: 2020-01-20     1
 #&gt;  3: 2020-01-21     0
@@ -336,7 +339,8 @@ Defaults to <code>TRUE</code>.</p></td>
                   <span class='op'>~</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span>(<span class='fu'>sample_approx_dist</span>(cases = <span class='kw'>cases</span>,
                   dist_fn = <span class='kw'>delay_fn</span>)<span class='op'>$</span><span class='kw'>cases</span>))) 
                    
-<span class='kw'>total_onsets</span></div><div class='output co'>#&gt; [1] 4716</div><div class='input'> 
+<span class='kw'>total_onsets</span>
+</div><div class='output co'>#&gt; [1] 4716</div><div class='input'> 
                    
 <span class='co'>## Map from onset cases to reported                  </span>
 <span class='kw'>reports</span> <span class='op'>&lt;-</span> <span class='fu'>sample_approx_dist</span>(cases = <span class='kw'>cases</span>,
@@ -349,6 +353,7 @@ Defaults to <code>TRUE</code>.</p></td>
                               dist_fn = <span class='kw'>delay_fn</span>,
                               direction = <span class='st'>"forwards"</span>,
                               type = <span class='st'>"median"</span>)
+
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

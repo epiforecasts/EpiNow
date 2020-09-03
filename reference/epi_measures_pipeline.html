@@ -221,11 +221,13 @@ both summarised and raw.</p>
 <span class='co'>## Estimate parameters                           </span>
 <span class='kw'>estimates</span> <span class='op'>&lt;-</span> <span class='fu'>epi_measures_pipeline</span>(<span class='kw'>nowcast</span>[<span class='kw'>type</span> <span class='op'>%in%</span> <span class='st'>"infection_upscaled"</span>], 
                        generation_times = <span class='kw'>EpiNow</span>::<span class='kw'><a href='covid_generation_times.html'>covid_generation_times</a></span>,
-                       rt_prior = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(mean_prior = <span class='fl'>2.6</span>, std_prior = <span class='fl'>2</span>))   </div><div class='output co'>#&gt; <span class='message'>Estimate time-varying R0</span></div><div class='output co'>#&gt; <span class='message'>Summarising time-varying R0</span></div><div class='output co'>#&gt; <span class='message'>Summarising forecast cases</span></div><div class='output co'>#&gt; <span class='message'>Estimate time-varying rate of growth</span></div><div class='output co'>#&gt; <span class='message'></span>
+                       rt_prior = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(mean_prior = <span class='fl'>2.6</span>, std_prior = <span class='fl'>2</span>))   
+</div><div class='output co'>#&gt; <span class='message'>Estimate time-varying R0</span></div><div class='output co'>#&gt; <span class='message'>Summarising time-varying R0</span></div><div class='output co'>#&gt; <span class='message'>Summarising forecast cases</span></div><div class='output co'>#&gt; <span class='message'>Estimate time-varying rate of growth</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: ‘purrr’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:data.table’:</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    transpose</span></div><div class='input'>                       
-<span class='kw'>estimates</span>                                                             </div><div class='output co'>#&gt; $R0
+<span class='kw'>estimates</span>                                                             
+</div><div class='output co'>#&gt; $R0
 #&gt;                   type       date rt_type    bottom      top     lower
 #&gt;  1: infection_upscaled 2020-01-08 nowcast 1.1631424 2.732865 1.1631424
 #&gt;  2: infection_upscaled 2020-01-09 nowcast 1.0492720 2.735856 2.1404290

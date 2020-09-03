@@ -153,7 +153,8 @@ measure of the goodness of fit.</p>
 <span class='kw'>cases</span> <span class='op'>&lt;-</span> <span class='kw'>data.table</span>::<span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/setDT.html'>setDT</a></span>(<span class='kw'>EpiSoon</span>::<span class='kw'><a href='https://rdrr.io/pkg/EpiSoon/man/example_obs_cases.html'>example_obs_cases</a></span>)[, 
                           <span class='kw'>cases</span> <span class='op'>:=</span> <span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span>(<span class='kw'>cases</span>)]
 
-<span class='fu'>estimate_little_r</span>(<span class='kw'>cases</span>)</div><div class='output co'>#&gt;            r          sd  fit_meas
+<span class='fu'>estimate_little_r</span>(<span class='kw'>cases</span>)
+</div><div class='output co'>#&gt;            r          sd  fit_meas
 #&gt; 1: 0.1363544 0.003767123 0.9787982</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
