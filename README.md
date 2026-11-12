@@ -1,6 +1,8 @@
 
 # EpiNow: Estimate realtime case counts and time-varying epidemiological parameters
 
+> **Archived.** No longer maintained; last updated October 2020. Superseded by [EpiNow2](https://github.com/epiforecasts/EpiNow2).
+
 [![R-CMD-check](https://github.com/epiforecasts/EpiNow/workflows/R-CMD-check/badge.svg)](https://github.com/epiforecasts/EpiNow/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/epiforecasts/EpiNow/branch/master/graph/badge.svg)](https://codecov.io/gh/epiforecasts/EpiNow?branch=master)
